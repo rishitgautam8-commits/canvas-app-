@@ -200,6 +200,10 @@ function Home() {
   const [liveArtists, setLiveArtists] = useState<Artist[]>([]);
   const [, setLoadingArtists] = useState(true);
 
+  const handleSelectArtist = (artist: Artist) => {
+    setSelectedArtist(artist);
+  };
+
   // Sidebar Filter States
   const [sortBy, setSortBy] = useState('Best match');
   const [maxBudget, setMaxBudget] = useState(65000);
@@ -493,6 +497,10 @@ function Home() {
         .insert([bookingData]);
 
       if (error) throw error;
+
+      const handleSelectArtist = (artist: Artist) => {
+        setSelectedArtist(artist);
+      };
       
       setSent(true);
     } catch (error: any) {
@@ -783,13 +791,13 @@ function Home() {
                       {uniqueArtists.map((artist, index) => (
   <ArtistCard
     key={artist.id || index}
-    name={artist.name || artist.fullName || "Artist"}
-    image={artist.image || artist.profileImage || "https://picsum.photos/800/1000"}
+    name={artist.name}
+    image={artist.image}
     hoverImage={artist.hoverImage}
     portfolioImages={artist.portfolio?.map((p) => p.image)}
-    startingPrice={artist.startingPrice || "Starts at ₹5,000"}
+    startingPrice={artist.startingPrice}
     tags={artist.tags}
-    onClick={() => handleSelectArtist(artist)}
+    onClick={() => handleSelectArtist(artist)} // <-- This triggers the click
   />
 ))}
                     </div>
