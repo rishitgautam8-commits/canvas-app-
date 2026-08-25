@@ -509,140 +509,128 @@ function Home() {
   };
 
   return (
-    <div className="relative min-h-[100dvh] overflow-x-hidden text-white bg-[#0A0510]">
+    <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
       
-      <HeroBackdrop />
-      
-      <section className="relative min-h-[95vh] flex flex-col z-10 overflow-hidden">
+      {/* 1. The Premium Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between px-6 md:px-12 h-[72px] bg-[rgba(251,248,242,0.82)] backdrop-blur-md border-b border-[rgba(201,164,99,0.35)] shadow-sm">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollTo('top')}>
+          <div className="bg-white rounded-lg w-10 h-10 md:w-11 md:h-11 flex items-center justify-center shadow-[0_1px_2px_rgba(21,4,32,0.05)] p-1">
+            {/* Fallback image in case canvas-white.png isn't in your public folder yet */}
+            <img src="/canvas-white.png" alt="Canvas" className="w-full h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+          </div>
+          <span className="font-serif text-xl md:text-2xl font-semibold text-[var(--canvas-rp)]">Canvas | Hyderabad</span>
+        </div>
         
-        <header className="relative z-50 border-b border-white/10 bg-transparent" onMouseLeave={() => setDiscoverOpen(false)}>
-          <nav className="mx-auto flex max-w-[1400px] items-center justify-between px-5 py-5 sm:px-8 lg:px-12" aria-label="Primary navigation">
-            <button type="button" onClick={() => scrollTo('top')} className="text-[26px] font-black tracking-[0.2em] uppercase" data-testid="button-logo">
-              CANVAS
-            </button>
-            <div className="hidden items-center gap-10 md:flex">
-              <button
-                type="button"
-                onMouseEnter={() => setDiscoverOpen(true)}
-                onClick={() => setDiscoverOpen((open) => !open)}
-                className="text-xs font-bold uppercase tracking-[0.15em] text-white/70 hover:text-white transition-colors"
-              >
-                Discover
-              </button>
-              <button
-                type="button"
-                onMouseEnter={() => setDiscoverOpen(false)}
-                onClick={() => scrollTo('journal')}
-                className="text-xs font-bold uppercase tracking-[0.15em] text-white/70 hover:text-white transition-colors"
-              >
-                The Journal
-              </button>
-              <button
-                type="button"
-                onMouseEnter={() => setDiscoverOpen(false)}
-                onClick={() => scrollTo('standard')}
-                className="text-xs font-bold uppercase tracking-[0.15em] text-white/70 hover:text-white transition-colors"
-              >
-                Our Standard
-              </button>
+        <div className="hidden md:flex gap-9">
+          <a onClick={() => scrollTo('top')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors border-b border-transparent hover:border-[var(--canvas-g)] pb-1">Home</a>
+          <a onClick={() => scrollTo('discover')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors">Browse artists</a>
+          <a onClick={() => scrollTo('standard')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors">Our Standard</a>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {session ? (
+            <>
+              <button onClick={() => setLocation('/dashboard')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] transition-colors hidden sm:block">Dashboard</button>
+              <button onClick={handleSignOut} className="bg-[var(--canvas-g)] hover:bg-[#D9B86E] text-[var(--canvas-dp)] px-5 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-[0_10px_30px_-8px_rgba(201,164,99,0.4)] hover:-translate-y-px">Sign Out</button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] transition-colors">Log in</button>
+              <button onClick={() => setAuthOpen(true)} className="bg-[var(--canvas-g)] hover:bg-[#D9B86E] text-[var(--canvas-dp)] px-5 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-[0_10px_30px_-8px_rgba(201,164,99,0.4)] hover:-translate-y-px">Join Canvas</button>
+            </>
+          )}
+          <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-[var(--canvas-rp)] md:hidden">
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="fixed top-[72px] left-0 right-0 z-[190] bg-[var(--canvas-iv)] border-b border-[var(--canvas-bd)] p-6 flex flex-col gap-4 shadow-lg md:hidden"
+          >
+            {session && <a onClick={() => { setLocation('/dashboard'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)] border-b border-[var(--canvas-bd)] pb-3">Dashboard</a>}
+            <a onClick={() => { scrollTo('top'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)]">Home</a>
+            <a onClick={() => { scrollTo('discover'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)]">Browse artists</a>
+            <a onClick={() => { scrollTo('standard'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)]">Our Standard</a>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 2. The Clean Ivory Hero Section */}
+      <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[72px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
+        <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
+          <div className="flex items-center gap-3 text-[11px] font-medium tracking-[0.16em] uppercase text-[var(--canvas-gd)] mb-7">
+            <div className="w-[26px] h-[1px] bg-gradient-to-r from-[var(--canvas-g)] to-transparent"></div>
+            AI-powered beauty matching
+          </div>
+          
+          <h1 className="font-serif text-[40px] md:text-[54px] lg:text-[64px] font-semibold leading-[1.06] tracking-tight text-[var(--canvas-rp)] mb-6">
+            Hyderabad's Premium<br/>
+            <em className="italic not-italic text-transparent bg-clip-text bg-gradient-to-r from-[var(--canvas-gd)] via-[var(--canvas-g)] to-[var(--canvas-gd)]">Beauty Match</em>
+          </h1>
+          
+          <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-3">
+            Upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.
+          </p>
+          <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-8">
+            The exclusive AI-powered bridal and beauty booking platform for Hyderabad and Cyberabad.
+          </p>
+          
+          <div className="flex gap-4 flex-wrap">
+            <button onClick={() => scrollTo('demo-search')} className="bg-[var(--canvas-g)] hover:bg-[#D9B86E] text-[var(--canvas-dp)] px-8 py-3.5 rounded-lg text-[14px] font-medium transition-all shadow-[0_10px_30px_-8px_rgba(201,164,99,0.4)] hover:-translate-y-0.5">Try the Live Demo →</button>
+            <button onClick={() => scrollTo('standard')} className="bg-transparent hover:bg-[rgba(201,164,99,0.12)] border border-[var(--canvas-g)] text-[var(--canvas-gd)] px-7 py-3 rounded-lg text-[14px] transition-all hover:-translate-y-0.5">How it works</button>
+          </div>
+          
+          {/* Featured Artists Avatars */}
+          <div className="flex items-center gap-3 mt-10">
+            <div className="flex">
+              <div className="w-8 h-8 rounded-full border-2 border-[var(--canvas-iv)] flex items-center justify-center text-[10px] font-semibold bg-[#EDE0F5] text-[#6B2D8B] -ml-0 shadow-sm z-40">PK</div>
+              <div className="w-8 h-8 rounded-full border-2 border-[var(--canvas-iv)] flex items-center justify-center text-[10px] font-semibold bg-[#2D0A3E] text-[#C4A8D4] -ml-2 shadow-sm z-30">TU</div>
+              <div className="w-8 h-8 rounded-full border-2 border-[var(--canvas-iv)] flex items-center justify-center text-[10px] font-semibold bg-[#F7E7B3] text-[#8B6914] -ml-2 shadow-sm z-20">GA</div>
+              <div className="w-8 h-8 rounded-full border-2 border-[var(--canvas-iv)] flex items-center justify-center text-[10px] font-semibold bg-[#6B2D8B] text-[#EDE0F5] -ml-2 shadow-sm z-10">ER</div>
             </div>
-            
-            {session ? (
-              <div className="hidden items-center gap-6 sm:flex">
-                <button 
-                  type="button" 
-                  onClick={() => setLocation('/dashboard')} 
-                  className="text-xs font-bold uppercase tracking-[0.15em] hover:text-[#B66CF2] transition-colors"
-                >
-                  Dashboard
-                </button>
-                <button 
-                  type="button" 
-                  onClick={handleSignOut} 
-                  className="text-xs font-bold uppercase tracking-[0.15em] text-white/50 hover:text-white transition-colors"
-                >
-                  Sign Out
-                </button>
-              </div>
-            ) : (
-              <button 
-                type="button" 
-                onClick={() => setAuthOpen(true)} 
-                className="hidden sm:flex items-center justify-center border border-white bg-white text-black px-8 py-3 text-xs font-bold uppercase tracking-[0.15em] hover:bg-white/10 hover:text-white transition-all"
-              >
-                Sign In
-              </button>
-            )}
-            
-            <button type="button" onClick={() => setMenuOpen((open) => !open)} className="p-2 text-white md:hidden">
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </nav>
+            <p className="text-[12.5px] text-[var(--canvas-mut)]"><strong className="text-[var(--canvas-rp)] font-semibold">Verified premium artists</strong> across Hyderabad</p>
+          </div>
+        </div>
 
-          <AnimatePresence>
-            {discoverOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className="absolute inset-x-0 top-full z-40 border-b border-white/10 bg-[#0A0510]/95 backdrop-blur-xl"
-              >
-                <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 lg:px-12">
-                  <div className="flex flex-wrap gap-8 border-b border-white/10 pb-8">
-                    {discoverCategories.map((category) => (
-                      <button
-                        key={category.id}
-                        onMouseEnter={() => setActiveCategory(category.id)}
-                        onClick={() => setActiveCategory(category.id)}
-                        className={`text-xs font-bold uppercase tracking-[0.15em] pb-2 border-b-2 transition-colors ${
-                          activeCategory === category.id ? 'border-white text-white' : 'border-transparent text-white/40 hover:text-white'
-                        }`}
-                      >
-                        {category.label}
-                      </button>
-                    ))}
-                  </div>
+        <div className="flex flex-col items-center justify-center py-10 md:py-16 relative hidden md:flex animate-float-in delay-2">
+          {/* Note: Ensure you have a placeholder image named canvas-purple.png in your public folder! */}
+          <img src="/canvas-purple.png" alt="Canvas Marketplace" className="w-full max-w-[400px] h-auto object-cover rounded-[32px] shadow-[0_30px_60px_-14px_rgba(21,4,32,0.26)]" onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80' }} />
+        </div>
+      </section>
 
-                  <div className="mt-10 grid grid-cols-2 gap-8 sm:grid-cols-4">
-                    {getFeaturedArtistsLocal(activeCategory).map((artist) => (
-                      <button
-                        key={artist.id}
-                        onClick={() => { setSelectedArtist(artist); setDiscoverOpen(false); }}
-                        className="group text-left"
-                      >
-                        <div className="aspect-[4/5] w-full overflow-hidden bg-[#150A26] mb-5 border border-black/5">
-  <img 
-    src={artist.image} 
-    alt={artist.name} 
-    loading="lazy"
-    onError={handleImgError}
-    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 text-transparent" 
-  />
-</div>
-                        <p className="mt-4 text-sm font-bold uppercase tracking-widest">{artist.name}</p>
-                        <p className="mt-1 text-xs text-white/50">{artist.startingPrice}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </header>
-
-        <div id="top" className="relative z-10 flex-1 flex flex-col justify-center w-full px-4 sm:px-8 pb-20 pt-10">
-        <HeroSearch
-          value={search}
-          onChange={handleSearchChange}
-          onSubmit={(vals) => {
-            setSearch(vals);
-            setHasSearched(true);
-            scrollTo('discover');
-          }}
-          isAuthenticated={!!session}
-          onAuthRequired={() => setAuthOpen(true)}
-        />
+      {/* 3. The Live Demo Search Module */}
+      <section id="demo-search" className="relative z-20 bg-[var(--canvas-cr)] border-y border-[var(--canvas-bd)] py-20 px-6 md:px-12">
+        <div className="max-w-[800px] mx-auto">
+          <div className="text-center mb-10">
+            <div className="flex items-center justify-center gap-3 text-[11px] font-medium tracking-[0.16em] uppercase text-[var(--canvas-g)] mb-4">
+              <div className="w-[26px] h-[1px] bg-gradient-to-r from-transparent to-[var(--canvas-g)]"></div>
+              Live Prototype
+              <div className="w-[26px] h-[1px] bg-gradient-to-r from-[var(--canvas-g)] to-transparent"></div>
+            </div>
+            <h2 className="font-serif text-3xl md:text-[40px] text-[var(--canvas-rp)] mb-4 tracking-tight">The Deterministic Matching Engine</h2>
+            <p className="text-[15px] text-[var(--canvas-mut)] max-w-[600px] mx-auto leading-[1.6]">
+              Test the AI routing logic. Input client parameters below to instantly route to verified artists based on hyper-local data and specialization.
+            </p>
+          </div>
+          
+          <HeroSearch
+            value={search}
+            onChange={handleSearchChange}
+            onSubmit={(vals) => {
+              setSearch(vals);
+              setHasSearched(true);
+              scrollTo('discover');
+            }}
+            isAuthenticated={!!session}
+            onAuthRequired={() => setAuthOpen(true)}
+          />
         </div>
       </section>
 
