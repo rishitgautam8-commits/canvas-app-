@@ -12,9 +12,9 @@ export type ArtistTint = {
 
 export type ArtistCardProps = {
   name: string;
-  image: string;                    // Default profile headshot
-  hoverImage?: string;             // Legacy single hover image support
-  portfolioImages?: string[];      // Array of portfolio photos to cycle through on hover
+  image: string;
+  hoverImage?: string;
+  portfolioImages?: string[];
   hoverVideo?: string;
   startingPrice?: string;
   tags?: string[];
@@ -39,7 +39,6 @@ export function ArtistCard({
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Combine portfolio array or fallback to single hoverImage
   const imagesList = portfolioImages.length > 0 
     ? portfolioImages 
     : hoverImage 
@@ -48,13 +47,12 @@ export function ArtistCard({
 
   const hasPortfolio = imagesList.length > 0 || Boolean(hoverVideo);
 
-  // Automatically cycle through portfolio images while hovered
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (hovered && imagesList.length > 1) {
       interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % imagesList.length);
-      }, 1800); // Changes image every 1.8 seconds on hover
+      }, 1800);
     }
     return () => clearInterval(interval);
   }, [hovered, imagesList.length]);
@@ -70,7 +68,7 @@ export function ArtistCard({
 
   const handleLeave = () => {
     setHovered(false);
-    setCurrentIndex(0); // Reset back to first portfolio frame on mouse leave
+    setCurrentIndex(0);
     if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
@@ -87,10 +85,10 @@ export function ArtistCard({
       <button
         type="button"
         onClick={onClick}
-        className="w-full bg-transparent text-left outline-none"
+        className="w-full bg-transparent text-left outline-none cursor-pointer"
         aria-label={`View ${name}'s profile`}
       >
-        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl">
+        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-neutral-100">
           {/* Default Profile Headshot */}
           <motion.img
             src={image}
@@ -153,18 +151,22 @@ export function ArtistCard({
         </div>
 
         <div className="mt-5">
-          <h3 className="serif text-[1.85rem] leading-none tracking-[-0.03em] text-white">
+          {/* Artist Name - Changed text-white to text-neutral-900 */}
+          <h3 className="serif text-[1.85rem] leading-none tracking-[-0.03em] text-neutral-900">
             {name}
           </h3>
-          <p className="mt-2 font-sans text-[13px] font-medium tracking-[0.04em] text-white/55">
+          
+          {/* Starting Price - Changed text-white/55 to text-neutral-500 */}
+          <p className="mt-2 font-sans text-[13px] font-medium tracking-[0.04em] text-neutral-500">
             {startingPrice}
           </p>
 
+          {/* Tags */}
           <div className="mt-4 flex flex-wrap gap-1.5">
             {tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full border border-white/20 bg-transparent px-3 py-1 font-sans text-[10px] font-medium tracking-[0.14em] text-white/65"
+                className="rounded-full border border-neutral-300 bg-transparent px-3 py-1 font-sans text-[10px] font-medium tracking-[0.14em] text-neutral-700"
               >
                 {tag}
               </span>
