@@ -196,6 +196,11 @@ function Home() {
   const [sent, setSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+
+  const handleSelectArtist = (artist: Artist) => {
+    console.log("Artist card clicked:", artist.name); // Check your browser console (F12) when clicking!
+    setSelectedArtist(artist);
+  };
   
   const [liveArtists, setLiveArtists] = useState<Artist[]>([]);
   const [, setLoadingArtists] = useState(true);
@@ -493,11 +498,6 @@ function Home() {
         .insert([bookingData]);
 
       if (error) throw error;
-
-      const handleSelectArtist = (artist: Artist) => {
-        console.log("Artist card clicked:", artist.name); // Check your browser console (F12) when clicking!
-        setSelectedArtist(artist);
-      };
       
       setSent(true);
     } catch (error: any) {
