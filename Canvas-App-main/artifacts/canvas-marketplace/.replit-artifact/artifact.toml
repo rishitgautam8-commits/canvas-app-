@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Canvas Beauty Marketplace"
+description = "A luxury beauty artist marketplace landing page where clients discover a curated shortlist of makeup and hair artists by name, city, and feeling."
+version = "1.0.0"
+id = "artifacts/canvas-marketplace"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25689
+
+[services.development]
+run = "pnpm --filter @workspace/canvas-marketplace run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/canvas-marketplace", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/canvas-marketplace/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25689"
+BASE_PATH = "/"

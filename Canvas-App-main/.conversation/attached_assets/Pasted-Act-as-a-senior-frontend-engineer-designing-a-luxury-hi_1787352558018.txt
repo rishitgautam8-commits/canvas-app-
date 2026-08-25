@@ -1,0 +1,34 @@
+Act as a senior frontend engineer designing a luxury, high-fashion web application. Build the landing page for "Canvas", an exclusive beauty artist marketplace. 
+
+STRICT DESIGN SYSTEM & AESTHETIC:
+- Global Background: Do not use solid colors. Use exactly this CSS on the main wrapper: `background: radial-gradient(circle at 50% 20%, #e0aaff 0%, #7b2cbf 35%, #10002b 100%); background-attachment: fixed;`
+- UI Components (Glassmorphism): Every card, navbar, and input field must use a frosted glass effect. Use Tailwind classes like: `bg-white/5 backdrop-blur-md border border-white/10 shadow-xl`. No solid white or solid black backgrounds on any components.
+- Typography: Use an elegant Serif font (like Playfair Display) for all major headings and italics. Use a clean Sans-Serif (like Inter or Plus Jakarta Sans) in uppercase with wide tracking for tags, metadata, and buttons. 
+- Text Color: Primary text must be crisp white. Secondary text should be a soft translucent white (white/70).
+
+LAYOUT REQUIREMENTS:
+1. Floating Minimal Header: 
+- Logo "Canvas" on the left.
+- Center links: "Discover", "The Journal", "Our Standard".
+- Right side: A primary glass button "Start a brief ↗".
+
+2. Hero Section:
+- A massive, elegant serif headline: "Find your person."
+- Sub-headline: "Not a directory. A short list of artists whose work has something to say."
+
+3. Search & Filter Bar:
+- A wide, frosted glass search input with placeholder: "Search by name, city, or feeling..."
+- Below the search, small glass pill buttons for categories: "All 30", "Makeup 15", "Bridal 10", "Hair 5".
+
+4. Curated Artist Grid:
+- A responsive 3-column grid of artist profile cards.
+- Each Card MUST contain:
+  - A high-quality placeholder image of luxury beauty/makeup.
+  - Top Left Overlay: A glass tag for the category (e.g., "MAKE UP").
+  - Top Right Overlay: A minimalist heart icon.
+  - Below Image: Location in uppercase (e.g., "JUBILEE HILLS").
+  - Artist Name in bold Serif.
+  - Style Signature in italics (e.g., "Sculpted skin, quiet glamour").
+  - A footer row with "🕒 NEXT OPENING • 24 AUG" on the left, and a star rating ("⭐ 5.0") on the right.
+
+Make the interface feel fluid, expensive, and deeply immersive.
