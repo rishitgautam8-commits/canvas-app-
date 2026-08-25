@@ -196,6 +196,7 @@ function Home() {
   const [sent, setSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+  const [visibleCount, setVisibleCount] = useState(9);
 
   const handleSelectArtist = (artist: Artist) => {
     console.log("Artist card clicked:", artist.name); // Check your browser console (F12) when clicking!
@@ -770,25 +771,41 @@ function Home() {
 
                 <motion.div style={{ y: gridY, willChange: 'transform' }}>
                   {uniqueArtists.length > 0 ? (
-                    <div className="grid gap-x-6 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
-                      {uniqueArtists.map((artist, index) => (
-  <ArtistCard
-    key={artist.id || index}
-    name={artist.name}
-    image={artist.image}
-    hoverImage={artist.hoverImage}
-    portfolioImages={artist.portfolio?.map((p) => (typeof p === 'string' ? p : p?.image)).filter(Boolean)}
-    startingPrice={artist.startingPrice}
-    tags={artist.tags}
-    onClick={() => handleSelectArtist(artist)}
-  />
-))}
-                    </div>
+                    <>
+                      <div className="grid gap-x-6 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
+                        {/* We slice the array here to only show the visibleCount limit */}
+                        {uniqueArtists.slice(0, visibleCount).map((artist, index) => (
+                          <ArtistCard
+                            key={artist.id || index}
+                            name={artist.name}
+                            image={artist.image}
+                            hoverImage={artist.hoverImage}
+                            portfolioImages={artist.portfolio?.map((p) => (typeof p === 'string' ? p : p?.image)).filter(Boolean)}
+                            startingPrice={artist.startingPrice}
+                            tags={artist.tags}
+                            onClick={() => handleSelectArtist(artist)}
+                          />
+                        ))}
+                      </div>
+                      
+                      {/* Only show the Load More button if there are still hidden artists */}
+                      {visibleCount < uniqueArtists.length && (
+                        <div className="mt-16 flex justify-center">
+                          <button 
+                            type="button"
+                            onClick={() => setVisibleCount(prev => prev + 9)} 
+                            className="border border-[var(--canvas-g)] text-[var(--canvas-gd)] px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[var(--canvas-g)] hover:text-[var(--canvas-dp)] transition-colors shadow-sm"
+                          >
+                            Load More Artists
+                          </button>
+                        </div>
+                      )}
+                    </>
                   ) : (
-                    <div className="flex min-h-[300px] flex-col items-center justify-center border border-black/10 bg-[#F4F4F4] px-6 text-center">
-                      <p className="text-3xl font-black uppercase tracking-tighter text-black">NO ARTISTS FOUND</p>
-                      <p className="mt-4 max-w-sm text-sm text-black/60 uppercase tracking-widest">Adjust your budget or city filters</p>
-                      <button type="button" onClick={() => { setMaxBudget(65000); setCityFilters({'Jubilee Hills / Banjara': true, 'HITEC City / Madhapur': true, 'Gachibowli': true, 'Secunderabad': true}); setSelectedCategoryFilter('all'); }} className="mt-8 border border-black bg-black px-8 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-transparent hover:text-black transition-colors">
+                    <div className="flex min-h-[300px] flex-col items-center justify-center border border-[var(--canvas-bd)] bg-white px-6 text-center shadow-sm">
+                      <p className="text-3xl font-serif italic tracking-tight text-[var(--canvas-rp)]">No artists found</p>
+                      <p className="mt-4 max-w-sm text-sm text-[var(--canvas-mut)] uppercase tracking-widest">Adjust your budget or city filters</p>
+                      <button type="button" onClick={() => { setMaxBudget(65000); setCityFilters({'Jubilee Hills / Banjara': true, 'HITEC City / Madhapur': true, 'Gachibowli': true, 'Secunderabad': true}); setSelectedCategoryFilter('all'); setVisibleCount(9); }} className="mt-8 border border-[var(--canvas-rp)] bg-[var(--canvas-rp)] px-8 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-transparent hover:text-[var(--canvas-rp)] transition-colors">
                         Reset Filters
                       </button>
                     </div>
