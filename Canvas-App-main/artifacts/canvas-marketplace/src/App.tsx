@@ -92,28 +92,38 @@ function dedupeKey(name: string, city: string) {
 // Strictly grabs ONLY your original 100 constructed artists!
 // .slice(0, 100) is the hard cap — even if artistsData ever grows past 100 entries,
 // this array can never contribute more than exactly 100 profiles.
-const local100Artists: Artist[] = artistsData.slice(0, 100).map((a: any) => ({
-  id: String(a.id),
-  name: a.name,
-  category: a.category || 'Bridal & Wedding',
-  services: [a.specialty || 'Makeup Artist', "Makeup Artist"],
-  city: a.city || "Jubilee Hills",
-  location: `${a.city || "Jubilee Hills"}, Hyderabad`,
-  maxTravelKm: 50,
-  pricePerSession: a.price || 15000,
-  startingPrice: `₹${(a.price || 15000).toLocaleString('en-IN')}`,
-  rating: a.rating || 4.9,
-  reviewCount: a.reviewsCount || 24,
-  reviewsCount: a.reviewsCount || 24,
-  image: a.profileImage, 
-  hoverImage: a.portfolio?.[0] || a.profileImage,
-  tags: [a.specialty || 'Custom Styling'],
-  bio: a.bio || `Expert in ${a.specialty}. Available for bookings.`,
-  signature: a.specialty || 'Signature Aesthetic',
-  portfolio: a.portfolio || [], 
-  addons: a.addons || [],       
-  isVerified: true
-}));
+// 1. STRICT FILTER: Only allow profiles that have a name AND an actual portfolio array with images!
+// 2. SLICE: Keep the top 24 BEST profiles so Unsplash doesn't block the IP.
+// Strictly grabs ONLY your original 100 constructed artists!
+// .slice(0, 100) is the hard cap — even if artistsData ever grows past 100 entries,
+// this array can never contribute more than exactly 100 profiles.
+const local100Artists: Artist[] = artistsData.slice(0, 100).map((a: any) => {
+  // Safely extract string URLs from the portfolio array whether they are objects or strings
+  const safePortfolio = (a.portfolio || []).map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean);
+
+  return {
+    id: String(a.id),
+    name: a.name,
+    category: a.category || 'Bridal & Wedding',
+    services: [a.specialty || 'Makeup Artist', "Makeup Artist"],
+    city: a.city || "Jubilee Hills",
+    location: `${a.city || "Jubilee Hills"}, Hyderabad`,
+    maxTravelKm: 50,
+    pricePerSession: a.price || 15000,
+    startingPrice: `₹${(a.price || 15000).toLocaleString('en-IN')}`,
+    rating: a.rating || 4.9,
+    reviewCount: a.reviewsCount || 24,
+    reviewsCount: a.reviewsCount || 24,
+    image: a.profileImage, 
+    hoverImage: safePortfolio.length > 0 ? safePortfolio[0] : a.profileImage,
+    tags: [a.specialty || 'Custom Styling'],
+    bio: a.bio || `Expert in ${a.specialty}. Available for bookings.`,
+    signature: a.specialty || 'Signature Aesthetic',
+    portfolio: safePortfolio, 
+    addons: a.addons || [],       
+    isVerified: true
+  };
+});
 
 function getEstimatedDistance(clientLoc: string, artistCity: string, artistId: string): number {
   const locLower = clientLoc.toLowerCase();
