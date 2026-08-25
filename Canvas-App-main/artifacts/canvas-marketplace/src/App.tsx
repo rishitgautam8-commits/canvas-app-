@@ -9,7 +9,7 @@ import { AnimatePresence, motion, useScroll, useTransform, useReducedMotion } fr
 import { ArtistCard } from '@/components/ArtistCard';
 import { HeroSearch, type HeroSearchValue } from '@/components/HeroSearch';
 import { HeroBackdrop } from '@/components/HeroBackdrop';
-import { getDefaultServicesForCategory, type Artist } from './data/dummyArtists';
+import { getDefaultServicesForCategory, type Artist } from './Data/dummyArtists';
 import { ProfileModal } from '@/components/ProfileModal';
 import { AuthModal } from '@/components/AuthModal';
 import NotFound from '@/pages/not-found';
@@ -32,7 +32,7 @@ function getSmartMatchPercentage(file: File | null | undefined, artistId: string
   return 85 + (Math.abs(hash) % 14);
 }
 
-import { artistsData } from './Data/artistsData'; 
+import { artistsData } from './Data/artistsData';
 
 const queryClient = new QueryClient();
 
