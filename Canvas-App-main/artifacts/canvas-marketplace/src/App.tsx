@@ -219,11 +219,17 @@ function Home() {
   // Sidebar Filter States
   const [sortBy, setSortBy] = useState('Best match');
   const [maxBudget, setMaxBudget] = useState(65000);
-  const [cityFilters, setCityFilters] = useState<{ [key: string]: boolean }>({
-    'Jubilee Hills / Banjara': true,
-    'HITEC City / Madhapur': true,
-    'Gachibowli / Kondapur': true,
-    'Secunderabad / Begumpet': true,
+  const [cityFilters, setCityFilters] = useState<Record<string, boolean>>({
+    'Jubilee Hills': true,
+    'Banjara Hills': true,
+    'HITEC City': true,
+    'Madhapur': true,
+    'Gachibowli': true,
+    'Kondapur': true,
+    'Film Nagar': true,
+    'Kukatpally': true,
+    'Begumpet': true,
+    'Secunderabad': true
   });
 
   const editorialImages = [
@@ -756,24 +762,40 @@ function Home() {
                 </div>
 
                 {/* 3. City Checkboxes */}
-                <div>
-                  <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-black/70 mb-4">
-                    City
+                {/* CITY */}
+            <div className="mb-10">
+              <h3 className="mb-5 text-[10px] font-black uppercase tracking-[0.3em] text-[#150420]">
+                City
+              </h3>
+              <div className="space-y-4">
+                {Object.keys(cityFilters).map((city) => (
+                  <label key={city} className="flex cursor-pointer items-center group">
+                    <div 
+                      onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))}
+                      className={`mr-4 flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border ${
+                        cityFilters[city]
+                          ? 'border-[#BA965B] bg-[#BA965B]'
+                          : 'border-[#E7DCC8] group-hover:border-[#BA965B]'
+                      } transition-colors`}
+                    >
+                      {cityFilters[city] && (
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      )}
+                    </div>
+                    <span 
+                      onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))}
+                      className={`text-[11px] font-bold uppercase tracking-wider ${
+                        cityFilters[city] ? 'text-[#150420]' : 'text-[#5C3D6E]/60'
+                      } transition-colors`}
+                    >
+                      {city}
+                    </span>
                   </label>
-                  <div className="space-y-3">
-                    {Object.entries(cityFilters).map(([cityName, checked]) => (
-                      <label key={cityName} className="flex items-center gap-3 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={(e) => setCityFilters({ ...cityFilters, [cityName]: e.target.checked })}
-                          className="w-4 h-4 accent-black rounded-none"
-                        />
-                        <span className="text-xs font-bold uppercase tracking-wider text-black/80">{cityName}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+                ))}
+              </div>
+            </div>
 
               </div>
 
@@ -816,10 +838,18 @@ function Home() {
                       )}
                     </>
                   ) : (
-                    <div className="flex min-h-[300px] flex-col items-center justify-center border border-[var(--canvas-bd)] bg-white px-6 text-center shadow-sm">
+<div className="flex min-h-[300px] flex-col items-center justify-center border border-[var(--canvas-bd)] bg-white px-6 text-center shadow-sm">
                       <p className="text-3xl font-serif italic tracking-tight text-[var(--canvas-rp)]">No artists found</p>
                       <p className="mt-4 max-w-sm text-sm text-[var(--canvas-mut)] uppercase tracking-widest">Adjust your budget or city filters</p>
-                      <button type="button" onClick={() => { setMaxBudget(65000); setCityFilters({'Jubilee Hills / Banjara': true, 'HITEC City / Madhapur': true, 'Gachibowli': true, 'Secunderabad': true}); setSelectedCategoryFilter('all'); setVisibleCount(9); }} className="mt-8 border border-[var(--canvas-rp)] bg-[var(--canvas-rp)] px-8 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-transparent hover:text-[var(--canvas-rp)] transition-colors">
+                      <button 
+                        type="button" 
+                        onClick={() => { 
+                          setMaxBudget(65000); 
+                          setCityFilters({ 'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true, 'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true, 'Begumpet': true, 'Secunderabad': true }); 
+                          setVisibleCount(9);
+                        }} 
+                        className="mt-8 border border-[var(--canvas-rp)] bg-[var(--canvas-rp)] px-8 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-transparent hover:text-[var(--canvas-rp)] transition-colors"
+                      >
                         Reset Filters
                       </button>
                     </div>
