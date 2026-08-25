@@ -791,10 +791,10 @@ function Home() {
     name={artist.name}
     image={artist.image}
     hoverImage={artist.hoverImage}
-    portfolioImages={artist.portfolio?.map((p) => p.image)}
+    portfolioImages={artist.portfolio?.map((p) => (typeof p === 'string' ? p : p?.image)).filter(Boolean)}
     startingPrice={artist.startingPrice}
     tags={artist.tags}
-    onClick={() => handleSelectArtist(artist)} // <-- This triggers the click
+    onClick={() => handleSelectArtist(artist)}
   />
 ))}
                     </div>
