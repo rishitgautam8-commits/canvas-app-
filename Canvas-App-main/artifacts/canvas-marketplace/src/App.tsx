@@ -211,8 +211,8 @@ function Home() {
   const [cityFilters, setCityFilters] = useState<{ [key: string]: boolean }>({
     'Jubilee Hills / Banjara': true,
     'HITEC City / Madhapur': true,
-    'Gachibowli': true,
-    'Secunderabad': true,
+    'Gachibowli / Kondapur': true,
+    'Secunderabad / Begumpet': true,
   });
 
   const editorialImages = [
