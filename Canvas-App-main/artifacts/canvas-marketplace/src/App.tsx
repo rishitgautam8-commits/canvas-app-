@@ -781,20 +781,17 @@ function Home() {
                   {uniqueArtists.length > 0 ? (
                     <div className="grid gap-x-6 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
                       {uniqueArtists.map((artist, index) => (
-                        <motion.div
-                          key={artist.id}
-                          initial={prefersReducedMotion ? undefined : { opacity: 0, y: 28 }}
-                          whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
-                          viewport={{ once: true, margin: '-80px' }}
-                          transition={{ duration: 0.6, delay: Math.min(index * 0.05, 0.2), ease: [0.16, 1, 0.3, 1] }}
-                        >
-                          <ArtistCard
-                            artist={artist}
-                            portfolioImages={artist.portfolio?.map((p) => p.image)}
-                            onClick={() => setSelectedArtist(artist)}
-                          />
-                        </motion.div>
-                      ))}
+  <ArtistCard
+    key={artist.id || index}
+    name={artist.name || artist.fullName || "Artist"}
+    image={artist.image || artist.profileImage || "https://picsum.photos/800/1000"}
+    hoverImage={artist.hoverImage}
+    portfolioImages={artist.portfolio?.map((p) => p.image)}
+    startingPrice={artist.startingPrice || "Starts at ₹5,000"}
+    tags={artist.tags}
+    onClick={() => handleSelectArtist(artist)}
+  />
+))}
                     </div>
                   ) : (
                     <div className="flex min-h-[300px] flex-col items-center justify-center border border-black/10 bg-[#F4F4F4] px-6 text-center">
