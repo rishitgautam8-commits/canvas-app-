@@ -514,9 +514,8 @@ function Home() {
       {/* 1. The Premium Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between px-6 md:px-12 h-[72px] bg-[rgba(251,248,242,0.82)] backdrop-blur-md border-b border-[rgba(201,164,99,0.35)] shadow-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollTo('top')}>
-          <div className="bg-white rounded-lg w-10 h-10 md:w-11 md:h-11 flex items-center justify-center shadow-[0_1px_2px_rgba(21,4,32,0.05)] p-1">
-            {/* Fallback image in case canvas-white.png isn't in your public folder yet */}
-            <img src="/canvas-white.png" alt="Canvas" className="w-full h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+          <div className="bg-white rounded-[10px] w-10 h-10 md:w-11 md:h-11 shadow-[0_2px_12px_rgba(0,0,0,0.08)] flex items-center justify-center">
+            <span className="font-serif italic text-xl text-[var(--canvas-gd)] opacity-80">C</span>
           </div>
           <span className="font-serif text-xl md:text-2xl font-semibold text-[var(--canvas-rp)]">Canvas | Hyderabad</span>
         </div>
@@ -600,8 +599,7 @@ function Home() {
         </div>
 
         <div className="flex flex-col items-center justify-center py-10 md:py-16 relative hidden md:flex animate-float-in delay-2">
-          {/* Note: Ensure you have a placeholder image named canvas-purple.png in your public folder! */}
-          <img src="/canvas-purple.png" alt="Canvas Marketplace" className="w-full max-w-[400px] h-auto object-cover rounded-[32px] shadow-[0_30px_60px_-14px_rgba(21,4,32,0.26)]" onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80' }} />
+          <img src="https://images.unsplash.com/photo-1615397323098-b8d6013cece8?auto=format&fit=crop&w=800&q=80" alt="Premium Beauty" className="w-full max-w-[460px] h-[340px] object-cover rounded-[32px] shadow-[0_30px_60px_-14px_rgba(21,4,32,0.26)]" />
         </div>
       </section>
 
