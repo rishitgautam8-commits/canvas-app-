@@ -200,10 +200,6 @@ function Home() {
   const [liveArtists, setLiveArtists] = useState<Artist[]>([]);
   const [, setLoadingArtists] = useState(true);
 
-  const handleSelectArtist = (artist: Artist) => {
-    setSelectedArtist(artist);
-  };
-
   // Sidebar Filter States
   const [sortBy, setSortBy] = useState('Best match');
   const [maxBudget, setMaxBudget] = useState(65000);
@@ -499,6 +495,7 @@ function Home() {
       if (error) throw error;
 
       const handleSelectArtist = (artist: Artist) => {
+        console.log("Artist card clicked:", artist.name); // Check your browser console (F12) when clicking!
         setSelectedArtist(artist);
       };
       
