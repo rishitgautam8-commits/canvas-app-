@@ -455,6 +455,7 @@ function Home() {
   const scrollTo = (id: string) => {
     setMenuOpen(false);
     setDiscoverOpen(false);
+    setSelectedArtist(null); // This instantly closes the profile modal!
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 

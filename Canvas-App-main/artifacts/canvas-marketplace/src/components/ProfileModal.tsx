@@ -73,12 +73,12 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
             <div className="flex-1 overflow-y-auto scrollbar-hide p-6 lg:p-12 relative border-r border-white/10">
               
               <button
-                onClick={onClose}
-                className="group sticky top-0 z-20 mb-12 inline-flex items-center gap-3 bg-[#05020A]/90 py-4 pr-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/50 backdrop-blur-md transition-colors hover:text-white"
-              >
-                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
-                BACK TO DIRECTORY
-              </button>
+  onClick={onClose}
+  className="group sticky top-[72px] mt-[72px] z-20 mb-12 inline-flex items-center gap-3 bg-[#05020A]/90 py-4 pr-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/50 backdrop-blur-md transition-colors hover:text-white"
+>
+  <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
+  BACK TO DIRECTORY
+</button>
 
               <div className="mx-auto max-w-5xl pb-24">
                 
