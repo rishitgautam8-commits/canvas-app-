@@ -616,20 +616,23 @@ function Home() {
       </section>
 
       {/* 3. The Live Demo Search Module */}
-      <section id="demo-search" className="relative z-20 bg-[var(--canvas-cr)] border-y border-[var(--canvas-bd)] py-20 px-6 md:px-12">
-        <div className="max-w-[800px] mx-auto">
-          <div className="text-center mb-10">
-            <div className="flex items-center justify-center gap-3 text-[11px] font-medium tracking-[0.16em] uppercase text-[var(--canvas-g)] mb-4">
-              <div className="w-[26px] h-[1px] bg-gradient-to-r from-transparent to-[var(--canvas-g)]"></div>
-              Live Prototype
-              <div className="w-[26px] h-[1px] bg-gradient-to-r from-[var(--canvas-g)] to-transparent"></div>
-            </div>
-            <h2 className="font-serif text-3xl md:text-[40px] text-[var(--canvas-rp)] mb-4 tracking-tight">The Deterministic Matching Engine</h2>
-            <p className="text-[15px] text-[var(--canvas-mut)] max-w-[600px] mx-auto leading-[1.6]">
-              Test the AI routing logic. Input client parameters below to instantly route to verified artists based on hyper-local data and specialization.
-            </p>
+      <section id="demo-search" className="relative z-20 bg-[var(--canvas-cr)] border-y border-[var(--canvas-bd)] pt-20 pb-32">
+        
+        {/* Title Block - Constrained to 800px */}
+        <div className="max-w-[800px] mx-auto px-6 md:px-12 text-center mb-8">
+          <div className="flex items-center justify-center gap-3 text-[11px] font-medium tracking-[0.16em] uppercase text-[var(--canvas-g)] mb-4">
+            <div className="w-[26px] h-[1px] bg-gradient-to-r from-transparent to-[var(--canvas-g)]"></div>
+            Live Prototype
+            <div className="w-[26px] h-[1px] bg-gradient-to-r from-[var(--canvas-g)] to-transparent"></div>
           </div>
-          
+          <h2 className="font-serif text-3xl md:text-[40px] text-[var(--canvas-rp)] mb-4 tracking-tight">The Deterministic Matching Engine</h2>
+          <p className="text-[15px] text-[var(--canvas-mut)] max-w-[600px] mx-auto leading-[1.6]">
+            Test the AI routing logic. Input client parameters below to instantly route to verified artists based on hyper-local data and specialization.
+          </p>
+        </div>
+        
+        {/* Search Component - Full width, overriding old dark theme colors */}
+        <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 [&_.text-\\[\\#B66CF2\\]]:text-[var(--canvas-rp)] [&_.text-white\\/50]:text-[var(--canvas-mut)] [&_.text-white\\/70]:text-[var(--canvas-mut)] [&_h1]:text-white">
           <HeroSearch
             value={search}
             onChange={handleSearchChange}
