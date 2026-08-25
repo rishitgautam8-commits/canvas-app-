@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Search, ArrowRight, Sparkles, Upload } from 'lucide-react';
+import { Search, ArrowRight, Sparkles, Upload, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface HeroSearchValue {
@@ -20,11 +20,18 @@ interface HeroSearchProps {
   isAuthenticated?: boolean;
 }
 
+const HYDERABAD_LOCATIONS = [
+  'Jubilee Hills', 'Banjara Hills', 'HITEC City', 'Gachibowli',
+  'Film Nagar', 'Madhapur', 'Kondapur', 'Somajiguda',
+  'Begumpet', 'Secunderabad', 'Kukatpally', 'Financial District',
+  'Manikonda', 'KBR Park', 'Shamshabad'
+];
+
 const analysisSteps = [
   "Isolating color palettes & lighting undertones...",
   "Mapping facial geometry & aesthetic drape...",
   "Cross-referencing 100 verified studio portfolios...",
-  "Curating optimal matches based on style..."
+  "Curating optimal matches based on style & location..."
 ];
 
 const OCCASIONS = ['Wedding', 'Shoot', 'Party', 'Editorial', 'Everyday'];
@@ -37,6 +44,9 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
   const [currentStep, setCurrentStep] = useState(0);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [activeOccasion, setActiveOccasion] = useState('Wedding');
+  
+  // Re-added location dropdown state
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,6 +56,10 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
     };
     onSubmit(searchContext);
   };
+
+  const filteredLocations = HYDERABAD_LOCATIONS.filter(loc =>
+    loc.toLowerCase().includes((value?.location || '').toLowerCase())
+  );
 
   const handleFileSelected = (file: File) => {
     if (!isAuthenticated) {
@@ -98,35 +112,72 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
   };
 
   return (
-    <div className="w-full max-w-[840px] mx-auto relative z-20 font-sans">
+    <div className="w-full max-w-[960px] mx-auto relative z-20 font-sans">
       
-      {/* Main White Card Container */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-white rounded-[32px] p-8 md:p-14 shadow-[0_20px_50px_-12px_rgba(21,4,32,0.06)] border border-[#F1E9DC]/60 relative overflow-hidden"
+        className="bg-white rounded-[32px] p-8 md:p-14 shadow-[0_20px_50px_-12px_rgba(21,4,32,0.06)] border border-[#F1E9DC]/60 relative overflow-visible"
       >
         <form onSubmit={handleSubmit}>
           
-          {/* Top Search Bar Row */}
-          <div className="flex flex-col sm:flex-row gap-5 mb-10">
-            <div className="flex-1 flex items-center bg-white border border-[#E7DCC8] rounded-[20px] px-6 py-4 shadow-[0_2px_8px_rgba(21,4,32,0.03)] focus-within:border-[#C9A463] focus-within:ring-4 focus-within:ring-[#C9A463]/10 transition-all duration-300">
-              <Search size={22} className="text-[#5C3D6E] mr-4 opacity-50" />
+          {/* Top Search Bar Row (Now Split into Look & Location) */}
+          <div className="flex flex-col md:flex-row gap-4 mb-10 relative">
+            
+            {/* 1. Look Description */}
+            <div className="flex-[2] flex items-center bg-white border border-[#E7DCC8] rounded-[20px] px-6 py-4 shadow-[0_2px_8px_rgba(21,4,32,0.03)] focus-within:border-[#C9A463] focus-within:ring-4 focus-within:ring-[#C9A463]/10 transition-all duration-300">
+              <Search size={22} className="text-[#5C3D6E] mr-4 opacity-50 shrink-0" />
               <input
                 type="text"
                 value={value?.lookDescription || ''}
                 onChange={(e) => onChange({ ...value, lookDescription: e.target.value })}
-                placeholder="nizami bridal"
-                className="w-full bg-transparent outline-none text-[#150420] text-[17px] font-medium placeholder:text-[#150420]/30"
+                placeholder="nizami bridal..."
+                className="w-full bg-transparent outline-none text-[#150420] text-[16px] font-medium placeholder:text-[#150420]/30"
               />
             </div>
+
+            {/* 2. Hyderabad Location Dropdown */}
+            <div className="flex-[1.5] relative flex items-center bg-white border border-[#E7DCC8] rounded-[20px] px-6 py-4 shadow-[0_2px_8px_rgba(21,4,32,0.03)] focus-within:border-[#C9A463] focus-within:ring-4 focus-within:ring-[#C9A463]/10 transition-all duration-300">
+              <MapPin size={22} className="text-[#BA965B] mr-4 opacity-80 shrink-0" />
+              <input
+                type="text"
+                value={value?.location || ''}
+                onChange={(e) => {
+                  onChange({ ...value, location: e.target.value });
+                  setShowLocationDropdown(true);
+                }}
+                onFocus={() => setShowLocationDropdown(true)}
+                placeholder="Anywhere in Hyd"
+                className="w-full bg-transparent outline-none text-[#150420] text-[16px] font-medium placeholder:text-[#150420]/30"
+              />
+              
+              {/* Elegant Dropdown Menu */}
+              {showLocationDropdown && filteredLocations.length > 0 && (
+                <div className="absolute top-[110%] left-0 w-full bg-white border border-[#E7DCC8] rounded-[16px] shadow-[0_10px_40px_rgba(21,4,32,0.08)] z-50 max-h-56 overflow-y-auto py-2">
+                  {filteredLocations.map(loc => (
+                    <div
+                      key={loc}
+                      onClick={() => {
+                        onChange({ ...value, location: loc });
+                        setShowLocationDropdown(false);
+                      }}
+                      className="px-6 py-3 text-[14px] font-medium text-[#5C3D6E] hover:bg-[#FBF8F2] hover:text-[#150420] cursor-pointer transition-colors"
+                    >
+                      {loc}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             
+            {/* 3. Submit Button */}
             <button
               type="submit"
-              className="bg-[#BA965B] hover:bg-[#A67E3D] text-[#150420] px-10 py-4 rounded-[20px] font-bold text-[15px] flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_6px_20px_rgba(186,150,91,0.25)] hover:shadow-[0_8px_25px_rgba(186,150,91,0.35)] shrink-0 active:scale-[0.98]"
+              onClick={() => setShowLocationDropdown(false)}
+              className="bg-[#BA965B] hover:bg-[#A67E3D] text-[#150420] px-8 py-4 rounded-[20px] font-bold text-[15px] flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_6px_20px_rgba(186,150,91,0.25)] hover:shadow-[0_8px_25px_rgba(186,150,91,0.35)] shrink-0 active:scale-[0.98]"
             >
-              Find My Artist <ArrowRight size={18} strokeWidth={2.5} />
+              Find Artist <ArrowRight size={18} strokeWidth={2.5} />
             </button>
           </div>
 
@@ -178,7 +229,6 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
               JPG, PNG, WEBP · Max 10MB · Or drag & drop
             </p>
 
-            {/* Sub-pills inside dropzone */}
             <div className="flex flex-wrap items-center justify-center gap-3">
               {SUGGESTION_PILLS.map((pill) => (
                 <span key={pill} className="bg-[#FBF8F2] border border-[#E7DCC8] text-[#7C5916] px-5 py-2.5 rounded-full text-[12px] font-medium tracking-wide shadow-sm">
