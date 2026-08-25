@@ -771,8 +771,8 @@ function Home() {
 
               </div>
 
-              {/* RIGHT GRID AREA (3 COLUMNS) */}
-              <div className="lg:col-span-3">
+                            {/* RIGHT GRID AREA (3 COLUMNS) */}
+                            <div className="lg:col-span-3">
                 <p className="text-xs font-bold uppercase tracking-widest text-black/50 mb-6">
                   Showing {uniqueArtists.length} of {sourceArtists.length} artists
                 </p>
@@ -788,37 +788,11 @@ function Home() {
                           viewport={{ once: true, margin: '-80px' }}
                           transition={{ duration: 0.6, delay: Math.min(index * 0.05, 0.2), ease: [0.16, 1, 0.3, 1] }}
                         >
-                          <div className="relative group cursor-pointer" onClick={() => setSelectedArtist(artist)}>
-                            
-                          {/* Only show the AI Match Badge if the user actually uploaded an inspiration photo */}
-{search.inspirationFile && (
-  <div className="absolute top-4 left-4 z-20 bg-black px-3 py-2 text-white text-center shadow-md">
-    <span className="block text-[12px] font-black uppercase tracking-[0.2em]">
-      {artist.match}% MATCH
-    </span>
-    <span className="block text-[8px] font-bold uppercase tracking-widest text-white/60 mt-0.5">
-      {artist.id.toString().length % 2 === 0 ? 'BASED ON PALETTE & DRAPE' : 'MATCHED TO SKIN PREP STYLE'}
-    </span>
-  </div>
-)}
-
-<div className="aspect-[4/5] w-full overflow-hidden bg-[#150A26] mb-5 border border-black/5">
-  <img 
-    src={artist.image} 
-    alt={artist.name} 
-    loading="lazy"
-    onError={handleImgError}
-    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 text-transparent" 
-  />
-</div>
-                            
-                            <h3 className="text-2xl font-black uppercase tracking-tight text-black">{artist.name}</h3>
-                            <p className="mt-2 text-sm text-black/60 font-bold uppercase tracking-widest">{artist.city}</p>
-                            <div className="mt-4 flex items-center justify-between border-t border-black/10 pt-4">
-                              <span className="text-xs font-bold uppercase tracking-[0.15em] text-black/50">{artist.startingPrice}</span>
-                              <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#B66CF2]">View Profile &rarr;</span>
-                            </div>
-                          </div>
+                          <ArtistCard
+                            artist={artist}
+                            portfolioImages={artist.portfolio?.map((p) => p.image)}
+                            onClick={() => setSelectedArtist(artist)}
+                          />
                         </motion.div>
                       ))}
                     </div>

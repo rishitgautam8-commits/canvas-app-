@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const DEFAULT_TAGS = ['Bridal Glam', '+ Mehendi', '+ Nails'] as const;
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -12,8 +12,9 @@ export type ArtistTint = {
 
 export type ArtistCardProps = {
   name: string;
-  image: string;
-  hoverImage?: string;
+  image: string;                    // Default profile headshot
+  hoverImage?: string;             // Legacy single hover image support
+  portfolioImages?: string[];      // Array of portfolio photos to cycle through on hover
   hoverVideo?: string;
   startingPrice?: string;
   tags?: string[];
@@ -26,6 +27,7 @@ export function ArtistCard({
   name,
   image,
   hoverImage,
+  portfolioImages = [],
   hoverVideo,
   startingPrice = 'Starts at ₹5,000',
   tags = [...DEFAULT_TAGS],
@@ -34,11 +36,29 @@ export function ArtistCard({
   testId,
 }: ArtistCardProps) {
   const [hovered, setHovered] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const reveal = Boolean(hoverImage || hoverVideo);
 
-  // Small per-artist color grade. Keeps two artists who happen to share a
-  // stock photo from reading as literal duplicates in the grid.
+  // Combine portfolio array or fallback to single hoverImage
+  const imagesList = portfolioImages.length > 0 
+    ? portfolioImages 
+    : hoverImage 
+      ? [hoverImage] 
+      : [];
+
+  const hasPortfolio = imagesList.length > 0 || Boolean(hoverVideo);
+
+  // Automatically cycle through portfolio images while hovered
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (hovered && imagesList.length > 1) {
+      interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % imagesList.length);
+      }, 1800); // Changes image every 1.8 seconds on hover
+    }
+    return () => clearInterval(interval);
+  }, [hovered, imagesList.length]);
+
   const imageStyle = tint
     ? { filter: `hue-rotate(${tint.hue}deg) saturate(${tint.saturate}) brightness(${tint.brightness})` }
     : undefined;
@@ -50,6 +70,7 @@ export function ArtistCard({
 
   const handleLeave = () => {
     setHovered(false);
+    setCurrentIndex(0); // Reset back to first portfolio frame on mouse leave
     if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
@@ -69,27 +90,52 @@ export function ArtistCard({
         className="w-full bg-transparent text-left outline-none"
         aria-label={`View ${name}'s profile`}
       >
-        <div className="relative aspect-[3/4] w-full overflow-hidden">
+        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl">
+          {/* Default Profile Headshot */}
           <motion.img
             src={image}
-            alt={`${name}'s makeup work`}
+            alt={`${name}'s profile`}
             className="absolute inset-0 h-full w-full object-cover"
             style={imageStyle}
-            animate={{ opacity: hovered && reveal ? 0 : 1, scale: hovered ? 1.03 : 1 }}
+            animate={{ opacity: hovered && hasPortfolio ? 0 : 1, scale: hovered ? 1.03 : 1 }}
             transition={{ duration: 0.7, ease }}
           />
-          {hoverImage && (
-            <motion.img
-              src={hoverImage}
-              alt=""
-              aria-hidden
-              className="absolute inset-0 h-full w-full object-cover"
-              style={imageStyle}
-              animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1.03 : 1 }}
-              transition={{ duration: 0.7, ease }}
-            />
+
+          {/* Cycling Portfolio Gallery on Hover */}
+          {imagesList.length > 0 && (
+            <div className="absolute inset-0">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={currentIndex}
+                  src={imagesList[currentIndex]}
+                  alt={`${name}'s portfolio work ${currentIndex + 1}`}
+                  className="absolute inset-0 h-full w-full object-cover"
+                  style={imageStyle}
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1.03 : 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5, ease }}
+                />
+              </AnimatePresence>
+
+              {/* Editorial Progress Indicator Dots */}
+              {imagesList.length > 1 && hovered && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full">
+                  {imagesList.map((_, idx) => (
+                    <div
+                      key={idx}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        idx === currentIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           )}
-          {hoverVideo && (
+
+          {/* Fallback Hover Video */}
+          {hoverVideo && imagesList.length === 0 && (
             <motion.video
               ref={videoRef}
               src={hoverVideo}
