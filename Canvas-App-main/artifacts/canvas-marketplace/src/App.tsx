@@ -97,11 +97,8 @@ function normalizePortfolio(
   });
 }
 
-const FALLBACK_IMG =
-  'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80';
-
 const local100Artists: Artist[] = artists.slice(0, 100).map((a: any) => {
-  const profileImg = a.image || a.portfolio?.[0]?.image || a.portfolio?.[0] || FALLBACK_IMG;
+  const profileImg = a.image || a.portfolio?.[0]?.image || a.portfolio?.[0] || 'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80';
   const normalizedPortfolio = normalizePortfolio(a.portfolio, profileImg);
 
   return {
@@ -119,7 +116,7 @@ const local100Artists: Artist[] = artists.slice(0, 100).map((a: any) => {
     reviewsCount: a.reviewsCount || 24,
     image: profileImg,
     hoverImage: normalizedPortfolio[1]?.image || normalizedPortfolio[0]?.image || profileImg,
-    tags: [a.specialty || 'Custom Styling'],
+        tags: a.tags || [a.specialty || 'Custom Styling'],  // ← REPLACE THIS LINE
     bio: a.bio || `Expert in ${a.specialty}. Available for bookings.`,
     signature: a.specialty || 'Signature Aesthetic',
     portfolio: normalizedPortfolio,
