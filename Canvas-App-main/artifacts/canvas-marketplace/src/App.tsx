@@ -590,19 +590,38 @@ function Home() {
         </div>
       </section>
 
-      <section id="demo-search" className="relative z-20 bg-[var(--canvas-cr)] border-y border-[var(--canvas-bd)] pt-20 pb-32">
-        <div className="max-w-[800px] mx-auto px-6 md:px-12 text-center mb-8">
-          <div className="flex items-center justify-center gap-3 text-[11px] font-medium tracking-[0.16em] uppercase text-[var(--canvas-g)] mb-4">
-            <div className="w-[26px] h-[1px] bg-gradient-to-r from-transparent to-[var(--canvas-g)]"></div>
-            Live Prototype
-            <div className="w-[26px] h-[1px] bg-gradient-to-r from-[var(--canvas-g)] to-transparent"></div>
+      {/* THE CANVAS WAY MANIFESTO */}
+      <section className="canvas-way border-y border-[var(--gold)]/20">
+        <div className="max-w-[1400px] mx-auto">
+          <div className="section-label">
+            <span className="line"></span>
+            <span>THE CANVAS WAY</span>
+            <span className="line"></span>
           </div>
-          <h2 className="font-serif text-3xl md:text-[40px] text-[var(--canvas-rp)] mb-4 tracking-tight">The Deterministic Matching Engine</h2>
-          <p className="text-[15px] text-[var(--canvas-mut)] max-w-[600px] mx-auto leading-[1.6]">
-            Test the AI routing logic. Input client parameters below to instantly route to verified artists based on hyper-local data and specialization.
-          </p>
+          <h2 className="canvas-way-title">Stop guessing. Start matching.</h2>
+          
+          <div className="steps-grid">
+            <div className="step">
+              <div className="step-icon">I</div>
+              <h3>Upload your vision</h3>
+              <p>Drop a screenshot or photo of the exact makeup look you want.</p>
+            </div>
+            <div className="step">
+              <div className="step-icon">II</div>
+              <h3>AI matches the style</h3>
+              <p>Our engine analyzes the techniques and finds artists who specialize in it.</p>
+            </div>
+            <div className="step">
+              <div className="step-icon">III</div>
+              <h3>Book with confidence</h3>
+              <p>Compare portfolios, pricing, and message your chosen artist directly.</p>
+            </div>
+          </div>
         </div>
-        
+      </section>
+
+      {/* SEARCH COMPONENT WRAPPER */}
+      <section id="demo-search" className="relative z-20 bg-[var(--bg-beige)] py-24 border-b border-[var(--border-light)]">
         <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 [&_.text-\\[\\#B66CF2\\]]:text-[var(--canvas-rp)] [&_.text-white\\/50]:text-[var(--canvas-mut)] [&_.text-white\\/70]:text-[var(--canvas-mut)] [&_h1]:text-white">
           <HeroSearch
             value={search}
