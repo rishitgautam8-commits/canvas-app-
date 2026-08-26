@@ -174,12 +174,12 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                 <div className="border-t border-black/10 pt-10">
                   <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 mb-6">Disciplines & Techniques</p>
                   <div className="flex flex-wrap gap-2">
-                    {(data.tags || ["Bridal Glam", "Editorial", "Skin Work"]).map((tag: string) => (
-                      <span key={tag} className="border border-black px-4 py-2 text-[9px] font-black uppercase tracking-[0.2em] text-black">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+          {(data.tags || ["Bridal Glam", "Editorial", "Skin Work"]).map((tag: string) => (
+            <span key={tag} className="tag">
+              {tag}
+            </span>
+          ))}
+        </div>
                 </div>
 
                 <div className="mt-12 border-t border-black/10 pt-10">

@@ -182,15 +182,15 @@ export function ArtistCard({
           </p>
 
           <div className="mt-4 flex flex-wrap gap-1.5">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-neutral-300 bg-transparent px-3 py-1 font-sans text-[10px] font-medium tracking-[0.14em] text-neutral-700"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="tag"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
         </div>
       </button>
     </article>

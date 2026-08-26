@@ -637,7 +637,30 @@ function Home() {
         </div>
       </section>
 
-      <main className="relative z-20">
+<main className="relative z-20">
+        
+        {/* NEW: THE STATS BAR */}
+        <section className="stats-bar">
+          <div className="stat">
+            <div className="stat-number">5</div>
+            <div className="stat-label">Verified Artists</div>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat">
+            <div className="stat-number">₹21,700</div>
+            <div className="stat-label">Avg Booking Value</div>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat">
+            <div className="stat-number">88%</div>
+            <div className="stat-label">Trial-to-Booking Rate</div>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat">
+            <div className="stat-number">4.8★</div>
+            <div className="stat-label">Platform Avg Rating</div>
+          </div>
+        </section>
         
         <section id="discover" className="bg-white text-black py-24 sm:py-32">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
@@ -889,7 +912,64 @@ function Home() {
           </div>
         </section>
 
-        <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-5 py-24 sm:px-8 lg:px-12 lg:py-36">
+{/* TESTIMONIALS SECTION */}
+      <section className="testimonials">
+        <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
+          <div className="section-label">
+            <span className="line"></span>
+            <span>LOVE FROM OUR USERS</span>
+            <span className="line"></span>
+          </div>
+          <h2 className="section-title">What people are saying</h2>
+          
+          <div className="testimonials-grid">
+            <div className="testimonial-card">
+              <div className="stars">★★★★★</div>
+              <div className="quote-mark">"</div>
+              <p className="quote">I uploaded a picture from Pinterest and Canvas found me an artist who had done almost the exact same look. Honestly shocked at how accurate the match was.</p>
+              <div className="divider"></div>
+              <div className="author">
+                <div className="avatar" style={{ background: '#E8D5F2', color: '#2D1B4E' }}>SR</div>
+                <div className="author-info">
+                  <div className="name">Sneha R.</div>
+                  <div className="meta">Bridal • Jubilee Hills</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="testimonial-card">
+              <div className="stars">★★★★★</div>
+              <div className="quote-mark">"</div>
+              <p className="quote">As a model, finding artists who understand editorial work is hard. Canvas filtered out the noise immediately. The match score is genuinely useful.</p>
+              <div className="divider"></div>
+              <div className="author">
+                <div className="avatar" style={{ background: '#1A0B2E', color: '#C4A35A' }}>KM</div>
+                <div className="author-info">
+                  <div className="name">Kavya M.</div>
+                  <div className="meta">Editorial • HITEC City</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="testimonial-card">
+              <div className="stars">★★★★★</div>
+              <div className="quote-mark">"</div>
+              <p className="quote">Described the look in two lines, got artists who could do it sorted by price. Booked in ten minutes. This is exactly how it should work.</p>
+              <div className="divider"></div>
+              <div className="author">
+                <div className="avatar" style={{ background: '#F5E6C8', color: '#2D1B4E' }}>TP</div>
+                <div className="author-info">
+                  <div className="name">Tara P.</div>
+                  <div className="meta">Glam • Gachibowli</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* THE JOURNAL SECTION (Already exists in your file) */}
+      <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-5 py-24 sm:px-8 lg:px-12 lg:py-36">
           <div className="max-w-[1400px] mx-auto">
             <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
               <div>
