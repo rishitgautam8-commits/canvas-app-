@@ -21,26 +21,37 @@ export interface Artist {
   isVerified: boolean;
 }
 
-// 1. Gather all profile pictures and portfolio images from your 25 numerical artist folders
-const numericalProfiles: string[] = [];
-const numericalPortfolioPool: string[] = [];
+// 1. Gather all available photos from the 25 numerical artist folders
+const masterImagePool: string[] = [];
 
 for (let i = 1; i <= 25; i++) {
   const folderName = `artist_${String(i).padStart(3, '0')}`;
   
-  // Profile picture path
-  numericalProfiles.push(`/canvas-artists/${folderName}/profile.jpg`);
+  // Add profile picture
+  masterImagePool.push(`/canvas-artists/${folderName}/profile.jpg`);
   
-  // Portfolio pool path (portfolio-0 through portfolio-4)
+  // Add all available portfolio shots (0 through 4)
   for (let p = 0; p <= 4; p++) {
-    numericalPortfolioPool.push(`/canvas-artists/${folderName}/portfolio-${p}.jpg`);
+    masterImagePool.push(`/canvas-artists/${folderName}/portfolio-${p}.jpg`);
   }
 }
 
-// 2. Real Brand Folders Data
-const brandFolders = ['Kaushal Makeover', 'Erica', 'Geetanjali', 'Tusya', 'Womania'];
+// 2. Add photos from the brand folders
+masterImagePool.push(
+  `/canvas-artists/Kaushal Makeover/prachi_profile.jpg`,
+  `/canvas-artists/Kaushal Makeover/1.jpg`,
+  `/canvas-artists/Kaushal Makeover/2.jpg`,
+  `/canvas-artists/Kaushal Makeover/3.jpg`,
+  `/canvas-artists/Kaushal Makeover/4.jpg`,
+  `/canvas-artists/Erica/2.jpg`,
+  `/canvas-artists/Erica/3.jpg`,
+  `/canvas-artists/Erica/4.jpg`,
+  `/canvas-artists/Geetanjali/1.jpg`,
+  `/canvas-artists/Tusya/1.jpg`,
+  `/canvas-artists/Womania/1.jpg`
+);
 
-// Fisher-Yates Array Shuffler
+// 3. Fisher-Yates Array Shuffler
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -50,18 +61,18 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-// Shuffle the profiles so they are randomized across the 100 artists with zero duplication
-const randomizedProfiles = shuffleArray(numericalProfiles);
+// 4. Shuffle the entire pool to mix everything randomly
+const shuffledPool = shuffleArray(masterImagePool);
 
 // Realistic Hyderabad names and elite specialties
 const FIRST_NAMES = ['Aarti', 'Ananya', 'Divya', 'Pooja', 'Riya', 'Shreya', 'Sneha', 'Tanvi', 'Meera', 'Kavya', 'Simran', 'Neha', 'Priya', 'Nikita', 'Isha', 'Swati', 'Deepika', 'Shweta', 'Nisha', 'Monika'];
 const CITIES = ['Jubilee Hills', 'Banjara Hills', 'HITEC City', 'Madhapur', 'Gachibowli', 'Kondapur', 'Film Nagar', 'Secunderabad', 'Begumpet', 'Kukatpally'];
 const SPECIALTIES = ['Nizami Bridal Specialist', 'Editorial & Glass Skin', 'HD Airbrush Master', 'Traditional South Indian', 'Contemporary Glamour'];
 
-// 3. Generate the 100 distinct artists
+// 5. Generate the 100 distinct artists with zero duplication for headshots
 export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) => {
   
-  // Artist #1: Kaushal Makeover (Prachi Kaushal)
+  // Artist #1: Dedicated to Kaushal Makeover
   if (index === 0) {
     return {
       id: '1',
@@ -92,16 +103,13 @@ export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) 
     };
   }
 
-  // Standard generation for the remaining 99 artists
+  // Assign a completely unique headshot from our shuffled local pool (looping safely with modulo if needed)
+  const profileImage = shuffledPool[index % shuffledPool.length];
+
+  // Pick 3 random portfolio photos from a fresh shuffle of the pool
+  const portfolioImages = shuffleArray(shuffledPool).slice(0, 3);
+
   const name = `${FIRST_NAMES[index % FIRST_NAMES.length]} ${['Goud', 'Reddy', 'Rao', 'Verma', 'Nair', 'Iyer', 'Kapoor'][index % 7]}`;
-  
-  // Cycle through the randomized profile pictures so all 100 have unique thumbnails
-  const profileImage = randomizedProfiles[index % randomizedProfiles.length];
-
-  // Pick 3 to 4 random portfolio photos from the numerical portfolio pool
-  const portfolioCount = Math.random() > 0.5 ? 4 : 3;
-  const portfolioImages = shuffleArray(numericalPortfolioPool).slice(0, portfolioCount);
-
   const city = CITIES[index % CITIES.length];
   const specialty = SPECIALTIES[index % SPECIALTIES.length];
   const price = 10000 + (index % 6) * 5000;
