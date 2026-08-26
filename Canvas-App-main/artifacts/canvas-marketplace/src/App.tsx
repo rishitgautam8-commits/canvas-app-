@@ -133,8 +133,9 @@ function getEstimatedDistance(clientLoc: string, artistCity: string, artistId: s
   const cityLower = artistCity.toLowerCase();
   if (locLower === '' || cityLower.includes(locLower)) return 5;
   
+  // All Canvas cities are within Hyderabad/Cyberabad — realistic range 5-25 km
   const stableNum = parseInt(artistId.replace(/\D/g, '')) || 0;
-  return (stableNum % 40) + 15;
+  return (stableNum % 21) + 5; // 5 … 25 km
 }
 
 function runCanvasMatch(
