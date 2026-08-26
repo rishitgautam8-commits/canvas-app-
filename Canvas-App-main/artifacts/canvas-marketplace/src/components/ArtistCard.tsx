@@ -97,9 +97,8 @@ export function ArtistCard({
   if (e.currentTarget.dataset.hasFailed) return;
   e.currentTarget.dataset.hasFailed = "true";
   
-  // Picks a random folder from 1 to 25 and grabs a guaranteed local photo!
-  const randomId = Math.floor(Math.random() * 25) + 1;
-  e.currentTarget.src = `/canvas-artists/artist_${String(randomId).padStart(3, '0')}/portfolio-1.jpg`;
+  // Instead of a random folder, just use the artist's own main image!
+  e.currentTarget.src = image; 
 }}
   className="absolute inset-0 h-full w-full object-cover"
             style={imageStyle}
@@ -119,9 +118,8 @@ export function ArtistCard({
   if (e.currentTarget.dataset.hasFailed) return;
   e.currentTarget.dataset.hasFailed = "true";
   
-  // Picks a random folder from 1 to 25 and grabs a guaranteed local photo!
-  const randomId = Math.floor(Math.random() * 25) + 1;
-  e.currentTarget.src = `/canvas-artists/artist_${String(randomId).padStart(3, '0')}/portfolio-1.jpg`;
+  // Instead of a random folder, just use the artist's own main image!
+  e.currentTarget.src = image; 
 }}
   className="absolute inset-0 h-full w-full object-cover"
                   style={imageStyle}

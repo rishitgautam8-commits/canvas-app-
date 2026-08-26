@@ -121,8 +121,8 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
   // Hides the ENTIRE dark gray grid box so there is no empty gap left behind!
   if (e.currentTarget.parentElement) {
     e.currentTarget.parentElement.style.display = 'none';
-}
-    }}
+  }
+}}
   />
   <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">LOOK N°0{i + 1}</p>
@@ -148,11 +148,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
   src={artist.image}
   alt={`${artist.name} Profile`}
   onError={(e) => {
-    if (e.currentTarget.dataset.hasFailed) return;
-    e.currentTarget.dataset.hasFailed = "true";
-    
-    const randomId = Math.floor(Math.random() * 25) + 1;
-    e.currentTarget.src = `/canvas-artists/artist_${String(randomId).padStart(3, '0')}/portfolio-1.jpg`;
+    e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80";
   }}
   className="h-full w-full object-cover"
 />
