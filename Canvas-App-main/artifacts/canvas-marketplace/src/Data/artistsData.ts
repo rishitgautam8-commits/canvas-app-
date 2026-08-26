@@ -22,51 +22,84 @@ export interface Artist {
 }
 
 // ============================================================
-// IMAGE FIX — Zero Duplicates Guaranteed
+// YOUR ACTUAL FOLDER STRUCTURE (from screenshots)
 // ============================================================
-// OLD BUG: Local paths like /canvas-artists/artist_001/... were
-// duplicated across folders, causing the same makeup palette to
-// appear on every artist.
-//
-// FIX: Each artist gets a UNIQUE deterministic image via Picsum
-// seeds. No two artists share a photo. Prachi Kaushal uses 4
-// distinct Unsplash beauty shots.
-//
-// TO SWAP IN REAL PHOTOS: Replace getImage() with your own
-// Unsplash URLs or local paths. Keep 1 profile + 4-5 portfolio
-// images per artist, all unique.
-// ============================================================
+// 25 numbered folders + 5 named brand folders = 30 folders
+// Each folder has 5-7 unique photos = ~180 total unique images
+// This is MORE than enough for 100 unique profile photos.
 
-const getImage = (seed: string, width = 400, height = 530) =>
-  `https://picsum.photos/seed/${seed}/${width}/${height}`;
+const ARTIST_FOLDERS = [
+  // --- 25 generic artist folders (artist_001 … artist_025) ---
+  ...Array.from({ length: 25 }, (_, i) => {
+    const num = String(i + 1).padStart(3, '0');
+    return {
+      folder: `artist_${num}`,
+      files: [
+        'portfolio-1.jpg',
+        'portfolio-2.jpg',
+        'portfolio-3.jpg',
+        'portfolio-4.jpg',
+        'portfolio-5.jpg',
+        'addon-1.jpg',
+        'addon-2.jpg',
+      ],
+    };
+  }),
 
-// Prachi Kaushal — 4 genuinely different portfolio images
-const PRACHI_PORTFOLIO = [
-  'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1508186225823-0963cfdbaa18?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=800&q=80',
+  // --- 5 named brand folders (from your screenshots) ---
+  {
+    folder: 'Geetanjali',
+    files: ['geetanjali_profile.jpg', '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg'],
+  },
+  {
+    folder: 'Kaushal Makeover',
+    files: ['1.jpg', '2.jpg', '3.jpg', '4.jpg'],
+  },
+  {
+    folder: 'Erica',
+    files: ['2.jpg', '3.jpg', '4.jpg'],
+  },
+  {
+    folder: 'Tusya',
+    files: ['1.jpg'],
+  },
+  {
+    folder: 'Womania',
+    files: ['1.jpg'],
+  },
 ];
 
+// Build a flat pool of EVERY unique photo path you have.
+// ~180 images total. We only need 100 for profiles, so no wrapping = zero duplicates.
+const UNIQUE_PHOTO_POOL: string[] = [];
+ARTIST_FOLDERS.forEach(({ folder, files }) => {
+  files.forEach((file) => {
+    UNIQUE_PHOTO_POOL.push(`/canvas-artists/${folder}/${file}`);
+  });
+});
+
+// --- Data generators ---
 const FIRST_NAMES = [
   'Aarti', 'Ananya', 'Divya', 'Pooja', 'Riya', 'Shreya', 'Sneha', 'Tanvi',
   'Meera', 'Kavya', 'Simran', 'Neha', 'Priya', 'Nikita', 'Isha', 'Swati',
-  'Deepika', 'Shweta', 'Nisha', 'Monika'
+  'Deepika', 'Shweta', 'Nisha', 'Monika', 'Aaradhya', 'Ishita', 'Sanya', 'Tara', 'Mira',
 ];
 const CITIES = [
   'Jubilee Hills', 'Banjara Hills', 'HITEC City', 'Madhapur', 'Gachibowli',
-  'Kondapur', 'Film Nagar', 'Secunderabad', 'Begumpet', 'Kukatpally'
+  'Kondapur', 'Film Nagar', 'Secunderabad', 'Begumpet', 'Kukatpally',
 ];
 const SPECIALTIES = [
   'Nizami Bridal Specialist',
   'Editorial & Glass Skin',
   'HD Airbrush Master',
   'Traditional South Indian',
-  'Contemporary Glamour'
+  'Contemporary Glamour',
 ];
 
 export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) => {
-  // --- PRACHI KAUSHAL: dedicated profile, 4 unique photos ---
+  // ==========================================================
+  // ARTIST #0 = PRACHI KAUSHAL (special case)
+  // ==========================================================
   if (index === 0) {
     return {
       id: '1',
@@ -81,39 +114,58 @@ export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) 
       rating: 4.9,
       reviewCount: 48,
       reviewsCount: 48,
-      image:
-        'https://images.unsplash.com/photo-1542452255199-3172cb8cbce8?auto=format&fit=crop&w=800&q=80',
-      hoverImage: PRACHI_PORTFOLIO[1],
+      // Unique profile photo from Kaushal Makeover folder
+      image: '/canvas-artists/Kaushal Makeover/1.jpg',
+      hoverImage: '/canvas-artists/Kaushal Makeover/2.jpg',
       tags: ['Kaushal Makeover', 'Signature Bridal', 'Jubilee Hills'],
       bio: 'Master makeup artist operating under Kaushal Makeover. Renowned for flawless South Indian bridal styling, HD airbrush, and bespoke editorial looks in Hyderabad.',
       signature: 'Kaushal Signature Aesthetic',
-      portfolio: PRACHI_PORTFOLIO,
+      // 4 genuinely different portfolio images
+      portfolio: [
+        '/canvas-artists/Kaushal Makeover/1.jpg',
+        '/canvas-artists/Kaushal Makeover/2.jpg',
+        '/canvas-artists/Kaushal Makeover/3.jpg',
+        '/canvas-artists/Kaushal Makeover/4.jpg',
+      ],
       addons: [
         'Bridal Trial Session (₹2,500)',
         'HD Airbrushing (₹4,000)',
-        'Saree Draping & Styling (₹1,500)'
+        'Saree Draping & Styling (₹1,500)',
       ],
-      isVerified: true
+      isVerified: true,
     };
   }
 
-  // --- EVERY OTHER ARTIST: 100% unique images ---
+  // ==========================================================
+  // EVERY OTHER ARTIST: 100% unique profile photo
+  // ==========================================================
+
+  // Pick a UNIQUE profile photo from the giant pool.
+  // Since the pool has ~180 images and we only need 100, index 0-99 never repeats.
+  const profileImage = UNIQUE_PHOTO_POOL[index];
+  const hoverImage = UNIQUE_PHOTO_POOL[index + 1] || UNIQUE_PHOTO_POOL[0];
+
+  // Assign a "home folder" for portfolio images.
+  // Portfolio images CAN repeat across artists — you said this is fine.
+  const homeFolder = ARTIST_FOLDERS[index % ARTIST_FOLDERS.length];
+
+  // Build portfolio from the home folder:
+  // - For numbered folders: use portfolio-1.jpg … portfolio-5.jpg
+  // - For named folders: use all files except the _profile one
+  const portfolioFiles = homeFolder.folder.startsWith('artist_')
+    ? ['portfolio-1.jpg', 'portfolio-2.jpg', 'portfolio-3.jpg', 'portfolio-4.jpg', 'portfolio-5.jpg']
+    : homeFolder.files.filter((f) => !f.includes('profile'));
+
+  const portfolio = portfolioFiles.map(
+    (f) => `/canvas-artists/${homeFolder.folder}/${f}`
+  );
+
   const name = `${FIRST_NAMES[index % FIRST_NAMES.length]} ${
     ['Goud', 'Reddy', 'Rao', 'Verma', 'Nair', 'Iyer', 'Kapoor'][index % 7]
   }`;
   const city = CITIES[index % CITIES.length];
   const specialty = SPECIALTIES[index % SPECIALTIES.length];
   const price = 10000 + (index % 6) * 5000;
-
-  // Unique seed = unique image. No two artists ever share the same photo.
-  const profileImage = getImage(`canvas-hyd-artist-${index}-profile`);
-  const portfolioImages = [
-    getImage(`canvas-hyd-artist-${index}-port-0`),
-    getImage(`canvas-hyd-artist-${index}-port-1`),
-    getImage(`canvas-hyd-artist-${index}-port-2`),
-    getImage(`canvas-hyd-artist-${index}-port-3`),
-    getImage(`canvas-hyd-artist-${index}-port-4`)
-  ];
 
   return {
     id: String(index + 1),
@@ -129,18 +181,18 @@ export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) 
     reviewCount: 15 + (index % 35),
     reviewsCount: 15 + (index % 35),
     image: profileImage,
-    hoverImage: portfolioImages[1],
+    hoverImage,
     tags: [specialty, city],
     bio: `Master makeup artist specializing in ${specialty.toLowerCase()}. Over ${
       3 + (index % 5)
     } years of elite studio experience across Hyderabad.`,
     signature: specialty,
-    portfolio: portfolioImages,
+    portfolio,
     addons: [
       'Draping & Saree Setting (₹2,000)',
       'HD Airbrush Upgrade (₹3,500)',
-      'Trial Session (₹1,500)'
+      'Trial Session (₹1,500)',
     ],
-    isVerified: true
+    isVerified: true,
   };
 });
