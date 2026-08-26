@@ -32,7 +32,7 @@ function getSmartMatchPercentage(file: File | null | undefined, artistId: string
   return 85 + (Math.abs(hash) % 14);
 }
 
-import { artistsData } from './Data/artistsData';
+import { artistsData as artists } from './Data/artistsData';
 
 const queryClient = new QueryClient();
 
