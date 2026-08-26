@@ -21,22 +21,20 @@ export interface Artist {
   isVerified: boolean;
 }
 
-// 1. Gather all available photos from the 25 numerical artist folders
-const masterImagePool: string[] = [];
+// 1. Gather ALL photos to create a giant pool for 100 unique headshots
+const allAvailableImages: string[] = [];
 
 for (let i = 1; i <= 25; i++) {
   const folderName = `artist_${String(i).padStart(3, '0')}`;
   
-  // Notice: profile.jpg is completely removed!
   // Add all available portfolio shots (0 through 4)
   for (let p = 0; p <= 4; p++) {
-    masterImagePool.push(`/canvas-artists/${folderName}/portfolio-${p}.jpg`);
+    allAvailableImages.push(`/canvas-artists/${folderName}/portfolio-${p}.jpg`);
   }
 }
 
-// 2. Add photos from the brand folders
-masterImagePool.push(
-  `/canvas-artists/Kaushal Makeover/prachi_profile.jpg`,
+// 2. Add photos from the brand folders (Removed the deleted prachi_profile.jpg)
+allAvailableImages.push(
   `/canvas-artists/Kaushal Makeover/1.jpg`,
   `/canvas-artists/Kaushal Makeover/2.jpg`,
   `/canvas-artists/Kaushal Makeover/3.jpg`,
@@ -59,18 +57,18 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-// 4. Shuffle the entire pool to mix everything randomly
-const shuffledPool = shuffleArray(masterImagePool);
+// 4. Shuffle the entire pool to mix headshots randomly
+const uniqueHeadshots = shuffleArray(allAvailableImages);
 
 // Realistic Hyderabad names and elite specialties
 const FIRST_NAMES = ['Aarti', 'Ananya', 'Divya', 'Pooja', 'Riya', 'Shreya', 'Sneha', 'Tanvi', 'Meera', 'Kavya', 'Simran', 'Neha', 'Priya', 'Nikita', 'Isha', 'Swati', 'Deepika', 'Shweta', 'Nisha', 'Monika'];
 const CITIES = ['Jubilee Hills', 'Banjara Hills', 'HITEC City', 'Madhapur', 'Gachibowli', 'Kondapur', 'Film Nagar', 'Secunderabad', 'Begumpet', 'Kukatpally'];
 const SPECIALTIES = ['Nizami Bridal Specialist', 'Editorial & Glass Skin', 'HD Airbrush Master', 'Traditional South Indian', 'Contemporary Glamour'];
 
-// 5. Generate the 100 distinct artists with zero duplication for headshots
+// 5. Generate the 100 distinct artists
 export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) => {
   
-  // Artist #1: Dedicated to Kaushal Makeover
+  // Artist #1: Dedicated to Prachi Kaushal
   if (index === 0) {
     return {
       id: '1',
@@ -85,8 +83,8 @@ export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) 
       rating: 4.9,
       reviewCount: 48,
       reviewsCount: 48,
-      image: `/canvas-artists/Kaushal Makeover/prachi_profile.jpg`,
-      hoverImage: `/canvas-artists/Kaushal Makeover/1.jpg`,
+      image: `/canvas-artists/Kaushal Makeover/1.jpg`,
+      hoverImage: `/canvas-artists/Kaushal Makeover/2.jpg`,
       tags: ['Kaushal Makeover', 'Signature Bridal', 'Jubilee Hills'],
       bio: 'Master makeup artist operating under Kaushal Makeover. Renowned for flawless South Indian bridal styling, HD airbrush, and bespoke editorial looks in Hyderabad.',
       signature: 'Kaushal Signature Aesthetic',
@@ -101,11 +99,21 @@ export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) 
     };
   }
 
-  // Assign a completely unique headshot from our shuffled local pool (looping safely with modulo if needed)
-  const profileImage = shuffledPool[index % shuffledPool.length];
+  // 1. Assign a completely unique headshot from our shuffled master pool
+  const profileImage = uniqueHeadshots[index % uniqueHeadshots.length];
 
-  // Pick 3 random portfolio photos from a fresh shuffle of the pool
-  const portfolioImages = shuffleArray(shuffledPool).slice(0, 3);
+  // 2. Assign this artist to ONE specific local folder (1 through 25)
+  const folderId = (index % 25) + 1;
+  const folderName = `artist_${String(folderId).padStart(3, '0')}`;
+
+  // 3. STRICT PORTFOLIO: Only pull portfolio images from THEIR specific folder!
+  const portfolioImages = [
+    `/canvas-artists/${folderName}/portfolio-0.jpg`,
+    `/canvas-artists/${folderName}/portfolio-1.jpg`,
+    `/canvas-artists/${folderName}/portfolio-2.jpg`,
+    `/canvas-artists/${folderName}/portfolio-3.jpg`,
+    `/canvas-artists/${folderName}/portfolio-4.jpg`
+  ];
 
   const name = `${FIRST_NAMES[index % FIRST_NAMES.length]} ${['Goud', 'Reddy', 'Rao', 'Verma', 'Nair', 'Iyer', 'Kapoor'][index % 7]}`;
   const city = CITIES[index % CITIES.length];
@@ -126,11 +134,11 @@ export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) 
     reviewCount: 15 + (index % 35),
     reviewsCount: 15 + (index % 35),
     image: profileImage,
-    hoverImage: portfolioImages[0],
+    hoverImage: portfolioImages[1], 
     tags: [specialty, city],
     bio: `Master makeup artist specializing in ${specialty.toLowerCase()}. Over ${3 + (index % 5)} years of elite studio experience across Hyderabad.`,
     signature: specialty,
-    portfolio: portfolioImages,
+    portfolio: portfolioImages, // This guarantees the modal only shows their specific photos!
     addons: ['Draping & Saree Setting (₹2,000)', 'HD Airbrush Upgrade (₹3,500)', 'Trial Session (₹1,500)'],
     isVerified: true
   };

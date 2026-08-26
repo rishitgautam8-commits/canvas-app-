@@ -117,9 +117,14 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                           src={img} 
                           alt={`${data.name} portfolio ${i}`}
                           className={`w-full ${aspectClass} object-cover transition-transform duration-1000 group-hover:scale-105 opacity-80 group-hover:opacity-100`}
-                          onError={(e) => { e.currentTarget.src = EDITORIAL_PORTFOLIO[0] }}
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          onError={(e) => {
+  // Hides the ENTIRE dark gray grid box so there is no empty gap left behind!
+  if (e.currentTarget.parentElement) {
+    e.currentTarget.parentElement.style.display = 'none';
+}
+    }}
+  />
+  <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">LOOK N°0{i + 1}</p>
                            <p className="text-sm font-bold tracking-widest text-[#B66CF2] mt-1 uppercase">{LOOK_NAMES[i % LOOK_NAMES.length]}</p>
                         </div>
@@ -140,10 +145,13 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                 <div className="mb-10 flex items-start gap-6 border-b border-black/10 pb-10">
                 <div className="h-20 w-20 shrink-0 bg-[#f4f4f4] overflow-hidden">
   <img 
-    src={artist.image} 
-    alt={`${artist.name} Profile`} 
-    className="h-full w-full object-cover" 
-  />
+  src={artist.image}
+  alt={`${artist.name} Profile`}
+  onError={(e) => {
+    e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80";
+  }}
+  className="h-full w-full object-cover"
+/>
 </div>
                   <div className="flex flex-col pt-1">
                     <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#B66CF2] mb-2">
