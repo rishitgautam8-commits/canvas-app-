@@ -148,7 +148,11 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
   src={artist.image}
   alt={`${artist.name} Profile`}
   onError={(e) => {
-    e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80";
+    if (e.currentTarget.dataset.hasFailed) return;
+    e.currentTarget.dataset.hasFailed = "true";
+    
+    const randomId = Math.floor(Math.random() * 25) + 1;
+    e.currentTarget.src = `/canvas-artists/artist_${String(randomId).padStart(3, '0')}/portfolio-1.jpg`;
   }}
   className="h-full w-full object-cover"
 />
