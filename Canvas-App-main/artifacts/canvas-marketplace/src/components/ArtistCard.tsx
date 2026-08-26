@@ -97,8 +97,8 @@ export function ArtistCard({
   if (e.currentTarget.dataset.hasFailed) return;
   e.currentTarget.dataset.hasFailed = "true";
   
-  // Instead of a random folder, just use the artist's own main image!
-  e.currentTarget.src = image; 
+  // This matches the modal fallback perfectly!
+  e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80";
 }}
   className="absolute inset-0 h-full w-full object-cover"
             style={imageStyle}
@@ -118,8 +118,8 @@ export function ArtistCard({
   if (e.currentTarget.dataset.hasFailed) return;
   e.currentTarget.dataset.hasFailed = "true";
   
-  // Instead of a random folder, just use the artist's own main image!
-  e.currentTarget.src = image; 
+  // If a portfolio hover image is missing, safely fallback to the Unsplash image
+  e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80";
 }}
   className="absolute inset-0 h-full w-full object-cover"
                   style={imageStyle}
