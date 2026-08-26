@@ -102,6 +102,13 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     }
   };
 
+  const handleGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+  };
+
   return (
     <AnimatePresence>
       {open && (
@@ -110,158 +117,160 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 md:p-8"
+          className="fixed inset-0 z-[300] flex items-center justify-center bg-[var(--bg-dark)]/80 backdrop-blur-sm p-4 md:p-8"
           role="dialog"
           aria-modal="true"
+          onClick={onClose}
         >
           <style>{`
             .hide-scroll::-webkit-scrollbar { display: none; }
             .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-            .cloud-input {
-              background-color: white;
-              border: 1px solid transparent;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-              transition: all 0.2s ease;
-            }
-            .cloud-input:focus {
-              border-color: #E5E5E5;
-              box-shadow: 0 4px 14px rgba(0,0,0,0.06);
-              outline: none;
-            }
           `}</style>
-
-          <button 
-            onClick={onClose}
-            className="absolute right-4 top-4 z-50 p-2 text-white/70 hover:text-white md:right-8 md:top-8 transition-colors"
-          >
-            <X size={32} strokeWidth={1.5} />
-          </button>
 
           <motion.div
             initial={{ scale: 0.98, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.98, opacity: 0, y: 10 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="flex w-full max-w-[1000px] h-auto min-h-[550px] md:h-[600px] flex-col md:flex-row overflow-hidden rounded-2xl bg-[#F6F5F2] shadow-2xl"
+            className="bg-[var(--bg-cream)] w-full max-w-[460px] rounded-2xl p-8 md:p-10 relative shadow-2xl flex flex-col hide-scroll overflow-y-auto max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative hidden w-1/2 md:block bg-[#EBE9E4]">
-              <img 
-                src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=1200&q=80" 
-                alt="Makeup Artist Application" 
-                className="h-full w-full object-cover object-center"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-              <div className="absolute bottom-10 left-10 pr-10">
-                <h2 className="text-3xl font-medium text-white tracking-wide">
-                  The standard <br />in beauty.
-                </h2>
+            <button
+              onClick={onClose}
+              className="absolute right-6 top-6 z-50 p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            >
+              <X size={24} strokeWidth={1.5} />
+            </button>
+
+            <h2 className="font-serif text-3xl font-medium text-[var(--text-primary)] mb-2 text-center">
+              {isLogin ? 'Welcome back' : 'Join Canvas'}
+            </h2>
+            <p className="text-center text-sm text-[var(--text-secondary)] mb-8 font-sans">
+              {isLogin ? 'Log in to your Canvas account' : 'Are you a client or a makeup artist?'}
+            </p>
+
+            {message && (
+              <div className={`mb-6 flex items-start gap-3 rounded-lg p-4 text-sm ${message.type === 'error' ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-700 border border-green-100'}`}>
+                {message.type === 'success' && <CheckCircle2 size={18} className="mt-0.5 shrink-0" />}
+                <p>{message.text}</p>
               </div>
+            )}
+
+            {!isLogin && (
+              <div className="flex gap-4 mb-6">
+                <button
+                  type="button"
+                  onClick={() => setRole('client')}
+                  className={`flex-1 py-4 border rounded-xl flex flex-col items-center gap-2 transition-all ${
+                    role === 'client'
+                      ? 'border-[var(--gold)] bg-white shadow-sm'
+                      : 'border-[var(--border-light)] bg-transparent opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <span className="text-2xl">💄</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-primary)]">Client</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('artist')}
+                  className={`flex-1 py-4 border rounded-xl flex flex-col items-center gap-2 transition-all ${
+                    role === 'artist'
+                      ? 'border-[var(--gold)] bg-white shadow-sm'
+                      : 'border-[var(--border-light)] bg-transparent opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <span className="text-2xl">🎨</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-primary)]">Artist</span>
+                </button>
+              </div>
+            )}
+
+            <button
+              onClick={handleGoogle}
+              className="w-full bg-white border border-[var(--border-light)] py-3.5 rounded-lg flex items-center justify-center gap-3 text-sm font-bold text-[var(--text-primary)] hover:border-[var(--gold)] transition-colors shadow-sm mb-6"
+            >
+              <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
+              {isLogin ? 'Continue with Google' : 'Sign up with Google'}
+            </button>
+
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex-1 h-[1px] bg-[var(--border-light)]"></div>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)]">OR</span>
+              <div className="flex-1 h-[1px] bg-[var(--border-light)]"></div>
             </div>
 
-            <div className="flex w-full md:w-1/2 flex-col items-center justify-center p-8 sm:p-12 relative overflow-y-auto hide-scroll">
-              <div className="w-full max-w-[340px]">
-                <h3 className="text-[2rem] font-medium text-center text-stone-800 mb-8 tracking-tight">
-                  {isLogin ? 'Login' : 'Create Account'}
-                </h3>
-
-                {message && (
-                  <div className={`mb-6 flex items-start gap-3 rounded-lg p-4 text-sm ${message.type === 'error' ? 'bg-red-50 text-red-600' : 'bg-stone-200/50 text-stone-800'}`}>
-                    {message.type === 'success' && <CheckCircle2 size={18} className="mt-0.5 shrink-0" />}
-                    <p>{message.text}</p>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {!isLogin && (
+                <div className="flex gap-3">
+                  <div className="flex-1">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2">First Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="First"
+                      className="w-full bg-white border border-[var(--border-light)] px-4 py-3.5 rounded-lg text-sm focus:outline-none focus:border-[var(--gold)] text-[var(--text-primary)] transition-colors"
+                    />
                   </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {!isLogin && (
-                    <>
-                      <div className="flex h-[46px] w-full rounded-lg bg-[#EBE9E4] p-1 mb-2">
-                        <button
-                          type="button"
-                          onClick={() => setRole('client')}
-                          className={`w-1/2 rounded-md text-sm font-medium transition-all ${role === 'client' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
-                        >
-                          Client
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setRole('artist')}
-                          className={`w-1/2 rounded-md text-sm font-medium transition-all ${role === 'artist' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
-                        >
-                          Artist
-                        </button>
-                      </div>
-
-                      <div className="flex gap-3">
-                        <input
-                          type="text"
-                          required
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
-                          placeholder="First Name"
-                          className="cloud-input h-12 w-full rounded-md px-4 text-sm text-stone-800 placeholder-stone-400"
-                        />
-                        <input
-                          type="text"
-                          required
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                          placeholder="Last Name"
-                          className="cloud-input h-12 w-full rounded-md px-4 text-sm text-stone-800 placeholder-stone-400"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email"
-                    className="cloud-input h-12 w-full rounded-md px-4 text-sm text-stone-800 placeholder-stone-400"
-                  />
-
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
-                    className="cloud-input h-12 w-full rounded-md px-4 text-sm text-stone-800 placeholder-stone-400"
-                  />
-
-                  <div className="pt-4 flex justify-center">
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="rounded-full bg-stone-800 px-12 py-3.5 text-sm font-medium text-white transition-all hover:bg-stone-700 disabled:opacity-50 w-full"
-                    >
-                      {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Register')}
-                    </button>
+                  <div className="flex-1">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2">Last Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Last"
+                      className="w-full bg-white border border-[var(--border-light)] px-4 py-3.5 rounded-lg text-sm focus:outline-none focus:border-[var(--gold)] text-[var(--text-primary)] transition-colors"
+                    />
                   </div>
-                </form>
-
-                <div className="mt-8 flex flex-col items-center gap-3 text-sm text-stone-500">
-                  {isLogin && (
-                    <button type="button" className="underline underline-offset-4 hover:text-stone-800 transition-colors">
-                      Forgot your password?
-                    </button>
-                  )}
-                  <p>
-                    {isLogin ? "Don't have an account? " : "Already have an account? "}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsLogin(!isLogin);
-                        setMessage(null);
-                      }}
-                      className="text-stone-800 underline underline-offset-4 hover:text-stone-600 transition-colors"
-                    >
-                      {isLogin ? "Sign up!" : "Sign in!"}
-                    </button>
-                  </p>
                 </div>
+              )}
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="w-full bg-white border border-[var(--border-light)] px-4 py-3.5 rounded-lg text-sm focus:outline-none focus:border-[var(--gold)] text-[var(--text-primary)] transition-colors"
+                />
               </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)] mb-2">Password</label>
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={isLogin ? "••••••••" : "Create a password"}
+                  className="w-full bg-white border border-[var(--border-light)] px-4 py-3.5 rounded-lg text-sm focus:outline-none focus:border-[var(--gold)] text-[var(--text-primary)] transition-colors"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[var(--bg-dark)] text-[var(--text-white)] py-4 rounded-lg text-[11px] font-bold uppercase tracking-[0.2em] mt-4 hover:bg-[var(--text-primary)] transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Processing...' : isLogin ? 'Log in with Email' : 'Create with Email'}
+              </button>
+            </form>
+
+            <div className="mt-8 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setMessage(null);
+                }}
+                className="text-[13px] font-medium text-[var(--text-secondary)] hover:text-[var(--gold)] transition-colors"
+              >
+                {isLogin ? "Don't have an account? Sign up!" : "Already have an account? Log in!"}
+              </button>
             </div>
           </motion.div>
         </motion.div>

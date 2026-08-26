@@ -1,20 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Star, CheckCircle2, ArrowLeft, MapPin, X, ArrowUpRight } from 'lucide-react';
+import { Star, CheckCircle2, ArrowLeft, MapPin, X, ArrowUpRight, MessageCircle } from 'lucide-react';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const FALLBACK_IMG =
-  'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80';
-
-const EDITORIAL_PORTFOLIO = [
-  '1522337360788-8b13fee7a3af', 
-  '1515377905703-c4788e51af15', 
-  '1508186225823-0963cfdbaa18', 
-  '1509967419530-da38b4704bc6', 
-  '1542452255199-3172cb8cbce8', 
-  '1518049362265-d5b2a6467637' 
-].map(id => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=80`);
+// specific aesthetic names requested in the design brief
+const LOOK_NAMES = [
+  "Intense Smokey Eye Bold Glam",
+  "Silver Cut-Crease Reception Glam",
+  "Soft Glam Engagement Look",
+  "Christian Bridal with Smoky Elegance",
+  "Nizami Royal Festive Bridal",
+  "Classic Canvas Aesthetic"
+];
 
 export type ProfileModalProps = {
   open: boolean;
@@ -22,15 +20,6 @@ export type ProfileModalProps = {
   onClose: () => void;
   onBookAppointment: () => void;
 };
-
-const LOOK_NAMES = [
-  "Signature Editorial Look",
-  "Soft Glamour & Skin Work",
-  "Creative Portraiture",
-  "High-Fashion Glam",
-  "Classic Canvas Aesthetic",
-  "Flawless Base Execution"
-];
 
 export function ProfileModal({ open, artist, onClose, onBookAppointment }: ProfileModalProps) {
   const displayed = useRef(artist);
@@ -56,156 +45,160 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
 
   const portfolioImages: string[] = (() => {
     const raw = data.portfolio || [];
-    if (raw.length === 0) return EDITORIAL_PORTFOLIO;
+    if (raw.length === 0) return [data.image]; // Fallback to profile image if empty
     return raw
       .map((p: any) => (typeof p === 'string' ? p : p?.image))
       .filter(Boolean);
   })();
+
+  // Universal Fallback Logic
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (e.currentTarget.dataset.hasFailed) return;
+    e.currentTarget.dataset.hasFailed = 'true';
+    const safeId = String(Math.floor(Math.random() * 5) + 1).padStart(3, '0');
+    e.currentTarget.src = `/canvas-artists/artist_${safeId}/portfolio-0.jpg`;
+  };
 
   return (
     <>
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-[100] flex flex-col lg:flex-row bg-[#05020A] text-white h-[100dvh] w-full"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 30 }}
-            transition={{ duration: 0.4, ease }}
+            className="fixed inset-0 z-[200] flex justify-center items-center bg-[var(--bg-dark)]/80 backdrop-blur-sm p-4 md:p-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             role="dialog"
             aria-modal="true"
+            onClick={onClose}
           >
-            
-            <div className="flex-1 overflow-y-auto scrollbar-hide p-6 lg:p-12 relative border-r border-white/10">
+            <style>{`
+              .hide-scroll::-webkit-scrollbar { display: none; }
+              .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+            `}</style>
+
+            <motion.div
+              initial={{ scale: 0.98, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.98, opacity: 0, y: 15 }}
+              transition={{ duration: 0.4, ease }}
+              className="w-full max-w-[1100px] h-[95vh] md:h-[85vh] flex flex-col bg-[var(--bg-cream)] rounded-2xl overflow-hidden shadow-2xl relative"
+              onClick={(e) => e.stopPropagation()}
+            >
               
-              <button
-                onClick={onClose}
-                className="group sticky top-[72px] mt-[72px] z-20 mb-12 inline-flex items-center gap-3 bg-[#05020A]/90 py-4 pr-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/50 backdrop-blur-md transition-colors hover:text-white"
-              >
-                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
-                BACK TO DIRECTORY
-              </button>
-
-              <div className="mx-auto max-w-5xl pb-24">
+              {/* DARK PURPLE HERO SECTION */}
+              <div className="bg-[var(--bg-dark)] p-8 md:p-12 shrink-0 relative">
+                <button onClick={onClose} className="absolute top-6 right-6 text-[var(--text-light)] hover:text-white transition-colors z-10">
+                  <X size={28} strokeWidth={1.5} />
+                </button>
                 
-                <div className="mb-16">
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#B66CF2] mb-4">Portfolio</p>
-                  <h2 className="text-6xl md:text-8xl font-serif italic leading-none tracking-tight">The Archive.</h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                  {portfolioImages.map((img: string, i: number) => {
-                    let colSpanClass = "md:col-span-12";
-                    let aspectClass = "aspect-[16/9]";
+                <div className="flex flex-col md:flex-row gap-8 md:gap-10 items-center md:items-start text-center md:text-left relative z-0">
+                  
+                  {/* Circular Profile Photo */}
+                  <img 
+                    src={data.image} 
+                    alt={data.name} 
+                    className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-[3px] border-[var(--gold)] shrink-0 shadow-[0_0_30px_rgba(196,163,90,0.2)]" 
+                    onError={handleImageError} 
+                  />
+                  
+                  <div className="flex-1 w-full">
+                    {/* Name + Verified Badge */}
+                    <div className="flex flex-col md:flex-row items-center gap-4 mb-3">
+                      <h1 className="font-serif text-4xl md:text-5xl text-white tracking-wide">{data.name}</h1>
+                      <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shrink-0 mt-2 md:mt-0">
+                        <CheckCircle2 size={12} strokeWidth={3} /> Verified
+                      </span>
+                    </div>
                     
-                    if (i % 5 === 1) {
-                      colSpanClass = "md:col-span-5";
-                      aspectClass = "aspect-[4/5]";
-                    } else if (i % 5 === 2) {
-                      colSpanClass = "md:col-span-7";
-                      aspectClass = "aspect-square";
-                    } else if (i % 5 === 3 || i % 5 === 4) {
-                      colSpanClass = "md:col-span-6";
-                      aspectClass = "aspect-[4/5]";
-                    }
-
-                    return (
-                      <div key={i} className={`${colSpanClass} group relative cursor-pointer overflow-hidden border border-white/10 bg-[#1A1A1A]`} onClick={() => setExpandedImage(img)}>
-                        <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="bg-black px-4 py-2 text-[9px] font-black uppercase tracking-[0.2em] text-white border border-white/20">
-                            EXPAND
-                          </span>
-                        </div>
-                        <img 
-                          src={img} 
-                          alt={`${data.name} portfolio ${i}`}
-                          className={`w-full ${aspectClass} object-cover transition-transform duration-1000 group-hover:scale-105 opacity-80 group-hover:opacity-100`}
-                          onError={(e) => {
-                            if (e.currentTarget.dataset.hasFailed) return;
-                            e.currentTarget.dataset.hasFailed = 'true';
-                            e.currentTarget.src = FALLBACK_IMG;
-                          }}
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">LOOK N°0{i + 1}</p>
-                          <p className="text-sm font-bold tracking-widest text-[#B66CF2] mt-1 uppercase">{LOOK_NAMES[i % LOOK_NAMES.length]}</p>
-                        </div>
+                    {/* Location Pin & Experience */}
+                    <p className="text-[var(--text-light)] text-sm mb-5 font-sans flex items-center justify-center md:justify-start gap-2">
+                      <MapPin size={16} className="text-[var(--gold)]" /> {data.location || data.city} • {data.experience_years || 8} yrs experience
+                    </p>
+                    
+                    {/* Tags in Rounded Pills */}
+                    <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-8">
+                      {(data.tags || ["Bridal Glam", "Editorial", "Skin Work"]).map((tag: string) => (
+                        <span key={tag} className="tag border-white/20 text-white/90 bg-white/5">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    {/* Rating & Price */}
+                    <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 border-t border-white/10 pt-6">
+                      <div className="text-[var(--gold)] font-medium text-lg flex items-center justify-center gap-2">
+                        <Star size={18} fill="currentColor" /> {data.rating || '4.9'} 
+                        <span className="text-white/50 text-sm font-normal">({data.reviewsCount || 214} reviews)</span>
                       </div>
-                    );
-                  })}
-                </div>
+                      <div className="hidden md:block w-px h-6 bg-white/20"></div>
+                      <div className="text-white font-medium text-lg">
+                        {data.startingPrice || '₹35,000'} <span className="text-sm text-white/50 font-normal">Premium Package</span>
+                      </div>
+                    </div>
+                  </div>
 
+                  {/* WhatsApp CTA */}
+                  <div className="shrink-0 flex items-center w-full md:w-auto mt-4 md:mt-0">
+                    <button 
+                      onClick={onBookAppointment} 
+                      className="w-full md:w-auto bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-[#B08D45] transition-colors px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-lg"
+                    >
+                      <MessageCircle size={16} /> Send enquiry on WhatsApp
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="w-full lg:w-[480px] xl:w-[520px] shrink-0 bg-white text-black flex flex-col z-10 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
-              
-              <div className="flex-1 overflow-y-auto p-8 lg:p-12 scrollbar-hide">
+              {/* LIGHT CREAM BODY SECTION */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-12 hide-scroll bg-[var(--bg-cream)]">
                 
-                <div className="mb-10 flex items-start gap-6 border-b border-black/10 pb-10">
-                  <div className="h-20 w-20 shrink-0 bg-[#f4f4f4] overflow-hidden">
-                    <img 
-                      src={data.image}
-                      alt={`${data.name} Profile`}
-                      onError={(e) => {
-                        e.currentTarget.src = FALLBACK_IMG;
-                      }}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="flex flex-col pt-1">
-                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#B66CF2] mb-2">
-                      Access Verified
-                    </span>
-                    <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-black/60">
-                      <CheckCircle2 size={14} className="text-black" /> Professional Status
-                    </span>
-                  </div>
-                </div>
-                
-                <h1 className="text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-[0.85] text-black mb-6">
-                  {data.name}
-                </h1>
-                
-                <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-black/50 mb-12">
-                  <MapPin size={16} className="text-black" /> {data.city} <span className="text-[#B66CF2] mx-2">/</span> {data.rating} RATING
-                </p>
-
-                <div className="border-t border-black/10 pt-10">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 mb-6">Disciplines & Techniques</p>
-                  <div className="flex flex-wrap gap-2">
-          {(data.tags || ["Bridal Glam", "Editorial", "Skin Work"]).map((tag: string) => (
-            <span key={tag} className="tag">
-              {tag}
-            </span>
-          ))}
-        </div>
-                </div>
-
-                <div className="mt-12 border-t border-black/10 pt-10">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 mb-4">The Standard</p>
-                  <p className="text-sm font-bold uppercase tracking-widest leading-loose text-black/80">
-                    {data.signature || `A master of their craft, known for elevating natural features through precise, high-fashion execution.`}
+                {/* Quote in Italic Serif */}
+                <div className="max-w-4xl mx-auto text-center mb-16 px-4">
+                  <p className="font-serif italic text-2xl md:text-[28px] text-[var(--text-primary)] leading-relaxed">
+                    "{data.bio || data.signature || `Specializing in HD Airbrush technique and traditional bridal aesthetics, every look is crafted to photograph beautifully under intense wedding lights and feel like the best version of the bride herself.`}"
                   </p>
                 </div>
-              </div>
 
-              <div className="shrink-0 bg-[#F9F9F9] border-t border-black/10 p-8 lg:p-12">
-                <div className="mb-8">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 mb-2">Starting Base Rate</p>
-                  <p className="text-4xl font-black text-black tracking-tight">{data.startingPrice}</p>
+                <div className="mb-10 text-center md:text-left">
+                  <h2 className="font-serif text-3xl md:text-4xl text-[var(--text-primary)] mb-3">Verified Portfolio</h2>
+                  <p className="text-[var(--text-secondary)] text-[15px]">Real client work showcasing {data.name}'s signature aesthetic and technical execution.</p>
                 </div>
-                <button 
-                  onClick={onBookAppointment}
-                  className="group flex w-full items-center justify-center gap-4 bg-black py-6 text-xs font-black uppercase tracking-[0.3em] text-white transition-colors hover:bg-[#B66CF2]"
-                >
-                  SECURE YOUR SLOT 
-                  <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                </button>
+
+                {/* Verified Portfolio Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 pb-12">
+                  {portfolioImages.map((img: string, i: number) => (
+                    <div key={i} className="bg-[var(--bg-card)] border border-[var(--border-light)] rounded-2xl overflow-hidden shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] group flex flex-col">
+                      <div className="cursor-pointer overflow-hidden relative shrink-0" onClick={() => setExpandedImage(img)}>
+                        <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/5] object-cover group-hover:scale-105 transition-transform duration-700" onError={handleImageError} />
+                        <div className="absolute inset-0 bg-[var(--bg-dark)]/0 group-hover:bg-[var(--bg-dark)]/10 transition-colors"></div>
+                        <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="bg-[var(--bg-dark)]/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] text-white">
+                            Expand
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-6 md:p-8 flex flex-col flex-1 text-center bg-[var(--bg-card)]">
+                        <div className="inline-block self-center bg-[var(--bg-beige)] text-[var(--text-secondary)] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] mb-4">
+                          Portfolio Image {i + 1}
+                        </div>
+                        <h3 className="font-serif text-xl text-[var(--text-primary)] leading-tight mb-2">
+                          {data.name} - {LOOK_NAMES[i % LOOK_NAMES.length]}
+                        </h3>
+                        <p className="text-[13px] text-[var(--text-secondary)] mb-6 flex-1">A verified example of the aesthetic.</p>
+                        <button 
+                          onClick={onBookAppointment} 
+                          className="w-full bg-[var(--bg-beige)] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] text-[var(--text-primary)] transition-colors py-3.5 rounded-xl text-[11px] font-bold uppercase tracking-[0.2em]"
+                        >
+                          Enquire about this look
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-
-            </div>
-
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -218,15 +211,15 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setExpandedImage(null)}
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-[#05020A]/95 p-4 md:p-12 backdrop-blur-2xl"
+            className="fixed inset-0 z-[300] flex items-center justify-center bg-[var(--bg-dark)]/95 p-4 md:p-12 backdrop-blur-xl"
             role="dialog"
             aria-label="Expanded view"
           >
             <button 
-              className="absolute right-6 top-6 md:right-12 md:top-12 text-white/50 transition-colors hover:text-[#B66CF2]"
+              className="absolute right-6 top-6 md:right-12 md:top-12 text-[var(--text-light)] transition-colors hover:text-[var(--gold)] bg-black/20 p-2 rounded-full"
               onClick={() => setExpandedImage(null)}
             >
-              <X size={40} strokeWidth={1} />
+              <X size={32} strokeWidth={1.5} />
             </button>
             
             <motion.img
@@ -236,9 +229,9 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
               transition={{ duration: 0.4, ease }}
               src={expandedImage}
               alt="Expanded portfolio"
-              className="max-h-[90vh] max-w-full object-contain border border-white/10 shadow-2xl"
+              className="max-h-[90vh] max-w-full object-contain border border-white/10 shadow-2xl rounded-lg"
               onClick={(e) => e.stopPropagation()} 
-              onError={(e) => { e.currentTarget.src = EDITORIAL_PORTFOLIO[0] }}
+              onError={handleImageError}
             />
           </motion.div>
         )}

@@ -17,6 +17,7 @@ import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import Dashboard from '@/pages/Dashboard';
 import { artistsData as artists } from './Data/artistsData';
+import BeautyDemo from '@/pages/BeautyDemo'; // or '@/components/BeautyDemo' depending on where you saved it
 
 // Generates a unique, realistic match percentage based on the uploaded file and artist ID
 function getSmartMatchPercentage(file: File | null | undefined, artistId: string): number {
@@ -513,20 +514,18 @@ function Home() {
         <div className="hidden md:flex gap-9">
           <a onClick={() => scrollTo('top')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors border-b border-transparent hover:border-[var(--canvas-g)] pb-1">Home</a>
           <a onClick={() => scrollTo('discover')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors">Browse artists</a>
-          <a onClick={() => scrollTo('standard')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors">Our Standard</a>
+          <a onClick={() => scrollTo('discover')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors">Styles</a>
+          <a onClick={() => scrollTo('standard')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors">For artists</a>
         </div>
 
         <div className="flex items-center gap-4">
           {session ? (
             <>
               <button onClick={() => setLocation('/dashboard')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] transition-colors hidden sm:block">Dashboard</button>
-              <button onClick={handleSignOut} className="bg-[var(--canvas-g)] hover:bg-[#D9B86E] text-[var(--canvas-dp)] px-5 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-[0_10px_30px_-8px_rgba(201,164,99,0.4)] hover:-translate-y-px">Sign Out</button>
+              <button onClick={handleSignOut} className="bg-[var(--canvas-g)] hover:text-[var(--bg-dark)] text-[var(--canvas-dp)] px-5 py-2 rounded-full text-[12px] uppercase tracking-widest font-bold transition-all shadow-sm">Sign Out</button>
             </>
           ) : (
-            <>
-              <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] transition-colors">Log in</button>
-              <button onClick={() => setAuthOpen(true)} className="bg-[var(--canvas-g)] hover:bg-[#D9B86E] text-[var(--canvas-dp)] px-5 py-2.5 rounded-lg text-[13px] font-medium transition-all shadow-[0_10px_30px_-8px_rgba(201,164,99,0.4)] hover:-translate-y-px">Join Canvas</button>
-            </>
+            <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-[12px] uppercase tracking-widest font-bold text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] transition-colors">My Account</button>
           )}
           <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-[var(--canvas-rp)] md:hidden">
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -545,7 +544,9 @@ function Home() {
             {session && <a onClick={() => { setLocation('/dashboard'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)] border-b border-[var(--canvas-bd)] pb-3">Dashboard</a>}
             <a onClick={() => { scrollTo('top'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)]">Home</a>
             <a onClick={() => { scrollTo('discover'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)]">Browse artists</a>
-            <a onClick={() => { scrollTo('standard'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)]">Our Standard</a>
+            <a onClick={() => { scrollTo('discover'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)]">Styles</a>
+            <a onClick={() => { scrollTo('standard'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)]">For artists</a>
+            {!session && <a onClick={() => { setAuthOpen(true); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)] border-t border-[var(--canvas-bd)] pt-3">My Account</a>}
           </motion.div>
         )}
       </AnimatePresence>
@@ -968,6 +969,33 @@ function Home() {
         </div>
       </section>
 
+{/* ---------------------------------------------------- */}
+      {/* NEW: FOR MAKEUP ARTISTS CTA */}
+      <section className="bg-[var(--bg-dark)] py-24 sm:py-32 px-5 border-t border-[var(--gold)]/20 text-center">
+        <div className="max-w-[800px] mx-auto">
+          <div className="section-label">
+            <span className="line"></span>
+            <span>FOR MAKEUP ARTISTS</span>
+            <span className="line"></span>
+          </div>
+          <h2 className="font-serif text-4xl sm:text-5xl text-[var(--text-white)] mb-8 tracking-tight font-medium">
+            Are you a makeup artist?
+          </h2>
+          <p className="font-sans text-[15px] text-[var(--text-light)] leading-[1.8] mb-12 max-w-[680px] mx-auto">
+            It is completely free to list your verified portfolio on CANVAS. When our AI matches you with a bride, you will receive a blurred notification. To unlock the client's WhatsApp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. You can also upgrade to Canvas Pro for a flat monthly subscription to unlock unlimited leads and priority placement in our AI search results.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <button className="bg-transparent text-[var(--gold)] border border-[var(--gold)] px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] transition-colors">
+              Explore Pro Features
+            </button>
+            <button className="bg-[var(--gold)] text-[var(--bg-dark)] border border-[var(--gold)] px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#B08D45] transition-colors">
+              Apply to join Canvas
+            </button>
+          </div>
+        </div>
+      </section>
+      {/* ---------------------------------------------------- */}
+
       {/* THE JOURNAL SECTION (Already exists in your file) */}
       <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-5 py-24 sm:px-8 lg:px-12 lg:py-36">
           <div className="max-w-[1400px] mx-auto">
@@ -1160,6 +1188,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/dashboard" component={Dashboard} />
+        <Route path="/beauty-demo" component={BeautyDemo} />
         <Route component={NotFound} />
       </Switch>
     </ErrorBoundary>
