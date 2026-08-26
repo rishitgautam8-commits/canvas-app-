@@ -4,7 +4,9 @@ import { Star, CheckCircle2, ArrowLeft, MapPin, X, ArrowUpRight } from 'lucide-r
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// High-end editorial fallbacks so the masonry grid never looks broken
+const FALLBACK_IMG =
+  'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80';
+
 const EDITORIAL_PORTFOLIO = [
   '1522337360788-8b13fee7a3af', 
   '1515377905703-c4788e51af15', 
@@ -52,7 +54,6 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
 
   if (!data) return null;
 
-  // Normalize portfolio: handles both string[] (legacy) and {style, image}[] (from App.tsx)
   const portfolioImages: string[] = (() => {
     const raw = data.portfolio || [];
     if (raw.length === 0) return EDITORIAL_PORTFOLIO;
@@ -75,7 +76,6 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
             aria-modal="true"
           >
             
-            {/* LEFT COLUMN: The Pitch-Black Editorial Archive */}
             <div className="flex-1 overflow-y-auto scrollbar-hide p-6 lg:p-12 relative border-r border-white/10">
               
               <button
@@ -93,7 +93,6 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                   <h2 className="text-6xl md:text-8xl font-serif italic leading-none tracking-tight">The Archive.</h2>
                 </div>
 
-                {/* EDITORIAL MASONRY GRID */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                   {portfolioImages.map((img: string, i: number) => {
                     let colSpanClass = "md:col-span-12";
@@ -122,9 +121,9 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                           alt={`${data.name} portfolio ${i}`}
                           className={`w-full ${aspectClass} object-cover transition-transform duration-1000 group-hover:scale-105 opacity-80 group-hover:opacity-100`}
                           onError={(e) => {
-                            if (e.currentTarget.parentElement) {
-                              e.currentTarget.parentElement.style.display = 'none';
-                            }
+                            if (e.currentTarget.dataset.hasFailed) return;
+                            e.currentTarget.dataset.hasFailed = 'true';
+                            e.currentTarget.src = FALLBACK_IMG;
                           }}
                         />
                         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
@@ -139,20 +138,17 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
               </div>
             </div>
 
-            {/* RIGHT COLUMN: The Stark White Booking Ledger */}
             <div className="w-full lg:w-[480px] xl:w-[520px] shrink-0 bg-white text-black flex flex-col z-10 shadow-[-20px_0_50px_rgba(0,0,0,0.5)]">
               
               <div className="flex-1 overflow-y-auto p-8 lg:p-12 scrollbar-hide">
                 
-                {/* Sharp, brutalist profile header */}
                 <div className="mb-10 flex items-start gap-6 border-b border-black/10 pb-10">
                   <div className="h-20 w-20 shrink-0 bg-[#f4f4f4] overflow-hidden">
-                    {/* FIX: use data.image instead of artist.image to avoid crash during exit animation */}
                     <img 
                       src={data.image}
                       alt={`${data.name} Profile`}
                       onError={(e) => {
-                        e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80";
+                        e.currentTarget.src = FALLBACK_IMG;
                       }}
                       className="h-full w-full object-cover"
                     />
@@ -175,7 +171,6 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                   <MapPin size={16} className="text-black" /> {data.city} <span className="text-[#B66CF2] mx-2">/</span> {data.rating} RATING
                 </p>
 
-                {/* Rigid Rectangular Tags */}
                 <div className="border-t border-black/10 pt-10">
                   <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 mb-6">Disciplines & Techniques</p>
                   <div className="flex flex-wrap gap-2">
@@ -195,7 +190,6 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                 </div>
               </div>
 
-              {/* Massive Conversion Footer */}
               <div className="shrink-0 bg-[#F9F9F9] border-t border-black/10 p-8 lg:p-12">
                 <div className="mb-8">
                   <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 mb-2">Starting Base Rate</p>
@@ -216,7 +210,6 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
         )}
       </AnimatePresence>
 
-      {/* Brutalist Lightbox */}
       <AnimatePresence>
         {expandedImage && (
           <motion.div

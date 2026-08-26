@@ -4,6 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 const DEFAULT_TAGS = ['Bridal Glam', '+ Mehendi', '+ Nails'] as const;
 const ease = [0.22, 1, 0.36, 1] as const;
 
+// Reliable Unsplash fallback — never 404s
+const FALLBACK_IMG =
+  'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80';
+
 export type ArtistTint = {
   hue: number;
   saturate: number;
@@ -91,16 +95,14 @@ export function ArtistCard({
         <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-neutral-100">
           {/* Default Profile Headshot */}
           <motion.img
-  src={image}
-  alt={`${name}'s profile`}
-  onError={(e) => {
-  if (e.currentTarget.dataset.hasFailed) return;
-  e.currentTarget.dataset.hasFailed = "true";
-  
-  // Instead of a random folder, just use the artist's own main image!
-  e.currentTarget.src = image; 
-}}
-  className="absolute inset-0 h-full w-full object-cover"
+            src={image}
+            alt={`${name}'s profile`}
+            onError={(e) => {
+              if (e.currentTarget.dataset.hasFailed) return;
+              e.currentTarget.dataset.hasFailed = 'true';
+              e.currentTarget.src = FALLBACK_IMG;
+            }}
+            className="absolute inset-0 h-full w-full object-cover"
             style={imageStyle}
             animate={{ opacity: hovered && hasPortfolio ? 0 : 1, scale: hovered ? 1.03 : 1 }}
             transition={{ duration: 0.7, ease }}
@@ -111,17 +113,15 @@ export function ArtistCard({
             <div className="absolute inset-0">
               <AnimatePresence mode="wait">
                 <motion.img
-  key={currentIndex}
-  src={imagesList[currentIndex]}
-  alt={`${name}'s portfolio work ${currentIndex + 1}`}
-  onError={(e) => {
-  if (e.currentTarget.dataset.hasFailed) return;
-  e.currentTarget.dataset.hasFailed = "true";
-  
-  // Instead of a random folder, just use the artist's own main image!
-  e.currentTarget.src = image; 
-}}
-  className="absolute inset-0 h-full w-full object-cover"
+                  key={currentIndex}
+                  src={imagesList[currentIndex]}
+                  alt={`${name}'s portfolio work ${currentIndex + 1}`}
+                  onError={(e) => {
+                    if (e.currentTarget.dataset.hasFailed) return;
+                    e.currentTarget.dataset.hasFailed = 'true';
+                    e.currentTarget.src = FALLBACK_IMG;
+                  }}
+                  className="absolute inset-0 h-full w-full object-cover"
                   style={imageStyle}
                   initial={{ opacity: 0, scale: 1.05 }}
                   animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1.03 : 1 }}
@@ -165,17 +165,14 @@ export function ArtistCard({
         </div>
 
         <div className="mt-5">
-          {/* Artist Name - Changed text-white to text-neutral-900 */}
           <h3 className="serif text-[1.85rem] leading-none tracking-[-0.03em] text-neutral-900">
             {name}
           </h3>
           
-          {/* Starting Price - Changed text-white/55 to text-neutral-500 */}
           <p className="mt-2 font-sans text-[13px] font-medium tracking-[0.04em] text-neutral-500">
             {startingPrice}
           </p>
 
-          {/* Tags */}
           <div className="mt-4 flex flex-wrap gap-1.5">
             {tags.map((tag) => (
               <span
