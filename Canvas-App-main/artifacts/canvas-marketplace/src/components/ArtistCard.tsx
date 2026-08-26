@@ -4,9 +4,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 const DEFAULT_TAGS = ['Bridal Glam', '+ Mehendi', '+ Nails'] as const;
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// Reliable Unsplash fallback — never 404s
-const FALLBACK_IMG =
-  'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80';
+function getFallback(seed: string) {
+  const hash = seed.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
+  const h = Math.abs(hash) % 360;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">
+       <rect width="400" height="500" fill="hsl(${h},45%,18%)"/>
+       <text x="50%" y="50%" font-family="serif" font-size="22" fill="hsl(${h},80%,85%)"
+         text-anchor="middle" dominant-baseline="middle" letter-spacing="2">${seed.slice(0,2).toUpperCase()}</text>
+     </svg>`
+  )}`;
+}
 
 export type ArtistTint = {
   hue: number;
@@ -98,10 +106,10 @@ export function ArtistCard({
             src={image}
             alt={`${name}'s profile`}
             onError={(e) => {
-              if (e.currentTarget.dataset.hasFailed) return;
-              e.currentTarget.dataset.hasFailed = 'true';
-              e.currentTarget.src = FALLBACK_IMG;
-            }}
+  if (e.currentTarget.dataset.hasFailed) return;
+  e.currentTarget.dataset.hasFailed = 'true';
+  e.currentTarget.src = getFallback(name);   // unique per artist
+}}
             className="absolute inset-0 h-full w-full object-cover"
             style={imageStyle}
             animate={{ opacity: hovered && hasPortfolio ? 0 : 1, scale: hovered ? 1.03 : 1 }}
@@ -117,10 +125,10 @@ export function ArtistCard({
                   src={imagesList[currentIndex]}
                   alt={`${name}'s portfolio work ${currentIndex + 1}`}
                   onError={(e) => {
-                    if (e.currentTarget.dataset.hasFailed) return;
-                    e.currentTarget.dataset.hasFailed = 'true';
-                    e.currentTarget.src = FALLBACK_IMG;
-                  }}
+  if (e.currentTarget.dataset.hasFailed) return;
+  e.currentTarget.dataset.hasFailed = 'true';
+  e.currentTarget.src = getFallback(name);   // unique per artist
+}}
                   className="absolute inset-0 h-full w-full object-cover"
                   style={imageStyle}
                   initial={{ opacity: 0, scale: 1.05 }}
