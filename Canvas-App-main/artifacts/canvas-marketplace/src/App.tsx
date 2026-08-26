@@ -16,6 +16,7 @@ import NotFound from '@/pages/not-found';
 import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import Dashboard from '@/pages/Dashboard';
+import { artistsData as artists } from './Data/artistsData';
 
 // Generates a unique, realistic match percentage based on the uploaded file and artist ID
 function getSmartMatchPercentage(file: File | null | undefined, artistId: string): number {
@@ -31,8 +32,6 @@ function getSmartMatchPercentage(file: File | null | undefined, artistId: string
   
   return 85 + (Math.abs(hash) % 14);
 }
-
-import { artistsData as artists } from './Data/artistsData';
 
 const queryClient = new QueryClient();
 
@@ -97,7 +96,7 @@ function dedupeKey(name: string, city: string) {
 // Strictly grabs ONLY your original 100 constructed artists!
 // .slice(0, 100) is the hard cap — even if artistsData ever grows past 100 entries,
 // this array can never contribute more than exactly 100 profiles.
-const local100Artists: Artist[] = artistsData.slice(0, 100).map((a: any) => {
+const local100Artists: Artist[] = artists.slice(0, 100).map((a: any) => {
   // Safely extract string URLs from the portfolio array whether they are objects or strings
   const safePortfolio = (a.portfolio || []).map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean);
 

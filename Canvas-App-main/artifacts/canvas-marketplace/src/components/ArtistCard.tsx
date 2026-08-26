@@ -94,10 +94,12 @@ export function ArtistCard({
   src={image}
   alt={`${name}'s profile`}
   onError={(e) => {
-    e.currentTarget.onerror = null;
-    const randomId = Math.floor(Math.random() * 25) + 1;
-    e.currentTarget.src = `/canvas-artists/artist_${String(randomId).padStart(3, '0')}/portfolio-1.jpg`;
-  }}
+  if (e.currentTarget.dataset.hasFailed) return;
+  e.currentTarget.dataset.hasFailed = "true";
+  
+  const randomId = Math.floor(Math.random() * 25) + 1;
+  e.currentTarget.src = `/canvas-artists/artist_${String(randomId).padStart(3, '0')}/portfolio-1.jpg`;
+}}
   className="absolute inset-0 h-full w-full object-cover"
             style={imageStyle}
             animate={{ opacity: hovered && hasPortfolio ? 0 : 1, scale: hovered ? 1.03 : 1 }}
@@ -113,10 +115,12 @@ export function ArtistCard({
   src={imagesList[currentIndex]}
   alt={`${name}'s portfolio work ${currentIndex + 1}`}
   onError={(e) => {
-    e.currentTarget.onerror = null;
-    const randomId = Math.floor(Math.random() * 25) + 1;
-    e.currentTarget.src = `/canvas-artists/artist_${String(randomId).padStart(3, '0')}/portfolio-1.jpg`;
-  }}
+  if (e.currentTarget.dataset.hasFailed) return;
+  e.currentTarget.dataset.hasFailed = "true";
+  
+  const randomId = Math.floor(Math.random() * 25) + 1;
+  e.currentTarget.src = `/canvas-artists/artist_${String(randomId).padStart(3, '0')}/portfolio-1.jpg`;
+}}
   className="absolute inset-0 h-full w-full object-cover"
                   style={imageStyle}
                   initial={{ opacity: 0, scale: 1.05 }}
