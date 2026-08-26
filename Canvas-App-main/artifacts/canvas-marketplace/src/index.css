@@ -39,24 +39,55 @@
 }
 
 :root {
-  /* CANVAS LUXURY PALETTE (From Prototype) */
-  --canvas-dp: #150420; /* Deep plum-ink (Text) */
-  --canvas-rp: #33103E; /* Rich aubergine */
-  --canvas-mp: #73348F; /* Orchid */
-  --canvas-sp: #C9ACDA; /* Soft lilac */
-  --canvas-pp: #F0E4F7; /* Pale lilac wash */
-  
-  --canvas-g:  #C9A463; /* Champagne gold (Primary Accents) */
-  --canvas-gl: #F6E8C4; /* Pale gold highlight */
-  --canvas-gd: #7C5916; /* Bronze */
-  
-  --canvas-iv: #FBF8F2; /* Ivory (Main Background) */
-  --canvas-cr: #F1E9DC; /* Cream (Secondary Background) */
-  --canvas-wh: #FFFFFF; /* White */
-  --canvas-bd: #E7DCC8; /* Warm hairline border */
-  --canvas-mut: #5C3D6E; /* Muted plum body copy */
+  /* 1. Kimi's Premium Brand Variables */
+  --bg-cream: #F5F0E8;
+  --bg-card: #FFFFFF;
+  --bg-dark: #1A0B2E;
+  --bg-beige: #EDE8DE;
 
-  --radius: 0.75rem;
+  --text-primary: #2D1B4E;
+  --text-secondary: #6B5B7A;
+  --text-light: rgba(255, 255, 255, 0.85);
+  --text-white: #FFFFFF;
+
+  --gold: #C4A35A;
+  --gold-hover: #B08D45;
+  --gold-dark: #A07D35;
+
+  --border-light: #E5E0D5;
+
+  /* 2. Legacy Mapping (This instantly updates all colors in App.tsx!) */
+  --canvas-iv: var(--bg-cream);     /* Ivory background becomes Cream */
+  --canvas-cr: var(--bg-card);      /* Card background becomes White */
+  --canvas-dp: var(--bg-dark);      /* Dark elements become Deep Aubergine */
+  --canvas-rp: var(--text-primary); /* Text becomes Deep Aubergine */
+  --canvas-mut: var(--text-secondary); /* Muted text becomes Slate Purple */
+  --canvas-g: var(--gold);          /* Buttons become Antique Gold */
+  --canvas-gd: var(--gold-dark);    /* Dark gold hover states */
+  --canvas-bd: var(--border-light); /* Borders become soft cream-grey */
+
+  /* Spacing & Borders */
+  --radius-card: 16px;
+  --radius-large: 24px;
+  --radius-pill: 999px;
+  --section-padding: 80px;
+  --card-padding: 24px;
+  --grid-gap: 24px;
+
+  /* Typography */
+  --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Force Tailwind to use your new premium fonts */
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+  
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-serif) !important;
+  }
 }
 
 @layer base {
