@@ -21,15 +21,7 @@ export interface Artist {
   isVerified: boolean;
 }
 
-// ============================================================
-// YOUR ACTUAL FOLDER STRUCTURE (from screenshots)
-// ============================================================
-// 25 numbered folders + 5 named brand folders = 30 folders
-// Each folder has 5-7 unique photos = ~180 total unique images
-// This is MORE than enough for 100 unique profile photos.
-
 const ARTIST_FOLDERS = [
-  // --- 25 generic artist folders (artist_001 … artist_025) ---
   ...Array.from({ length: 25 }, (_, i) => {
     const num = String(i + 1).padStart(3, '0');
     return {
@@ -45,8 +37,6 @@ const ARTIST_FOLDERS = [
       ],
     };
   }),
-
-  // --- 5 named brand folders (from your screenshots) ---
   {
     folder: 'Geetanjali',
     files: ['geetanjali_profile.jpg', '1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg'],
@@ -69,16 +59,6 @@ const ARTIST_FOLDERS = [
   },
 ];
 
-// Build a flat pool of EVERY unique photo path you have.
-// ~180 images total. We only need 100 for profiles, so no wrapping = zero duplicates.
-const UNIQUE_PHOTO_POOL: string[] = [];
-ARTIST_FOLDERS.forEach(({ folder, files }) => {
-  files.forEach((file) => {
-    UNIQUE_PHOTO_POOL.push(`/canvas-artists/${folder}/${file}`);
-  });
-});
-
-// --- Data generators ---
 const FIRST_NAMES = [
   'Aarti', 'Ananya', 'Divya', 'Pooja', 'Riya', 'Shreya', 'Sneha', 'Tanvi',
   'Meera', 'Kavya', 'Simran', 'Neha', 'Priya', 'Nikita', 'Isha', 'Swati',
@@ -114,13 +94,11 @@ export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) 
       rating: 4.9,
       reviewCount: 48,
       reviewsCount: 48,
-      // Unique profile photo from Kaushal Makeover folder
       image: '/canvas-artists/Kaushal Makeover/1.jpg',
       hoverImage: '/canvas-artists/Kaushal Makeover/2.jpg',
       tags: ['Kaushal Makeover', 'Signature Bridal', 'Jubilee Hills'],
       bio: 'Master makeup artist operating under Kaushal Makeover. Renowned for flawless South Indian bridal styling, HD airbrush, and bespoke editorial looks in Hyderabad.',
       signature: 'Kaushal Signature Aesthetic',
-      // 4 genuinely different portfolio images
       portfolio: [
         '/canvas-artists/Kaushal Makeover/1.jpg',
         '/canvas-artists/Kaushal Makeover/2.jpg',
@@ -137,28 +115,26 @@ export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) 
   }
 
   // ==========================================================
-  // EVERY OTHER ARTIST: 100% unique profile photo
+  // EVERY OTHER ARTIST: coherent images from ONE folder
   // ==========================================================
 
-  // Pick a UNIQUE profile photo from the giant pool.
-  // Since the pool has ~180 images and we only need 100, index 0-99 never repeats.
-  const profileImage = UNIQUE_PHOTO_POOL[index];
-  const hoverImage = UNIQUE_PHOTO_POOL[index + 1] || UNIQUE_PHOTO_POOL[0];
+  // 1. Assign a folder (cycle through the 30 you have)
+  const folderIndex = index % ARTIST_FOLDERS.length;
+  const folder = ARTIST_FOLDERS[folderIndex];
 
-  // Assign a "home folder" for portfolio images.
-  // Portfolio images CAN repeat across artists — you said this is fine.
-  const homeFolder = ARTIST_FOLDERS[index % ARTIST_FOLDERS.length];
-
-  // Build portfolio from the home folder:
-  // - For numbered folders: use portfolio-1.jpg … portfolio-5.jpg
-  // - For named folders: use all files except the _profile one
-  const portfolioFiles = homeFolder.folder.startsWith('artist_')
-    ? ['portfolio-1.jpg', 'portfolio-2.jpg', 'portfolio-3.jpg', 'portfolio-4.jpg', 'portfolio-5.jpg']
-    : homeFolder.files.filter((f) => !f.includes('profile'));
-
-  const portfolio = portfolioFiles.map(
-    (f) => `/canvas-artists/${homeFolder.folder}/${f}`
+  // 2. Build every image path inside that folder
+  const folderImages = folder.files.map(
+    (f) => `/canvas-artists/${folder.folder}/${f}`
   );
+
+  // 3. Pick a unique image for THIS artist from that folder.
+  //    Artists who share a folder get different photos.
+  const imgIndex = Math.floor(index / ARTIST_FOLDERS.length) % folderImages.length;
+  const image = folderImages[imgIndex];
+  const hoverImage = folderImages[(imgIndex + 1) % folderImages.length];
+
+  // 4. Portfolio = all images from the same folder
+  const portfolio = [...folderImages];
 
   const name = `${FIRST_NAMES[index % FIRST_NAMES.length]} ${
     ['Goud', 'Reddy', 'Rao', 'Verma', 'Nair', 'Iyer', 'Kapoor'][index % 7]
@@ -180,7 +156,7 @@ export const artistsData: Artist[] = Array.from({ length: 100 }).map((_, index) 
     rating: Number((4.5 + (index % 5) * 0.1).toFixed(1)),
     reviewCount: 15 + (index % 35),
     reviewsCount: 15 + (index % 35),
-    image: profileImage,
+    image,
     hoverImage,
     tags: [specialty, city],
     bio: `Master makeup artist specializing in ${specialty.toLowerCase()}. Over ${
