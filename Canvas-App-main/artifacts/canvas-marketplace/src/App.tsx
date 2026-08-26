@@ -50,9 +50,6 @@ const GRID_PARALLAX_FACTOR = -0.06;
 const GRID_PARALLAX_MAX_PX = 70;
 
 // ---- IMAGE FALLBACK ARMOR ----
-// A data: URI never hits the network, so it can never 404, get rate-limited,
-// or trigger a second onError loop. This is the one true "bottom" of the fallback
-// chain — every artist/portfolio image should end here if the real image fails.
 const PLACEHOLDER_IMG =
   'data:image/svg+xml;utf8,' +
   encodeURIComponent(
@@ -65,62 +62,69 @@ const PLACEHOLDER_IMG =
 
 function handleImgError(e: React.SyntheticEvent<HTMLImageElement>) {
   const img = e.currentTarget;
-  if (img.src === PLACEHOLDER_IMG) return; // already on the safety net — stop, don't loop
+  if (img.src === PLACEHOLDER_IMG) return;
   img.onerror = null;
   img.src = PLACEHOLDER_IMG;
 }
 
-// A real Supabase Auth UUID (v4 shape). This is stricter than "contains a dash" —
-// a manually-seeded test row like "demo-artist-01" or "seed-artist-1" also contains
-// a dash and was slipping past the old check, which is how dummy rows were leaking
-// into the "live" artist count.
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Normalized name+city key, used as a second line of defense against duplicates:
-// catches the case where the same artist exists both as a hardcoded local profile
-// AND as a leaked/seeded Supabase row with a different id.
 function dedupeKey(name: string, city: string) {
   return `${(name || '').trim().toLowerCase()}|${(city || '').trim().toLowerCase()}`;
 }
 
-// Capped at 24 to preserve the "Exclusive Network" standard and prevent Unsplash IP blocks
-// 1. Filter out broken dummy data, 2. Keep 24 good ones, 3. Map them
-// 1. STRICT FILTER: Only allow profiles that have a name AND an actual portfolio array with images!
-// 2. SLICE: Keep the top 24 BEST profiles so Unsplash doesn't block the IP.
-// Strictly grabs ONLY your original 100 constructed artists, ignoring the accidental duplicates!
-// Strictly grabs ONLY your original 100 constructed artists!
-// .slice(0, 100) is the hard cap — even if artistsData ever grows past 100 entries,
-// this array can never contribute more than exactly 100 profiles.
-// 1. STRICT FILTER: Only allow profiles that have a name AND an actual portfolio array with images!
-// 2. SLICE: Keep the top 24 BEST profiles so Unsplash doesn't block the IP.
-// Strictly grabs ONLY your original 100 constructed artists!
-// .slice(0, 100) is the hard cap — even if artistsData ever grows past 100 entries,
-// this array can never contribute more than exactly 100 profiles.
+// Normalize any portfolio format (string[] from Supabase or {style, image}[] from local data)
+// into a guaranteed {style, image}[] so the ProfileModal always has something to render.
+function normalizePortfolio(
+  portfolio: any[] | null | undefined,
+  fallbackImage: string
+): { style: string; image: string }[] {
+  const raw = portfolio || [];
+  if (raw.length === 0) {
+    return [{ style: 'Signature Work', image: fallbackImage }];
+  }
+  return raw.map((p: any, i: number) => {
+    if (typeof p === 'string') {
+      return {
+        style: `Look N°${String(i + 1).padStart(2, '0')}`,
+        image: p,
+      };
+    }
+    return {
+      style: p?.style || `Look N°${String(i + 1).padStart(2, '0')}`,
+      image: p?.image || fallbackImage,
+    };
+  });
+}
+
+const FALLBACK_IMG =
+  'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80';
+
 const local100Artists: Artist[] = artists.slice(0, 100).map((a: any) => {
-  // Safely extract string URLs from the portfolio array whether they are objects or strings
-  const safePortfolio = (a.portfolio || []).map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean);
+  const profileImg = a.image || a.portfolio?.[0]?.image || a.portfolio?.[0] || FALLBACK_IMG;
+  const normalizedPortfolio = normalizePortfolio(a.portfolio, profileImg);
 
   return {
     id: String(a.id),
     name: a.name,
     category: a.category || 'Bridal & Wedding',
-    services: [a.specialty || 'Makeup Artist', "Makeup Artist"],
-    city: a.city || "Jubilee Hills",
-    location: `${a.city || "Jubilee Hills"}, Hyderabad`,
+    services: [a.specialty || 'Makeup Artist', 'Makeup Artist'],
+    city: a.city || 'Jubilee Hills',
+    location: `${a.city || 'Jubilee Hills'}, Hyderabad`,
     maxTravelKm: 50,
     pricePerSession: a.pricePerSession || 15000,
     startingPrice: a.startingPrice || `₹15,000`,
     rating: a.rating || 4.9,
     reviewCount: a.reviewsCount || 24,
     reviewsCount: a.reviewsCount || 24,
-    image: a.image,
-    hoverImage: a.hoverImage,
+    image: profileImg,
+    hoverImage: normalizedPortfolio[1]?.image || normalizedPortfolio[0]?.image || profileImg,
     tags: [a.specialty || 'Custom Styling'],
     bio: a.bio || `Expert in ${a.specialty}. Available for bookings.`,
     signature: a.specialty || 'Signature Aesthetic',
-    portfolio: safePortfolio, 
-    addons: a.addons || [],       
-    isVerified: true
+    portfolio: normalizedPortfolio,
+    addons: a.addons || [],
+    isVerified: true,
   };
 });
 
@@ -153,8 +157,7 @@ function runCanvasMatch(
     }
     return true;
   }).map(artist => {
-    // REAL MATCHING ENGINE LOGIC
-    let matchScore = 78; // Baseline score for matching location & service
+    let matchScore = 78;
     const artistDataString = `${artist.category} ${artist.tags?.join(' ')} ${artist.bio} ${artist.signature}`.toLowerCase();
     
     if (aiTags.length > 0) {
@@ -171,7 +174,6 @@ function runCanvasMatch(
   });
 }
 
-// Helper to read the dropped file into base64 format
 const fileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -184,18 +186,15 @@ const fileToBase64 = (file: File): Promise<string> => {
 async function analyzeLookWithAI(file: File): Promise<string[]> {
   try {
     const base64Image = await fileToBase64(file);
-    
-    // Securely ping your Supabase Edge Function (Key stays hidden on the server!)
     const { data, error } = await supabase.functions.invoke('vision-match', {
       body: { imageBase64: base64Image }
     });
 
     if (error) throw error;
     return data.tags || ['soft glam', 'natural', 'bridal'];
-
   } catch (error) {
     console.error("Secure Vision API Error:", error);
-    return ['soft glam', 'natural', 'bridal']; // Fallback tags if network hiccups
+    return ['soft glam', 'natural', 'bridal'];
   }
 }
 
@@ -208,14 +207,13 @@ function Home() {
   const [visibleCount, setVisibleCount] = useState(9);
 
   const handleSelectArtist = (artist: Artist) => {
-    console.log("Artist card clicked:", artist.name); // Check your browser console (F12) when clicking!
+    console.log("Artist card clicked:", artist.name);
     setSelectedArtist(artist);
   };
   
   const [liveArtists, setLiveArtists] = useState<Artist[]>([]);
   const [, setLoadingArtists] = useState(true);
 
-  // Sidebar Filter States
   const [sortBy, setSortBy] = useState('Best match');
   const [maxBudget, setMaxBudget] = useState(65000);
   const [cityFilters, setCityFilters] = useState<Record<string, boolean>>({
@@ -252,7 +250,7 @@ function Home() {
           max_travel_km,
           starting_price,
           portfolio 
-        `); // 🚨 ADDED 'portfolio' to the fetch query!
+        `);
 
       if (error) {
         console.error('Error fetching live artists:', error.message);
@@ -264,20 +262,22 @@ function Home() {
           const resolvedCity = item.city || 'Jubilee Hills';
           const resolvedPrice = item.starting_price || 15000;
           const resolvedReviews = 24 + (index % 40);
-          
-          // 🚨 Grab the real portfolio, or fallback to an empty array
-          const userPortfolio = item.portfolio || [];
-          
-          // 🚨 If the artist uploaded photos, make the FIRST photo their main grid image!
-          const mainImage = userPortfolio.length > 0 
-            ? userPortfolio[0] 
-            : `https://images.unsplash.com/photo-${editorialImages[index % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
+
+          const rawPortfolio = item.portfolio || [];
+          const mainImage =
+            rawPortfolio.length > 0
+              ? typeof rawPortfolio[0] === 'string'
+                ? rawPortfolio[0]
+                : rawPortfolio[0]?.image
+              : `https://images.unsplash.com/photo-${editorialImages[index % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
+
+          const normalizedPortfolio = normalizePortfolio(rawPortfolio, mainImage);
 
           return {
             id: item.id,
             name: item.business_name || 'Canvas Artist',
             category: resolvedCategory,
-            services: ['Makeup Artist', resolvedCategory], 
+            services: ['Makeup Artist', resolvedCategory],
             city: resolvedCity,
             location: `${resolvedCity}, Hyderabad`,
             maxTravelKm: item.max_travel_km || 25,
@@ -287,14 +287,14 @@ function Home() {
             reviewCount: resolvedReviews,
             reviewsCount: resolvedReviews,
             image: mainImage,
-            hoverImage: userPortfolio.length > 1 ? userPortfolio[1] : mainImage,
+            hoverImage: normalizedPortfolio[1]?.image || mainImage,
             tags: ['HD Airbrush', 'Bridal Specialist', 'Custom Styling'],
             bio: 'Signature luxury aesthetic tailored to high-end events in Hyderabad.',
             signature: 'Signature luxury aesthetic tailored to high-end events in Hyderabad.',
-            portfolio: userPortfolio, // 🚨 Now maps the real photos into the Profile Modal!
+            portfolio: normalizedPortfolio,
             addons: [],
             isVerified: true,
-            isLiveDb: true 
+            isLiveDb: true,
           } as Artist & { isLiveDb?: boolean };
         });
         setLiveArtists(formatted);
@@ -324,7 +324,6 @@ function Home() {
     
     setSearch(newVal);
 
-    // If user uploaded a new inspiration photo, run the secure backend AI analysis
     if (newVal.inspirationFile) {
       const tags = await analyzeLookWithAI(newVal.inspirationFile);
       setAiTags(tags);
@@ -359,16 +358,6 @@ function Home() {
   const [activeCategory, setActiveCategory] = useState(discoverCategories[1].id);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
 
-  // Bulletproof merge:
-  // 1. Live artists come first, so they're prioritized at the top.
-  // 2. local100Artists is already hard-capped at exactly 100 (see .slice(0, 100) above).
-  // 3. id is always a safe, real dedup key (it's the primary key).
-  // 4. The name+city check ONLY compares live artists against local mock artists —
-  //    it catches a local demo profile that got leaked/re-seeded into Supabase
-  //    under a different id. It deliberately does NOT compare local-vs-local or
-  //    live-vs-live, because two different real people can share a common name
-  //    (this mock dataset has 11 repeated names) and that must never be treated
-  //    as a duplicate.
   const sourceArtists: Artist[] = useMemo(() => {
     const localNameKeys = new Set(local100Artists.map(a => dedupeKey(a.name, a.city)));
     const seenIds = new Set<string>();
@@ -376,7 +365,7 @@ function Home() {
 
     for (const artist of liveArtists) {
       if (seenIds.has(artist.id)) continue;
-      if (localNameKeys.has(dedupeKey(artist.name, artist.city))) continue; // leaked demo copy
+      if (localNameKeys.has(dedupeKey(artist.name, artist.city))) continue;
       seenIds.add(artist.id);
       merged.push(artist);
     }
@@ -397,8 +386,6 @@ function Home() {
     return filtered.slice(0, 4);
   }
 
-  // Apply Search Matching + Sidebar Filters + Sorting
-  // Apply Search Matching + Sidebar Filters + Sorting with real AI tags
   const matchedArtists = runCanvasMatch(
     search.services, 
     search.location, 
@@ -412,7 +399,6 @@ function Home() {
 
     const activeCities = Object.entries(cityFilters).filter(([_, checked]) => checked).map(([city]) => city.toLowerCase());
     
-    // SMART CITY FILTERING: Check if parts of the filter (e.g. "Jubilee Hills") match the artist's city
     if (activeCities.length > 0 && activeCities.length < 4) {
       const matchesCity = activeCities.some(ac => {
         const parts = ac.split('/').map(p => p.trim());
@@ -460,15 +446,10 @@ function Home() {
   const scrollTo = (id: string) => {
     setMenuOpen(false);
     setDiscoverOpen(false);
-    setSelectedArtist(null); // This instantly closes the profile modal!
+    setSelectedArtist(null);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // openBrief only ever runs from inside ProfileModal's "Book Appointment" button,
-  // which means selectedArtist is already set — DON'T clear it here. Clearing it
-  // was why handleBriefSubmit could never see who was actually being booked,
-  // live artist or not. It's correctly cleared later, once the flow is done,
-  // by the "Return to Directory" button below.
   const openBrief = () => {
     setSent(false);
     setBriefOpen(true);
@@ -484,11 +465,6 @@ function Home() {
       return;
     }
 
-    // bookings.artist_id has a foreign key to artist_profiles.id — but the 100
-    // local mock artists (ids like "artist_001") are NOT rows in artist_profiles,
-    // only genuinely registered (isLiveDb) artists are. Refuse up front instead of
-    // either crashing on the FK constraint or silently rebooking a random live
-    // artist in place of the one the client actually picked.
     if (!selectedArtist?.id || !(selectedArtist as any).isLiveDb) {
       window.alert("This artist is a demo profile and isn't available for live bookings yet. Please choose a registered Canvas artist.");
       return;
@@ -528,7 +504,6 @@ function Home() {
   return (
     <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
       
-      {/* 1. The Premium Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between px-6 md:px-12 h-[72px] bg-[rgba(251,248,242,0.82)] backdrop-blur-md border-b border-[rgba(201,164,99,0.35)] shadow-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollTo('top')}>
           <div className="bg-white rounded-[10px] w-10 h-10 md:w-11 md:h-11 shadow-[0_2px_12px_rgba(0,0,0,0.08)] flex items-center justify-center">
@@ -561,7 +536,6 @@ function Home() {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -578,7 +552,6 @@ function Home() {
         )}
       </AnimatePresence>
 
-      {/* 2. The Clean Ivory Hero Section */}
       <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[72px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
         <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
           <div className="flex items-center gap-3 text-[11px] font-medium tracking-[0.16em] uppercase text-[var(--canvas-gd)] mb-7">
@@ -603,7 +576,6 @@ function Home() {
             <button onClick={() => scrollTo('standard')} className="bg-transparent hover:bg-[rgba(201,164,99,0.12)] border border-[var(--canvas-g)] text-[var(--canvas-gd)] px-7 py-3 rounded-lg text-[14px] transition-all hover:-translate-y-0.5">How it works</button>
           </div>
           
-          {/* Featured Artists Avatars */}
           <div className="flex items-center gap-3 mt-10">
             <div className="flex">
               <div className="w-8 h-8 rounded-full border-2 border-[var(--canvas-iv)] flex items-center justify-center text-[10px] font-semibold bg-[#EDE0F5] text-[#6B2D8B] -ml-0 shadow-sm z-40">PK</div>
@@ -620,10 +592,7 @@ function Home() {
         </div>
       </section>
 
-      {/* 3. The Live Demo Search Module */}
       <section id="demo-search" className="relative z-20 bg-[var(--canvas-cr)] border-y border-[var(--canvas-bd)] pt-20 pb-32">
-        
-        {/* Title Block - Constrained to 800px */}
         <div className="max-w-[800px] mx-auto px-6 md:px-12 text-center mb-8">
           <div className="flex items-center justify-center gap-3 text-[11px] font-medium tracking-[0.16em] uppercase text-[var(--canvas-g)] mb-4">
             <div className="w-[26px] h-[1px] bg-gradient-to-r from-transparent to-[var(--canvas-g)]"></div>
@@ -636,7 +605,6 @@ function Home() {
           </p>
         </div>
         
-        {/* Search Component - Full width, overriding old dark theme colors */}
         <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 [&_.text-\\[\\#B66CF2\\]]:text-[var(--canvas-rp)] [&_.text-white\\/50]:text-[var(--canvas-mut)] [&_.text-white\\/70]:text-[var(--canvas-mut)] [&_h1]:text-white">
           <HeroSearch
             value={search}
@@ -703,7 +671,6 @@ function Home() {
                   </div>
                 </div>
 
-                {/* Dynamic Aesthetic Tags from Backend */}
                 <div className="space-y-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/50">Detected Aesthetic Tags from Inspiration:</p>
                   <div className="flex flex-wrap gap-2">
@@ -717,13 +684,10 @@ function Home() {
               </motion.div>
             )}
 
-            {/* MAIN RESULTS LAYOUT WITH SIDEBAR FILTERS & 3-COLUMN GRID */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start mt-10">
               
-              {/* SIDEBAR FILTERS PANEL */}
               <div className="lg:col-span-1 bg-[#F9F9F9] border border-black/10 p-6 space-y-8 sticky top-8">
                 
-                {/* 1. Sort By */}
                 <div>
                   <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-black/70 mb-3">
                     Sort by
@@ -740,7 +704,6 @@ function Home() {
                   </select>
                 </div>
 
-                {/* 2. Max Budget Slider */}
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <label className="text-[11px] font-black uppercase tracking-[0.2em] text-black/70">
@@ -760,46 +723,43 @@ function Home() {
                   <p className="text-[10px] text-black/50 mt-1 uppercase tracking-wider">Up to ₹{maxBudget.toLocaleString('en-IN')}</p>
                 </div>
 
-                {/* 3. City Checkboxes */}
-                {/* CITY */}
-            <div className="mb-10">
-              <h3 className="mb-5 text-[10px] font-black uppercase tracking-[0.3em] text-[#150420]">
-                City
-              </h3>
-              <div className="space-y-4">
-                {Object.keys(cityFilters).map((city) => (
-                  <label key={city} className="flex cursor-pointer items-center group">
-                    <div 
-                      onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))}
-                      className={`mr-4 flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border ${
-                        cityFilters[city]
-                          ? 'border-[#BA965B] bg-[#BA965B]'
-                          : 'border-[#E7DCC8] group-hover:border-[#BA965B]'
-                      } transition-colors`}
-                    >
-                      {cityFilters[city] && (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                      )}
-                    </div>
-                    <span 
-                      onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))}
-                      className={`text-[11px] font-bold uppercase tracking-wider ${
-                        cityFilters[city] ? 'text-[#150420]' : 'text-[#5C3D6E]/60'
-                      } transition-colors`}
-                    >
-                      {city}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
+                <div className="mb-10">
+                  <h3 className="mb-5 text-[10px] font-black uppercase tracking-[0.3em] text-[#150420]">
+                    City
+                  </h3>
+                  <div className="space-y-4">
+                    {Object.keys(cityFilters).map((city) => (
+                      <label key={city} className="flex cursor-pointer items-center group">
+                        <div 
+                          onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))}
+                          className={`mr-4 flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border ${
+                            cityFilters[city]
+                              ? 'border-[#BA965B] bg-[#BA965B]'
+                              : 'border-[#E7DCC8] group-hover:border-[#BA965B]'
+                          } transition-colors`}
+                        >
+                          {cityFilters[city] && (
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          )}
+                        </div>
+                        <span 
+                          onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))}
+                          className={`text-[11px] font-bold uppercase tracking-wider ${
+                            cityFilters[city] ? 'text-[#150420]' : 'text-[#5C3D6E]/60'
+                          } transition-colors`}
+                        >
+                          {city}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
 
               </div>
 
-                            {/* RIGHT GRID AREA (3 COLUMNS) */}
-                            <div className="lg:col-span-3">
+              <div className="lg:col-span-3">
                 <p className="text-xs font-bold uppercase tracking-widest text-black/50 mb-6">
                   Showing {uniqueArtists.length} of {sourceArtists.length} artists
                 </p>
@@ -808,14 +768,13 @@ function Home() {
                   {uniqueArtists.length > 0 ? (
                     <>
                       <div className="grid gap-x-6 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
-                        {/* We slice the array here to only show the visibleCount limit */}
                         {uniqueArtists.slice(0, visibleCount).map((artist, index) => (
                           <ArtistCard
                             key={artist.id || index}
                             name={artist.name}
                             image={artist.image}
                             hoverImage={artist.hoverImage}
-                            portfolioImages={artist.portfolio?.map((p) => (typeof p === 'string' ? p : p?.image)).filter(Boolean)}
+                            portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)}
                             startingPrice={artist.startingPrice}
                             tags={artist.tags}
                             onClick={() => handleSelectArtist(artist)}
@@ -823,7 +782,6 @@ function Home() {
                         ))}
                       </div>
                       
-                      {/* Only show the Load More button if there are still hidden artists */}
                       {visibleCount < uniqueArtists.length && (
                         <div className="mt-16 flex justify-center">
                           <button 
@@ -837,7 +795,7 @@ function Home() {
                       )}
                     </>
                   ) : (
-<div className="flex min-h-[300px] flex-col items-center justify-center border border-[var(--canvas-bd)] bg-white px-6 text-center shadow-sm">
+                    <div className="flex min-h-[300px] flex-col items-center justify-center border border-[var(--canvas-bd)] bg-white px-6 text-center shadow-sm">
                       <p className="text-3xl font-serif italic tracking-tight text-[var(--canvas-rp)]">No artists found</p>
                       <p className="mt-4 max-w-sm text-sm text-[var(--canvas-mut)] uppercase tracking-widest">Adjust your budget or city filters</p>
                       <button 
@@ -1038,7 +996,6 @@ function Home() {
             ) : (
               <div className="flex-1 flex flex-col">
                 
-                {/* Artist Context Card */}
                 {selectedArtist && (
                   <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 mb-10">
                     <img 
@@ -1065,7 +1022,6 @@ function Home() {
                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Preferred Slot</span>
                       <select required name="slot" defaultValue="" className="mt-3 w-full border-b border-white/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-white outline-none focus:border-[#B66CF2] transition-colors [&>option]:bg-[#0A0510]">
                         <option value="" disabled>Select phase...</option>
-                        {/* Values must exactly match the time_slot_period enum in Supabase */}
                         <option value="Morning (Before 12 PM)">Slot 1: Morning Prep (Before 12PM)</option>
                         <option value="Afternoon (12 PM - 4 PM)">Slot 2: Afternoon Glam (12PM–4PM)</option>
                         <option value="Evening (After 4 PM)">Slot 3: Evening Glam (After 4PM)</option>

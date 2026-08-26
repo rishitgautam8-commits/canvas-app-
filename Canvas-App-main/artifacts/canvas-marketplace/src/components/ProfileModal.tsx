@@ -52,8 +52,14 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
 
   if (!data) return null;
 
-  // Ensure we have a beautiful array of images to map over
-  const portfolioImages = data.portfolio?.length > 0 ? data.portfolio : EDITORIAL_PORTFOLIO;
+  // Normalize portfolio: handles both string[] (legacy) and {style, image}[] (from App.tsx)
+  const portfolioImages: string[] = (() => {
+    const raw = data.portfolio || [];
+    if (raw.length === 0) return EDITORIAL_PORTFOLIO;
+    return raw
+      .map((p: any) => (typeof p === 'string' ? p : p?.image))
+      .filter(Boolean);
+  })();
 
   return (
     <>
@@ -73,12 +79,12 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
             <div className="flex-1 overflow-y-auto scrollbar-hide p-6 lg:p-12 relative border-r border-white/10">
               
               <button
-  onClick={onClose}
-  className="group sticky top-[72px] mt-[72px] z-20 mb-12 inline-flex items-center gap-3 bg-[#05020A]/90 py-4 pr-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/50 backdrop-blur-md transition-colors hover:text-white"
->
-  <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
-  BACK TO DIRECTORY
-</button>
+                onClick={onClose}
+                className="group sticky top-[72px] mt-[72px] z-20 mb-12 inline-flex items-center gap-3 bg-[#05020A]/90 py-4 pr-6 text-[10px] font-black uppercase tracking-[0.3em] text-white/50 backdrop-blur-md transition-colors hover:text-white"
+              >
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
+                BACK TO DIRECTORY
+              </button>
 
               <div className="mx-auto max-w-5xl pb-24">
                 
@@ -90,8 +96,6 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                 {/* EDITORIAL MASONRY GRID */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                   {portfolioImages.map((img: string, i: number) => {
-                    // Brutalist Grid Logic: 
-                    // 0 = Full width, 1 = Left skinny, 2 = Right wide, 3 & 4 = Half & Half
                     let colSpanClass = "md:col-span-12";
                     let aspectClass = "aspect-[16/9]";
                     
@@ -118,15 +122,14 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                           alt={`${data.name} portfolio ${i}`}
                           className={`w-full ${aspectClass} object-cover transition-transform duration-1000 group-hover:scale-105 opacity-80 group-hover:opacity-100`}
                           onError={(e) => {
-  // Hides the ENTIRE dark gray grid box so there is no empty gap left behind!
-  if (e.currentTarget.parentElement) {
-    e.currentTarget.parentElement.style.display = 'none';
-  }
-}}
-  />
-  <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">LOOK N°0{i + 1}</p>
-                           <p className="text-sm font-bold tracking-widest text-[#B66CF2] mt-1 uppercase">{LOOK_NAMES[i % LOOK_NAMES.length]}</p>
+                            if (e.currentTarget.parentElement) {
+                              e.currentTarget.parentElement.style.display = 'none';
+                            }
+                          }}
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">LOOK N°0{i + 1}</p>
+                          <p className="text-sm font-bold tracking-widest text-[#B66CF2] mt-1 uppercase">{LOOK_NAMES[i % LOOK_NAMES.length]}</p>
                         </div>
                       </div>
                     );
@@ -143,16 +146,17 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                 
                 {/* Sharp, brutalist profile header */}
                 <div className="mb-10 flex items-start gap-6 border-b border-black/10 pb-10">
-                <div className="h-20 w-20 shrink-0 bg-[#f4f4f4] overflow-hidden">
-  <img 
-  src={artist.image}
-  alt={`${artist.name} Profile`}
-  onError={(e) => {
-    e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80";
-  }}
-  className="h-full w-full object-cover"
-/>
-</div>
+                  <div className="h-20 w-20 shrink-0 bg-[#f4f4f4] overflow-hidden">
+                    {/* FIX: use data.image instead of artist.image to avoid crash during exit animation */}
+                    <img 
+                      src={data.image}
+                      alt={`${data.name} Profile`}
+                      onError={(e) => {
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80";
+                      }}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                   <div className="flex flex-col pt-1">
                     <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#B66CF2] mb-2">
                       Access Verified
