@@ -91,9 +91,14 @@ export function ArtistCard({
         <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-neutral-100">
           {/* Default Profile Headshot */}
           <motion.img
-            src={image}
-            alt={`${name}'s profile`}
-            className="absolute inset-0 h-full w-full object-cover"
+  src={image}
+  alt={`${name}'s profile`}
+  onError={(e) => {
+    e.currentTarget.onerror = null;
+    const randomId = Math.floor(Math.random() * 25) + 1;
+    e.currentTarget.src = `/canvas-artists/artist_${String(randomId).padStart(3, '0')}/portfolio-1.jpg`;
+  }}
+  className="absolute inset-0 h-full w-full object-cover"
             style={imageStyle}
             animate={{ opacity: hovered && hasPortfolio ? 0 : 1, scale: hovered ? 1.03 : 1 }}
             transition={{ duration: 0.7, ease }}
@@ -104,10 +109,15 @@ export function ArtistCard({
             <div className="absolute inset-0">
               <AnimatePresence mode="wait">
                 <motion.img
-                  key={currentIndex}
-                  src={imagesList[currentIndex]}
-                  alt={`${name}'s portfolio work ${currentIndex + 1}`}
-                  className="absolute inset-0 h-full w-full object-cover"
+  key={currentIndex}
+  src={imagesList[currentIndex]}
+  alt={`${name}'s portfolio work ${currentIndex + 1}`}
+  onError={(e) => {
+    e.currentTarget.onerror = null;
+    const randomId = Math.floor(Math.random() * 25) + 1;
+    e.currentTarget.src = `/canvas-artists/artist_${String(randomId).padStart(3, '0')}/portfolio-1.jpg`;
+  }}
+  className="absolute inset-0 h-full w-full object-cover"
                   style={imageStyle}
                   initial={{ opacity: 0, scale: 1.05 }}
                   animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1.03 : 1 }}

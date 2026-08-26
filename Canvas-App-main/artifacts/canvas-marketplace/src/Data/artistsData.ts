@@ -27,9 +27,7 @@ const masterImagePool: string[] = [];
 for (let i = 1; i <= 25; i++) {
   const folderName = `artist_${String(i).padStart(3, '0')}`;
   
-  // Add profile picture
-  masterImagePool.push(`/canvas-artists/${folderName}/profile.jpg`);
-  
+  // Notice: profile.jpg is completely removed!
   // Add all available portfolio shots (0 through 4)
   for (let p = 0; p <= 4; p++) {
     masterImagePool.push(`/canvas-artists/${folderName}/portfolio-${p}.jpg`);
