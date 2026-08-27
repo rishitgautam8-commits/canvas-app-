@@ -70,13 +70,28 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
   const hasAddonText = Array.isArray(data.addons) && data.addons.length > 0;
   const hasAddonImages = addonImages.length > 0;
 
+  // --- SMART CONTEXT-AWARE FALLBACK HANDLER ---
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     if (e.currentTarget.dataset.hasFailed) return;
     e.currentTarget.dataset.hasFailed = 'true';
-    const safeId = String(Math.floor(Math.random() * 5) + 1).padStart(3, '0');
-    
-    // FIXED: Changed portfolio-0 to portfolio-1
-    e.currentTarget.src = `/canvas-artists/artist_${safeId}/portfolio-1.jpg`;
+
+    const originalSrc = e.currentTarget.src.toLowerCase();
+
+    // If the image that broke was an ADD-ON, replace it with a known valid add-on image!
+    if (originalSrc.includes('addon')) {
+      const fallbackAddons = [
+        '/canvas-artists/artist_001/addon-saree-draping-1.jpg',
+        '/canvas-artists/artist_002/addon-hairstyle-1.jpg',
+        '/canvas-artists/artist_006/addon-brow-tinting-1.jpg',
+        '/canvas-artists/artist_016/addon-nail-art-1.jpg'
+      ];
+      const randomAddon = fallbackAddons[Math.floor(Math.random() * fallbackAddons.length)];
+      e.currentTarget.src = randomAddon;
+    } else {
+      // If it was a makeup portfolio image, fallback to a makeup face
+      const safeId = String(Math.floor(Math.random() * 5) + 1).padStart(3, '0');
+      e.currentTarget.src = `/canvas-artists/artist_${safeId}/portfolio-1.jpg`;
+    }
   };
 
   return (
@@ -261,7 +276,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                         </div>
                       )}
 
-                      {/* Right: The Visual Moodboard (Only renders if addon images exist) */}
+                      {/* Right: The Visual Moodboard */}
                       {hasAddonImages && (
                         <div className={`w-full ${hasAddonText ? 'lg:w-1/2' : 'w-full'} flex gap-4 overflow-x-auto hide-scroll snap-x pb-4`}>
                           {addonImages.map((img: string, i: number) => (
