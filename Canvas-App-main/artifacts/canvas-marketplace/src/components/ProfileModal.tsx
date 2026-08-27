@@ -14,6 +14,14 @@ const MAKEUP_NAMES = [
   "Classic Canvas Aesthetic"
 ];
 
+// Universal, premium titles for Add-ons
+const ADDON_TITLES = [
+  "Signature Styling Showcase",
+  "Premium Service Portfolio",
+  "Specialized Beauty Add-on",
+  "Featured Skill Execution"
+];
+
 export type ProfileModalProps = {
   open: boolean;
   artist: any | null; 
@@ -43,10 +51,18 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
 
   if (!data) return null;
 
-  // Automatically separate the makeup portfolio from the addon skills!
-  const allImages: string[] = data.portfolio || [data.image];
+  // BULLETPROOF IMAGE PARSING: Ensure we only ever operate on valid strings
+  const allImages: string[] = (() => {
+    const raw = data.portfolio || [];
+    const images = raw.length > 0 ? raw : [data.image];
+    return images.filter((img: any) => typeof img === 'string' && img.trim() !== '');
+  })();
+
   const makeupImages = allImages.filter(img => !img.includes('addon'));
   const addonImages = allImages.filter(img => img.includes('addon'));
+
+  // Safe fallback for the artist's first name
+  const firstName = data.name ? data.name.split(' ')[0] : 'Artist';
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     if (e.currentTarget.dataset.hasFailed) return;
@@ -77,7 +93,6 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
             <div className="bg-[var(--bg-dark)] w-full pt-8 pb-12 px-6 md:px-12 relative border-b border-[var(--gold)]/20">
               <div className="max-w-5xl mx-auto">
                 
-                {/* Delicate Back Button */}
                 <button 
                   onClick={onClose} 
                   className="flex items-center gap-2 text-white/70 hover:text-[var(--gold)] transition-colors mb-8 border border-white/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-widest backdrop-blur-md w-fit"
@@ -87,11 +102,10 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                 
                 <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start relative z-0">
                   
-                  {/* Circular Profile Photo */}
                   <div className="shrink-0">
                     <img 
-                      src={data.image} 
-                      alt={data.name} 
+                      src={data.image || '/fallback-avatar.jpg'} 
+                      alt={data.name || 'Artist'} 
                       className="w-24 h-24 md:w-36 md:h-36 rounded-full object-cover border border-[var(--gold)]/50 shadow-xl" 
                       onError={handleImageError} 
                     />
@@ -99,23 +113,20 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                   
                   <div className="flex-1 w-full pt-2">
                     
-                    {/* Name + Verified Badge */}
                     <div className="flex items-center gap-4 mb-3">
-                      <h1 className="font-serif text-3xl md:text-4xl text-white tracking-wide">{data.name}</h1>
+                      <h1 className="font-serif text-3xl md:text-4xl text-white tracking-wide">{data.name || 'Artist Profile'}</h1>
                       <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 shrink-0">
                         <CheckCircle2 size={12} strokeWidth={3} /> Verified
                       </span>
                     </div>
                     
-                    {/* Location Pin & Experience */}
                     <p className="text-[var(--text-light)] text-[14px] mb-5 font-sans flex items-center gap-2">
                       <MapPin size={14} className="text-[var(--gold)]" /> 
-                      {data.location || data.city} 
+                      {data.location || data.city || 'Hyderabad'} 
                       <span className="mx-2 text-white/20">•</span> 
                       {data.experience_years || 6} yrs experience
                     </p>
                     
-                    {/* Tags */}
                     <div className="flex flex-wrap gap-2 mb-6">
                       {(data.tags || ["Bridal Glam", "Editorial", "Skin Work"]).map((tag: string) => (
                         <span key={tag} className="px-3 py-1 rounded border border-white/20 text-white/80 text-[10px] font-medium tracking-wider bg-white/5">
@@ -124,7 +135,6 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                       ))}
                     </div>
                     
-                    {/* Rating & Price inline */}
                     <div className="flex items-center gap-3 text-white mb-6">
                       <Star size={16} className="text-[var(--gold)]" fill="currentColor" />
                       <span className="font-medium text-base">{data.rating || '4.8'}</span>
@@ -134,7 +144,6 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                       <span className="text-white/50 text-xs">Bridal Package</span>
                     </div>
 
-                    {/* Compact WhatsApp Button */}
                     <button 
                       onClick={onBookAppointment} 
                       className="w-full max-w-[280px] bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-[#B08D45] transition-colors py-3.5 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2 shadow-lg"
@@ -151,7 +160,6 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
             <div className="w-full bg-[var(--bg-cream)] px-6 py-12 md:px-12">
               <div className="max-w-5xl mx-auto">
                 
-                {/* Quote in Italic Serif */}
                 <div className="max-w-3xl mb-16">
                   <p className="font-serif italic text-xl md:text-2xl text-[var(--text-primary)] leading-relaxed">
                     "{data.bio || data.signature || `Brings a cinematic, editorial eye to every face she works on. Based in ${data.city || 'Hyderabad'}, she has created looks for Tollywood celebrities, fashion editorial shoots, and high-profile weddings. Her signature bold-meets-refined aesthetic turns every bride into a headliner.`}"
@@ -160,7 +168,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
 
                 <div className="mb-8 text-left">
                   <h2 className="font-serif text-3xl text-[var(--text-primary)] mb-2">Verified Portfolio</h2>
-                  <p className="text-[var(--text-secondary)] text-[14px]">Real client work showcasing {data.name}'s signature aesthetic and technical execution.</p>
+                  <p className="text-[var(--text-secondary)] text-[14px]">Real client work showcasing {firstName}'s signature aesthetic and technical execution.</p>
                 </div>
 
                 {/* THE MAIN MAKEUP PORTFOLIO GRID */}
@@ -185,7 +193,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
 
                       <div className="p-6 flex flex-col flex-1 bg-[var(--bg-cream)]">
                         <h3 className="font-serif text-lg text-[var(--text-primary)] leading-tight mb-2">
-                          {data.name.split(' ')[0]} - {MAKEUP_NAMES[i % MAKEUP_NAMES.length]}
+                          {firstName} - {MAKEUP_NAMES[i % MAKEUP_NAMES.length]}
                         </h3>
                         <p className="text-[12px] text-[var(--text-secondary)] mb-6 flex-1">A verified example of the aesthetic.</p>
                         <button 
@@ -208,12 +216,12 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                       <div className="flex-1">
                         <h2 className="font-serif text-3xl text-[var(--text-primary)] mb-3">Add-ons & Upgrades</h2>
                         <p className="text-[var(--text-secondary)] text-[14px] mb-8 leading-relaxed">
-                          Enhance your booking with these specialized services. {data.name.split(' ')[0]} offers a range of premium upgrades to complete your look.
+                          Enhance your booking with these specialized services. {firstName} offers a range of premium upgrades to complete your look.
                         </p>
                         
                         <div className="space-y-0">
                           {data.addons?.map((addon: string, idx: number) => {
-                            // Safely split "Draping & Saree Setting (₹2,000)" into Name and Price
+                            if (typeof addon !== 'string') return null; // Safe parsing check
                             const parts = addon.split('(');
                             const serviceName = parts[0].trim();
                             const price = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
@@ -239,7 +247,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                         </button>
                       </div>
 
-                      {/* Right: The Visual Moodboard (No labels, just horizontal scroll) */}
+                      {/* Right: The Visual Moodboard */}
                       <div className="w-full lg:w-1/2 flex gap-4 overflow-x-auto hide-scroll snap-x pb-4">
                         {addonImages.map((img: string, i: number) => (
                           <div 
