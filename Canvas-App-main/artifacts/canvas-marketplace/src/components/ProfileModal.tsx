@@ -74,26 +74,26 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
               .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
-            {/* FULL WIDTH DARK HERO SECTION */}
-            <div className="bg-[var(--bg-dark)] w-full pt-10 pb-16 px-6 md:px-12 relative border-b border-[var(--gold)]/20">
-              <div className="max-w-6xl mx-auto">
+            {/* FULL WIDTH DARK HERO SECTION - SCALED DOWN */}
+            <div className="bg-[var(--bg-dark)] w-full pt-8 pb-12 px-6 md:px-12 relative border-b border-[var(--gold)]/20">
+              <div className="max-w-5xl mx-auto">
                 
-                {/* Clean Back Button (Like your video) */}
+                {/* Delicate Back Button */}
                 <button 
                   onClick={onClose} 
-                  className="flex items-center gap-2 text-white/70 hover:text-[var(--gold)] transition-colors mb-12 border border-white/20 px-5 py-2.5 rounded-full text-[13px] backdrop-blur-md w-fit"
+                  className="flex items-center gap-2 text-white/70 hover:text-[var(--gold)] transition-colors mb-8 border border-white/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-widest backdrop-blur-md w-fit"
                 >
-                  <ArrowLeft size={16} /> Back
+                  <ArrowLeft size={14} /> Back
                 </button>
                 
-                <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start relative z-0">
+                <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start relative z-0">
                   
-                  {/* Circular Profile Photo */}
+                  {/* Circular Profile Photo - Scaled Down */}
                   <div className="shrink-0">
                     <img 
                       src={data.image} 
                       alt={data.name} 
-                      className="w-32 h-32 md:w-48 md:h-48 rounded-full object-cover border border-[var(--gold)]/50 shadow-2xl" 
+                      className="w-24 h-24 md:w-36 md:h-36 rounded-full object-cover border border-[var(--gold)]/50 shadow-xl" 
                       onError={handleImageError} 
                     />
                   </div>
@@ -101,46 +101,46 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                   <div className="flex-1 w-full pt-2">
                     
                     {/* Name + Verified Badge */}
-                    <div className="flex items-center gap-4 mb-4">
-                      <h1 className="font-serif text-4xl md:text-5xl text-white tracking-wide">{data.name}</h1>
-                      <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center gap-4 mb-3">
+                      <h1 className="font-serif text-3xl md:text-4xl text-white tracking-wide">{data.name}</h1>
+                      <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 shrink-0">
                         <CheckCircle2 size={12} strokeWidth={3} /> Verified
                       </span>
                     </div>
                     
                     {/* Location Pin & Experience */}
-                    <p className="text-[var(--text-light)] text-[15px] mb-6 font-sans flex items-center gap-2">
-                      <MapPin size={16} className="text-[var(--gold)]" /> 
+                    <p className="text-[var(--text-light)] text-[14px] mb-5 font-sans flex items-center gap-2">
+                      <MapPin size={14} className="text-[var(--gold)]" /> 
                       {data.location || data.city} 
                       <span className="mx-2 text-white/20">•</span> 
                       {data.experience_years || 6} yrs experience
                     </p>
                     
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-2.5 mb-8">
+                    {/* Tags - Scaled Down */}
+                    <div className="flex flex-wrap gap-2 mb-6">
                       {(data.tags || ["Bridal Glam", "Editorial", "Skin Work"]).map((tag: string) => (
-                        <span key={tag} className="px-4 py-1.5 rounded border border-white/20 text-white/90 text-[11px] font-medium tracking-wide bg-white/5">
+                        <span key={tag} className="px-3 py-1 rounded border border-white/20 text-white/80 text-[10px] font-medium tracking-wider bg-white/5">
                           {tag}
                         </span>
                       ))}
                     </div>
                     
-                    {/* Rating & Price inline (Like your video) */}
+                    {/* Rating & Price inline */}
                     <div className="flex items-center gap-3 text-white mb-6">
-                      <Star size={20} className="text-[var(--gold)]" fill="currentColor" />
-                      <span className="font-medium text-lg">{data.rating || '4.8'}</span>
-                      <span className="text-white/50 text-sm">({data.reviewsCount || 178} reviews)</span>
+                      <Star size={16} className="text-[var(--gold)]" fill="currentColor" />
+                      <span className="font-medium text-base">{data.rating || '4.8'}</span>
+                      <span className="text-white/50 text-xs">({data.reviewsCount || 178} reviews)</span>
                       <span className="mx-3 text-white/20">—</span>
-                      <span className="font-serif text-2xl tracking-wide">{data.startingPrice || '₹22,000'}</span>
-                      <span className="text-white/50 text-sm">Bridal Package</span>
+                      <span className="font-serif text-xl tracking-wide">{data.startingPrice || '₹22,000'}</span>
+                      <span className="text-white/50 text-xs">Bridal Package</span>
                     </div>
 
-                    {/* Wide WhatsApp Button */}
+                    {/* Compact WhatsApp Button */}
                     <button 
                       onClick={onBookAppointment} 
-                      className="w-full max-w-md bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-[#B08D45] transition-colors py-4 rounded-lg text-[12px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2 shadow-lg"
+                      className="w-full max-w-[280px] bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-[#B08D45] transition-colors py-3.5 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2 shadow-lg"
                     >
-                      <MessageCircle size={18} /> Send enquiry on WhatsApp
+                      <MessageCircle size={16} /> Send enquiry on WhatsApp
                     </button>
 
                   </div>
@@ -149,45 +149,45 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
             </div>
 
             {/* LIGHT CREAM BODY SECTION */}
-            <div className="w-full bg-[var(--bg-cream)] px-6 py-16 md:px-12">
-              <div className="max-w-6xl mx-auto">
+            <div className="w-full bg-[var(--bg-cream)] px-6 py-12 md:px-12">
+              <div className="max-w-5xl mx-auto">
                 
-                {/* Quote in Italic Serif */}
-                <div className="max-w-4xl mb-20">
-                  <p className="font-serif italic text-2xl md:text-[28px] text-[var(--text-primary)] leading-relaxed">
+                {/* Quote in Italic Serif - Scaled Down */}
+                <div className="max-w-3xl mb-16">
+                  <p className="font-serif italic text-xl md:text-2xl text-[var(--text-primary)] leading-relaxed">
                     "{data.bio || data.signature || `Brings a cinematic, editorial eye to every face she works on. Based in ${data.city || 'Hyderabad'}, she has created looks for Tollywood celebrities, fashion editorial shoots, and high-profile weddings. Her signature bold-meets-refined aesthetic turns every bride into a headliner.`}"
                   </p>
                 </div>
 
-                <div className="mb-10 text-left">
-                  <h2 className="font-serif text-4xl text-[var(--text-primary)] mb-3">Verified Portfolio</h2>
-                  <p className="text-[var(--text-secondary)] text-[15px]">Real client work showcasing {data.name}'s signature aesthetic and technical execution.</p>
+                <div className="mb-8 text-left">
+                  <h2 className="font-serif text-3xl text-[var(--text-primary)] mb-2">Verified Portfolio</h2>
+                  <p className="text-[var(--text-secondary)] text-[14px]">Real client work showcasing {data.name}'s signature aesthetic and technical execution.</p>
                 </div>
 
-                {/* Verified Portfolio Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 pb-12">
+                {/* Verified Portfolio Grid - CHANGED TO 3 COLUMNS */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
                   {portfolioImages.map((img: string, i: number) => (
                     <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[var(--border-light)] flex flex-col">
                       
                       <div className="cursor-pointer overflow-hidden relative" onClick={() => setExpandedImage(img)}>
                         <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700" onError={handleImageError} />
-                        <div className="absolute top-4 left-4">
-                          <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-[0.1em]">
-                            Portfolio Image {i + 1}
+                        <div className="absolute top-3 left-3">
+                          <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-[0.1em]">
+                            Look 0{i + 1}
                           </span>
                         </div>
                       </div>
 
-                      <div className="p-8 flex flex-col flex-1 bg-[var(--bg-cream)]">
-                        <h3 className="font-serif text-2xl text-[var(--text-primary)] leading-tight mb-2">
-                          Facestory by {data.name.split(' ')[0]} - {LOOK_NAMES[i % LOOK_NAMES.length]}
+                      <div className="p-6 flex flex-col flex-1 bg-[var(--bg-cream)]">
+                        <h3 className="font-serif text-lg text-[var(--text-primary)] leading-tight mb-2">
+                          {data.name.split(' ')[0]} - {LOOK_NAMES[i % LOOK_NAMES.length]}
                         </h3>
-                        <p className="text-[14px] text-[var(--text-secondary)] mb-8 flex-1">A verified example of the aesthetic.</p>
+                        <p className="text-[12px] text-[var(--text-secondary)] mb-6 flex-1">A verified example of the aesthetic.</p>
                         <button 
                           onClick={onBookAppointment} 
-                          className="w-full bg-[#D1B88A] hover:bg-[var(--gold)] text-[var(--bg-dark)] transition-colors py-3.5 rounded text-[12px] font-bold tracking-[0.1em]"
+                          className="w-full bg-[#D1B88A] hover:bg-[var(--gold)] text-[var(--bg-dark)] transition-colors py-2.5 rounded text-[11px] font-bold tracking-[0.1em] uppercase"
                         >
-                          Enquire about this look
+                          Enquire Look
                         </button>
                       </div>
                     </div>
