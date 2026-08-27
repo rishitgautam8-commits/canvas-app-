@@ -160,7 +160,6 @@ const rawArtists = [
 ];
 
 export const artistsData: Artist[] = rawArtists.map((artist, index) => {
-  // Distribute your local folder images equally across all 100 artists
   const folder = FOLDERS[index % FOLDERS.length];
   const images = folder.files.map(f => `/canvas-artists/${folder.name}/${f}`);
   const timesUsed = Math.floor(index / FOLDERS.length);
@@ -170,33 +169,35 @@ export const artistsData: Artist[] = rawArtists.map((artist, index) => {
   const hoverImage = images[(imgIndex + 1) % images.length] || image;
   const portfolio = [...images];
 
-  // --- SMART ADD-ON MENU GENERATOR ---
-  // This automatically builds the text menu on the left based ONLY on the photos on the right!
+  // --- SMART ADD-ON MENU GENERATOR (NOW BULLETPROOF) ---
   const addonFiles = folder.files.filter(f => f.startsWith('addon-'));
   const uniqueServices = new Set<string>();
   
   addonFiles.forEach(file => {
-    // Strip out 'addon-', the file extension, and trailing numbers
     const filename = file.split('.')[0];
-    const rawName = filename.replace('addon-', '').replace(/-\d+$/, '');
+    let rawName = filename.replace('addon-', '').replace(/-\d+$/, '');
     
-    if (rawName) {
+    // If the file is just named "addon-1.jpg", rawName becomes "1". 
+    // This catches that and applies a premium fallback!
+    if (!rawName || /^\d+$/.test(rawName)) {
+      uniqueServices.add("Signature Styling & Draping");
+    } else {
       const formattedName = rawName.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
       uniqueServices.add(formattedName);
     }
   });
 
-  // Assign realistic luxury prices based on the service name
   const priceMap: Record<string, string> = {
     "Saree Draping": "₹2,000",
     "Hairstyle": "₹3,500",
     "Nail Art": "₹1,500",
     "Brow Tinting": "₹1,200",
     "Ice Globe Facial": "₹2,500",
+    "Signature Styling & Draping": "₹2,500", // The fallback price
   };
 
   const dynamicAddons = Array.from(uniqueServices).map(service => {
-    const price = priceMap[service] || "₹2,000"; // Fallback price
+    const price = priceMap[service] || "₹2,000"; 
     return `${service} (${price})`;
   });
   // -----------------------------------
@@ -209,7 +210,7 @@ export const artistsData: Artist[] = rawArtists.map((artist, index) => {
     image,
     hoverImage,
     portfolio,
-    addons: dynamicAddons, // Passes our dynamically generated, highly accurate list
+    addons: dynamicAddons,
     isVerified: true,
   } as Artist;
 });
