@@ -14,14 +14,6 @@ const MAKEUP_NAMES = [
   "Classic Canvas Aesthetic"
 ];
 
-// Universal, premium titles for Add-ons
-const ADDON_TITLES = [
-  "Signature Styling Showcase",
-  "Premium Service Portfolio",
-  "Specialized Beauty Add-on",
-  "Featured Skill Execution"
-];
-
 export type ProfileModalProps = {
   open: boolean;
   artist: any | null; 
@@ -51,18 +43,32 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
 
   if (!data) return null;
 
-  // BULLETPROOF IMAGE PARSING: Ensure we only ever operate on valid strings
+  // ROCK-SOLID IMAGE PARSING: Handles strings, objects {image: 'url'}, and empty arrays perfectly.
   const allImages: string[] = (() => {
     const raw = data.portfolio || [];
-    const images = raw.length > 0 ? raw : [data.image];
-    return images.filter((img: any) => typeof img === 'string' && img.trim() !== '');
+    
+    // Safely extract the image URL whether it's a string or an object
+    let images = Array.isArray(raw) 
+      ? raw.map((p: any) => (typeof p === 'string' ? p : p?.image)).filter(Boolean)
+      : [];
+    
+    // Fallback to the main profile image if the portfolio is completely empty
+    if (images.length === 0 && data.image) {
+      images = [typeof data.image === 'string' ? data.image : ''];
+    }
+    
+    // Final check to ensure we are only working with valid strings
+    return images.filter(img => typeof img === 'string' && img.trim() !== '');
   })();
 
-  const makeupImages = allImages.filter(img => !img.includes('addon'));
-  const addonImages = allImages.filter(img => img.includes('addon'));
+  // Safely split into makeup and addons
+  const makeupImages = allImages.filter(img => !img.toLowerCase().includes('addon'));
+  const addonImages = allImages.filter(img => img.toLowerCase().includes('addon'));
 
-  // Safe fallback for the artist's first name
+  // Safe fallbacks for UI text
   const firstName = data.name ? data.name.split(' ')[0] : 'Artist';
+  const hasAddonText = Array.isArray(data.addons) && data.addons.length > 0;
+  const hasAddonImages = addonImages.length > 0;
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     if (e.currentTarget.dataset.hasFailed) return;
@@ -162,7 +168,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                 
                 <div className="max-w-3xl mb-16">
                   <p className="font-serif italic text-xl md:text-2xl text-[var(--text-primary)] leading-relaxed">
-                    "{data.bio || data.signature || `Brings a cinematic, editorial eye to every face she works on. Based in ${data.city || 'Hyderabad'}, she has created looks for Tollywood celebrities, fashion editorial shoots, and high-profile weddings. Her signature bold-meets-refined aesthetic turns every bride into a headliner.`}"
+                    "{data.bio || data.signature || `Brings a cinematic, editorial eye to every face she works on. Based in ${data.city || 'Hyderabad'}, she has created looks for Tollywood celebrities, fashion editorial shoots, and high-profile weddings.`}"
                   </p>
                 </div>
 
@@ -172,104 +178,112 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                 </div>
 
                 {/* THE MAIN MAKEUP PORTFOLIO GRID */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-4">
-                  {makeupImages.map((img: string, i: number) => (
-                    <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[var(--border-light)] flex flex-col">
-                      
-                      <div className="cursor-pointer overflow-hidden relative group" onClick={() => setExpandedImage(img)}>
-                        <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700" onError={handleImageError} />
-                        <div className="absolute inset-0 bg-[var(--bg-dark)]/0 group-hover:bg-[var(--bg-dark)]/10 transition-colors"></div>
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-[0.1em]">
-                            Look 0{i + 1}
-                          </span>
+                {makeupImages.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-4">
+                    {makeupImages.map((img: string, i: number) => (
+                      <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[var(--border-light)] flex flex-col">
+                        
+                        <div className="cursor-pointer overflow-hidden relative group" onClick={() => setExpandedImage(img)}>
+                          <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700" onError={handleImageError} />
+                          <div className="absolute inset-0 bg-[var(--bg-dark)]/0 group-hover:bg-[var(--bg-dark)]/10 transition-colors"></div>
+                          <div className="absolute top-3 left-3">
+                            <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-[0.1em]">
+                              Look 0{i + 1}
+                            </span>
+                          </div>
+                          <div className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="bg-[var(--bg-dark)]/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] text-white">
+                              Expand
+                            </span>
+                          </div>
                         </div>
-                        <div className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="bg-[var(--bg-dark)]/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] text-white">
-                            Expand
-                          </span>
+
+                        <div className="p-6 flex flex-col flex-1 bg-[var(--bg-cream)]">
+                          <h3 className="font-serif text-lg text-[var(--text-primary)] leading-tight mb-2">
+                            {firstName} - {MAKEUP_NAMES[i % MAKEUP_NAMES.length]}
+                          </h3>
+                          <p className="text-[12px] text-[var(--text-secondary)] mb-6 flex-1">A verified example of the aesthetic.</p>
+                          <button 
+                            onClick={onBookAppointment} 
+                            className="w-full bg-[#D1B88A] hover:bg-[var(--gold)] text-[var(--bg-dark)] transition-colors py-2.5 rounded text-[11px] font-bold tracking-[0.1em] uppercase"
+                          >
+                            Enquire Look
+                          </button>
                         </div>
                       </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[var(--text-secondary)] italic">Portfolio images are currently being verified.</p>
+                )}
 
-                      <div className="p-6 flex flex-col flex-1 bg-[var(--bg-cream)]">
-                        <h3 className="font-serif text-lg text-[var(--text-primary)] leading-tight mb-2">
-                          {firstName} - {MAKEUP_NAMES[i % MAKEUP_NAMES.length]}
-                        </h3>
-                        <p className="text-[12px] text-[var(--text-secondary)] mb-6 flex-1">A verified example of the aesthetic.</p>
-                        <button 
-                          onClick={onBookAppointment} 
-                          className="w-full bg-[#D1B88A] hover:bg-[var(--gold)] text-[var(--bg-dark)] transition-colors py-2.5 rounded text-[11px] font-bold tracking-[0.1em] uppercase"
-                        >
-                          Enquire Look
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* THE NEW: ADD-ONS & UPGRADES MENU */}
-                {addonImages.length > 0 && (
+                {/* THE ADD-ONS & UPGRADES MENU */}
+                {(hasAddonText || hasAddonImages) && (
                   <div className="mt-12 pt-12 border-t border-[var(--border-light)]">
-                    <div className="flex flex-col lg:flex-row gap-12 lg:items-center">
+                    <div className="flex flex-col lg:flex-row gap-12 lg:items-start">
                       
                       {/* Left: Text & Menu List */}
-                      <div className="flex-1">
-                        <h2 className="font-serif text-3xl text-[var(--text-primary)] mb-3">Add-ons & Upgrades</h2>
-                        <p className="text-[var(--text-secondary)] text-[14px] mb-8 leading-relaxed">
-                          Enhance your booking with these specialized services. {firstName} offers a range of premium upgrades to complete your look.
-                        </p>
-                        
-                        <div className="space-y-0">
-                          {data.addons?.map((addon: string, idx: number) => {
-                            if (typeof addon !== 'string') return null; // Safe parsing check
-                            const parts = addon.split('(');
-                            const serviceName = parts[0].trim();
-                            const price = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
+                      {hasAddonText && (
+                        <div className={`flex-1 ${!hasAddonImages ? 'max-w-3xl' : ''}`}>
+                          <h2 className="font-serif text-3xl text-[var(--text-primary)] mb-3">Add-ons & Upgrades</h2>
+                          <p className="text-[var(--text-secondary)] text-[14px] mb-8 leading-relaxed">
+                            Enhance your booking with these specialized services. {firstName} offers a range of premium upgrades to complete your look.
+                          </p>
+                          
+                          <div className="space-y-0">
+                            {data.addons.map((addon: string, idx: number) => {
+                              if (typeof addon !== 'string') return null; // Safe parsing check
+                              const parts = addon.split('(');
+                              const serviceName = parts[0].trim();
+                              const price = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
 
-                            return (
-                              <div key={idx} className="flex items-center justify-between py-4 border-b border-[var(--border-light)] last:border-0">
-                                <span className="text-[14px] font-medium text-[var(--text-primary)]">{serviceName}</span>
-                                {price && (
-                                  <span className="text-[11px] font-bold text-[var(--bg-dark)] tracking-widest bg-[var(--gold)] px-3 py-1 rounded-full">
-                                    {price}
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                        
-                        <button 
-                          onClick={onBookAppointment} 
-                          className="mt-8 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] transition-colors px-6 py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest w-full sm:w-auto"
-                        >
-                          Enquire About Add-ons
-                        </button>
-                      </div>
-
-                      {/* Right: The Visual Moodboard */}
-                      <div className="w-full lg:w-1/2 flex gap-4 overflow-x-auto hide-scroll snap-x pb-4">
-                        {addonImages.map((img: string, i: number) => (
-                          <div 
-                            key={i} 
-                            className="shrink-0 w-[240px] md:w-[260px] snap-start cursor-pointer relative group" 
-                            onClick={() => setExpandedImage(img)}
-                          >
-                            <img 
-                              src={img} 
-                              alt="Addon skill" 
-                              className="w-full aspect-[3/4] object-cover rounded-xl shadow-sm border border-[var(--border-light)] group-hover:shadow-md transition-shadow" 
-                              onError={handleImageError} 
-                            />
-                            <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <span className="bg-[var(--bg-dark)]/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] text-white">
-                                Expand
-                              </span>
-                            </div>
-                            <div className="absolute inset-0 bg-[var(--bg-dark)]/0 group-hover:bg-[var(--bg-dark)]/5 transition-colors rounded-xl"></div>
+                              return (
+                                <div key={idx} className="flex items-center justify-between py-4 border-b border-[var(--border-light)] last:border-0">
+                                  <span className="text-[14px] font-medium text-[var(--text-primary)]">{serviceName}</span>
+                                  {price && (
+                                    <span className="text-[11px] font-bold text-[var(--bg-dark)] tracking-widest bg-[var(--gold)] px-3 py-1 rounded-full">
+                                      {price}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
-                        ))}
-                      </div>
+                          
+                          <button 
+                            onClick={onBookAppointment} 
+                            className="mt-8 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] transition-colors px-6 py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest w-full sm:w-auto"
+                          >
+                            Enquire About Add-ons
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Right: The Visual Moodboard (Only renders if addon images exist) */}
+                      {hasAddonImages && (
+                        <div className={`w-full ${hasAddonText ? 'lg:w-1/2' : 'w-full'} flex gap-4 overflow-x-auto hide-scroll snap-x pb-4`}>
+                          {addonImages.map((img: string, i: number) => (
+                            <div 
+                              key={i} 
+                              className="shrink-0 w-[240px] md:w-[260px] snap-start cursor-pointer relative group" 
+                              onClick={() => setExpandedImage(img)}
+                            >
+                              <img 
+                                src={img} 
+                                alt="Addon skill" 
+                                className="w-full aspect-[3/4] object-cover rounded-xl shadow-sm border border-[var(--border-light)] group-hover:shadow-md transition-shadow" 
+                                onError={handleImageError} 
+                              />
+                              <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="bg-[var(--bg-dark)]/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] text-white">
+                                  Expand
+                                </span>
+                              </div>
+                              <div className="absolute inset-0 bg-[var(--bg-dark)]/0 group-hover:bg-[var(--bg-dark)]/5 transition-colors rounded-xl"></div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
 
                     </div>
                   </div>
