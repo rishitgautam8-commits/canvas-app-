@@ -4,7 +4,7 @@ import { Star, CheckCircle2, MapPin, ArrowLeft, MessageCircle, X } from 'lucide-
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// Specific names work for makeup, as faces share the same context
+// Specific names work perfectly for makeup, as the context is always a face
 const MAKEUP_NAMES = [
   "Intense Smokey Eye Bold Glam",
   "Silver Cut-Crease Reception Glam",
@@ -12,14 +12,6 @@ const MAKEUP_NAMES = [
   "Christian Bridal with Smoky Elegance",
   "Nizami Royal Festive Bridal",
   "Classic Canvas Aesthetic"
-];
-
-// Universal, premium titles for Add-ons so they never contradict the photo (Hair, Saree, Nails, etc.)
-const ADDON_TITLES = [
-  "Signature Styling Showcase",
-  "Premium Service Portfolio",
-  "Specialized Beauty Add-on",
-  "Featured Skill Execution"
 ];
 
 export type ProfileModalProps = {
@@ -51,11 +43,10 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
 
   if (!data) return null;
 
-  const portfolioImages: string[] = (() => {
-    const raw = data.portfolio || [];
-    if (raw.length === 0) return [data.image]; 
-    return raw.map((p: any) => (typeof p === 'string' ? p : p?.image)).filter(Boolean);
-  })();
+  // Automatically separate the makeup portfolio from the addon skills!
+  const allImages: string[] = data.portfolio || [data.image];
+  const makeupImages = allImages.filter(img => !img.includes('addon'));
+  const addonImages = allImages.filter(img => img.includes('addon'));
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
     if (e.currentTarget.dataset.hasFailed) return;
@@ -82,7 +73,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
               .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
-            {/* FULL WIDTH DARK HERO SECTION - SCALED DOWN */}
+            {/* FULL WIDTH DARK HERO SECTION */}
             <div className="bg-[var(--bg-dark)] w-full pt-8 pb-12 px-6 md:px-12 relative border-b border-[var(--gold)]/20">
               <div className="max-w-5xl mx-auto">
                 
@@ -96,7 +87,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                 
                 <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start relative z-0">
                   
-                  {/* Circular Profile Photo - Scaled Down */}
+                  {/* Circular Profile Photo */}
                   <div className="shrink-0">
                     <img 
                       src={data.image} 
@@ -124,7 +115,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                       {data.experience_years || 6} yrs experience
                     </p>
                     
-                    {/* Tags - Scaled Down */}
+                    {/* Tags */}
                     <div className="flex flex-wrap gap-2 mb-6">
                       {(data.tags || ["Bridal Glam", "Editorial", "Skin Work"]).map((tag: string) => (
                         <span key={tag} className="px-3 py-1 rounded border border-white/20 text-white/80 text-[10px] font-medium tracking-wider bg-white/5">
@@ -160,7 +151,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
             <div className="w-full bg-[var(--bg-cream)] px-6 py-12 md:px-12">
               <div className="max-w-5xl mx-auto">
                 
-                {/* Quote in Italic Serif - Scaled Down */}
+                {/* Quote in Italic Serif */}
                 <div className="max-w-3xl mb-16">
                   <p className="font-serif italic text-xl md:text-2xl text-[var(--text-primary)] leading-relaxed">
                     "{data.bio || data.signature || `Brings a cinematic, editorial eye to every face she works on. Based in ${data.city || 'Hyderabad'}, she has created looks for Tollywood celebrities, fashion editorial shoots, and high-profile weddings. Her signature bold-meets-refined aesthetic turns every bride into a headliner.`}"
@@ -172,47 +163,109 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                   <p className="text-[var(--text-secondary)] text-[14px]">Real client work showcasing {data.name}'s signature aesthetic and technical execution.</p>
                 </div>
 
-                {/* Verified Portfolio Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
-                  {portfolioImages.map((img: string, i: number) => {
-                    
-                    // SMART LOGIC: Use generic premium titles for addons to avoid image/text mismatch
-                    const isAddon = img.includes('addon');
-                    const title = isAddon 
-                      ? ADDON_TITLES[i % ADDON_TITLES.length] 
-                      : MAKEUP_NAMES[i % MAKEUP_NAMES.length];
-                    const subtitle = isAddon 
-                      ? "A verified example of specialized beauty services." 
-                      : "A verified example of the aesthetic.";
-
-                    return (
-                      <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[var(--border-light)] flex flex-col">
-                        
-                        <div className="cursor-pointer overflow-hidden relative" onClick={() => setExpandedImage(img)}>
-                          <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700" onError={handleImageError} />
-                          <div className="absolute top-3 left-3">
-                            <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-[0.1em]">
-                              {isAddon ? 'Skill' : 'Look'} 0{i + 1}
-                            </span>
-                          </div>
+                {/* THE MAIN MAKEUP PORTFOLIO GRID */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-4">
+                  {makeupImages.map((img: string, i: number) => (
+                    <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[var(--border-light)] flex flex-col">
+                      
+                      <div className="cursor-pointer overflow-hidden relative group" onClick={() => setExpandedImage(img)}>
+                        <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700" onError={handleImageError} />
+                        <div className="absolute inset-0 bg-[var(--bg-dark)]/0 group-hover:bg-[var(--bg-dark)]/10 transition-colors"></div>
+                        <div className="absolute top-3 left-3">
+                          <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-[0.1em]">
+                            Look 0{i + 1}
+                          </span>
                         </div>
-
-                        <div className="p-6 flex flex-col flex-1 bg-[var(--bg-cream)]">
-                          <h3 className="font-serif text-lg text-[var(--text-primary)] leading-tight mb-2">
-                            {data.name.split(' ')[0]} - {title}
-                          </h3>
-                          <p className="text-[12px] text-[var(--text-secondary)] mb-6 flex-1">{subtitle}</p>
-                          <button 
-                            onClick={onBookAppointment} 
-                            className="w-full bg-[#D1B88A] hover:bg-[var(--gold)] text-[var(--bg-dark)] transition-colors py-2.5 rounded text-[11px] font-bold tracking-[0.1em] uppercase"
-                          >
-                            Enquire {isAddon ? 'Service' : 'Look'}
-                          </button>
+                        <div className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="bg-[var(--bg-dark)]/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] text-white">
+                            Expand
+                          </span>
                         </div>
                       </div>
-                    );
-                  })}
+
+                      <div className="p-6 flex flex-col flex-1 bg-[var(--bg-cream)]">
+                        <h3 className="font-serif text-lg text-[var(--text-primary)] leading-tight mb-2">
+                          {data.name.split(' ')[0]} - {MAKEUP_NAMES[i % MAKEUP_NAMES.length]}
+                        </h3>
+                        <p className="text-[12px] text-[var(--text-secondary)] mb-6 flex-1">A verified example of the aesthetic.</p>
+                        <button 
+                          onClick={onBookAppointment} 
+                          className="w-full bg-[#D1B88A] hover:bg-[var(--gold)] text-[var(--bg-dark)] transition-colors py-2.5 rounded text-[11px] font-bold tracking-[0.1em] uppercase"
+                        >
+                          Enquire Look
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
+
+                {/* THE NEW: ADD-ONS & UPGRADES MENU */}
+                {addonImages.length > 0 && (
+                  <div className="mt-12 pt-12 border-t border-[var(--border-light)]">
+                    <div className="flex flex-col lg:flex-row gap-12 lg:items-center">
+                      
+                      {/* Left: Text & Menu List */}
+                      <div className="flex-1">
+                        <h2 className="font-serif text-3xl text-[var(--text-primary)] mb-3">Add-ons & Upgrades</h2>
+                        <p className="text-[var(--text-secondary)] text-[14px] mb-8 leading-relaxed">
+                          Enhance your booking with these specialized services. {data.name.split(' ')[0]} offers a range of premium upgrades to complete your look.
+                        </p>
+                        
+                        <div className="space-y-0">
+                          {data.addons?.map((addon: string, idx: number) => {
+                            // Safely split "Draping & Saree Setting (₹2,000)" into Name and Price
+                            const parts = addon.split('(');
+                            const serviceName = parts[0].trim();
+                            const price = parts.length > 1 ? parts[1].replace(')', '').trim() : '';
+
+                            return (
+                              <div key={idx} className="flex items-center justify-between py-4 border-b border-[var(--border-light)] last:border-0">
+                                <span className="text-[14px] font-medium text-[var(--text-primary)]">{serviceName}</span>
+                                {price && (
+                                  <span className="text-[11px] font-bold text-[var(--bg-dark)] tracking-widest bg-[var(--gold)] px-3 py-1 rounded-full">
+                                    {price}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        
+                        <button 
+                          onClick={onBookAppointment} 
+                          className="mt-8 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] transition-colors px-6 py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest w-full sm:w-auto"
+                        >
+                          Enquire About Add-ons
+                        </button>
+                      </div>
+
+                      {/* Right: The Visual Moodboard (No labels, just horizontal scroll) */}
+                      <div className="w-full lg:w-1/2 flex gap-4 overflow-x-auto hide-scroll snap-x pb-4">
+                        {addonImages.map((img: string, i: number) => (
+                          <div 
+                            key={i} 
+                            className="shrink-0 w-[240px] md:w-[260px] snap-start cursor-pointer relative group" 
+                            onClick={() => setExpandedImage(img)}
+                          >
+                            <img 
+                              src={img} 
+                              alt="Addon skill" 
+                              className="w-full aspect-[3/4] object-cover rounded-xl shadow-sm border border-[var(--border-light)] group-hover:shadow-md transition-shadow" 
+                              onError={handleImageError} 
+                            />
+                            <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <span className="bg-[var(--bg-dark)]/80 backdrop-blur-md px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-[0.2em] text-white">
+                                Expand
+                              </span>
+                            </div>
+                            <div className="absolute inset-0 bg-[var(--bg-dark)]/0 group-hover:bg-[var(--bg-dark)]/5 transition-colors rounded-xl"></div>
+                          </div>
+                        ))}
+                      </div>
+
+                    </div>
+                  </div>
+                )}
 
               </div>
             </div>
