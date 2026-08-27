@@ -170,19 +170,46 @@ export const artistsData: Artist[] = rawArtists.map((artist, index) => {
   const hoverImage = images[(imgIndex + 1) % images.length] || image;
   const portfolio = [...images];
 
+  // --- SMART ADD-ON MENU GENERATOR ---
+  // This automatically builds the text menu on the left based ONLY on the photos on the right!
+  const addonFiles = folder.files.filter(f => f.startsWith('addon-'));
+  const uniqueServices = new Set<string>();
+  
+  addonFiles.forEach(file => {
+    // Strip out 'addon-', the file extension, and trailing numbers
+    const filename = file.split('.')[0];
+    const rawName = filename.replace('addon-', '').replace(/-\d+$/, '');
+    
+    if (rawName) {
+      const formattedName = rawName.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      uniqueServices.add(formattedName);
+    }
+  });
+
+  // Assign realistic luxury prices based on the service name
+  const priceMap: Record<string, string> = {
+    "Saree Draping": "₹2,000",
+    "Hairstyle": "₹3,500",
+    "Nail Art": "₹1,500",
+    "Brow Tinting": "₹1,200",
+    "Ice Globe Facial": "₹2,500",
+  };
+
+  const dynamicAddons = Array.from(uniqueServices).map(service => {
+    const price = priceMap[service] || "₹2,000"; // Fallback price
+    return `${service} (${price})`;
+  });
+  // -----------------------------------
+
   return {
     ...artist,
-    reviewCount: artist.reviewsCount, // <-- Added this to satisfy TS
-    signature: artist.specialty,      // <-- Added this to satisfy TS
+    reviewCount: artist.reviewsCount,
+    signature: artist.specialty,
     maxTravelKm: 50,
     image,
     hoverImage,
     portfolio,
-    addons: [
-      'Draping & Saree Setting (₹2,000)',
-      'HD Airbrush Upgrade (₹3,500)',
-      'Trial Session (₹1,500)',
-    ],
+    addons: dynamicAddons, // Passes our dynamically generated, highly accurate list
     isVerified: true,
   } as Artist;
 });
