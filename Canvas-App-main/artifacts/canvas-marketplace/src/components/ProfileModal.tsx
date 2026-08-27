@@ -74,7 +74,9 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
     if (e.currentTarget.dataset.hasFailed) return;
     e.currentTarget.dataset.hasFailed = 'true';
     const safeId = String(Math.floor(Math.random() * 5) + 1).padStart(3, '0');
-    e.currentTarget.src = `/canvas-artists/artist_${safeId}/portfolio-0.jpg`;
+    
+    // FIXED: Changed portfolio-0 to portfolio-1
+    e.currentTarget.src = `/canvas-artists/artist_${safeId}/portfolio-1.jpg`;
   };
 
   return (
