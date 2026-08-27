@@ -4,7 +4,7 @@ import { Star, CheckCircle2, MapPin, ArrowLeft, MessageCircle, X } from 'lucide-
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// Separate lists for Makeup vs. Add-on Services
+// Specific names work for makeup, as faces share the same context
 const MAKEUP_NAMES = [
   "Intense Smokey Eye Bold Glam",
   "Silver Cut-Crease Reception Glam",
@@ -14,13 +14,12 @@ const MAKEUP_NAMES = [
   "Classic Canvas Aesthetic"
 ];
 
-const ADDON_SKILLS = [
-  "Signature Hair Styling",
-  "Advanced Facial & Skin Prep",
-  "Premium Nail Art & Manicure",
-  "Brow Sculpting & Tinting",
-  "Bridal Silhouette & Saree Draping",
-  "Lash Extensions & Volume"
+// Universal, premium titles for Add-ons so they never contradict the photo (Hair, Saree, Nails, etc.)
+const ADDON_TITLES = [
+  "Signature Styling Showcase",
+  "Premium Service Portfolio",
+  "Specialized Beauty Add-on",
+  "Featured Skill Execution"
 ];
 
 export type ProfileModalProps = {
@@ -177,10 +176,10 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
                   {portfolioImages.map((img: string, i: number) => {
                     
-                    // SMART LOGIC: Check if image is an addon skill
+                    // SMART LOGIC: Use generic premium titles for addons to avoid image/text mismatch
                     const isAddon = img.includes('addon');
                     const title = isAddon 
-                      ? ADDON_SKILLS[i % ADDON_SKILLS.length] 
+                      ? ADDON_TITLES[i % ADDON_TITLES.length] 
                       : MAKEUP_NAMES[i % MAKEUP_NAMES.length];
                     const subtitle = isAddon 
                       ? "A verified example of specialized beauty services." 
