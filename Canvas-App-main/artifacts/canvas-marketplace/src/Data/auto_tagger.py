@@ -9,15 +9,15 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY", "INSERT_KEY_LOCALLY_BUT_DONT
 # 2. Point this to your local artists folder
 BASE_DIR = r"C:\Users\rishi\Downloads\Canvas-App-main\artifacts\canvas-marketplace\public\canvas-artists"
 
-# 3. Define the skills we want the AI to choose from
+# 3. Define the exact skills we want the AI to choose from
 CATEGORIES = [
-    "saree-draping",
+    "lash-lift-and-tint",
+    "brow-lamination",
+    "facials-and-exfoliation",
     "hairstyle",
     "nail-art",
-    "brow-tinting",
-    "ice-globe-facial",
-    "lash-extensions",
-    "bridal-styling"
+    "saree-draping",
+    "bridal-styling" # Keeping this as a safe fallback
 ]
 
 prompt = f"""

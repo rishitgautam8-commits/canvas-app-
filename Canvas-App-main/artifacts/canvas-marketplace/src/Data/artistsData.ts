@@ -191,8 +191,10 @@ export const artistsData: Artist[] = rawArtists.map((artist, index) => {
     "Saree Draping": "₹2,000",
     "Hairstyle": "₹3,500",
     "Nail Art": "₹1,500",
-    "Brow Tinting": "₹1,200",
-    "Ice Globe Facial": "₹2,500",
+    "Brow Lamination": "₹2,000",
+    "Lash Lift And Tint": "₹2,500",
+    "Facials And Exfoliation": "₹3,000",
+    "Bridal Styling": "₹3,500",
     "Signature Styling & Draping": "₹2,500", // The fallback price
   };
 
