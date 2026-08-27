@@ -4,14 +4,20 @@ import { Star, CheckCircle2, MapPin, ArrowLeft, MessageCircle, X } from 'lucide-
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// specific aesthetic names requested in the design brief
-const LOOK_NAMES = [
+// Separate lists for Makeup vs. Styling
+const MAKEUP_NAMES = [
   "Intense Smokey Eye Bold Glam",
   "Silver Cut-Crease Reception Glam",
   "Soft Glam Engagement Look",
   "Christian Bridal with Smoky Elegance",
   "Nizami Royal Festive Bridal",
   "Classic Canvas Aesthetic"
+];
+
+const STYLING_NAMES = [
+  "Signature Saree Draping",
+  "Bridal Silhouette & Styling",
+  "Trousseau & Dupatta Setting"
 ];
 
 export type ProfileModalProps = {
@@ -164,34 +170,46 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                   <p className="text-[var(--text-secondary)] text-[14px]">Real client work showcasing {data.name}'s signature aesthetic and technical execution.</p>
                 </div>
 
-                {/* Verified Portfolio Grid - CHANGED TO 3 COLUMNS */}
+                {/* Verified Portfolio Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
-                  {portfolioImages.map((img: string, i: number) => (
-                    <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[var(--border-light)] flex flex-col">
-                      
-                      <div className="cursor-pointer overflow-hidden relative" onClick={() => setExpandedImage(img)}>
-                        <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700" onError={handleImageError} />
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-[0.1em]">
-                            Look 0{i + 1}
-                          </span>
+                  {portfolioImages.map((img: string, i: number) => {
+                    
+                    // SMART LOGIC: Check if image is an addon (saree draping/styling)
+                    const isStyling = img.includes('addon');
+                    const title = isStyling 
+                      ? STYLING_NAMES[i % STYLING_NAMES.length] 
+                      : MAKEUP_NAMES[i % MAKEUP_NAMES.length];
+                    const subtitle = isStyling 
+                      ? "A verified example of draping & silhouette styling." 
+                      : "A verified example of the aesthetic.";
+
+                    return (
+                      <div key={i} className="bg-white rounded-xl overflow-hidden shadow-sm border border-[var(--border-light)] flex flex-col">
+                        
+                        <div className="cursor-pointer overflow-hidden relative" onClick={() => setExpandedImage(img)}>
+                          <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700" onError={handleImageError} />
+                          <div className="absolute top-3 left-3">
+                            <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-[0.1em]">
+                              {isStyling ? 'Styling' : 'Look'} 0{i + 1}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-6 flex flex-col flex-1 bg-[var(--bg-cream)]">
+                          <h3 className="font-serif text-lg text-[var(--text-primary)] leading-tight mb-2">
+                            {data.name.split(' ')[0]} - {title}
+                          </h3>
+                          <p className="text-[12px] text-[var(--text-secondary)] mb-6 flex-1">{subtitle}</p>
+                          <button 
+                            onClick={onBookAppointment} 
+                            className="w-full bg-[#D1B88A] hover:bg-[var(--gold)] text-[var(--bg-dark)] transition-colors py-2.5 rounded text-[11px] font-bold tracking-[0.1em] uppercase"
+                          >
+                            Enquire {isStyling ? 'Styling' : 'Look'}
+                          </button>
                         </div>
                       </div>
-
-                      <div className="p-6 flex flex-col flex-1 bg-[var(--bg-cream)]">
-                        <h3 className="font-serif text-lg text-[var(--text-primary)] leading-tight mb-2">
-                          {data.name.split(' ')[0]} - {LOOK_NAMES[i % LOOK_NAMES.length]}
-                        </h3>
-                        <p className="text-[12px] text-[var(--text-secondary)] mb-6 flex-1">A verified example of the aesthetic.</p>
-                        <button 
-                          onClick={onBookAppointment} 
-                          className="w-full bg-[#D1B88A] hover:bg-[var(--gold)] text-[var(--bg-dark)] transition-colors py-2.5 rounded text-[11px] font-bold tracking-[0.1em] uppercase"
-                        >
-                          Enquire Look
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
               </div>
