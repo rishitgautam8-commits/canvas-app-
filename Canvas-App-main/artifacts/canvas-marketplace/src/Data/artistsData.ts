@@ -161,24 +161,34 @@ const rawArtists = [
 
 export const artistsData: Artist[] = rawArtists.map((artist, index) => {
   const folder = FOLDERS[index % FOLDERS.length];
-  const images = folder.files.map(f => `/canvas-artists/${folder.name}/${f}`);
-  const timesUsed = Math.floor(index / FOLDERS.length);
-  const imgIndex = timesUsed % images.length;
-
-  const image = images[imgIndex];
-  const hoverImage = images[(imgIndex + 1) % images.length] || image;
-  const portfolio = [...images];
-
-  // --- SMART ADD-ON MENU GENERATOR (NOW BULLETPROOF) ---
+  
+  // 1. SEPARATE THE FILES: Keep addons away from the profile picture selection!
+  const portfolioFiles = folder.files.filter(f => !f.startsWith('addon-'));
   const addonFiles = folder.files.filter(f => f.startsWith('addon-'));
+
+  // 2. CHECK FOR A HARDCODED PROFILE PIC (e.g., erica_profile.jpg)
+  const specificProfilePic = portfolioFiles.find(f => f.includes('_profile'));
+
+  // 3. ROTATE THROUGH ONLY MAKEUP PHOTOS
+  const timesUsed = Math.floor(index / FOLDERS.length);
+  const imgIndex = timesUsed % portfolioFiles.length;
+
+  const profileFileName = specificProfilePic || portfolioFiles[imgIndex] || portfolioFiles[0];
+  const hoverFileName = specificProfilePic || portfolioFiles[(imgIndex + 1) % portfolioFiles.length] || portfolioFiles[0];
+
+  const image = `/canvas-artists/${folder.name}/${profileFileName}`;
+  const hoverImage = `/canvas-artists/${folder.name}/${hoverFileName}`;
+  
+  // Keep all images for the modal (the modal already knows how to separate them)
+  const portfolio = folder.files.map(f => `/canvas-artists/${folder.name}/${f}`);
+
+  // --- SMART ADD-ON MENU GENERATOR ---
   const uniqueServices = new Set<string>();
   
   addonFiles.forEach(file => {
     const filename = file.split('.')[0];
     let rawName = filename.replace('addon-', '').replace(/-\d+$/, '');
     
-    // If the file is just named "addon-1.jpg", rawName becomes "1". 
-    // This catches that and applies a premium fallback!
     if (!rawName || /^\d+$/.test(rawName)) {
       uniqueServices.add("Signature Styling & Draping");
     } else {
@@ -192,10 +202,12 @@ export const artistsData: Artist[] = rawArtists.map((artist, index) => {
     "Hairstyle": "₹3,500",
     "Nail Art": "₹1,500",
     "Brow Lamination": "₹2,000",
+    "Brow Tinting": "₹1,200",
     "Lash Lift And Tint": "₹2,500",
     "Facials And Exfoliation": "₹3,000",
+    "Ice Globe Facial": "₹2,500",
     "Bridal Styling": "₹3,500",
-    "Signature Styling & Draping": "₹2,500", // The fallback price
+    "Signature Styling & Draping": "₹2,500", 
   };
 
   const dynamicAddons = Array.from(uniqueServices).map(service => {
