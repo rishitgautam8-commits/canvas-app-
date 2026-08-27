@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Star, CheckCircle2, ArrowLeft, MapPin, X, ArrowUpRight, MessageCircle } from 'lucide-react';
+import { Star, CheckCircle2, MapPin, X, MessageCircle } from 'lucide-react';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -87,67 +87,84 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
               onClick={(e) => e.stopPropagation()}
             >
               
-              {/* DARK PURPLE HERO SECTION */}
-              <div className="bg-[var(--bg-dark)] p-8 md:p-12 shrink-0 relative">
-                <button onClick={onClose} className="absolute top-6 right-6 text-[var(--text-light)] hover:text-white transition-colors z-10">
-                  <X size={28} strokeWidth={1.5} />
+              {/* DARK PURPLE HERO SECTION - RESTRUCTURED TO BREATHE */}
+              <div className="bg-[var(--bg-dark)] px-6 py-10 md:px-12 md:py-12 shrink-0 relative">
+                
+                {/* Clean Close Button */}
+                <button 
+                  onClick={onClose} 
+                  className="absolute top-6 right-6 text-[var(--text-light)] hover:text-white bg-white/5 hover:bg-white/10 transition-colors z-10 p-2 rounded-full backdrop-blur-sm"
+                >
+                  <X size={24} strokeWidth={1.5} />
                 </button>
                 
-                <div className="flex flex-col md:flex-row gap-8 md:gap-10 items-center md:items-start text-center md:text-left relative z-0">
+                <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-center md:items-start text-center md:text-left relative z-0 max-w-5xl mx-auto">
                   
-                  {/* Circular Profile Photo */}
-                  <img 
-                    src={data.image} 
-                    alt={data.name} 
-                    className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-[3px] border-[var(--gold)] shrink-0 shadow-[0_0_30px_rgba(196,163,90,0.2)]" 
-                    onError={handleImageError} 
-                  />
+                  {/* Circular Profile Photo with subtle outer ring */}
+                  <div className="shrink-0 relative mt-2 md:mt-0">
+                    <div className="absolute inset-0 border-[1px] border-[var(--gold)]/30 rounded-full scale-[1.08]"></div>
+                    <img 
+                      src={data.image} 
+                      alt={data.name} 
+                      className="w-36 h-36 md:w-44 md:h-44 rounded-full object-cover border-[2px] border-[var(--gold)] shadow-[0_0_40px_rgba(196,163,90,0.15)] relative z-10" 
+                      onError={handleImageError} 
+                    />
+                  </div>
                   
-                  <div className="flex-1 w-full">
+                  <div className="flex-1 w-full flex flex-col justify-center">
+                    
                     {/* Name + Verified Badge */}
-                    <div className="flex flex-col md:flex-row items-center gap-4 mb-3">
+                    <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
                       <h1 className="font-serif text-4xl md:text-5xl text-white tracking-wide">{data.name}</h1>
-                      <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shrink-0 mt-2 md:mt-0">
-                        <CheckCircle2 size={12} strokeWidth={3} /> Verified
+                      <span className="bg-[var(--gold)]/10 border border-[var(--gold)]/30 text-[var(--gold)] px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 shrink-0">
+                        <CheckCircle2 size={14} strokeWidth={2.5} /> Verified Artist
                       </span>
                     </div>
                     
                     {/* Location Pin & Experience */}
-                    <p className="text-[var(--text-light)] text-sm mb-5 font-sans flex items-center justify-center md:justify-start gap-2">
-                      <MapPin size={16} className="text-[var(--gold)]" /> {data.location || data.city} • {data.experience_years || 8} yrs experience
+                    <p className="text-white/60 text-[15px] mb-6 font-sans flex items-center justify-center md:justify-start gap-2">
+                      <MapPin size={16} className="text-[var(--gold)]" /> 
+                      {data.location || data.city} 
+                      <span className="mx-2 text-white/20">|</span> 
+                      {data.experience_years || 8} Years Experience
                     </p>
                     
-                    {/* Tags in Rounded Pills */}
-                    <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-8">
+                    {/* Tags in Delicate Outlined Pills */}
+                    <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-10">
                       {(data.tags || ["Bridal Glam", "Editorial", "Skin Work"]).map((tag: string) => (
-                        <span key={tag} className="tag border-white/20 text-white/90 bg-white/5">
+                        <span key={tag} className="px-4 py-1.5 rounded-full border border-white/20 text-white/80 text-[11px] font-medium tracking-wide bg-white/5">
                           {tag}
                         </span>
                       ))}
                     </div>
                     
-                    {/* Rating & Price */}
-                    <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 border-t border-white/10 pt-6">
-                      <div className="text-[var(--gold)] font-medium text-lg flex items-center justify-center gap-2">
-                        <Star size={18} fill="currentColor" /> {data.rating || '4.9'} 
-                        <span className="text-white/50 text-sm font-normal">({data.reviewsCount || 214} reviews)</span>
+                    {/* The New "Booking Bar" - Prevents Congestion */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between w-full p-2 sm:pl-8 rounded-2xl bg-black/20 border border-white/10 gap-4 backdrop-blur-md">
+                      
+                      <div className="flex items-center gap-8 md:gap-12 pt-4 sm:pt-0 w-full sm:w-auto justify-center sm:justify-start">
+                        <div>
+                          <p className="text-white/40 text-[9px] uppercase tracking-[0.2em] font-bold mb-1">Starting Package</p>
+                          <p className="text-white font-serif text-2xl tracking-wide">{data.startingPrice || '₹35,000'}</p>
+                        </div>
+                        <div className="w-px h-10 bg-white/10"></div>
+                        <div>
+                          <p className="text-white/40 text-[9px] uppercase tracking-[0.2em] font-bold mb-1">Platform Rating</p>
+                          <div className="text-white font-serif text-2xl tracking-wide flex items-center gap-2">
+                            {data.rating || '4.9'} <Star size={16} className="text-[var(--gold)] pb-0.5" fill="currentColor" />
+                          </div>
+                        </div>
                       </div>
-                      <div className="hidden md:block w-px h-6 bg-white/20"></div>
-                      <div className="text-white font-medium text-lg">
-                        {data.startingPrice || '₹35,000'} <span className="text-sm text-white/50 font-normal">Premium Package</span>
-                      </div>
+
+                      <button 
+                        onClick={onBookAppointment} 
+                        className="w-full sm:w-auto bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-white transition-colors px-8 py-4 sm:py-5 rounded-xl text-[11px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-lg"
+                      >
+                        <MessageCircle size={18} /> WhatsApp Enquiry
+                      </button>
+
                     </div>
                   </div>
 
-                  {/* WhatsApp CTA */}
-                  <div className="shrink-0 flex items-center w-full md:w-auto mt-4 md:mt-0">
-                    <button 
-                      onClick={onBookAppointment} 
-                      className="w-full md:w-auto bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-[#B08D45] transition-colors px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-lg"
-                    >
-                      <MessageCircle size={16} /> Send enquiry on WhatsApp
-                    </button>
-                  </div>
                 </div>
               </div>
 
