@@ -4,7 +4,7 @@ import { Star, CheckCircle2, MapPin, ArrowLeft, MessageCircle, X } from 'lucide-
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// Separate lists for Makeup vs. Styling
+// Separate lists for Makeup vs. Add-on Services
 const MAKEUP_NAMES = [
   "Intense Smokey Eye Bold Glam",
   "Silver Cut-Crease Reception Glam",
@@ -14,10 +14,13 @@ const MAKEUP_NAMES = [
   "Classic Canvas Aesthetic"
 ];
 
-const STYLING_NAMES = [
-  "Signature Saree Draping",
-  "Bridal Silhouette & Styling",
-  "Trousseau & Dupatta Setting"
+const ADDON_SKILLS = [
+  "Signature Hair Styling",
+  "Advanced Facial & Skin Prep",
+  "Premium Nail Art & Manicure",
+  "Brow Sculpting & Tinting",
+  "Bridal Silhouette & Saree Draping",
+  "Lash Extensions & Volume"
 ];
 
 export type ProfileModalProps = {
@@ -174,13 +177,13 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
                   {portfolioImages.map((img: string, i: number) => {
                     
-                    // SMART LOGIC: Check if image is an addon (saree draping/styling)
-                    const isStyling = img.includes('addon');
-                    const title = isStyling 
-                      ? STYLING_NAMES[i % STYLING_NAMES.length] 
+                    // SMART LOGIC: Check if image is an addon skill
+                    const isAddon = img.includes('addon');
+                    const title = isAddon 
+                      ? ADDON_SKILLS[i % ADDON_SKILLS.length] 
                       : MAKEUP_NAMES[i % MAKEUP_NAMES.length];
-                    const subtitle = isStyling 
-                      ? "A verified example of draping & silhouette styling." 
+                    const subtitle = isAddon 
+                      ? "A verified example of specialized beauty services." 
                       : "A verified example of the aesthetic.";
 
                     return (
@@ -190,7 +193,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                           <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700" onError={handleImageError} />
                           <div className="absolute top-3 left-3">
                             <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-[0.1em]">
-                              {isStyling ? 'Styling' : 'Look'} 0{i + 1}
+                              {isAddon ? 'Skill' : 'Look'} 0{i + 1}
                             </span>
                           </div>
                         </div>
@@ -204,7 +207,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                             onClick={onBookAppointment} 
                             className="w-full bg-[#D1B88A] hover:bg-[var(--gold)] text-[var(--bg-dark)] transition-colors py-2.5 rounded text-[11px] font-bold tracking-[0.1em] uppercase"
                           >
-                            Enquire {isStyling ? 'Styling' : 'Look'}
+                            Enquire {isAddon ? 'Service' : 'Look'}
                           </button>
                         </div>
                       </div>
