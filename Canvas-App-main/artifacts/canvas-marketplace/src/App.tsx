@@ -491,11 +491,17 @@ function Home() {
           <a onClick={() => scrollTo('standard')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">About</a>
         </div>
 
-        {/* CENTER: Stark, Tightly Tracked Wordmark */}
-        <div className="flex items-center justify-center cursor-pointer" onClick={() => scrollTo('top')}>
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Canvas Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
-            <span className="text-2xl md:text-3xl font-bold lowercase">canvas</span>
+        {/* CENTER: Premium Wordmark & Logo */}
+        <div className="flex items-center justify-center cursor-pointer group" onClick={() => scrollTo('top')}>
+          <div className="flex items-center gap-2.5">
+            <img 
+              src="/logo.png" 
+              alt="Canvas Logo" 
+              className="w-10 h-10 md:w-12 md:h-12 object-contain transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 group-hover:drop-shadow-[0_4px_12px_rgba(182,108,242,0.3)]" 
+            />
+            <span className="text-2xl md:text-3xl font-bold lowercase tracking-[-0.04em] text-black transition-colors duration-500 group-hover:text-[#B66CF2]">
+              canvas
+            </span>
           </div>
         </div>
 
