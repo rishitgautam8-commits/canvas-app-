@@ -21,7 +21,7 @@ import BeautyDemo from '@/pages/BeautyDemo';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { Reveal } from '@/components/Reveal';
 
-// Rhode-style scroll reveal wrappers — inline so no need for ScrollParallax.tsx
+// Rhode-style scroll reveal wrappers
 function ScrollZoom({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   return <Reveal variant="zoom" delay={delay} className={className}>{children}</Reveal>;
 }
@@ -192,7 +192,7 @@ async function analyzeLookWithAI(file: File): Promise<string[]> {
   }
 }
 
-function Home() {
+function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: (v: boolean) => void }) {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [aiTags, setAiTags] = useState<string[]>([]);
   const [, setLocation] = useLocation();
@@ -287,8 +287,6 @@ function Home() {
     fetchLiveArtists();
   }, []);
 
-
-
   useEffect(() => {
     async function fetchStats() {
       try {
@@ -343,15 +341,9 @@ function Home() {
 
   const [hasSearched, setHasSearched] = useState(false);
   const [briefOpen, setBriefOpen] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
+  const [authOpen, setAuthOpenLocal] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
-    return () => subscription.unsubscribe();
-  }, []);
-useEffect(() => {
     if (session) {
       const role = session.user.user_metadata?.role;
       if (!role) {
@@ -493,7 +485,7 @@ useEffect(() => {
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[var(--canvas-iv)] border-b border-black/5"
       >
-        
+
         {/* LEFT: Rhode-Style Navigation (Bumped to text-sm) */}
         <div className="hidden md:flex items-center gap-8 justify-start">
           <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Shop</a>
@@ -546,7 +538,7 @@ useEffect(() => {
         )}
       </AnimatePresence>
 
-      {/* HERO — Text fades, image zooms */}
+      {/* HERO */}
       <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[100px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
@@ -587,7 +579,7 @@ useEffect(() => {
         </ScrollZoom>
       </section>
 
-      {/* CANVAS WAY — Icons zoom, text fades with stagger */}
+      {/* CANVAS WAY */}
       <section id="how-it-works" className="canvas-way border-y border-[var(--gold)]/20">
         <div className="max-w-[1400px] mx-auto">
           <ScrollZoomIn>
@@ -635,7 +627,7 @@ useEffect(() => {
       </section>
 
       <main className="relative z-20">
-        {/* STATS BAR — Numbers zoom, labels fade */}
+        {/* STATS BAR */}
         <ScrollZoomIn className="stats-bar">
           <div className="stat">
             <ScrollZoom><div className="stat-number">{sourceArtists.length}</div></ScrollZoom>
@@ -817,7 +809,7 @@ useEffect(() => {
           </div>
         </section>
 
-        {/* CANVAS STANDARD — All text, all fade */}
+        {/* CANVAS STANDARD */}
         <section id="standard" className="bg-[#F9F9F9] text-black py-24 sm:py-32 border-t border-black/5">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-end mb-24">
@@ -872,7 +864,7 @@ useEffect(() => {
           </div>
         </section>
 
-        {/* TESTIMONIALS — Cards fade, avatars zoom */}
+        {/* TESTIMONIALS */}
         <section className="testimonials">
           <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
             <ScrollZoom>
@@ -881,7 +873,6 @@ useEffect(() => {
                 <span>LOVE FROM OUR USERS</span>
                 <span className="line"></span>
               </div>
-              {/* Uses !capitalize to ensure the first letter of every word is capitalized */}
               <h2 className="section-title !capitalize">What People Are Saying</h2>
             </ScrollZoom>
 
@@ -943,7 +934,7 @@ useEffect(() => {
           </div>
         </section>
 
-        {/* FOR ARTISTS CTA — Text fade */}
+        {/* FOR ARTISTS CTA */}
         <ScrollZoomIn>
           <section className="bg-[var(--bg-dark)] py-24 sm:py-32 px-5 border-t border-[var(--gold)]/20 text-center">
             <div className="max-w-[800px] mx-auto">
@@ -970,7 +961,7 @@ useEffect(() => {
           </section>
         </ScrollZoomIn>
 
-        {/* JOURNAL — Feature image zooms, text fades */}
+        {/* JOURNAL */}
         <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-5 py-24 sm:px-8 lg:px-12 lg:py-36">
           <div className="max-w-[1400px] mx-auto">
             <ScrollZoomIn>
@@ -1017,7 +1008,7 @@ useEffect(() => {
           </div>
         </section>
 
-        {/* FOOTER — Fade up, image zooms */}
+        {/* FOOTER */}
         <ScrollZoomIn>
           <footer className="bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10">
             <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
@@ -1065,7 +1056,7 @@ useEffect(() => {
         </ScrollZoomIn>
       </main>
 
-      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      <AuthModal open={authOpen} onClose={() => setAuthOpenLocal(false)} />
       <ProfileModal open={Boolean(selectedArtist)} artist={selectedArtist} onClose={() => setSelectedArtist(null)} onBookAppointment={openBrief}
         onOpenChat={() => { setSelectedArtist(null); setIsChatOpen(true); }} />
       <ChatDrawer open={isChatOpen} onClose={() => setIsChatOpen(false)} />
@@ -1147,20 +1138,90 @@ useEffect(() => {
   );
 }
 
-function Router() {
-  return (
-    <ErrorBoundary resetKey={useLocation()[0]}>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/beauty-demo" component={BeautyDemo} />
-        <Route component={NotFound} />
-      </Switch>
-    </ErrorBoundary>
-  );
-}
-
 export default function App() {
+  const [session, setSession] = useState<Session | null>(null);
+  const [loadingSession, setLoadingSession] = useState(true);
+  const [updatingRole, setUpdatingRole] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoadingSession(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setLoadingSession(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleGlobalSelectRole = async (selectedRole: 'client' | 'artist') => {
+    setUpdatingRole(true);
+    const { data, error } = await supabase.auth.updateUser({
+      data: { role: selectedRole }
+    });
+    if (session?.user) {
+      await supabase.from('profiles').update({ role: selectedRole }).eq('id', session.user.id);
+      if (selectedRole === 'artist') {
+        await supabase.from('artist_profiles').upsert({ id: session.user.id });
+      }
+    }
+    if (!error && data.user) {
+      window.location.reload();
+    } else {
+      setUpdatingRole(false);
+    }
+  };
+
+  // ==========================================
+  // GLOBAL ONBOARDING INTERCEPTOR
+  // If signed in but no role chosen yet, take over!
+  // ==========================================
+  if (!loadingSession && session && !session.user.user_metadata?.role) {
+    return (
+      <div className="h-screen w-full flex flex-col md:flex-row overflow-hidden bg-[#F9F9F9] fixed inset-0 z-[9999]">
+        {/* CLIENT PATHWAY */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          onClick={() => !updatingRole && handleGlobalSelectRole('client')}
+          className="flex-1 relative bg-[#F9F9F9] text-black flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group"
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1516975080661-46bfa2c281c7?auto=format&fit=crop&w=1200&q=80" alt="Client" className="w-full h-full object-cover opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" />
+          </div>
+          <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
+            <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Clients</p>
+            <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am looking<br/>for an artist.</h2>
+            <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-black/40 max-w-sm mx-auto mb-10 leading-relaxed">Book premium beauty services, manage appointments, and build your aesthetic profile.</p>
+            <div className="inline-block border border-black px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-black group-hover:text-white transition-colors shadow-sm">{updatingRole ? 'Setting up...' : 'Join as Client'}</div>
+          </div>
+        </motion.div>
+
+        {/* ARTIST PATHWAY */}
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          onClick={() => !updatingRole && handleGlobalSelectRole('artist')}
+          className="flex-1 relative bg-[#05020A] text-white flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group border-t md:border-t-0 md:border-l border-white/10"
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" />
+          </div>
+          <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
+            <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Professionals</p>
+            <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am a<br/>makeup artist.</h2>
+            <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-white/50 max-w-sm mx-auto mb-10 leading-relaxed">List your verified portfolio, manage bookings, and access Canvas Pro client leads.</p>
+            <div className="inline-block border border-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-white group-hover:text-black transition-colors shadow-sm">{updatingRole ? 'Setting up...' : 'Apply to Roster'}</div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -1170,5 +1231,32 @@ export default function App() {
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
+  );
+}
+
+function Router() {
+  const [authOpen, setAuthOpen] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  return (
+    <ErrorBoundary resetKey={useLocation()[0]}>
+      <Switch>
+        <Route path="/" component={() => <Home session={session} setAuthOpen={setAuthOpen} />} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/beauty-demo" component={BeautyDemo} />
+        <Route component={NotFound} />
+      </Switch>
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+    </ErrorBoundary>
   );
 }
