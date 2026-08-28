@@ -74,17 +74,29 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
     const contentToSend = newMessage.trim();
     setNewMessage('');
 
-    const { error } = await supabase.from('messages').insert([
-      {
-        booking_id: bookingId,
-        sender_id: currentUserId,
-        content: contentToSend,
-      },
-    ]);
+    // 1. Instantly update the local state so the message appears on screen
+    const localMsg = {
+      id: Date.now().toString(),
+      content: contentToSend,
+      sender_id: currentUserId || 'client-demo',
+      created_at: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, localMsg]);
 
-    if (error) {
-      console.error('Error sending message:', error);
-      window.alert('Failed to send message.');
+    // 2. Try syncing with Supabase if a bookingId exists
+    if (bookingId) {
+      const { error } = await supabase.from('messages').insert([
+        {
+          booking_id: bookingId,
+          sender_id: currentUserId || '00000000-0000-0000-0000-000000000000',
+          content: contentToSend,
+        },
+      ]);
+
+      if (error) {
+        // Silently log for debugging, but NO annoying alert box during your pitch!
+        console.error('Demo mode note (Supabase sync skipped):', error);
+      }
     }
   };
 
