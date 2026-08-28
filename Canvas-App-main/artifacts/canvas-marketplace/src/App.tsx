@@ -617,7 +617,7 @@ function Home() {
             <span>THE CANVAS WAY</span>
             <span className="line"></span>
           </div>
-          <h2 className="canvas-way-title capitalize">Stop Guessing. Start Matching.</h2>
+          <h2 className="canvas-way-title !capitalize">Stop Guessing. Start Matching.</h2>
           
           <div className="steps-grid">
             <div className="step">
