@@ -858,8 +858,8 @@ function Home() {
                 <span>LOVE FROM OUR USERS</span>
                 <span className="line"></span>
               </div>
-              {/* Uses !normal-case and sentence-case text */}
-              <h2 className="section-title !normal-case">What people are saying</h2>
+              {/* Uses !capitalize to ensure the first letter of every word is capitalized */}
+              <h2 className="section-title !capitalize">What People Are Saying</h2>
             </ScrollZoom>
 
             <div className="testimonials-grid">
