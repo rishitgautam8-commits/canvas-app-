@@ -505,39 +505,44 @@ function Home() {
   return (
     <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
       
-      <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between px-6 md:px-12 h-[72px] bg-[rgba(251,248,242,0.82)] backdrop-blur-md border-b border-[rgba(201,164,99,0.35)] shadow-sm">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollTo('top')}>
-          {/* Crisp white background so the dark purple metallic 'C' pops perfectly */}
-          <div className="flex items-center justify-center w-11 h-11 md:w-12 md:h-12 bg-white shadow-[0_2px_12px_rgba(182,108,242,0.25)] border border-[#B66CF2]/20 rounded-[10px] group transition-all duration-300 hover:shadow-[0_4px_16px_rgba(182,108,242,0.4)] overflow-hidden">
+      {/* 3-Column Grid Layout exactly like Rhode and Fenty */}
+      <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[80px] bg-[var(--canvas-iv)] border-b border-[rgba(201,164,99,0.2)] shadow-sm">
+        
+        {/* LEFT: Navigation Links */}
+        <div className="hidden md:flex items-center gap-8 justify-start">
+          <a onClick={() => scrollTo('discover')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] cursor-pointer transition-colors">Shop Artists</a>
+          <a onClick={() => scrollTo('discover')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] cursor-pointer transition-colors">Styles</a>
+          <a onClick={() => scrollTo('standard')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] cursor-pointer transition-colors">About</a>
+        </div>
+
+        {/* CENTER: Free-Floating Logo & Wordmark */}
+        <div className="flex items-center justify-center cursor-pointer" onClick={() => scrollTo('top')}>
+          <div className="flex items-center gap-3 group">
             <img 
               src="/logo.png" 
               alt="Canvas Logo" 
-              className="w-[95%] h-[95%] object-contain transform group-hover:scale-105 transition-transform duration-500"
+              className="w-10 h-10 md:w-11 md:h-11 object-contain transform group-hover:scale-105 transition-transform duration-500"
             />
+            {/* Bold serif wordmark like Fenty */}
+            <span className="font-serif text-2xl md:text-3xl font-semibold text-[var(--canvas-rp)] tracking-tight uppercase">Canvas</span>
           </div>
-          <span className="font-serif text-xl md:text-2xl font-semibold text-[var(--canvas-rp)]">Canvas | Hyderabad</span>
-        </div>
-        
-        <div className="hidden md:flex gap-9">
-          <a onClick={() => scrollTo('top')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors border-b border-transparent hover:border-[var(--canvas-g)] pb-1">Home</a>
-          <a onClick={() => scrollTo('discover')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors">Browse artists</a>
-          <a onClick={() => scrollTo('discover')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors">Styles</a>
-          <a onClick={() => scrollTo('standard')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] cursor-pointer transition-colors">For artists</a>
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* RIGHT: Utilities & Account */}
+        <div className="flex items-center gap-6 justify-end">
           {session ? (
             <>
-              <button onClick={() => setLocation('/dashboard')} className="text-[13px] text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] transition-colors hidden sm:block">Dashboard</button>
-              <button onClick={handleSignOut} className="bg-[var(--canvas-g)] hover:text-[var(--bg-dark)] text-[var(--canvas-dp)] px-5 py-2 rounded-full text-[12px] uppercase tracking-widest font-bold transition-all shadow-sm">Sign Out</button>
+              <button onClick={() => setLocation('/dashboard')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] transition-colors hidden sm:block">Dashboard</button>
+              <button onClick={handleSignOut} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] transition-colors hidden sm:block">Sign Out</button>
             </>
           ) : (
-            <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-[12px] uppercase tracking-widest font-bold text-[var(--canvas-rp)] hover:text-[var(--canvas-gd)] transition-colors">My Account</button>
+            <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] transition-colors">Account</button>
           )}
           <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-[var(--canvas-rp)] md:hidden">
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
+
       </nav>
 
       <AnimatePresence>
