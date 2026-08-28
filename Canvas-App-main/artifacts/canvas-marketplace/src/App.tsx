@@ -478,35 +478,42 @@ function Home() {
   return (
     <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
       {/* NAVIGATION with hide-on-scroll */}
-      <motion.nav
+      <motion.nav 
         animate={{ y: (isChatOpen || isHeaderHidden) ? -120 : 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[var(--canvas-iv)] border-b border-black/5"
       >
+        
+        {/* LEFT: Rhode-Style Navigation */}
         <div className="hidden md:flex items-center gap-8 justify-start">
-          <a onClick={() => scrollTo('discover')} className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">Shop</a>
-          <a onClick={() => scrollTo('discover')} className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">Styles</a>
-          <a onClick={() => scrollTo('standard')} className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">About</a>
+          <a onClick={() => scrollTo('discover')} className="text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Shop</a>
+          <a onClick={() => scrollTo('discover')} className="text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Styles</a>
+          <a onClick={() => scrollTo('standard')} className="text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">About</a>
         </div>
+
+        {/* CENTER: Stark, Tightly Tracked Wordmark */}
         <div className="flex items-center justify-center cursor-pointer" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="Canvas Logo" className="w-8 h-8 object-contain" />
             <span className="text-2xl md:text-3xl font-bold lowercase">canvas</span>
           </div>
         </div>
+
+        {/* RIGHT: Rhode-Style Utilities */}
         <div className="flex items-center gap-6 justify-end">
           {session ? (
             <>
-              <button onClick={() => setLocation('/dashboard')} className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors hidden sm:block">Dashboard</button>
-              <button onClick={handleSignOut} className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors hidden sm:block">Sign Out</button>
+              <button onClick={() => setLocation('/dashboard')} className="text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors hidden sm:block">Dashboard</button>
+              <button onClick={handleSignOut} className="text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors hidden sm:block">Sign Out</button>
             </>
           ) : (
-            <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors">Account</button>
+            <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors">Account</button>
           )}
           <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-black md:hidden">
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
+
       </motion.nav>
 
       <AnimatePresence>
