@@ -575,10 +575,10 @@ function Home() {
             AI-powered beauty matching
           </div>
           
-          <h1 className="text-[56px] md:text-[68px] lg:text-[80px] font-bold leading-[0.9] lowercase tracking-[-0.04em] text-[#1A1A1A] mb-6 lowercase">
-            hyderabad's premium<br />
-  <span className="text-black/30">beauty match.</span>
-</h1>
+          <h1 className="text-[56px] md:text-[68px] lg:text-[80px] font-bold leading-[0.9] capitalize tracking-[-0.04em] text-[#1A1A1A] mb-6">
+            Hyderabad's Premium<br />
+            <span className="text-black/30">Beauty Match.</span>
+          </h1>
           
           <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-3">
             Upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.
@@ -617,7 +617,7 @@ function Home() {
             <span>THE CANVAS WAY</span>
             <span className="line"></span>
           </div>
-          <h2 className="canvas-way-title">Stop guessing. Start matching.</h2>
+          <h2 className="canvas-way-title capitalize">Stop Guessing. Start Matching.</h2>
           
           <div className="steps-grid">
             <div className="step">
@@ -691,7 +691,7 @@ function Home() {
               <div className="mb-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">The Shortlist</p>
-                  <h2 className="text-5xl sm:text-6xl font-bold lowercase tracking-tight">meet the artists</h2>
+                  <h2 className="text-5xl sm:text-6xl font-bold capitalize tracking-tight">Meet The Artists</h2>
                 </div>
                 <p className="max-w-[320px] text-sm text-black/60">Six points of view, chosen for the way they make beauty feel like a conversation.</p>
               </div>
@@ -891,8 +891,8 @@ function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-end mb-24">
               <div className="lg:col-span-8">
                 <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-8">The Canvas Standard</p>
-                <h2 className="text-5xl sm:text-7xl md:text-8xl font-bold lowercase text-black leading-[1.1] tracking-tight">
-                  Beauty is a point of view.
+                <h2 className="text-5xl sm:text-7xl md:text-8xl font-bold capitalize text-black leading-[1.1] tracking-tight">
+                  Beauty Is A Point Of View.
                 </h2>
               </div>
               
@@ -953,7 +953,7 @@ function Home() {
               <span>LOVE FROM OUR USERS</span>
               <span className="line"></span>
             </div>
-            <h2 className="section-title">What people are saying</h2>
+            <h2 className="section-title capitalize">What People Are Saying</h2>
           </ScrollZoom>
           
           <div className="testimonials-grid">
@@ -1012,8 +1012,8 @@ function Home() {
               <span>FOR MAKEUP ARTISTS</span>
               <span className="line"></span>
             </div>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-8 lowercase tracking-tight">
-              are you a makeup artist?
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-8 capitalize tracking-tight">
+              Are You A Makeup Artist?
             </h2>
           <p className="font-sans text-[15px] text-[var(--text-light)] leading-[1.8] mb-12 max-w-[680px] mx-auto">
             It is completely free to list your verified portfolio on CANVAS. When our AI matches you with a bride, you will receive a blurred notification. To unlock the client's WhatsApp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. You can also upgrade to Canvas Pro for a flat monthly subscription to unlock unlimited leads and priority placement in our AI search results.
@@ -1038,7 +1038,7 @@ function Home() {
               <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">From the journal</p>
-                  <h2 className="text-5xl sm:text-7xl font-bold text-white lowercase">from the journal.</h2>
+                  <h2 className="text-5xl sm:text-7xl font-bold text-white capitalize">From The Journal.</h2>
                 </div>
                 <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className="text-xs font-bold uppercase tracking-[0.2em] hover:text-[#B66CF2] transition-colors border-b border-white/30 pb-1">
                   Read all stories
