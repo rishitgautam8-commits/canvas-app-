@@ -1,58 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
-:root {
-  --font-sans: 'DM Sans', sans-serif;
-}
-
-body {
-  font-family: var(--font-sans) !important;
-}
-
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  /* Binding Tailwind's standard variables to Hansika's luxury palette */
-  --color-background: var(--canvas-iv);
-  --color-foreground: var(--canvas-dp);
-  --color-border: var(--canvas-bd);
-  --color-input: var(--canvas-bd);
-  --color-ring: var(--canvas-g);
-  --color-card: var(--canvas-wh);
-  --color-card-foreground: var(--canvas-dp);
-  --color-card-border: var(--canvas-bd);
-  --color-popover: var(--canvas-cr);
-  --color-popover-foreground: var(--canvas-dp);
-  --color-popover-border: var(--canvas-bd);
-  --color-primary: var(--canvas-g);
-  --color-primary-foreground: var(--canvas-dp);
-  --color-secondary: var(--canvas-pp);
-  --color-secondary-foreground: var(--canvas-mp);
-  --color-muted: var(--canvas-cr);
-  --color-muted-foreground: var(--canvas-mut);
-  --color-accent: var(--canvas-gl);
-  --color-accent-foreground: var(--canvas-dp);
-  --color-destructive: #C0392B;
-  --color-destructive-foreground: var(--canvas-wh);
-  
-  --font-sans: 'Jost', sans-serif;
-  --font-serif: 'Cormorant Garamond', Georgia, serif;
-  
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-}
 
 :root {
-  /* 1. Kimi's Premium Brand Variables */
-  --bg-cream: #F5F0E8;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  /* 1. Luxury Brand Palette */
+  --bg-cream: #FBFAF2;
   --bg-card: #FFFFFF;
   --bg-dark: #1A0B2E;
   --bg-beige: #EDE8DE;
 
-  --text-primary: #2D1B4E;
+  --text-primary: #1A1A1A;
   --text-secondary: #6B5B7A;
   --text-light: rgba(255, 255, 255, 0.85);
   --text-white: #FFFFFF;
@@ -63,58 +23,61 @@ body {
 
   --border-light: #E5E0D5;
 
-  /* 2. Legacy Mapping (This instantly updates all colors in App.tsx!) */
-  --canvas-iv: var(--bg-cream);     /* Ivory background becomes Cream */
-  --canvas-cr: var(--bg-card);      /* Card background becomes White */
-  --canvas-dp: var(--bg-dark);      /* Dark elements become Deep Aubergine */
-  --canvas-rp: var(--text-primary); /* Text becomes Deep Aubergine */
-  --canvas-mut: var(--text-secondary); /* Muted text becomes Slate Purple */
-  --canvas-g: var(--gold);          /* Buttons become Antique Gold */
-  --canvas-gd: var(--gold-dark);    /* Dark gold hover states */
-  --canvas-bd: var(--border-light); /* Borders become soft cream-grey */
+  /* 2. Canvas Mapping Variables */
+  --canvas-iv: var(--bg-cream);
+  --canvas-cr: var(--bg-card);
+  --canvas-dp: var(--bg-dark);
+  --canvas-rp: var(--text-primary);
+  --canvas-mut: var(--text-secondary);
+  --canvas-g: var(--gold);
+  --canvas-gd: var(--gold-dark);
+  --canvas-bd: var(--border-light);
 
-  /* Spacing & Borders */
+  /* Spacing & Radii */
   --radius-card: 16px;
   --radius-large: 24px;
   --radius-pill: 999px;
   --section-padding: 80px;
   --card-padding: 24px;
   --grid-gap: 24px;
-
-  /* Typography */
-  --font-serif: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Force Tailwind to use your new premium fonts */
 @layer base {
+  *, ::after, ::before {
+    border-color: var(--border-light);
+  }
+  
   html {
     font-family: var(--font-sans);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
   }
   
-  h1, h2, h3, .font-serif {
-    font-family: var(--font-serif) !important;
-  }
-}
-
-@layer base {
-  * { @apply border-border; }
-  html { scroll-behavior: smooth; }
   body {
-    @apply font-sans antialiased text-foreground;
     background-color: var(--canvas-iv);
-    background-image: radial-gradient(ellipse 60% 50% at 85% 15%, rgba(201,164,99,.07), transparent 60%);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
     min-width: 320px;
-    letter-spacing: .005em;
+    letter-spacing: -0.01em;
+    margin: 0;
   }
   
-  /* Apply Serif globally to headings */
+  /* Universal Modern Typography for All Headings */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif tracking-tight text-[var(--canvas-rp)];
+    font-family: var(--font-sans);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
   }
   
-  button, input, textarea, select { font: inherit; }
-  ::selection { background: var(--canvas-g); color: var(--canvas-dp); }
+  button, input, textarea, select { 
+    font-family: var(--font-sans); 
+  }
+  
+  ::selection { 
+    background: var(--canvas-g); 
+    color: var(--canvas-dp); 
+  }
 }
 
 @layer utilities {
@@ -127,27 +90,10 @@ body {
   .eyebrow {
     @apply uppercase tracking-[0.2em] text-[10px] font-semibold text-[var(--canvas-gd)];
   }
-  .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
-  
-  /* Retained your hero grid but softened it for the Ivory background */
-  .hero-grid {
-    background-image: 
-      radial-gradient(rgba(124, 89, 22, 0.1) 1.2px, transparent 1.2px);
-    background-size: 36px 36px;
-    mask-image: linear-gradient(to bottom, black, transparent 80%);
-  }
-  
   .text-balance { text-wrap: balance; }
-  
-  /* Custom utility for her italicized serif styling */
-  .canvas-italic-heading {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    color: var(--canvas-rp);
-  }
 }
 
-/* Animations retained from your original build */
+/* Animations */
 @keyframes rise-in {
   from { opacity: 0; transform: translateY(22px); }
   to { opacity: 1; transform: translateY(0); }
@@ -156,23 +102,12 @@ body {
   from { opacity: 0; transform: translateY(14px) scale(.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
-@keyframes shimmer {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(100%); }
-}
 .animate-rise-in { animation: rise-in .8s cubic-bezier(.2,.8,.2,1) both; }
 .animate-float-in { animation: float-in .7s cubic-bezier(.2,.8,.2,1) both; }
 .delay-1 { animation-delay: .1s; }
 .delay-2 { animation-delay: .2s; }
-.delay-3 { animation-delay: .3s; }
-.delay-4 { animation-delay: .4s; }
-.delay-5 { animation-delay: .5s; }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
-}
-
-/* --- THE CANVAS WAY SECTION --- */
+/* --- SECTIONS --- */
 .canvas-way {
   background: var(--bg-dark);
   padding: var(--section-padding) 24px;
@@ -184,9 +119,8 @@ body {
   justify-content: center;
   gap: 16px;
   margin-bottom: 24px;
-  font-family: var(--font-sans);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--gold);
@@ -198,11 +132,11 @@ body {
   opacity: 0.5;
 }
 .canvas-way-title {
-  font-family: var(--font-serif);
   font-size: 42px;
-  font-weight: 500;
+  font-weight: 800;
   color: var(--text-white);
   margin-bottom: 64px;
+  letter-spacing: -0.03em;
 }
 .steps-grid {
   display: grid;
@@ -211,18 +145,7 @@ body {
   max-width: 1000px;
   margin: 0 auto;
 }
-.step {
-  position: relative;
-}
-.step:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  right: -24px;
-  top: 40px;
-  width: 1px;
-  height: 120px;
-  background: rgba(196, 163, 90, 0.2);
-}
+.step { position: relative; }
 .step-icon {
   width: 64px;
   height: 64px;
@@ -232,38 +155,31 @@ body {
   align-items: center;
   justify-content: center;
   margin: 0 auto 24px;
-  font-family: var(--font-serif);
-  font-size: 28px;
+  font-size: 24px;
+  font-weight: 700;
   color: var(--gold);
 }
 .step h3 {
-  font-family: var(--font-serif);
-  font-size: 22px;
+  font-size: 20px;
   color: var(--text-white);
   margin-bottom: 12px;
-  font-weight: 500;
+  font-weight: 700;
 }
 .step p {
-  font-family: var(--font-sans);
   font-size: 15px;
   color: var(--text-light);
   line-height: 1.6;
   max-width: 280px;
   margin: 0 auto;
 }
-@media (max-width: 768px) {
-  .steps-grid { grid-template-columns: 1fr; }
-  .step:not(:last-child)::after { display: none; }
-}
 
-/* --- STATS BAR SECTION --- */
+/* --- STATS BAR --- */
 .stats-bar {
   background: var(--gold);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 60px 24px;
-  gap: 0;
 }
 .stat {
   text-align: center;
@@ -272,43 +188,33 @@ body {
   max-width: 280px;
 }
 .stat-number {
-  font-family: var(--font-serif);
   font-size: 48px;
-  font-weight: 600;
+  font-weight: 800;
   color: var(--bg-dark);
   margin-bottom: 8px;
+  letter-spacing: -0.03em;
 }
 .stat-label {
-  font-family: var(--font-sans);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--bg-dark);
   opacity: 0.8;
 }
-.stat-divider {
-  width: 1px;
-  height: 60px;
-  background: rgba(26, 11, 46, 0.2);
-}
-@media (max-width: 768px) {
-  .stats-bar { flex-direction: column; gap: 32px; }
-  .stat-divider { display: none; }
-}
 
-/* --- TESTIMONIALS SECTION --- */
+/* --- TESTIMONIALS --- */
 .testimonials {
   background: var(--bg-cream);
   padding: var(--section-padding) 24px;
   text-align: center;
 }
 .section-title {
-  font-family: var(--font-serif);
   font-size: 36px;
   color: var(--text-primary);
   margin-bottom: 48px;
-  font-weight: 500;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 .testimonials-grid {
   display: grid;
@@ -326,81 +232,24 @@ body {
 }
 .stars {
   color: var(--gold);
-  font-size: 16px;
+  font-size: 14px;
   letter-spacing: 2px;
   margin-bottom: 8px;
 }
-.quote-mark {
-  font-family: var(--font-serif);
-  font-size: 48px;
-  color: var(--gold);
-  line-height: 1;
-  margin-bottom: -12px;
-  opacity: 0.6;
-}
 .quote {
-  font-family: var(--font-sans);
   font-size: 15px;
   color: var(--text-primary);
   line-height: 1.7;
-  font-style: italic;
   margin-bottom: 24px;
+  font-weight: 500;
 }
-.divider {
-  height: 1px;
-  background: var(--border-light);
-  margin-bottom: 20px;
-}
-.author {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 600;
-}
-.name {
-  font-family: var(--font-sans);
+.author-info .name {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
 }
-.meta {
-  font-family: var(--font-sans);
+.author-info .meta {
   font-size: 12px;
   color: var(--text-secondary);
-}
-@media (max-width: 768px) {
-  .testimonials-grid { grid-template-columns: 1fr; }
-}
-
-/* --- EDITORIAL TAGS/PILLS --- */
-.tag {
-  background: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--border-light);
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-family: var(--font-sans);
-  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.5px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-}
-
-.tag.active {
-  background: var(--gold);
-  color: var(--bg-dark);
-  border-color: var(--gold);
 }
