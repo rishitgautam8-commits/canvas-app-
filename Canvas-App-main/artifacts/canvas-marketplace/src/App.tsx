@@ -507,8 +507,31 @@ function Home() {
       
       <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between px-6 md:px-12 h-[72px] bg-[rgba(251,248,242,0.82)] backdrop-blur-md border-b border-[rgba(201,164,99,0.35)] shadow-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollTo('top')}>
-          <div className="bg-white rounded-[10px] w-10 h-10 md:w-11 md:h-11 shadow-[0_2px_12px_rgba(0,0,0,0.08)] flex items-center justify-center">
-            <span className="font-serif italic text-xl text-[var(--canvas-gd)] opacity-80">C</span>
+          <div className="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 bg-[#FBFAF2] shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[rgba(201,164,99,0.3)] rounded-[10px] group transition-all duration-300 hover:shadow-[0_4px_12px_rgba(201,164,99,0.15)]">
+            <svg 
+              viewBox="0 0 40 40" 
+              className="w-6 h-6 transform group-hover:scale-105 transition-transform duration-500" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Inner frame representing the 'Canvas' structure */}
+              <rect x="4" y="4" width="32" height="32" rx="4" stroke="#C9A463" strokeWidth="0.75" strokeOpacity="0.6"/>
+              
+              {/* Bespoke Serif 'C' constructed from precise geometric paths */}
+              <path 
+                d="M26.5 13.5C24.5 11.2 21.5 10 18 10C12 10 7.5 14.5 7.5 20C7.5 25.5 12 30 18 30C21.5 30 24.5 28.8 26.5 26.5" 
+                stroke="#150A26" 
+                strokeWidth="2.5" 
+                strokeLinecap="square"
+              />
+              
+              {/* Custom Serif Accents (The Editorial Touch) */}
+              <path d="M26 13.5L26 17" stroke="#150A26" strokeWidth="2.5" strokeLinecap="square"/>
+              <path d="M26 26.5L26 23" stroke="#150A26" strokeWidth="2.5" strokeLinecap="square"/>
+              
+              {/* The Artist's Mark (Gold Accent Dot) */}
+              <circle cx="21" cy="20" r="1.5" fill="#C9A463"/>
+            </svg>
           </div>
           <span className="font-serif text-xl md:text-2xl font-semibold text-[var(--canvas-rp)]">Canvas | Hyderabad</span>
         </div>
@@ -1214,7 +1237,7 @@ function Router() {
 }
 
 export default function App() {
-  const [isChatOpen, setIsChatOpen] = useState(false); // If you want state control
+  // Removed the duplicate isChatOpen state from here!
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -1224,11 +1247,8 @@ export default function App() {
         </WouterRouter>
         <Toaster />
         
-        {/* ADD THE LIVE CHAT DRAWER HERE SO IT IS GLOBALLY ACCESSIBLE */}
-        <ChatDrawer 
-  open={isChatOpen} 
-  onClose={() => setIsChatOpen(false)} 
-/>
+        {/* Removed the duplicate ChatDrawer from here! */}
+        
       </TooltipProvider>
     </QueryClientProvider>
   );
