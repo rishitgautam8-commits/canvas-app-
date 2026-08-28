@@ -664,7 +664,8 @@ function Home() {
         {/* NEW: THE STATS BAR */}
         <ScrollZoomIn className="stats-bar">
           <div className="stat">
-            <div className="stat-number">5</div>
+            {/* This now dynamically pulls the true count of artists! */}
+            <div className="stat-number">{sourceArtists.length}</div>
             <div className="stat-label">Verified Artists</div>
           </div>
           <div className="stat-divider"></div>
