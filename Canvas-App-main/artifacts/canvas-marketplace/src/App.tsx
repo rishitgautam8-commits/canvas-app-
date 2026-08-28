@@ -633,7 +633,7 @@ function Home() {
           
           <div className="flex gap-4 flex-wrap">
             <button onClick={() => scrollTo('demo-search')} className="bg-[var(--canvas-g)] hover:bg-[#D9B86E] text-[var(--canvas-dp)] px-8 py-3.5 rounded-lg text-[14px] font-medium transition-all shadow-[0_10px_30px_-8px_rgba(201,164,99,0.4)] hover:-translate-y-0.5">Try the Live Demo →</button>
-            <button onClick={() => scrollTo('standard')} className="bg-transparent hover:bg-[rgba(201,164,99,0.12)] border border-[var(--canvas-g)] text-[var(--canvas-gd)] px-7 py-3 rounded-lg text-[14px] transition-all hover:-translate-y-0.5">How it works</button>
+            <button onClick={() => scrollTo('how-it-works')} className="bg-transparent hover:bg-[rgba(201,164,99,0.12)] border border-[var(--canvas-g)] text-[var(--canvas-gd)] px-7 py-3 rounded-lg text-[14px] transition-all hover:-translate-y-0.5">How it works</button>
           </div>
           
           <div className="flex items-center gap-3 mt-10">
@@ -654,7 +654,7 @@ function Home() {
 
       {/* THE CANVAS WAY MANIFESTO */}
       <ScrollZoom>
-        <section className="canvas-way border-y border-[var(--gold)]/20">
+        <section id="how-it-works" className="canvas-way border-y border-[var(--gold)]/20">
         <div className="max-w-[1400px] mx-auto">
           <div className="section-label">
             <span className="line"></span>
