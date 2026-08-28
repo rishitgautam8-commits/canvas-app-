@@ -4,28 +4,28 @@ import { supabase } from '@/lib/supabase';
 
 type ChatDrawerProps = {
   open: boolean;
-  bookingId?: string;       // Add ?
-  currentUserId?: string;   // Add ?
-  otherPartyName?: string;  // Add ?
+  bookingId?: string;      
+  currentUserId?: string;   
+  otherPartyName?: string;  
   onClose: () => void;
 };
 
 export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onClose }: ChatDrawerProps) {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(false); // Default to false so it never locks up!
+  const [loading, setLoading] = useState(false); 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
 
-    // If there's no bookingId (demo mode), unlock the screen and show a nice welcome message
+    // If there's no bookingId (demo mode), unlock the screen and show a natural artist greeting
     if (!bookingId) {
       setLoading(false);
       setMessages([
         {
           id: 'welcome-demo',
-          content: 'Hello! Welcome to Canvas. How can I assist with your look today?',
+          content: 'Hi! Excited to connect about your look. Let me know what specific styling or dates you have in mind.',
           sender_id: 'artist',
           created_at: new Date().toISOString()
         }
@@ -125,7 +125,7 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
         <div className="flex items-center justify-between border-b border-white/10 pb-5">
           <div>
             <p className="eyebrow text-[#e0aaff]">Secure Canvas Room</p>
-            <h3 className="serif mt-1 text-3xl text-white">{otherPartyName}</h3>
+            <h3 className="serif mt-1 text-3xl text-white">{otherPartyName || 'Artist Concierge'}</h3>
           </div>
           <button 
             type="button" 
@@ -144,7 +144,7 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
             </div>
           ) : messages.length > 0 ? (
             messages.map((msg) => {
-              const isMe = msg.sender_id === currentUserId;
+              const isMe = msg.sender_id === currentUserId || msg.sender_id === 'client-demo' || msg.sender_id === 'client';
               return (
                 <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                   <div 
