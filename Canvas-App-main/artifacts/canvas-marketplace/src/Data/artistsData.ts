@@ -23,11 +23,11 @@ export interface Artist {
 
 /* ── 30 folders ── */
 const FOLDERS = [
-  { name: 'Erica', files: ['1.jpeg', '2.jpeg', '3.jpeg', '4.jpeg', 'erica_profile.jpg'] },
-  { name: 'Geetanjali', files: ['1..jpeg', '2..jpeg', '3..jpeg', '4.jpeg', '5.jpeg', 'geetanjali_profile.jpg'] },
-  { name: 'Kaushal Makeover', files: ['1...jpeg', '2...jpeg', '3...jpeg', '4...jpeg', '5...jpeg', 'prachi_profile.jpg'] },
-  { name: 'Tusya', files: ['1.....jpeg', '2.....jpeg', '3.....jpeg', '4.....jpeg'] },
-  { name: 'Womania', files: ['1......jpeg', '2......jpeg', '3......jpeg', 'womaniya_profile.jpg'] },
+  { name: 'Erica', files: ['1.jpeg', '2.jpeg', '3.jpeg', '4.jpeg', 'addon-brow-tinting-1.jpg', 'addon-ice-globe-facial-1.jpg', 'erica_profile.jpg'] },
+  { name: 'Geetanjali', files: ['1..jpeg', '2..jpeg', '3..jpeg', '4.jpeg', '5.jpeg', 'addon-brow-tinting-1.jpg', 'addon-hairstyle-1.jpg', 'geetanjali_profile.jpg'] },
+  { name: 'Kaushal Makeover', files: ['1...jpeg', '2...jpeg', '3...jpeg', '4...jpeg', '5...jpeg', 'addon-hairstyle-1.jpg', 'addon-nail-art-1.jpg', 'prachi_profile.jpg'] },
+  { name: 'Tusya', files: ['1.....jpeg', '2.....jpeg', '3.....jpeg', '4.....jpeg', 'addon-brow-tinting-1.jpg', 'addon-ice-globe-facial-1.jpg'] },
+  { name: 'Womania', files: ['1......jpeg', '2......jpeg', '3......jpeg', 'addon-hairstyle-1.jpg', 'addon-nail-art-1.jpg', 'womaniya_profile.jpg'] },
   { name: 'artist_001', files: ['addon-saree-draping-1.jpg', 'addon-saree-draping-2.jpg', 'portfolio-1.jpg', 'portfolio-2.jpg', 'portfolio-3.jpg', 'portfolio-4.jpg', 'portfolio-5.jpg'] },
   { name: 'artist_002', files: ['addon-hairstyle-1.jpg', 'addon-saree-draping-1.jpg', 'portfolio-1.jpg', 'portfolio-2.jpg', 'portfolio-3.jpg', 'portfolio-4.jpg', 'portfolio-5.jpg'] },
   { name: 'artist_003', files: ['addon-hairstyle-1.jpg', 'addon-saree-draping-1.jpg', 'portfolio-1.jpg', 'portfolio-2.jpg', 'portfolio-3.jpg', 'portfolio-4.jpg', 'portfolio-5.jpg'] },
