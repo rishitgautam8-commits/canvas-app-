@@ -858,8 +858,8 @@ function Home() {
                 <span>LOVE FROM OUR USERS</span>
                 <span className="line"></span>
               </div>
-              {/* Changed 'capitalize' to 'uppercase' and made the text all caps */}
-              <h2 className="section-title uppercase">What People Are Saying</h2>
+              {/* Added !uppercase to override any global lowercase rules */}
+              <h2 className="section-title !uppercase">WHAT PEOPLE ARE SAYING</h2>
             </ScrollZoom>
 
             <div className="testimonials-grid">
