@@ -858,8 +858,8 @@ function Home() {
                 <span>LOVE FROM OUR USERS</span>
                 <span className="line"></span>
               </div>
-              {/* Added !uppercase to override any global lowercase rules */}
-              <h2 className="section-title !uppercase">WHAT PEOPLE ARE SAYING</h2>
+              {/* Uses !normal-case and sentence-case text */}
+              <h2 className="section-title !normal-case">What people are saying</h2>
             </ScrollZoom>
 
             <div className="testimonials-grid">
