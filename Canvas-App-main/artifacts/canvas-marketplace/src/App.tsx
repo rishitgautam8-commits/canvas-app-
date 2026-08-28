@@ -484,11 +484,11 @@ function Home() {
         className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[var(--canvas-iv)] border-b border-black/5"
       >
         
-        {/* LEFT: Rhode-Style Navigation */}
+        {/* LEFT: Rhode-Style Navigation (Bumped to text-sm) */}
         <div className="hidden md:flex items-center gap-8 justify-start">
-          <a onClick={() => scrollTo('discover')} className="text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Shop</a>
-          <a onClick={() => scrollTo('discover')} className="text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Styles</a>
-          <a onClick={() => scrollTo('standard')} className="text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">About</a>
+          <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Shop</a>
+          <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Styles</a>
+          <a onClick={() => scrollTo('standard')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">About</a>
         </div>
 
         {/* CENTER: Stark, Tightly Tracked Wordmark */}
@@ -499,15 +499,15 @@ function Home() {
           </div>
         </div>
 
-        {/* RIGHT: Rhode-Style Utilities */}
+        {/* RIGHT: Rhode-Style Utilities (Bumped to text-sm) */}
         <div className="flex items-center gap-6 justify-end">
           {session ? (
             <>
-              <button onClick={() => setLocation('/dashboard')} className="text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors hidden sm:block">Dashboard</button>
-              <button onClick={handleSignOut} className="text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors hidden sm:block">Sign Out</button>
+              <button onClick={() => setLocation('/dashboard')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors hidden sm:block">Dashboard</button>
+              <button onClick={handleSignOut} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors hidden sm:block">Sign Out</button>
             </>
           ) : (
-            <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-xs font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors">Account</button>
+            <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors">Account</button>
           )}
           <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-black md:hidden">
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
