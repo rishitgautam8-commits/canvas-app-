@@ -287,6 +287,8 @@ function Home() {
     fetchLiveArtists();
   }, []);
 
+
+
   useEffect(() => {
     async function fetchStats() {
       try {
@@ -349,6 +351,14 @@ function Home() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
     return () => subscription.unsubscribe();
   }, []);
+useEffect(() => {
+    if (session) {
+      const role = session.user.user_metadata?.role;
+      if (!role) {
+        setLocation('/dashboard');
+      }
+    }
+  }, [session, setLocation]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
