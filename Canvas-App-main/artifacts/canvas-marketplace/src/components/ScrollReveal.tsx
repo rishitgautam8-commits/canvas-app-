@@ -45,6 +45,7 @@ export function ScrollReveal({
         ease: [0.25, 0.1, 0.25, 1],
       }}
       className={className}
+      style={{ border: '2px solid red' }}
     >
       {children}
     </motion.div>
