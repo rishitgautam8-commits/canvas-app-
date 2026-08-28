@@ -735,12 +735,14 @@ function Home() {
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
             
             <ScrollZoom>
-              <div className="mb-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
+              <div className="mb-12 flex flex-col gap-5">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">The Shortlist</p>
                   <h2 className="text-5xl sm:text-6xl font-bold capitalize tracking-tight">Meet The Artists</h2>
                 </div>
-                <p className="max-w-[320px] text-sm text-black/60">Six points of view, chosen for the way they make beauty feel like a conversation.</p>
+                <p className="max-w-[500px] text-[15px] font-medium leading-relaxed text-black/60">
+                  A private directory of Hyderabad's most sought-after talent, rigorously vetted for their technical execution and distinct aesthetic vision.
+                </p>
               </div>
             </ScrollZoom>
 
