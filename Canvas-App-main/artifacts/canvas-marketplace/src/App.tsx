@@ -19,6 +19,7 @@ import Dashboard from '@/pages/Dashboard';
 import { artistsData as artists } from './Data/artistsData';
 import BeautyDemo from '@/pages/BeautyDemo'; // or '@/components/BeautyDemo' depending on where you saved it
 import { ChatDrawer } from '@/components/ChatDrawer';
+import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ScrollReveal';
 
 // Generates a unique, realistic match percentage based on the uploaded file and artist ID
 function getSmartMatchPercentage(file: File | null | undefined, artistId: string): number {
@@ -573,8 +574,8 @@ function Home() {
           </div>
           
           <h1 className="text-[56px] md:text-[68px] lg:text-[80px] font-bold leading-[0.9] lowercase tracking-[-0.04em] text-[#1A1A1A] mb-6 lowercase">
-            Hyderabad's Premium<br />
-  <span className="text-black/30">Beauty Match</span>
+            hyderabad's premium<br />
+  <span className="text-black/30">beauty match.</span>
 </h1>
           
           <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-3">
@@ -606,14 +607,15 @@ function Home() {
       </section>
 
       {/* THE CANVAS WAY MANIFESTO */}
-      <section className="canvas-way border-y border-[var(--gold)]/20">
+      <ScrollReveal direction="up" distance={50} duration={0.8}>
+        <section className="canvas-way border-y border-[var(--gold)]/20">
         <div className="max-w-[1400px] mx-auto">
           <div className="section-label">
             <span className="line"></span>
             <span>THE CANVAS WAY</span>
             <span className="line"></span>
           </div>
-          <h2 className="canvas-way-title">Stop Guessing. Start Matching.</h2>
+          <h2 className="canvas-way-title">Stop guessing. Start matching.</h2>
           
           <div className="steps-grid">
             <div className="step">
@@ -634,9 +636,11 @@ function Home() {
           </div>
         </div>
       </section>
+      </ScrollReveal>
 
       {/* SEARCH COMPONENT WRAPPER */}
-      <section id="demo-search" className="relative z-20 bg-[var(--bg-beige)] py-24 border-b border-[var(--border-light)]">
+      <ScrollReveal direction="up" distance={40} duration={0.7} delay={0.1}>
+        <section id="demo-search" className="relative z-20 bg-[var(--bg-beige)] py-24 border-b border-[var(--border-light)]">
         <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 [&_.text-\\[\\#B66CF2\\]]:text-[var(--canvas-rp)] [&_.text-white\\/50]:text-[var(--canvas-mut)] [&_.text-white\\/70]:text-[var(--canvas-mut)] [&_h1]:text-white">
           <HeroSearch
             value={search}
@@ -651,65 +655,71 @@ function Home() {
           />
         </div>
       </section>
+      </ScrollReveal>
 
 <main className="relative z-20">
         
         {/* NEW: THE STATS BAR */}
-        <section className="stats-bar">
-          <div className="stat">
+        <StaggerContainer staggerDelay={0.15} className="stats-bar">
+          <StaggerItem><div className="stat">
             <div className="stat-number">5</div>
             <div className="stat-label">Verified Artists</div>
-          </div>
+          </div></StaggerItem>
           <div className="stat-divider"></div>
-          <div className="stat">
+          <StaggerItem><div className="stat">
             <div className="stat-number">₹21,700</div>
             <div className="stat-label">Avg Booking Value</div>
-          </div>
+          </div></StaggerItem>
           <div className="stat-divider"></div>
-          <div className="stat">
+          <StaggerItem><div className="stat">
             <div className="stat-number">88%</div>
             <div className="stat-label">Trial-to-Booking Rate</div>
-          </div>
+          </div></StaggerItem>
           <div className="stat-divider"></div>
-          <div className="stat">
+          <StaggerItem><div className="stat">
             <div className="stat-number">4.8★</div>
             <div className="stat-label">Platform Avg Rating</div>
-          </div>
-        </section>
+          </div></StaggerItem>
+        </StaggerContainer>
         
         <section id="discover" className="bg-white text-black py-24 sm:py-32">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
             
-            <div className="mb-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">The Shortlist</p>
-                <h2 className="text-5xl sm:text-6xl font-bold lowercase tracking-tight">Meet The Artists</h2>
+            <ScrollReveal direction="up" distance={35} duration={0.7}>
+              <div className="mb-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">The Shortlist</p>
+                  <h2 className="text-5xl sm:text-6xl font-bold lowercase tracking-tight">meet the artists</h2>
+                </div>
+                <p className="max-w-[320px] text-sm text-black/60">Six points of view, chosen for the way they make beauty feel like a conversation.</p>
               </div>
-              <p className="max-w-[320px] text-sm text-black/60">Six points of view, chosen for the way they make beauty feel like a conversation.</p>
-            </div>
+            </ScrollReveal>
 
-            <div className="mb-12 flex flex-wrap gap-3 border-b border-black/10 pb-8">
-              {discoverCategories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategoryFilter(cat.id)}
-                  className={`px-6 py-3 text-xs font-bold tracking-[0.15em] uppercase border transition-colors ${
-                    selectedCategoryFilter === cat.id
-                      ? 'border-black bg-black text-white'
-                      : 'border-black/20 bg-transparent text-black/70 hover:border-black hover:text-black'
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
+            <ScrollReveal direction="up" distance={20} duration={0.5} delay={0.1}>
+              <div className="mb-12 flex flex-wrap gap-3 border-b border-black/10 pb-8">
+                {discoverCategories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategoryFilter(cat.id)}
+                    className={`px-6 py-3 text-xs font-bold tracking-[0.15em] uppercase border transition-colors ${
+                      selectedCategoryFilter === cat.id
+                        ? 'border-black bg-black text-white'
+                        : 'border-black/20 bg-transparent text-black/70 hover:border-black hover:text-black'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </ScrollReveal>
 
             {hasSearched && search.inspirationFile && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-12 mt-8 border border-black/15 bg-[#F9F9F9] p-8 lg:p-10 shadow-sm"
-              >
+              <ScrollReveal direction="up" distance={30} duration={0.6}>
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-12 mt-8 border border-black/15 bg-[#F9F9F9] p-8 lg:p-10 shadow-sm"
+                >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-black/10 pb-6 mb-6">
                   <div className="flex items-center gap-4">
                     <div className="flex h-12 w-12 items-center justify-center border border-[#B66CF2]/40 bg-[#B66CF2]/10 text-[#B66CF2]">
@@ -735,8 +745,9 @@ function Home() {
                       </span>
                     ))}
                   </div>
-                </div>
-              </motion.div>
+                  </div>
+                </motion.div>
+              </ScrollReveal>
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start mt-10">
@@ -881,7 +892,7 @@ function Home() {
               <div className="lg:col-span-8">
                 <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-8">The Canvas Standard</p>
                 <h2 className="text-5xl sm:text-7xl md:text-8xl font-bold lowercase text-black leading-[1.1] tracking-tight">
-                  Beauty Is A Point Of View.
+                  Beauty is a point of view.
                 </h2>
               </div>
               
@@ -892,37 +903,43 @@ function Home() {
               </div>
             </div>
             
-            <div className="grid gap-12 border-t-[3px] border-black pt-12 sm:grid-cols-3">
-              <div className="group cursor-default">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Curated Talent</h3>
-                  <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">01</p>
+            <StaggerContainer staggerDelay={0.15} className="grid gap-12 border-t-[3px] border-black pt-12 sm:grid-cols-3">
+              <StaggerItem>
+                <div className="group cursor-default">
+                  <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Curated Talent</h3>
+                    <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">01</p>
+                  </div>
+                  <p className="text-sm font-medium leading-relaxed text-black/60">
+                    <strong className="text-black">Distinct hand, not a uniform finish.</strong> We reject cookie-cutter application, selecting artists exclusively for their unique ability to elevate natural features.
+                  </p>
                 </div>
-                <p className="text-sm font-medium leading-relaxed text-black/60">
-                  <strong className="text-black">Distinct hand, not a uniform finish.</strong> We reject cookie-cutter application, selecting artists exclusively for their unique ability to elevate natural features.
-                </p>
-              </div>
+              </StaggerItem>
 
-              <div className="group cursor-default">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">The Experience</h3>
-                  <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">02</p>
+              <StaggerItem>
+                <div className="group cursor-default">
+                  <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">The Experience</h3>
+                    <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">02</p>
+                  </div>
+                  <p className="text-sm font-medium leading-relaxed text-black/60">
+                    <strong className="text-black">Care in the details and generosity.</strong> From high-end skin prep to impeccable kit hygiene, our standard for client comfort is non-negotiable.
+                  </p>
                 </div>
-                <p className="text-sm font-medium leading-relaxed text-black/60">
-                  <strong className="text-black">Care in the details and generosity.</strong> From high-end skin prep to impeccable kit hygiene, our standard for client comfort is non-negotiable.
-                </p>
-              </div>
+              </StaggerItem>
 
-              <div className="group cursor-default">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Private Network</h3>
-                  <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">03</p>
+              <StaggerItem>
+                <div className="group cursor-default">
+                  <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Private Network</h3>
+                    <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">03</p>
+                  </div>
+                  <p className="text-sm font-medium leading-relaxed text-black/60">
+                    <strong className="text-black">The list is small so it means something.</strong> We prioritize strict quality over volume, eliminating the guesswork of endless scrolling.
+                  </p>
                 </div>
-                <p className="text-sm font-medium leading-relaxed text-black/60">
-                  <strong className="text-black">The list is small so it means something.</strong> We prioritize strict quality over volume, eliminating the guesswork of endless scrolling.
-                </p>
-              </div>
-            </div>
+              </StaggerItem>
+            </StaggerContainer>
 
           </div>
         </section>
@@ -930,12 +947,14 @@ function Home() {
 {/* TESTIMONIALS SECTION */}
       <section className="testimonials">
         <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
-          <div className="section-label">
-            <span className="line"></span>
-            <span>LOVE FROM OUR USERS</span>
-            <span className="line"></span>
-          </div>
-          <h2 className="section-title">What People Are Saying</h2>
+          <ScrollReveal direction="up" distance={30} duration={0.6}>
+            <div className="section-label">
+              <span className="line"></span>
+              <span>LOVE FROM OUR USERS</span>
+              <span className="line"></span>
+            </div>
+            <h2 className="section-title">What people are saying</h2>
+          </ScrollReveal>
           
           <div className="testimonials-grid">
             <div className="testimonial-card">
@@ -985,16 +1004,17 @@ function Home() {
 
 {/* ---------------------------------------------------- */}
       {/* NEW: FOR MAKEUP ARTISTS CTA */}
-      <section className="bg-[var(--bg-dark)] py-24 sm:py-32 px-5 border-t border-[var(--gold)]/20 text-center">
-        <div className="max-w-[800px] mx-auto">
-          <div className="section-label">
-            <span className="line"></span>
-            <span>FOR MAKEUP ARTISTS</span>
-            <span className="line"></span>
-          </div>
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-8 lowercase tracking-tight">
-            Are You A Makeup Artist?
-          </h2>
+      <ScrollReveal direction="up" distance={45} duration={0.8}>
+        <section className="bg-[var(--bg-dark)] py-24 sm:py-32 px-5 border-t border-[var(--gold)]/20 text-center">
+          <div className="max-w-[800px] mx-auto">
+            <div className="section-label">
+              <span className="line"></span>
+              <span>FOR MAKEUP ARTISTS</span>
+              <span className="line"></span>
+            </div>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-8 lowercase tracking-tight">
+              are you a makeup artist?
+            </h2>
           <p className="font-sans text-[15px] text-[var(--text-light)] leading-[1.8] mb-12 max-w-[680px] mx-auto">
             It is completely free to list your verified portfolio on CANVAS. When our AI matches you with a bride, you will receive a blurred notification. To unlock the client's WhatsApp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. You can also upgrade to Canvas Pro for a flat monthly subscription to unlock unlimited leads and priority placement in our AI search results.
           </p>
@@ -1008,45 +1028,55 @@ function Home() {
           </div>
         </div>
       </section>
+      </ScrollReveal>
       {/* ---------------------------------------------------- */}
 
       {/* THE JOURNAL SECTION (Already exists in your file) */}
       <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-5 py-24 sm:px-8 lg:px-12 lg:py-36">
           <div className="max-w-[1400px] mx-auto">
-            <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">From The Journal</p>
-                <h2 className="text-5xl sm:text-7xl font-bold text-white lowercase">From The Journal.</h2>
-              </div>
-              <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className="text-xs font-bold uppercase tracking-[0.2em] hover:text-[#B66CF2] transition-colors border-b border-white/30 pb-1">
-                Read all stories
-              </button>
-            </div>
-            
-            <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-              <div className="group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors">
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Perspective · 06 min read</span>
+            <ScrollReveal direction="up" distance={35} duration={0.7}>
+              <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
                 <div>
-                  <h3 className="text-4xl font-bold lowercase tracking-tight mb-4">on keeping your own face.</h3>
-                  <p className="text-sm font-bold uppercase tracking-widest text-white/60">A conversation about recognition and restraint.</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">From the journal</p>
+                  <h2 className="text-5xl sm:text-7xl font-bold text-white lowercase">from the journal.</h2>
                 </div>
+                <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className="text-xs font-bold uppercase tracking-[0.2em] hover:text-[#B66CF2] transition-colors border-b border-white/30 pb-1">
+                  Read all stories
+                </button>
               </div>
+            </ScrollReveal>
+            
+            <StaggerContainer staggerDelay={0.12} className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+              <StaggerItem>
+                <div className="group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Perspective · 06 min read</span>
+                  <div>
+                    <h3 className="text-4xl font-bold lowercase tracking-tight mb-4">on keeping your own face.</h3>
+                    <p className="text-sm font-bold uppercase tracking-widest text-white/60">A conversation about recognition and restraint.</p>
+                  </div>
+                </div>
+              </StaggerItem>
               <div className="grid gap-6">
-                <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Ritual · 03 min read</span>
-                  <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight">a small ritual before the chair.</h3>
-                </div>
-                <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Industry · 05 min read</span>
-                  <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight">the science of skin prep.</h3>
-                </div>
+                <StaggerItem>
+                  <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Ritual · 03 min read</span>
+                    <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight">a small ritual before the chair.</h3>
+                  </div>
+                </StaggerItem>
+                <StaggerItem>
+                  <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Industry · 05 min read</span>
+                    <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight">the science of skin prep.</h3>
+                  </div>
+                </StaggerItem>
               </div>
-            </div>
+            </StaggerContainer>
           </div>
         </section>
 
-        <footer className="bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10">
-          <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
+        <ScrollReveal direction="up" distance={30} duration={0.6}>
+          <footer className="bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10">
+            <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
             <div className="lg:col-span-1">
               <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-white mb-4">Down for more? We got you!</h3>
               <p className="text-[13px] text-white/60 mb-6 font-bold uppercase tracking-wider leading-relaxed">
@@ -1087,8 +1117,9 @@ function Home() {
                 <img src="https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80" alt="Canvas" onError={handleImgError} className="h-full w-full object-cover opacity-80 hover:opacity-100 transition-all duration-700" />
               </div>
             </div>
-          </div>
-        </footer>
+            </div>
+          </footer>
+        </ScrollReveal>
       </main>
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
