@@ -507,12 +507,12 @@ function Home() {
       
       <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between px-6 md:px-12 h-[72px] bg-[rgba(251,248,242,0.82)] backdrop-blur-md border-b border-[rgba(201,164,99,0.35)] shadow-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollTo('top')}>
-          {/* Your New 3D Purple & Gold Logo */}
-          <div className="flex items-center justify-center w-11 h-11 md:w-12 md:h-12 bg-[#150A26] shadow-[0_2px_12px_rgba(182,108,242,0.25)] border border-[#B66CF2]/30 rounded-[10px] group transition-all duration-300 hover:shadow-[0_4px_16px_rgba(182,108,242,0.4)] overflow-hidden">
+          {/* Crisp white background so the dark purple metallic 'C' pops perfectly */}
+          <div className="flex items-center justify-center w-11 h-11 md:w-12 md:h-12 bg-white shadow-[0_2px_12px_rgba(182,108,242,0.25)] border border-[#B66CF2]/20 rounded-[10px] group transition-all duration-300 hover:shadow-[0_4px_16px_rgba(182,108,242,0.4)] overflow-hidden">
             <img 
-              src="logo.png" 
+              src="/logo.png" 
               alt="Canvas Logo" 
-              className="w-[90%] h-[90%] object-contain transform group-hover:scale-105 transition-transform duration-500"
+              className="w-[95%] h-[95%] object-contain transform group-hover:scale-105 transition-transform duration-500"
             />
           </div>
           <span className="font-serif text-xl md:text-2xl font-semibold text-[var(--canvas-rp)]">Canvas | Hyderabad</span>
