@@ -571,7 +571,10 @@ function Home() {
               alt="Canvas Logo" 
               className="w-12 h-12 md:w-14 md:h-14 object-contain transform group-hover:scale-105 transition-transform duration-500 drop-shadow-md"
             />
-            <span className="font-serif text-3xl md:text-4xl font-semibold text-[var(--canvas-rp)] tracking-tight uppercase drop-shadow-sm">Canvas</span>
+            {/* Rhode-style: thick, lowercase, tightly tracked */}
+            <span className="font-sans text-3xl md:text-4xl font-black text-[var(--canvas-rp)] tracking-tighter lowercase drop-shadow-sm">
+              canvas
+            </span>
           </div>
         </div>
 
@@ -617,9 +620,11 @@ function Home() {
             AI-powered beauty matching
           </div>
           
-          <h1 className="font-serif text-[40px] md:text-[54px] lg:text-[64px] font-semibold leading-[1.06] tracking-tight text-[var(--canvas-rp)] mb-6">
-            Hyderabad's Premium<br/>
-            <em className="italic not-italic text-transparent bg-clip-text bg-gradient-to-r from-[var(--canvas-gd)] via-[var(--canvas-g)] to-[var(--canvas-gd)]">Beauty Match</em>
+          <h1 className="font-sans text-[48px] md:text-[60px] lg:text-[72px] font-bold leading-[0.95] tracking-tighter text-[var(--canvas-rp)] mb-6 lowercase">
+            hyderabad's premium<br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--canvas-gd)] via-[var(--canvas-g)] to-[var(--canvas-gd)]">
+              beauty match.
+            </span>
           </h1>
           
           <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-3">
@@ -896,7 +901,7 @@ function Home() {
                     </>
                   ) : (
                     <div className="flex min-h-[300px] flex-col items-center justify-center border border-[var(--canvas-bd)] bg-white px-6 text-center shadow-sm">
-                      <p className="text-3xl font-serif italic tracking-tight text-[var(--canvas-rp)]">No artists found</p>
+                      <p className="text-3xl font-sans italic tracking-tight text-[var(--canvas-rp)]">No artists found</p>
                       <p className="mt-4 max-w-sm text-sm text-[var(--canvas-mut)] uppercase tracking-widest">Adjust your budget or city filters</p>
                       <button 
                         type="button" 
@@ -925,7 +930,7 @@ function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-end mb-24">
               <div className="lg:col-span-8">
                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#B66CF2] mb-8">The Canvas Standard</p>
-                <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic text-black leading-[1.1] tracking-tight">
+                <h2 className="text-5xl sm:text-7xl md:text-8xl font-sans italic text-black leading-[1.1] tracking-tight">
                   Beauty is a point of view.
                 </h2>
               </div>
@@ -941,7 +946,7 @@ function Home() {
               <div className="group cursor-default">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-black">Curated Talent</h3>
-                  <p className="text-4xl font-serif italic text-black/20 transition-colors group-hover:text-[#B66CF2]">01</p>
+                  <p className="text-4xl font-sans italic text-black/20 transition-colors group-hover:text-[#B66CF2]">01</p>
                 </div>
                 <p className="text-sm font-medium leading-relaxed text-black/60">
                   <strong className="text-black">Distinct hand, not a uniform finish.</strong> We reject cookie-cutter application, selecting artists exclusively for their unique ability to elevate natural features.
@@ -951,7 +956,7 @@ function Home() {
               <div className="group cursor-default">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-black">The Experience</h3>
-                  <p className="text-4xl font-serif italic text-black/20 transition-colors group-hover:text-[#B66CF2]">02</p>
+                  <p className="text-4xl font-sans italic text-black/20 transition-colors group-hover:text-[#B66CF2]">02</p>
                 </div>
                 <p className="text-sm font-medium leading-relaxed text-black/60">
                   <strong className="text-black">Care in the details and generosity.</strong> From high-end skin prep to impeccable kit hygiene, our standard for client comfort is non-negotiable.
@@ -961,7 +966,7 @@ function Home() {
               <div className="group cursor-default">
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-black">Private Network</h3>
-                  <p className="text-4xl font-serif italic text-black/20 transition-colors group-hover:text-[#B66CF2]">03</p>
+                  <p className="text-4xl font-sans italic text-black/20 transition-colors group-hover:text-[#B66CF2]">03</p>
                 </div>
                 <p className="text-sm font-medium leading-relaxed text-black/60">
                   <strong className="text-black">The list is small so it means something.</strong> We prioritize strict quality over volume, eliminating the guesswork of endless scrolling.
@@ -1037,7 +1042,7 @@ function Home() {
             <span>FOR MAKEUP ARTISTS</span>
             <span className="line"></span>
           </div>
-          <h2 className="font-serif text-4xl sm:text-5xl text-[var(--text-white)] mb-8 tracking-tight font-medium">
+          <h2 className="font-sans text-4xl sm:text-5xl text-[var(--text-white)] mb-8 tracking-tight font-medium">
             Are you a makeup artist?
           </h2>
           <p className="font-sans text-[15px] text-[var(--text-light)] leading-[1.8] mb-12 max-w-[680px] mx-auto">
@@ -1061,7 +1066,7 @@ function Home() {
             <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">From the journal</p>
-                <h2 className="text-5xl sm:text-7xl font-serif italic text-white lowercase">from the journal.</h2>
+                <h2 className="text-5xl sm:text-7xl font-sans italic text-white lowercase">from the journal.</h2>
               </div>
               <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className="text-xs font-bold uppercase tracking-[0.2em] hover:text-[#B66CF2] transition-colors border-b border-white/30 pb-1">
                 Read all stories
@@ -1185,7 +1190,7 @@ function Home() {
                 <div className="w-16 h-16 rounded-full bg-[#B66CF2]/10 text-[#B66CF2] flex items-center justify-center mb-6">
                   <Sparkles size={32} />
                 </div>
-                <h3 className="text-2xl font-serif italic mb-4">The artist has been notified.</h3>
+                <h3 className="text-2xl font-sans italic mb-4">The artist has been notified.</h3>
                 <p className="text-sm text-white/50 leading-relaxed mb-10">
                   Your brief is securely in the artist's queue. You will receive a notification in your Canvas Dashboard once they review the logistics and confirm the slot.
                 </p>
