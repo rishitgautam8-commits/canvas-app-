@@ -505,52 +505,53 @@ function Home() {
   return (
     <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
       
-      {/* 3-Column Grid Layout - NO OVERFLOW HIDDEN */}
+      {/* 3-Column Grid Layout */}
       <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[80px] bg-[var(--canvas-iv)] border-b border-[rgba(201,164,99,0.2)] shadow-sm">
         
-        {/* --- THE TEXTURED BRUSH STROKE --- */}
-        <div className="absolute top-0 left-0 w-full h-[300px] pointer-events-none z-[-1]">
+        {/* --- THE TEXTURED BRUSH STROKE (Strictly Contained) --- */}
+        {/* 'inset-0' and 'overflow-hidden' lock this graphic exactly to the edges of the 80px header */}
+        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
           <svg
-            viewBox="0 0 1440 300"
+            viewBox="0 0 1440 80"
             preserveAspectRatio="none"
             className="w-full h-full"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
             <defs>
-              {/* This SVG filter creates the frayed, painted bristle texture */}
               <filter id="brushTexture" x="-20%" y="-20%" width="140%" height="140%">
                 <feTurbulence type="fractalNoise" baseFrequency="0.04 0.1" numOctaves="4" result="noise" />
                 <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" />
               </filter>
             </defs>
 
-            {/* Thick Gold Paint Base (The heavy part of the brush) */}
+            {/* Adjusted paths to sweep elegantly within the 80px height */}
+            {/* Thick Gold Paint Base */}
             <path 
-              d="M-50,20 C 250,180 500,40 720,50 C 950,60 1050,280 1250,120 C 1400,0 1450,-10 1500,20" 
+              d="M-50,50 C 250,90 400,-10 720,40 C 1040,90 1200,-10 1500,50" 
               stroke="#C9A463" 
-              strokeWidth="18" 
+              strokeWidth="12" 
               filter="url(#brushTexture)" 
-              opacity="0.12" 
+              opacity="0.15" 
               strokeLinecap="round"
             />
             
-            {/* Core Bristle Streak (The sharper, darker pigment in the center) */}
+            {/* Core Bristle Streak */}
             <path 
-              d="M-50,20 C 250,180 500,40 720,50 C 950,60 1050,280 1250,120 C 1400,0 1450,-10 1500,20" 
+              d="M-50,50 C 250,90 400,-10 720,40 C 1040,90 1200,-10 1500,50" 
               stroke="#C9A463" 
-              strokeWidth="6" 
+              strokeWidth="4" 
               filter="url(#brushTexture)" 
               opacity="0.25" 
             />
 
-            {/* Subtle Purple Paint Drag (Adding depth to the brush stroke) */}
+            {/* Subtle Purple Paint Drag */}
             <path 
-              d="M-30,30 C 240,190 510,35 720,55 C 930,75 1060,260 1260,110 C 1390,-10 1460,0 1510,30" 
+              d="M-30,55 C 240,95 410,0 720,45 C 1030,95 1210,0 1510,55" 
               stroke="#B66CF2" 
-              strokeWidth="4" 
+              strokeWidth="3" 
               filter="url(#brushTexture)" 
-              opacity="0.15" 
+              opacity="0.2" 
             />
           </svg>
         </div>
@@ -562,13 +563,13 @@ function Home() {
           <a onClick={() => scrollTo('standard')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">About</a>
         </div>
 
-        {/* CENTER: Massive Breakout Logo & Wordmark */}
-        <div className="flex items-center justify-center cursor-pointer relative z-10 translate-y-[16px]" onClick={() => scrollTo('top')}>
+        {/* CENTER: Logo & Wordmark (Allowed to overhang slightly) */}
+        <div className="flex items-center justify-center cursor-pointer relative z-10 translate-y-[8px]" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-3 group">
             <img 
               src="/logo.png" 
               alt="Canvas Logo" 
-              className="w-12 h-12 md:w-16 md:h-16 object-contain transform group-hover:scale-105 transition-transform duration-500 drop-shadow-lg"
+              className="w-12 h-12 md:w-14 md:h-14 object-contain transform group-hover:scale-105 transition-transform duration-500 drop-shadow-md"
             />
             <span className="font-serif text-3xl md:text-4xl font-semibold text-[var(--canvas-rp)] tracking-tight uppercase drop-shadow-sm">Canvas</span>
           </div>
