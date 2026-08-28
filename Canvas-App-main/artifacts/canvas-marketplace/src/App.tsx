@@ -507,33 +507,13 @@ function Home() {
       
       <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between px-6 md:px-12 h-[72px] bg-[rgba(251,248,242,0.82)] backdrop-blur-md border-b border-[rgba(201,164,99,0.35)] shadow-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollTo('top')}>
-          {/* Deep Purple Base with Gold Border to match her image's premium color palette */}
-          <div className="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 bg-gradient-to-br from-[#2D1B4E] to-[#150A26] shadow-[0_2px_10px_rgba(201,164,99,0.2)] border border-[rgba(201,164,99,0.3)] rounded-[10px] group transition-all duration-300 hover:shadow-[0_4px_15px_rgba(201,164,99,0.4)]">
-            <svg 
-              viewBox="0 0 40 40" 
-              className="w-[22px] h-[22px] transform group-hover:scale-105 transition-transform duration-500" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {/* Pure Minimalist Vector: The 'C' that forms a female profile on the inside edge */}
-              <path 
-                d="M 27 8 
-                   C 12 8 6 13 6 20 
-                   C 6 27 12 32 27 32 
-                   C 22 31 19 28 19 25.5 
-                   C 19 24.5 21 23.5 20 22.5 
-                   C 18.5 21 19.5 19 21 18 
-                   C 22 17 21 14 23 11 
-                   C 24 9.5 25.5 8.5 27 8 Z" 
-                fill="#C9A463"
-              />
-              {/* Subtle aesthetic sparkle */}
-              <path 
-                d="M 12 10 L 12.5 11.5 L 14 12 L 12.5 12.5 L 12 14 L 11.5 12.5 L 10 12 L 11.5 11.5 Z" 
-                fill="#FBFAF2" 
-                opacity="0.7"
-              />
-            </svg>
+          {/* Your New 3D Purple & Gold Logo */}
+          <div className="flex items-center justify-center w-11 h-11 md:w-12 md:h-12 bg-[#150A26] shadow-[0_2px_12px_rgba(182,108,242,0.25)] border border-[#B66CF2]/30 rounded-[10px] group transition-all duration-300 hover:shadow-[0_4px_16px_rgba(182,108,242,0.4)] overflow-hidden">
+            <img 
+              src="/slazzer-preview-obp4w.png" 
+              alt="Canvas Logo" 
+              className="w-[90%] h-[90%] object-contain transform group-hover:scale-105 transition-transform duration-500"
+            />
           </div>
           <span className="font-serif text-xl md:text-2xl font-semibold text-[var(--canvas-rp)]">Canvas | Hyderabad</span>
         </div>
