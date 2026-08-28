@@ -571,7 +571,7 @@ function Home() {
       {/* Ultra-Clean Grid Layout - No shadows, no graphics, just pure typography */}
       
       {/* Ultra-Clean Grid Layout - No shadows, no graphics, just pure typography */}
-      <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[72px] bg-[var(--canvas-iv)] border-b border-black/5">
+      <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[var(--canvas-iv)] border-b border-black/5">
         
         {/* LEFT: Micro-Typography Navigation */}
         <div className="hidden md:flex items-center gap-8 justify-start">
@@ -630,7 +630,7 @@ function Home() {
         )}
       </AnimatePresence>
 
-      <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[72px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
+      <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[100px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
         <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
           <div className="flex items-center gap-3 text-[11px] font-medium tracking-[0.16em] uppercase text-[var(--canvas-gd)] mb-7">
             <div className="w-[26px] h-[1px] bg-gradient-to-r from-[var(--canvas-g)] to-transparent"></div>
