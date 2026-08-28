@@ -1,18 +1,20 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
-interface ParallaxSectionProps {
+interface ScrollZoomProps {
   children: React.ReactNode;
   className?: string;
-  speed?: number;
+  startScale?: number;
+  endScale?: number;
 }
 
-// Rhode-style: element moves slower than scroll (parallax)
-export function ParallaxSection({
+// Rhode-style: element zooms in as you scroll into view, zooms out as you scroll past
+export function ScrollZoom({
   children,
   className = '',
-  speed = 0.15,
-}: ParallaxSectionProps) {
+  startScale = 0.92,
+  endScale = 1.0,
+}: ScrollZoomProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -20,13 +22,13 @@ export function ParallaxSection({
     offset: ['start end', 'end start'],
   });
 
-  // Element starts below and moves up as you scroll into view
-  const y = useTransform(scrollYProgress, [0, 1], [100 * speed, -100 * speed]);
+  // Scale zooms in as element enters viewport center, zooms out as it leaves
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [startScale, endScale, startScale]);
 
   return (
     <motion.div
       ref={ref}
-      style={{ y }}
+      style={{ scale }}
       className={className}
     >
       {children}
@@ -34,20 +36,20 @@ export function ParallaxSection({
   );
 }
 
-// Simple scroll-linked fade+slide (Rhode's subtle entrance)
-interface ScrollEntranceProps {
+// For sections that should zoom in and STAY zoomed (one-way)
+interface ScrollZoomInProps {
   children: React.ReactNode;
   className?: string;
-  direction?: 'up' | 'down';
-  distance?: number;
+  startScale?: number;
+  endScale?: number;
 }
 
-export function ScrollEntrance({
+export function ScrollZoomIn({
   children,
   className = '',
-  direction = 'up',
-  distance = 60,
-}: ScrollEntranceProps) {
+  startScale = 0.9,
+  endScale = 1.0,
+}: ScrollZoomInProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -55,14 +57,12 @@ export function ScrollEntrance({
     offset: ['start end', 'center center'],
   });
 
-  const startY = direction === 'up' ? distance : -distance;
-  const y = useTransform(scrollYProgress, [0, 1], [startY, 0]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 0.8, 1]);
+  const scale = useTransform(scrollYProgress, [0, 1], [startScale, endScale]);
 
   return (
     <motion.div
       ref={ref}
-      style={{ y, opacity }}
+      style={{ scale }}
       className={className}
     >
       {children}
@@ -70,16 +70,16 @@ export function ScrollEntrance({
   );
 }
 
-// Giant text reveal (like the big "rhode" at bottom)
-interface GiantRevealProps {
+// Giant text that scales dramatically (like the big "rhode")
+interface GiantZoomProps {
   children: React.ReactNode;
   className?: string;
 }
 
-export function GiantReveal({
+export function GiantZoom({
   children,
   className = '',
-}: GiantRevealProps) {
+}: GiantZoomProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -87,13 +87,14 @@ export function GiantReveal({
     offset: ['start end', 'end start'],
   });
 
-  const scale = useTransform(scrollYProgress, [0, 0.5], [0.85, 1]);
-  const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  // Dramatic zoom: starts small, gets huge, then shrinks
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.7, 1.15, 0.8]);
+  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.4, 1, 1, 0.4]);
 
   return (
     <motion.div
       ref={ref}
-      style={{ scale, y }}
+      style={{ scale, opacity }}
       className={className}
     >
       {children}

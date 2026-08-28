@@ -19,7 +19,7 @@ import Dashboard from '@/pages/Dashboard';
 import { artistsData as artists } from './Data/artistsData';
 import BeautyDemo from '@/pages/BeautyDemo'; // or '@/components/BeautyDemo' depending on where you saved it
 import { ChatDrawer } from '@/components/ChatDrawer';
-import { ParallaxSection, ScrollEntrance, GiantReveal } from '@/components/ScrollParallax';
+import { ScrollZoom, ScrollZoomIn, GiantZoom } from '@/components/ScrollParallax';
 import { CursorParallax } from '@/components/CursorParallax';
 
 // Generates a unique, realistic match percentage based on the uploaded file and artist ID
@@ -609,7 +609,7 @@ function Home() {
       </section>
 
       {/* THE CANVAS WAY MANIFESTO */}
-      <ScrollEntrance direction="up" distance={60}>
+      <ScrollZoom>
         <section className="canvas-way border-y border-[var(--gold)]/20">
         <div className="max-w-[1400px] mx-auto">
           <div className="section-label">
@@ -638,10 +638,10 @@ function Home() {
           </div>
         </div>
       </section>
-      </ScrollEntrance>
+      </ScrollZoom>
 
       {/* SEARCH COMPONENT WRAPPER */}
-      <ScrollEntrance direction="up" distance={50}>
+      <ScrollZoom>
         <section id="demo-search" className="relative z-20 bg-[var(--bg-beige)] py-24 border-b border-[var(--border-light)]">
         <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 [&_.text-\\[\\#B66CF2\\]]:text-[var(--canvas-rp)] [&_.text-white\\/50]:text-[var(--canvas-mut)] [&_.text-white\\/70]:text-[var(--canvas-mut)] [&_h1]:text-white">
           <HeroSearch
@@ -657,12 +657,12 @@ function Home() {
           />
         </div>
       </section>
-      </ScrollEntrance>
+      </ScrollZoom>
 
 <main className="relative z-20">
         
         {/* NEW: THE STATS BAR */}
-        <ParallaxSection speed={0.1} className="stats-bar">
+        <ScrollZoomIn className="stats-bar">
           <div className="stat">
             <div className="stat-number">5</div>
             <div className="stat-label">Verified Artists</div>
@@ -682,12 +682,12 @@ function Home() {
             <div className="stat-number">4.8★</div>
             <div className="stat-label">Platform Avg Rating</div>
           </div>
-        </ParallaxSection>
+        </ScrollZoomIn>
         
         <section id="discover" className="bg-white text-black py-24 sm:py-32">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
             
-            <ScrollEntrance direction="up" distance={40}>
+            <ScrollZoom>
               <div className="mb-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">The Shortlist</p>
@@ -695,9 +695,9 @@ function Home() {
                 </div>
                 <p className="max-w-[320px] text-sm text-black/60">Six points of view, chosen for the way they make beauty feel like a conversation.</p>
               </div>
-            </ScrollEntrance>
+            </ScrollZoom>
 
-            <ScrollEntrance direction="up" distance={30}>
+            <ScrollZoom>
               <div className="mb-12 flex flex-wrap gap-3 border-b border-black/10 pb-8">
                 {discoverCategories.map((cat) => (
                   <button
@@ -713,10 +713,10 @@ function Home() {
                   </button>
                 ))}
               </div>
-            </ScrollEntrance>
+            </ScrollZoom>
 
             {hasSearched && search.inspirationFile && (
-              <ScrollEntrance direction="up" distance={40}>
+              <ScrollZoom>
                 <div
                   className="mb-12 mt-8 border border-black/15 bg-[#F9F9F9] p-8 lg:p-10 shadow-sm"
                 >
@@ -747,7 +747,7 @@ function Home() {
                   </div>
                   </div>
                 </div>
-              </ScrollEntrance>
+              </ScrollZoom>
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start mt-10">
@@ -903,7 +903,7 @@ function Home() {
               </div>
             </div>
             
-            <ParallaxSection speed={0.12} className="grid gap-12 border-t-[3px] border-black pt-12 sm:grid-cols-3">
+            <ScrollZoomIn className="grid gap-12 border-t-[3px] border-black pt-12 sm:grid-cols-3">
               
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
@@ -939,7 +939,7 @@ function Home() {
                   </p>
                 </div>
               
-            </ParallaxSection>
+            </ScrollZoomIn>
 
           </div>
         </section>
@@ -947,14 +947,14 @@ function Home() {
 {/* TESTIMONIALS SECTION */}
       <section className="testimonials">
         <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
-          <ScrollEntrance direction="up" distance={40}>
+          <ScrollZoom>
             <div className="section-label">
               <span className="line"></span>
               <span>LOVE FROM OUR USERS</span>
               <span className="line"></span>
             </div>
             <h2 className="section-title">What people are saying</h2>
-          </ScrollEntrance>
+          </ScrollZoom>
           
           <div className="testimonials-grid">
             <div className="testimonial-card">
@@ -1004,7 +1004,7 @@ function Home() {
 
 {/* ---------------------------------------------------- */}
       {/* NEW: FOR MAKEUP ARTISTS CTA */}
-      <ScrollEntrance direction="up" distance={50}>
+      <ScrollZoom>
         <section className="bg-[var(--bg-dark)] py-24 sm:py-32 px-5 border-t border-[var(--gold)]/20 text-center">
           <div className="max-w-[800px] mx-auto">
             <div className="section-label">
@@ -1028,13 +1028,13 @@ function Home() {
           </div>
         </div>
       </section>
-      </ScrollEntrance>
+      </ScrollZoom>
       {/* ---------------------------------------------------- */}
 
       {/* THE JOURNAL SECTION (Already exists in your file) */}
       <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-5 py-24 sm:px-8 lg:px-12 lg:py-36">
           <div className="max-w-[1400px] mx-auto">
-            <ScrollEntrance direction="up" distance={40}>
+            <ScrollZoom>
               <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">From the journal</p>
@@ -1044,9 +1044,9 @@ function Home() {
                   Read all stories
                 </button>
               </div>
-            </ScrollEntrance>
+            </ScrollZoom>
             
-            <ParallaxSection speed={0.1} className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+            <ScrollZoomIn className="grid gap-6 lg:grid-cols-[1fr_1fr]">
               
                 <div className="group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Perspective · 06 min read</span>
@@ -1070,11 +1070,11 @@ function Home() {
                   </div>
                 
               </div>
-            </ParallaxSection>
+            </ScrollZoomIn>
           </div>
         </section>
 
-        <ScrollEntrance direction="up" distance={40}>
+        <ScrollZoom>
           <footer className="bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10">
             <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
             <div className="lg:col-span-1">
@@ -1119,7 +1119,7 @@ function Home() {
             </div>
             </div>
           </footer>
-        </ScrollEntrance>
+        </ScrollZoom>
       </main>
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
