@@ -505,91 +505,42 @@ function Home() {
   return (
     <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
       
-      {/* 3-Column Grid Layout */}
-      <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[80px] bg-[var(--canvas-iv)] border-b border-[rgba(201,164,99,0.2)] shadow-sm">
+      {/* Ultra-Clean Grid Layout - No shadows, no graphics, just pure typography */}
+      <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[72px] bg-[var(--canvas-iv)] border-b border-black/5">
         
-        {/* --- THE TEXTURED BRUSH STROKE (Strictly Contained) --- */}
-        {/* 'inset-0' and 'overflow-hidden' lock this graphic exactly to the edges of the 80px header */}
-        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-          <svg
-            viewBox="0 0 1440 80"
-            preserveAspectRatio="none"
-            className="w-full h-full"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <filter id="brushTexture" x="-20%" y="-20%" width="140%" height="140%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.04 0.1" numOctaves="4" result="noise" />
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" />
-              </filter>
-            </defs>
-
-            {/* Adjusted paths to sweep elegantly within the 80px height */}
-            {/* Thick Gold Paint Base */}
-            <path 
-              d="M-50,50 C 250,90 400,-10 720,40 C 1040,90 1200,-10 1500,50" 
-              stroke="#C9A463" 
-              strokeWidth="12" 
-              filter="url(#brushTexture)" 
-              opacity="0.15" 
-              strokeLinecap="round"
-            />
-            
-            {/* Core Bristle Streak */}
-            <path 
-              d="M-50,50 C 250,90 400,-10 720,40 C 1040,90 1200,-10 1500,50" 
-              stroke="#C9A463" 
-              strokeWidth="4" 
-              filter="url(#brushTexture)" 
-              opacity="0.25" 
-            />
-
-            {/* Subtle Purple Paint Drag */}
-            <path 
-              d="M-30,55 C 240,95 410,0 720,45 C 1030,95 1210,0 1510,55" 
-              stroke="#B66CF2" 
-              strokeWidth="3" 
-              filter="url(#brushTexture)" 
-              opacity="0.2" 
-            />
-          </svg>
+        {/* LEFT: Micro-Typography Navigation */}
+        <div className="hidden md:flex items-center gap-8 justify-start">
+          <a onClick={() => scrollTo('discover')} className="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">Shop</a>
+          <a onClick={() => scrollTo('discover')} className="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">Styles</a>
+          <a onClick={() => scrollTo('standard')} className="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">About</a>
         </div>
 
-        {/* LEFT: Navigation Links */}
-        <div className="hidden md:flex items-center gap-8 justify-start relative z-10">
-          <a onClick={() => scrollTo('discover')} className="font-['Outfit'] text-[11px] font-semibold uppercase tracking-[0.25em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">Shop Artists</a>
-          <a onClick={() => scrollTo('discover')} className="font-['Outfit'] text-[11px] font-semibold uppercase tracking-[0.25em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">Styles</a>
-          <a onClick={() => scrollTo('standard')} className="font-['Outfit'] text-[11px] font-semibold uppercase tracking-[0.25em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">About</a>
-        </div>
-
-        {/* CENTER: Logo & Wordmark (Allowed to overhang slightly) */}
-        <div className="flex items-center justify-center cursor-pointer relative z-10 translate-y-[8px]" onClick={() => scrollTo('top')}>
-          <div className="flex items-center gap-3 group">
+        {/* CENTER: Stark, Tightly Tracked Wordmark */}
+        <div className="flex items-center justify-center cursor-pointer" onClick={() => scrollTo('top')}>
+          <div className="flex items-center gap-2">
             <img 
               src="/logo.png" 
               alt="Canvas Logo" 
-              className="w-12 h-12 md:w-14 md:h-14 object-contain transform group-hover:scale-105 transition-transform duration-500 drop-shadow-md"
+              className="w-8 h-8 object-contain" /* Stripped all drop-shadows and hover effects */
             />
-            {/* Rhode-style: thick, lowercase, tightly tracked */}
-            {/* The Syne font naturally stretches wide, making lowercase logos look incredible */}
-            <span className="font-['Syne'] text-3xl md:text-4xl font-extrabold text-[var(--canvas-rp)] tracking-tighter lowercase drop-shadow-sm">
+            {/* The signature Rhode look: thick, lowercase, negative tracking */}
+            <span className="font-['Inter'] text-2xl md:text-3xl font-black text-[#1A1A1A] tracking-[-0.05em] lowercase">
               canvas
             </span>
           </div>
         </div>
 
-        {/* RIGHT: Utilities & Account */}
-        <div className="flex items-center gap-6 justify-end relative z-10">
+        {/* RIGHT: Utilities */}
+        <div className="flex items-center gap-6 justify-end">
           {session ? (
             <>
-              <button onClick={() => setLocation('/dashboard')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] transition-colors hidden sm:block">Dashboard</button>
-              <button onClick={handleSignOut} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] transition-colors hidden sm:block">Sign Out</button>
+              <button onClick={() => setLocation('/dashboard')} className="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors hidden sm:block">Dashboard</button>
+              <button onClick={handleSignOut} className="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors hidden sm:block">Sign Out</button>
             </>
           ) : (
-            <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] transition-colors">Account</button>
+            <button onClick={() => setAuthOpen(true)} className="hidden sm:block font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors">Account</button>
           )}
-          <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-[var(--canvas-rp)] md:hidden">
+          <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-black md:hidden">
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
@@ -621,9 +572,9 @@ function Home() {
             AI-powered beauty matching
           </div>
           
-          <h1 className="font-['Syne'] text-[52px] md:text-[64px] lg:text-[76px] font-bold leading-[0.95] tracking-tight text-[var(--canvas-rp)] mb-6 lowercase">
+          <h1 className="font-['Inter'] text-[56px] md:text-[68px] lg:text-[80px] font-black leading-[0.9] tracking-[-0.04em] text-[#1A1A1A] mb-6 lowercase">
             hyderabad's premium<br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--canvas-gd)] via-[var(--canvas-g)] to-[var(--canvas-gd)]">
+            <span className="text-black/30">
               beauty match.
             </span>
           </h1>
