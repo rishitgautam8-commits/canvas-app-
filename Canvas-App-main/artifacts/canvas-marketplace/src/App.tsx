@@ -1225,7 +1225,10 @@ export default function App() {
         <Toaster />
         
         {/* ADD THE LIVE CHAT DRAWER HERE SO IT IS GLOBALLY ACCESSIBLE */}
-        <ChatDrawer open={true} onClose={() => {}} /> 
+        <ChatDrawer 
+  open={isChatOpen} 
+  onClose={() => setIsChatOpen(false)} 
+/>
       </TooltipProvider>
     </QueryClientProvider>
   );
