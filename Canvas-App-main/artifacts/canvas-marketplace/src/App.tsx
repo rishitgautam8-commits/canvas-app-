@@ -462,7 +462,8 @@ function Home() {
 
     const activeCities = Object.entries(cityFilters).filter(([_, checked]) => checked).map(([city]) => city.toLowerCase());
     
-    if (activeCities.length > 0 && activeCities.length < 4) {
+    // FIX: Changed '< 4' to '< 10' so filtering works whenever you uncheck any city
+    if (activeCities.length > 0 && activeCities.length < 10) {
       const matchesCity = activeCities.some(ac => {
         const parts = ac.split('/').map(p => p.trim());
         return parts.some(part => 
