@@ -510,9 +510,9 @@ function Home() {
         
         {/* LEFT: Micro-Typography Navigation */}
         <div className="hidden md:flex items-center gap-8 justify-start">
-          <a onClick={() => scrollTo('discover')} className="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">Shop</a>
-          <a onClick={() => scrollTo('discover')} className="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">Styles</a>
-          <a onClick={() => scrollTo('standard')} className="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">About</a>
+          <a onClick={() => scrollTo('discover')} className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">Shop</a>
+          <a onClick={() => scrollTo('discover')} className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">Styles</a>
+          <a onClick={() => scrollTo('standard')} className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black cursor-pointer transition-colors">About</a>
         </div>
 
         {/* CENTER: Stark, Tightly Tracked Wordmark */}
@@ -524,7 +524,7 @@ function Home() {
               className="w-8 h-8 object-contain" /* Stripped all drop-shadows and hover effects */
             />
             {/* The signature Rhode look: thick, lowercase, negative tracking */}
-            <span className="font-['Inter'] text-2xl md:text-3xl font-black text-[#1A1A1A] tracking-[-0.05em] lowercase">
+            <span className="text-2xl md:text-3xl font-bold lowercase">
               canvas
             </span>
           </div>
@@ -534,11 +534,11 @@ function Home() {
         <div className="flex items-center gap-6 justify-end">
           {session ? (
             <>
-              <button onClick={() => setLocation('/dashboard')} className="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors hidden sm:block">Dashboard</button>
-              <button onClick={handleSignOut} className="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors hidden sm:block">Sign Out</button>
+              <button onClick={() => setLocation('/dashboard')} className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors hidden sm:block">Dashboard</button>
+              <button onClick={handleSignOut} className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors hidden sm:block">Sign Out</button>
             </>
           ) : (
-            <button onClick={() => setAuthOpen(true)} className="hidden sm:block font-['Inter'] text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors">Account</button>
+            <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:text-black transition-colors">Account</button>
           )}
           <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-black md:hidden">
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -572,12 +572,10 @@ function Home() {
             AI-powered beauty matching
           </div>
           
-          <h1 className="font-['Inter'] text-[56px] md:text-[68px] lg:text-[80px] font-black leading-[0.9] tracking-[-0.04em] text-[#1A1A1A] mb-6 lowercase">
-            hyderabad's premium<br/>
-            <span className="text-black/30">
-              beauty match.
-            </span>
-          </h1>
+          <h1 className="text-[56px] md:text-[68px] lg:text-[80px] font-bold leading-[0.9] lowercase tracking-[-0.04em] text-[#1A1A1A] mb-6 lowercase">
+            hyderabad's premium<br />
+  <span className="text-black/30">beauty match.</span>
+</h1>
           
           <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-3">
             Upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.
@@ -685,7 +683,7 @@ function Home() {
             <div className="mb-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">The Shortlist</p>
-                <h2 className="text-5xl sm:text-6xl font-black uppercase tracking-tighter">MEET THE ARTISTS</h2>
+                <h2 className="text-5xl sm:text-6xl font-bold lowercase tracking-tight">meet the artists</h2>
               </div>
               <p className="max-w-[320px] text-sm text-black/60">Six points of view, chosen for the way they make beauty feel like a conversation.</p>
             </div>
@@ -718,18 +716,18 @@ function Home() {
                       <Sparkles size={20} />
                     </div>
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#B66CF2]">Canvas AI Vision Analysis</span>
-                      <h3 className="text-xl font-black uppercase tracking-tight text-black mt-1">Aesthetic Profile Extracted</h3>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2]">Canvas AI Vision Analysis</span>
+                      <h3 className="text-xl font-bold lowercase tracking-tight text-black mt-1">Aesthetic Profile Extracted</h3>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-black text-white text-[10px] font-black uppercase tracking-widest">{aiTags.length} Tags Extracted</span>
-                    <span className="px-3 py-1 bg-[#B66CF2]/20 text-black text-[10px] font-black uppercase tracking-widest">Verified Secure</span>
+                    <span className="px-3 py-1 bg-black text-white text-[10px] font-bold uppercase tracking-widest">{aiTags.length} Tags Extracted</span>
+                    <span className="px-3 py-1 bg-[#B66CF2]/20 text-black text-[10px] font-bold uppercase tracking-widest">Verified Secure</span>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/50">Detected Aesthetic Tags from Inspiration:</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Detected Aesthetic Tags from Inspiration:</p>
                   <div className="flex flex-wrap gap-2">
                     {(aiTags.length > 0 ? aiTags : ['soft glam', 'editorial', 'bridal']).map((tag, i) => (
                       <span key={i} className="px-4 py-2 bg-white border border-black/15 text-xs font-bold uppercase tracking-wider text-black shadow-xs">
@@ -746,7 +744,7 @@ function Home() {
               <div className="lg:col-span-1 bg-[#F9F9F9] border border-black/10 p-6 space-y-8 sticky top-8">
                 
                 <div>
-                  <label className="block text-[11px] font-black uppercase tracking-[0.2em] text-black/70 mb-3">
+                  <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-black/70 mb-3">
                     Sort by
                   </label>
                   <select
@@ -763,7 +761,7 @@ function Home() {
 
                 <div>
                   <div className="flex justify-between items-center mb-3">
-                    <label className="text-[11px] font-black uppercase tracking-[0.2em] text-black/70">
+                    <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-black/70">
                       Max Budget
                     </label>
                     <span className="text-xs font-bold text-[#B66CF2]">₹{maxBudget.toLocaleString('en-IN')}</span>
@@ -781,7 +779,7 @@ function Home() {
                 </div>
 
                 <div className="mb-10">
-                  <h3 className="mb-5 text-[10px] font-black uppercase tracking-[0.3em] text-[#150420]">
+                  <h3 className="mb-5 text-[10px] font-bold uppercase tracking-[0.3em] text-[#150420]">
                     City
                   </h3>
                   <div className="space-y-4">
@@ -853,7 +851,7 @@ function Home() {
                     </>
                   ) : (
                     <div className="flex min-h-[300px] flex-col items-center justify-center border border-[var(--canvas-bd)] bg-white px-6 text-center shadow-sm">
-                      <p className="text-3xl font-sans italic tracking-tight text-[var(--canvas-rp)]">No artists found</p>
+                      <p className="text-3xl font-bold lowercase tracking-tight text-[var(--canvas-rp)]">no artists found</p>
                       <p className="mt-4 max-w-sm text-sm text-[var(--canvas-mut)] uppercase tracking-widest">Adjust your budget or city filters</p>
                       <button 
                         type="button" 
@@ -881,8 +879,8 @@ function Home() {
             
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-end mb-24">
               <div className="lg:col-span-8">
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#B66CF2] mb-8">The Canvas Standard</p>
-                <h2 className="text-5xl sm:text-7xl md:text-8xl font-sans italic text-black leading-[1.1] tracking-tight">
+                <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-8">The Canvas Standard</p>
+                <h2 className="text-5xl sm:text-7xl md:text-8xl font-bold lowercase text-black leading-[1.1] tracking-tight">
                   Beauty is a point of view.
                 </h2>
               </div>
@@ -897,8 +895,8 @@ function Home() {
             <div className="grid gap-12 border-t-[3px] border-black pt-12 sm:grid-cols-3">
               <div className="group cursor-default">
                 <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-black">Curated Talent</h3>
-                  <p className="text-4xl font-sans italic text-black/20 transition-colors group-hover:text-[#B66CF2]">01</p>
+                  <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Curated Talent</h3>
+                  <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">01</p>
                 </div>
                 <p className="text-sm font-medium leading-relaxed text-black/60">
                   <strong className="text-black">Distinct hand, not a uniform finish.</strong> We reject cookie-cutter application, selecting artists exclusively for their unique ability to elevate natural features.
@@ -907,8 +905,8 @@ function Home() {
 
               <div className="group cursor-default">
                 <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-black">The Experience</h3>
-                  <p className="text-4xl font-sans italic text-black/20 transition-colors group-hover:text-[#B66CF2]">02</p>
+                  <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">The Experience</h3>
+                  <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">02</p>
                 </div>
                 <p className="text-sm font-medium leading-relaxed text-black/60">
                   <strong className="text-black">Care in the details and generosity.</strong> From high-end skin prep to impeccable kit hygiene, our standard for client comfort is non-negotiable.
@@ -917,8 +915,8 @@ function Home() {
 
               <div className="group cursor-default">
                 <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-black">Private Network</h3>
-                  <p className="text-4xl font-sans italic text-black/20 transition-colors group-hover:text-[#B66CF2]">03</p>
+                  <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Private Network</h3>
+                  <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">03</p>
                 </div>
                 <p className="text-sm font-medium leading-relaxed text-black/60">
                   <strong className="text-black">The list is small so it means something.</strong> We prioritize strict quality over volume, eliminating the guesswork of endless scrolling.
@@ -994,8 +992,8 @@ function Home() {
             <span>FOR MAKEUP ARTISTS</span>
             <span className="line"></span>
           </div>
-          <h2 className="font-sans text-4xl sm:text-5xl text-[var(--text-white)] mb-8 tracking-tight font-medium">
-            Are you a makeup artist?
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-8 lowercase tracking-tight">
+            are you a makeup artist?
           </h2>
           <p className="font-sans text-[15px] text-[var(--text-light)] leading-[1.8] mb-12 max-w-[680px] mx-auto">
             It is completely free to list your verified portfolio on CANVAS. When our AI matches you with a bride, you will receive a blurred notification. To unlock the client's WhatsApp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. You can also upgrade to Canvas Pro for a flat monthly subscription to unlock unlimited leads and priority placement in our AI search results.
@@ -1018,7 +1016,7 @@ function Home() {
             <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">From the journal</p>
-                <h2 className="text-5xl sm:text-7xl font-sans italic text-white lowercase">from the journal.</h2>
+                <h2 className="text-5xl sm:text-7xl font-bold text-white lowercase">from the journal.</h2>
               </div>
               <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className="text-xs font-bold uppercase tracking-[0.2em] hover:text-[#B66CF2] transition-colors border-b border-white/30 pb-1">
                 Read all stories
@@ -1027,20 +1025,20 @@ function Home() {
             
             <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
               <div className="group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#F3B8F0]">Perspective · 06 min read</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Perspective · 06 min read</span>
                 <div>
-                  <h3 className="text-4xl font-black uppercase tracking-tight mb-4">ON KEEPING YOUR OWN FACE.</h3>
+                  <h3 className="text-4xl font-bold lowercase tracking-tight mb-4">on keeping your own face.</h3>
                   <p className="text-sm font-bold uppercase tracking-widest text-white/60">A conversation about recognition and restraint.</p>
                 </div>
               </div>
               <div className="grid gap-6">
                 <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#F3B8F0]">Ritual · 03 min read</span>
-                  <h3 className="mt-6 text-2xl font-black uppercase tracking-tight">A SMALL RITUAL BEFORE THE CHAIR.</h3>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Ritual · 03 min read</span>
+                  <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight">a small ritual before the chair.</h3>
                 </div>
                 <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#F3B8F0]">Industry · 05 min read</span>
-                  <h3 className="mt-6 text-2xl font-black uppercase tracking-tight">THE SCIENCE OF SKIN PREP.</h3>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Industry · 05 min read</span>
+                  <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight">the science of skin prep.</h3>
                 </div>
               </div>
             </div>
@@ -1125,11 +1123,11 @@ function Home() {
           >
             <div className="flex items-start justify-between border-b border-white/10 pb-8 mb-8">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#B66CF2] mb-2">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2] mb-2">
                   {sent ? 'REQUEST SECURED' : 'PRIVATE CONCIERGE'}
                 </p>
-                <h2 className="text-3xl font-black uppercase tracking-tight text-white">
-                  {sent ? 'APPOINTMENT LOCKED.' : 'REQUEST A BOOKING.'}
+                <h2 className="text-3xl font-bold lowercase tracking-tight text-white">
+                  {sent ? 'appointment locked.' : 'request a booking.'}
                 </h2>
               </div>
               <button type="button" onClick={() => setBriefOpen(false)} className="text-white/40 hover:text-white transition-colors">
@@ -1142,11 +1140,11 @@ function Home() {
                 <div className="w-16 h-16 rounded-full bg-[#B66CF2]/10 text-[#B66CF2] flex items-center justify-center mb-6">
                   <Sparkles size={32} />
                 </div>
-                <h3 className="text-2xl font-sans italic mb-4">The artist has been notified.</h3>
+                <h3 className="text-2xl font-bold lowercase mb-4">the artist has been notified.</h3>
                 <p className="text-sm text-white/50 leading-relaxed mb-10">
                   Your brief is securely in the artist's queue. You will receive a notification in your Canvas Dashboard once they review the logistics and confirm the slot.
                 </p>
-                <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className="w-full border border-white bg-white px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-black hover:bg-transparent hover:text-white transition-all">
+                <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className="w-full border border-white bg-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-black hover:bg-transparent hover:text-white transition-all">
                   Return to Directory
                 </button>
               </div>
@@ -1162,7 +1160,7 @@ function Home() {
                       className="w-12 h-12 object-cover border border-white/10" 
                     />
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Requesting Availability For</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Requesting Availability For</p>
                       <p className="text-sm font-bold uppercase tracking-wider text-white mt-0.5">{selectedArtist.name}</p>
                     </div>
                   </div>
@@ -1172,11 +1170,11 @@ function Home() {
                   
                   <div className="grid grid-cols-2 gap-8">
                     <label className="block">
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Date Required</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Date Required</span>
                       <input required type="date" name="date" className="mt-3 w-full border-b border-white/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-white outline-none focus:border-[#B66CF2] transition-colors [color-scheme:dark]" />
                     </label>
                     <label className="block">
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Preferred Slot</span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Preferred Slot</span>
                       <select required name="slot" defaultValue="" className="mt-3 w-full border-b border-white/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-white outline-none focus:border-[#B66CF2] transition-colors [&>option]:bg-[#0A0510]">
                         <option value="" disabled>Select phase...</option>
                         <option value="Morning (Before 12 PM)">Slot 1: Morning Prep (Before 12PM)</option>
@@ -1187,17 +1185,17 @@ function Home() {
                   </div>
 
                   <label className="block">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Exact Venue / Area</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Exact Venue / Area</span>
                     <input required name="location" placeholder="e.g. Taj Falaknuma Palace" className="mt-3 w-full border-b border-white/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-white placeholder-white/40 outline-none focus:border-[#B66CF2] transition-colors" />
                   </label>
 
                   <label className="block flex-1">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">The Vision (Look Details)</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">The Vision (Look Details)</span>
                     <textarea required name="message" placeholder="Describe the aesthetic, outfit colors, or specific requirements..." rows={4} className="mt-3 w-full resize-none border-b border-white/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-white placeholder-white/40 outline-none focus:border-[#B66CF2] transition-colors" />
                   </label>
                   
                   <div className="pt-6 mt-auto">
-                    <button type="submit" disabled={isSubmitting} className="w-full bg-white px-8 py-5 text-xs font-black uppercase tracking-[0.2em] text-black hover:bg-[#B66CF2] hover:text-white transition-colors border border-transparent hover:border-white disabled:opacity-50">
+                    <button type="submit" disabled={isSubmitting} className="w-full bg-white px-8 py-5 text-xs font-bold uppercase tracking-[0.2em] text-black hover:bg-[#B66CF2] hover:text-white transition-colors border border-transparent hover:border-white disabled:opacity-50">
                       {isSubmitting ? 'ENCRYPTING & SENDING...' : 'SUBMIT CONCIERGE BRIEF'}
                     </button>
                     <p className="text-center text-[10px] text-white/30 uppercase tracking-widest mt-4">
