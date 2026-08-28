@@ -664,7 +664,6 @@ function Home() {
         {/* NEW: THE STATS BAR */}
         <ScrollZoomIn className="stats-bar">
           <div className="stat">
-            {/* This now dynamically pulls the true count of artists! */}
             <div className="stat-number">{sourceArtists.length}</div>
             <div className="stat-label">Verified Artists</div>
           </div>
@@ -674,10 +673,13 @@ function Home() {
             <div className="stat-label">Avg Booking Value</div>
           </div>
           <div className="stat-divider"></div>
+          
+          {/* UPDATED: Successful Bookings instead of Trials */}
           <div className="stat">
-            <div className="stat-number">88%</div>
-            <div className="stat-label">Trial-to-Booking Rate</div>
+            <div className="stat-number">1,250+</div>
+            <div className="stat-label">Successful Bookings</div>
           </div>
+          
           <div className="stat-divider"></div>
           <div className="stat">
             <div className="stat-number">4.8★</div>
