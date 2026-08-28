@@ -683,7 +683,7 @@ function Home() {
             <div className="mb-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">The Shortlist</p>
-                <h2 className="text-5xl sm:text-6xl font-bold lowercase tracking-tight">meet the artists</h2>
+                <h2 className="text-5xl sm:text-6xl font-bold lowercase tracking-tight">Meet The Artists</h2>
               </div>
               <p className="max-w-[320px] text-sm text-black/60">Six points of view, chosen for the way they make beauty feel like a conversation.</p>
             </div>
@@ -881,7 +881,7 @@ function Home() {
               <div className="lg:col-span-8">
                 <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-8">The Canvas Standard</p>
                 <h2 className="text-5xl sm:text-7xl md:text-8xl font-bold lowercase text-black leading-[1.1] tracking-tight">
-                  Beauty is a point of view.
+                  Beauty Is A Point Of View.
                 </h2>
               </div>
               
@@ -935,7 +935,7 @@ function Home() {
             <span>LOVE FROM OUR USERS</span>
             <span className="line"></span>
           </div>
-          <h2 className="section-title">What people are saying</h2>
+          <h2 className="section-title">What People Are Saying</h2>
           
           <div className="testimonials-grid">
             <div className="testimonial-card">
