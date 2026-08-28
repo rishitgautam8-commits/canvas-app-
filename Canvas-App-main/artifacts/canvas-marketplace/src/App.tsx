@@ -20,7 +20,6 @@ import { artistsData as artists } from './Data/artistsData';
 import BeautyDemo from '@/pages/BeautyDemo'; // or '@/components/BeautyDemo' depending on where you saved it
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { ScrollZoom, ScrollZoomIn, GiantZoom } from '@/components/ScrollParallax';
-import { CursorParallax } from '@/components/CursorParallax';
 
 // Generates a unique, realistic match percentage based on the uploaded file and artist ID
 function getSmartMatchPercentage(file: File | null | undefined, artistId: string): number {
@@ -506,7 +505,8 @@ function Home() {
 
   return (
     <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
-      <CursorParallax />
+      
+      {/* Ultra-Clean Grid Layout - No shadows, no graphics, just pure typography */}
       
       {/* Ultra-Clean Grid Layout - No shadows, no graphics, just pure typography */}
       <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[72px] bg-[var(--canvas-iv)] border-b border-black/5">
