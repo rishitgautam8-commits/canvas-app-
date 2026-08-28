@@ -621,8 +621,7 @@ function Home() {
           
           <h1 className="text-[56px] md:text-[68px] lg:text-[80px] font-bold leading-[0.9] capitalize tracking-[-0.04em] text-[#1A1A1A] mb-6">
             Hyderabad's Premium<br />
-            {/* Changed from text-black/30 to the signature Canvas purple */}
-            <span className="text-[#B66CF2]">Beauty Match.</span>
+            <span className="text-[var(--canvas-gd)]">Beauty Match.</span>
           </h1>
           
           <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-3">
