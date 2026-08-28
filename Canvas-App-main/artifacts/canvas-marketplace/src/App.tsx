@@ -573,8 +573,8 @@ function Home() {
           </div>
           
           <h1 className="text-[56px] md:text-[68px] lg:text-[80px] font-bold leading-[0.9] lowercase tracking-[-0.04em] text-[#1A1A1A] mb-6 lowercase">
-            hyderabad's premium<br />
-  <span className="text-black/30">beauty match.</span>
+            Hyderabad's Premium<br />
+  <span className="text-black/30">Beauty Match</span>
 </h1>
           
           <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-3">
@@ -613,7 +613,7 @@ function Home() {
             <span>THE CANVAS WAY</span>
             <span className="line"></span>
           </div>
-          <h2 className="canvas-way-title">Stop guessing. Start matching.</h2>
+          <h2 className="canvas-way-title">Stop Guessing. Start Matching.</h2>
           
           <div className="steps-grid">
             <div className="step">
@@ -993,7 +993,7 @@ function Home() {
             <span className="line"></span>
           </div>
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-8 lowercase tracking-tight">
-            are you a makeup artist?
+            Are You A Makeup Artist?
           </h2>
           <p className="font-sans text-[15px] text-[var(--text-light)] leading-[1.8] mb-12 max-w-[680px] mx-auto">
             It is completely free to list your verified portfolio on CANVAS. When our AI matches you with a bride, you will receive a blurred notification. To unlock the client's WhatsApp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. You can also upgrade to Canvas Pro for a flat monthly subscription to unlock unlimited leads and priority placement in our AI search results.
@@ -1015,8 +1015,8 @@ function Home() {
           <div className="max-w-[1400px] mx-auto">
             <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">From the journal</p>
-                <h2 className="text-5xl sm:text-7xl font-bold text-white lowercase">from the journal.</h2>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">From The Journal</p>
+                <h2 className="text-5xl sm:text-7xl font-bold text-white lowercase">From The Journal.</h2>
               </div>
               <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className="text-xs font-bold uppercase tracking-[0.2em] hover:text-[#B66CF2] transition-colors border-b border-white/30 pb-1">
                 Read all stories
