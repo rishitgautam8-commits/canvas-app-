@@ -161,25 +161,35 @@ const rawArtists = [
 
 export const artistsData: Artist[] = rawArtists.map((artist, index) => {
   const folder = FOLDERS[index % FOLDERS.length];
+  const timesUsed = Math.floor(index / FOLDERS.length);
   
-  // 1. SEPARATE THE FILES: Keep addons away from the profile picture selection!
+  // 1. Separate Add-ons from Portfolio
   const portfolioFiles = folder.files.filter(f => !f.startsWith('addon-'));
   const addonFiles = folder.files.filter(f => f.startsWith('addon-'));
 
-  // 2. CHECK FOR A HARDCODED PROFILE PIC (e.g., erica_profile.jpg)
-  const specificProfilePic = portfolioFiles.find(f => f.includes('_profile'));
+  // 2. Separate dedicated profile pics from general makeup shots
+  const profileSpecificFiles = portfolioFiles.filter(f => f.includes('_profile'));
+  const genericPortfolioFiles = portfolioFiles.filter(f => !f.includes('_profile'));
 
-  // 3. ROTATE THROUGH ONLY MAKEUP PHOTOS
-  const timesUsed = Math.floor(index / FOLDERS.length);
-  const imgIndex = timesUsed % portfolioFiles.length;
+  // 3. SMART ROTATION: Ensure absolutely NO duplicate profile cards!
+  let profileFileName;
+  let hoverFileName;
 
-  const profileFileName = specificProfilePic || portfolioFiles[imgIndex] || portfolioFiles[0];
-  const hoverFileName = specificProfilePic || portfolioFiles[(imgIndex + 1) % portfolioFiles.length] || portfolioFiles[0];
+  if (timesUsed === 0 && profileSpecificFiles.length > 0) {
+    // For the very 1st time this folder is used, give the real artist their dedicated headshot
+    profileFileName = profileSpecificFiles[0];
+    hoverFileName = genericPortfolioFiles[0] || profileFileName;
+  } else {
+    // When recycling folders for dummy artists, cycle through the generic photos so faces NEVER repeat
+    const imgIndex = timesUsed % genericPortfolioFiles.length;
+    profileFileName = genericPortfolioFiles[imgIndex];
+    hoverFileName = genericPortfolioFiles[(imgIndex + 1) % genericPortfolioFiles.length] || profileFileName;
+  }
 
   const image = `/canvas-artists/${folder.name}/${profileFileName}`;
   const hoverImage = `/canvas-artists/${folder.name}/${hoverFileName}`;
   
-  // Keep all images for the modal (the modal already knows how to separate them)
+  // Keep all images for the modal
   const portfolio = folder.files.map(f => `/canvas-artists/${folder.name}/${f}`);
 
   // --- SMART ADD-ON MENU GENERATOR ---
