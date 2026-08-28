@@ -852,14 +852,15 @@ function Home() {
         {/* TESTIMONIALS — Cards fade, avatars zoom */}
         <section className="testimonials">
           <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
-            <ScrollZoomIn>
+            <ScrollZoom>
               <div className="section-label">
                 <span className="line"></span>
                 <span>LOVE FROM OUR USERS</span>
                 <span className="line"></span>
               </div>
-              <h2 className="section-title capitalize">What People Are Saying</h2>
-            </ScrollZoomIn>
+              {/* Changed 'capitalize' to 'uppercase' and made the text all caps */}
+              <h2 className="section-title uppercase">What People Are Saying</h2>
+            </ScrollZoom>
 
             <div className="testimonials-grid">
               <ScrollZoomIn delay={0}>
