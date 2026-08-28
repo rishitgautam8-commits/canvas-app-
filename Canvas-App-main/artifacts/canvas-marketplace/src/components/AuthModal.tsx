@@ -10,6 +10,9 @@ interface AuthModalProps {
 
 export function AuthModal({ open, onClose }: AuthModalProps) {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [role, setRole] = useState<'client' | 'artist'>('client');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,10 +27,22 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({ email, password });
+        // Sign up includes first name, last name, and role in user metadata
+        const { error } = await supabase.auth.signUp({ 
+          email, 
+          password,
+          options: {
+            data: {
+              first_name: firstName,
+              last_name: lastName,
+              role: role
+            }
+          }
+        });
         if (error) throw error;
         window.alert('Check your email for the confirmation link.');
       } else {
+        // Log in only requires email and password
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         onClose();
@@ -51,13 +66,13 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
           <motion.div
             initial={{ opacity: 0, scale: 0.98, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 10 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full max-w-[420px] bg-[#F9F9F9] border border-black/10 shadow-2xl p-10 sm:p-12"
+            className="relative w-full max-w-[420px] bg-[#F9F9F9] border border-black/10 shadow-2xl p-10 sm:p-12 my-8"
           >
             <button 
               onClick={onClose}
@@ -68,7 +83,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
             <div className="mb-10">
               <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2] mb-3">
-                {isSignUp ? 'JOIN THE COLLECTIVE' : 'CLIENT PORTAL'}
+                {isSignUp ? 'JOIN THE COLLECTIVE' : 'ACCESS CANVAS'}
               </p>
               <h2 className="text-3xl md:text-4xl font-bold lowercase tracking-tight text-black">
                 {isSignUp ? 'create account.' : 'welcome back.'}
@@ -101,6 +116,63 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             </div>
 
             <form onSubmit={handleAuth} className="space-y-6">
+              
+              {isSignUp && (
+                <>
+                  <div className="flex gap-4 mb-2">
+                    <label className="flex-1 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="role" 
+                        className="peer sr-only" 
+                        checked={role === 'client'} 
+                        onChange={() => setRole('client')} 
+                      />
+                      <div className="border border-black/20 text-center py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 peer-checked:border-black peer-checked:bg-black peer-checked:text-white transition-all">
+                        Client
+                      </div>
+                    </label>
+                    <label className="flex-1 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="role" 
+                        className="peer sr-only" 
+                        checked={role === 'artist'} 
+                        onChange={() => setRole('artist')} 
+                      />
+                      <div className="border border-black/20 text-center py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 peer-checked:border-black peer-checked:bg-black peer-checked:text-white transition-all">
+                        Artist
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <label className="block">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">First Name</span>
+                      <input 
+                        type="text" 
+                        required={isSignUp}
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Jane" 
+                        className="mt-2 w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-black placeholder-black/20 outline-none focus:border-[#B66CF2] transition-colors" 
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Last Name</span>
+                      <input 
+                        type="text" 
+                        required={isSignUp}
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Doe" 
+                        className="mt-2 w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-black placeholder-black/20 outline-none focus:border-[#B66CF2] transition-colors" 
+                      />
+                    </label>
+                  </div>
+                </>
+              )}
+
               <label className="block">
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Email Address</span>
                 <input 
@@ -139,7 +211,10 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             <div className="mt-8 text-center">
               <button 
                 type="button" 
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setError(null);
+                }}
                 className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40 hover:text-black transition-colors border-b border-black/20 pb-0.5 hover:border-black"
               >
                 {isSignUp ? 'ALREADY HAVE AN ACCOUNT? LOG IN' : 'NEED AN ACCOUNT? SIGN UP'}
