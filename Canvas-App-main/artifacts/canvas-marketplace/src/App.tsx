@@ -494,7 +494,7 @@ function Home() {
         {/* CENTER: Stark, Tightly Tracked Wordmark */}
         <div className="flex items-center justify-center cursor-pointer" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Canvas Logo" className="w-8 h-8 object-contain" />
+            <img src="/logo.png" alt="Canvas Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
             <span className="text-2xl md:text-3xl font-bold lowercase">canvas</span>
           </div>
         </div>
