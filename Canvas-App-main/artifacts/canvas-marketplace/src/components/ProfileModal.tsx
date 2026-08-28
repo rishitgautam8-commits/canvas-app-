@@ -19,10 +19,10 @@ export type ProfileModalProps = {
   artist: any | null; 
   onClose: () => void;
   onBookAppointment: () => void;
-  onOpenChat?: () => void; // <--- Make sure this line is here and saved!
+  onOpenChat?: () => void; // Add this line here
 };
 
-export function ProfileModal({ open, artist, onClose, onBookAppointment }: ProfileModalProps) {
+export function ProfileModal({ open, artist, onClose, onBookAppointment, onOpenChat }: ProfileModalProps) {
   const displayed = useRef(artist);
   if (open && artist) displayed.current = artist;
   const data = open ? artist : displayed.current;
@@ -169,11 +169,17 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                     </div>
 
                     <button 
-                      onClick={onBookAppointment} 
-                      className="w-full max-w-[280px] bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-[#B08D45] transition-colors py-3.5 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2 shadow-lg"
-                    >
-                      <MessageCircle size={16} /> Send enquiry on WhatsApp
-                    </button>
+  onClick={() => {
+    if (onOpenChat) {
+      onOpenChat(); // This opens your secure web chat drawer!
+    } else {
+      onBookAppointment();
+    }
+  }} 
+  className="w-full max-w-[280px] bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-[#B08D45] transition-colors py-3.5 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+>
+  <MessageCircle size={16} /> Chat with Artist Live
+</button>
 
                   </div>
                 </div>
