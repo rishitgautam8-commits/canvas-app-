@@ -506,37 +506,34 @@ function Home() {
     <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
       
       {/* 3-Column Grid Layout */}
-      <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[80px] bg-[var(--canvas-iv)] border-b border-[rgba(201,164,99,0.2)] shadow-sm overflow-hidden">
+      <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[80px] bg-[var(--canvas-iv)] border-b border-[rgba(201,164,99,0.15)] shadow-sm overflow-hidden">
         
-        {/* --- NEW: The Flowing Logo Strand Background --- */}
-        <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.35]">
+        {/* --- REFINED: Ultra-Subtle Golden Watermark Flow --- */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
           <svg
             viewBox="0 0 1440 80"
             preserveAspectRatio="none"
-            className="w-full h-full"
+            className="w-full h-full opacity-50"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            {/* Purple Flowing Strands */}
-            <path d="M-100,20 C 250,-30 550,110 720,40 C 890,-30 1190,110 1540,20" stroke="#B66CF2" strokeWidth="2.5" />
-            <path d="M-100,30 C 270,-20 530,100 720,50 C 910,0 1170,120 1540,30" stroke="#B66CF2" strokeWidth="1" opacity="0.6" />
-            
-            {/* Gold Flowing Strands */}
-            <path d="M-100,70 C 320,130 420,-20 720,40 C 1020,100 1120,-40 1540,70" stroke="#C9A463" strokeWidth="2.5" />
-            <path d="M-100,80 C 300,140 400,-10 720,50 C 1040,110 1140,-30 1540,80" stroke="#C9A463" strokeWidth="1" opacity="0.6" />
+            {/* Wide, sheer curves that blend into the cream as a luxury texture */}
+            <path d="M-200,40 C 200,120 600,-40 1600,40" stroke="#C9A463" strokeWidth="12" opacity="0.04" />
+            <path d="M-200,60 C 300,140 700,-20 1600,60" stroke="#C9A463" strokeWidth="3" opacity="0.08" />
+            <path d="M-200,20 C 400,-40 800,100 1600,20" stroke="#C9A463" strokeWidth="1" opacity="0.15" />
           </svg>
         </div>
 
-        {/* LEFT: Navigation Links (relative z-10 keeps them clickable above the background) */}
+        {/* LEFT: Navigation Links */}
         <div className="hidden md:flex items-center gap-8 justify-start relative z-10">
-          <a onClick={() => scrollTo('discover')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] cursor-pointer transition-colors">Shop Artists</a>
-          <a onClick={() => scrollTo('discover')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] cursor-pointer transition-colors">Styles</a>
-          <a onClick={() => scrollTo('standard')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] cursor-pointer transition-colors">About</a>
+          <a onClick={() => scrollTo('discover')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">Shop Artists</a>
+          <a onClick={() => scrollTo('discover')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">Styles</a>
+          <a onClick={() => scrollTo('standard')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">About</a>
         </div>
 
-        {/* CENTER: Free-Floating Logo & Wordmark */}
+        {/* CENTER: Free-Floating Logo & Wordmark (No Box Mask Needed Now) */}
         <div className="flex items-center justify-center cursor-pointer relative z-10" onClick={() => scrollTo('top')}>
-          <div className="flex items-center gap-3 group bg-[var(--canvas-iv)] px-4 py-1 rounded-full shadow-[0_0_15px_rgba(251,248,242,0.8)]">
+          <div className="flex items-center gap-3 group">
             <img 
               src="/logo.png" 
               alt="Canvas Logo" 
@@ -550,11 +547,11 @@ function Home() {
         <div className="flex items-center gap-6 justify-end relative z-10">
           {session ? (
             <>
-              <button onClick={() => setLocation('/dashboard')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] transition-colors hidden sm:block">Dashboard</button>
-              <button onClick={handleSignOut} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] transition-colors hidden sm:block">Sign Out</button>
+              <button onClick={() => setLocation('/dashboard')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] transition-colors hidden sm:block">Dashboard</button>
+              <button onClick={handleSignOut} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] transition-colors hidden sm:block">Sign Out</button>
             </>
           ) : (
-            <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] transition-colors">Account</button>
+            <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] transition-colors">Account</button>
           )}
           <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-[var(--canvas-rp)] md:hidden">
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
