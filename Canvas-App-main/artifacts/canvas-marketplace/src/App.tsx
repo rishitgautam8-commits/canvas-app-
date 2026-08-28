@@ -208,6 +208,13 @@ function Home() {
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [visibleCount, setVisibleCount] = useState(9);
 
+  // Dynamic Platform Statistics
+  const [platformStats, setPlatformStats] = useState({
+    avgBookingValue: 21700,
+    totalBookings: 1250,
+    avgRating: 4.8
+  });
+
   const handleSelectArtist = (artist: Artist) => {
     console.log("Artist card clicked:", artist.name);
     setSelectedArtist(artist);
@@ -305,6 +312,43 @@ function Home() {
     }
 
     fetchLiveArtists();
+  }, []);
+
+  // Fetch Live Statistics from Supabase
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        // 1. Calculate Average Booking Value from artist_profiles
+        const { data: artists } = await supabase
+          .from('artist_profiles')
+          .select('starting_price');
+        
+        let avgPrice = 21700;
+        if (artists && artists.length > 0) {
+          const validPrices = artists.map((a: any) => a.starting_price).filter((p: number) => p > 0);
+          if (validPrices.length > 0) {
+            avgPrice = Math.round(validPrices.reduce((a, b) => a + b, 0) / validPrices.length);
+          }
+        }
+
+        // 2. Count Successful Bookings from the bookings table
+        const { count: bookingCount } = await supabase
+          .from('bookings')
+          .select('*', { count: 'exact', head: true })
+          .in('status', ['confirmed', 'completed', 'successful']); 
+
+        // Update the state with live DB numbers
+        setPlatformStats(prev => ({
+          ...prev,
+          avgBookingValue: avgPrice || prev.avgBookingValue,
+          totalBookings: (bookingCount || 0) + 1250, // 1250 is our base "seed" number
+        }));
+      } catch (error) {
+        console.error("Could not fetch live stats:", error);
+      }
+    }
+    
+    fetchStats();
   }, []);
 
   const [search, setSearch] = useState<HeroSearchValue>({
@@ -662,6 +706,7 @@ function Home() {
 <main className="relative z-20">
         
         {/* NEW: THE STATS BAR */}
+        {/* DYNAMIC STATS BAR */}
         <ScrollZoomIn className="stats-bar">
           <div className="stat">
             <div className="stat-number">{sourceArtists.length}</div>
@@ -669,20 +714,19 @@ function Home() {
           </div>
           <div className="stat-divider"></div>
           <div className="stat">
-            <div className="stat-number">₹21,700</div>
+            {/* Formats the live average price with commas */}
+            <div className="stat-number">₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div>
             <div className="stat-label">Avg Booking Value</div>
           </div>
           <div className="stat-divider"></div>
-          
-          {/* UPDATED: Successful Bookings instead of Trials */}
           <div className="stat">
-            <div className="stat-number">1,250+</div>
+            {/* Renders the live booking count + 1250 */}
+            <div className="stat-number">{platformStats.totalBookings.toLocaleString('en-US')}+</div>
             <div className="stat-label">Successful Bookings</div>
           </div>
-          
           <div className="stat-divider"></div>
           <div className="stat">
-            <div className="stat-number">4.8★</div>
+            <div className="stat-number">{platformStats.avgRating}★</div>
             <div className="stat-label">Platform Avg Rating</div>
           </div>
         </ScrollZoomIn>
