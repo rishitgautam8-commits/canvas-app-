@@ -18,6 +18,7 @@ import { Session } from '@supabase/supabase-js';
 import Dashboard from '@/pages/Dashboard';
 import { artistsData as artists } from './Data/artistsData';
 import BeautyDemo from '@/pages/BeautyDemo'; // or '@/components/BeautyDemo' depending on where you saved it
+import { ChatDrawer } from '@/components/ChatDrawer';
 
 // Generates a unique, realistic match percentage based on the uploaded file and artist ID
 function getSmartMatchPercentage(file: File | null | undefined, artistId: string): number {
@@ -198,6 +199,7 @@ async function analyzeLookWithAI(file: File): Promise<string[]> {
 }
 
 function Home() {
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [aiTags, setAiTags] = useState<string[]>([]);
   const [, setLocation] = useLocation();
   const [sent, setSent] = useState(false);
@@ -1078,7 +1080,23 @@ function Home() {
       </main>
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-      <ProfileModal open={Boolean(selectedArtist)} artist={selectedArtist} onClose={() => setSelectedArtist(null)} onBookAppointment={openBrief} />
+      
+      <ProfileModal 
+        open={Boolean(selectedArtist)} 
+        artist={selectedArtist} 
+        onClose={() => setSelectedArtist(null)} 
+        onBookAppointment={openBrief} 
+        onOpenChat={() => {
+          setSelectedArtist(null); // Close the profile modal
+          setIsChatOpen(true);     // Open the live chat drawer
+        }}
+      />
+
+      {/* Render the live chat drawer globally */}
+      <ChatDrawer 
+  open={isChatOpen}
+  onClose={() => setIsChatOpen(false)} 
+/>
 
       {briefOpen && (
         <div className="fixed inset-0 z-[100] flex justify-end bg-black/80 backdrop-blur-sm" role="presentation" onClick={() => setBriefOpen(false)}>
@@ -1196,6 +1214,8 @@ function Router() {
 }
 
 export default function App() {
+  const [isChatOpen, setIsChatOpen] = useState(false); // If you want state control
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -1203,6 +1223,9 @@ export default function App() {
           <Router />
         </WouterRouter>
         <Toaster />
+        
+        {/* ADD THE LIVE CHAT DRAWER HERE SO IT IS GLOBALLY ACCESSIBLE */}
+        <ChatDrawer open={true} onClose={() => {}} /> 
       </TooltipProvider>
     </QueryClientProvider>
   );

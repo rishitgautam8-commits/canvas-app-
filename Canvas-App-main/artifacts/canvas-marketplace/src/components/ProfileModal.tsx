@@ -19,6 +19,7 @@ export type ProfileModalProps = {
   artist: any | null; 
   onClose: () => void;
   onBookAppointment: () => void;
+  onOpenChat?: () => void; // <--- Make sure this line is here and saved!
 };
 
 export function ProfileModal({ open, artist, onClose, onBookAppointment }: ProfileModalProps) {

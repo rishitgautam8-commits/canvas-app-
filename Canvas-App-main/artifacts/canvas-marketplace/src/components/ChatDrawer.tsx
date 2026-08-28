@@ -4,9 +4,9 @@ import { supabase } from '@/lib/supabase';
 
 type ChatDrawerProps = {
   open: boolean;
-  bookingId: string;
-  currentUserId: string;
-  otherPartyName: string;
+  bookingId?: string;       // Add ?
+  currentUserId?: string;   // Add ?
+  otherPartyName?: string;  // Add ?
   onClose: () => void;
 };
 
