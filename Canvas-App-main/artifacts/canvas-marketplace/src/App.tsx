@@ -100,17 +100,34 @@ function normalizePortfolio(
   });
 }
 
-const local100Artists: Artist[] = artists.slice(0, 100).map((a: any) => {
+// The 10 specific locations from your filter sidebar
+const HYDERABAD_LOCATIONS = [
+  'Jubilee Hills',
+  'Banjara Hills',
+  'HITEC City',
+  'Madhapur',
+  'Gachibowli',
+  'Kondapur',
+  'Film Nagar',
+  'Kukatpally',
+  'Begumpet',
+  'Secunderabad'
+];
+
+const local100Artists: Artist[] = artists.slice(0, 100).map((a: any, index: number) => {
   const profileImg = a.image || a.portfolio?.[0]?.image || a.portfolio?.[0] || 'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80';
   const normalizedPortfolio = normalizePortfolio(a.portfolio, profileImg);
+
+  // Distributes artists evenly across all 10 neighborhoods without clumping
+  const assignedCity = HYDERABAD_LOCATIONS[(index * 7) % HYDERABAD_LOCATIONS.length];
 
   return {
     id: String(a.id),
     name: a.name,
     category: a.category || 'Bridal & Wedding',
     services: [a.specialty || 'Makeup Artist', 'Makeup Artist'],
-    city: a.city || 'Jubilee Hills',
-    location: `${a.city || 'Jubilee Hills'}, Hyderabad`,
+    city: assignedCity,
+    location: `${assignedCity}, Hyderabad`,
     maxTravelKm: 50,
     pricePerSession: a.pricePerSession || 15000,
     startingPrice: a.startingPrice || `₹15,000`,
@@ -119,7 +136,7 @@ const local100Artists: Artist[] = artists.slice(0, 100).map((a: any) => {
     reviewsCount: a.reviewsCount || 24,
     image: profileImg,
     hoverImage: normalizedPortfolio[1]?.image || normalizedPortfolio[0]?.image || profileImg,
-        tags: a.tags || [a.specialty || 'Custom Styling'],  // ← REPLACE THIS LINE
+    tags: a.tags || [a.specialty || 'Custom Styling'],
     bio: a.bio || `Expert in ${a.specialty}. Available for bookings.`,
     signature: a.specialty || 'Signature Aesthetic',
     portfolio: normalizedPortfolio,
