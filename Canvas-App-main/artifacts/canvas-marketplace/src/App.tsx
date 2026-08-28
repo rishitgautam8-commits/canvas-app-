@@ -510,7 +510,7 @@ function Home() {
           {/* Your New 3D Purple & Gold Logo */}
           <div className="flex items-center justify-center w-11 h-11 md:w-12 md:h-12 bg-[#150A26] shadow-[0_2px_12px_rgba(182,108,242,0.25)] border border-[#B66CF2]/30 rounded-[10px] group transition-all duration-300 hover:shadow-[0_4px_16px_rgba(182,108,242,0.4)] overflow-hidden">
             <img 
-              src="/slazzer-preview-obp4w.png" 
+              src="logo.png" 
               alt="Canvas Logo" 
               className="w-[90%] h-[90%] object-contain transform group-hover:scale-105 transition-transform duration-500"
             />
