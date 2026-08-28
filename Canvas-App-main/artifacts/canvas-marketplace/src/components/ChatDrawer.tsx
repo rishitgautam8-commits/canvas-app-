@@ -13,13 +13,27 @@ type ChatDrawerProps = {
 export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onClose }: ChatDrawerProps) {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Default to false so it never locks up!
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open || !bookingId) return;
+    if (!open) return;
 
-    // 1. Fetch existing message history
+    // If there's no bookingId (demo mode), unlock the screen and show a nice welcome message
+    if (!bookingId) {
+      setLoading(false);
+      setMessages([
+        {
+          id: 'welcome-demo',
+          content: 'Hello! Welcome to Canvas. How can I assist with your look today?',
+          sender_id: 'artist',
+          created_at: new Date().toISOString()
+        }
+      ]);
+      return;
+    }
+
+    // 1. Fetch existing message history for real bookings
     async function fetchMessages() {
       setLoading(true);
       const { data, error } = await supabase
@@ -94,7 +108,6 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
       ]);
 
       if (error) {
-        // Silently log for debugging, but NO annoying alert box during your pitch!
         console.error('Demo mode note (Supabase sync skipped):', error);
       }
     }
