@@ -10,7 +10,7 @@ interface ScrollRevealProps {
   once?: boolean;
 }
 
-function getInitialTransform(direction: string, distance: number) {
+function getInitialTransform(direction: string, distance: number): string {
   switch (direction) {
     case 'up': return `translateY(${distance}px)`;
     case 'down': return `translateY(-${distance}px)`;
@@ -121,15 +121,15 @@ interface StaggerItemProps {
 export function StaggerItem({
   children,
   className = '',
-  direction = 'up',
-  distance = 30,
   index = 0,
   staggerDelay = 0.1,
 }: StaggerItemProps) {
+  const delay = index * staggerDelay;
+
   const style: React.CSSProperties = {
     opacity: 1,
-    transform: 'translate(0, 0)',
-    animation: `scrollRevealFade ${0.6}s ${index * staggerDelay}s cubic-bezier(0.25, 0.1, 0.25, 1) both`,
+    transform: 'translateY(0)',
+    animation: `scrollRevealFade 0.6s ${delay}s cubic-bezier(0.25, 0.1, 0.25, 1) both`,
   };
 
   return (

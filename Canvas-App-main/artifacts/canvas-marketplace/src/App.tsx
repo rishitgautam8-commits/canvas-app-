@@ -19,7 +19,7 @@ import Dashboard from '@/pages/Dashboard';
 import { artistsData as artists } from './Data/artistsData';
 import BeautyDemo from '@/pages/BeautyDemo'; // or '@/components/BeautyDemo' depending on where you saved it
 import { ChatDrawer } from '@/components/ChatDrawer';
-import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ScrollReveal';
+import { ParallaxSection, ScrollEntrance, GiantReveal } from '@/components/ScrollParallax';
 import { CursorParallax } from '@/components/CursorParallax';
 
 // Generates a unique, realistic match percentage based on the uploaded file and artist ID
@@ -609,7 +609,7 @@ function Home() {
       </section>
 
       {/* THE CANVAS WAY MANIFESTO */}
-      <ScrollReveal direction="up" distance={50} duration={0.8}>
+      <ScrollEntrance direction="up" distance={60}>
         <section className="canvas-way border-y border-[var(--gold)]/20">
         <div className="max-w-[1400px] mx-auto">
           <div className="section-label">
@@ -638,10 +638,10 @@ function Home() {
           </div>
         </div>
       </section>
-      </ScrollReveal>
+      </ScrollEntrance>
 
       {/* SEARCH COMPONENT WRAPPER */}
-      <ScrollReveal direction="up" distance={40} duration={0.7} delay={0.1}>
+      <ScrollEntrance direction="up" distance={50}>
         <section id="demo-search" className="relative z-20 bg-[var(--bg-beige)] py-24 border-b border-[var(--border-light)]">
         <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 [&_.text-\\[\\#B66CF2\\]]:text-[var(--canvas-rp)] [&_.text-white\\/50]:text-[var(--canvas-mut)] [&_.text-white\\/70]:text-[var(--canvas-mut)] [&_h1]:text-white">
           <HeroSearch
@@ -657,37 +657,37 @@ function Home() {
           />
         </div>
       </section>
-      </ScrollReveal>
+      </ScrollEntrance>
 
 <main className="relative z-20">
         
         {/* NEW: THE STATS BAR */}
-        <StaggerContainer staggerDelay={0.15} className="stats-bar">
-          <StaggerItem index={0}><div className="stat">
+        <ParallaxSection speed={0.1} className="stats-bar">
+          <div className="stat">
             <div className="stat-number">5</div>
             <div className="stat-label">Verified Artists</div>
-          </div></StaggerItem>
+          </div>
           <div className="stat-divider"></div>
-          <StaggerItem index={1}><div className="stat">
+          <div className="stat">
             <div className="stat-number">₹21,700</div>
             <div className="stat-label">Avg Booking Value</div>
-          </div></StaggerItem>
+          </div>
           <div className="stat-divider"></div>
-          <StaggerItem index={2}><div className="stat">
+          <div className="stat">
             <div className="stat-number">88%</div>
             <div className="stat-label">Trial-to-Booking Rate</div>
-          </div></StaggerItem>
+          </div>
           <div className="stat-divider"></div>
-          <StaggerItem index={3}><div className="stat">
+          <div className="stat">
             <div className="stat-number">4.8★</div>
             <div className="stat-label">Platform Avg Rating</div>
-          </div></StaggerItem>
-        </StaggerContainer>
+          </div>
+        </ParallaxSection>
         
         <section id="discover" className="bg-white text-black py-24 sm:py-32">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
             
-            <ScrollReveal direction="up" distance={35} duration={0.7}>
+            <ScrollEntrance direction="up" distance={40}>
               <div className="mb-10 flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">The Shortlist</p>
@@ -695,9 +695,9 @@ function Home() {
                 </div>
                 <p className="max-w-[320px] text-sm text-black/60">Six points of view, chosen for the way they make beauty feel like a conversation.</p>
               </div>
-            </ScrollReveal>
+            </ScrollEntrance>
 
-            <ScrollReveal direction="up" distance={20} duration={0.5} delay={0.1}>
+            <ScrollEntrance direction="up" distance={30}>
               <div className="mb-12 flex flex-wrap gap-3 border-b border-black/10 pb-8">
                 {discoverCategories.map((cat) => (
                   <button
@@ -713,13 +713,11 @@ function Home() {
                   </button>
                 ))}
               </div>
-            </ScrollReveal>
+            </ScrollEntrance>
 
             {hasSearched && search.inspirationFile && (
-              <ScrollReveal direction="up" distance={30} duration={0.6}>
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
+              <ScrollEntrance direction="up" distance={40}>
+                <div
                   className="mb-12 mt-8 border border-black/15 bg-[#F9F9F9] p-8 lg:p-10 shadow-sm"
                 >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-black/10 pb-6 mb-6">
@@ -748,8 +746,8 @@ function Home() {
                     ))}
                   </div>
                   </div>
-                </motion.div>
-              </ScrollReveal>
+                </div>
+              </ScrollEntrance>
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start mt-10">
@@ -905,8 +903,8 @@ function Home() {
               </div>
             </div>
             
-            <StaggerContainer staggerDelay={0.15} className="grid gap-12 border-t-[3px] border-black pt-12 sm:grid-cols-3">
-              <StaggerItem index={0}>
+            <ParallaxSection speed={0.12} className="grid gap-12 border-t-[3px] border-black pt-12 sm:grid-cols-3">
+              
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Curated Talent</h3>
@@ -916,9 +914,9 @@ function Home() {
                     <strong className="text-black">Distinct hand, not a uniform finish.</strong> We reject cookie-cutter application, selecting artists exclusively for their unique ability to elevate natural features.
                   </p>
                 </div>
-              </StaggerItem>
+              
 
-              <StaggerItem index={1}>
+              
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">The Experience</h3>
@@ -928,9 +926,9 @@ function Home() {
                     <strong className="text-black">Care in the details and generosity.</strong> From high-end skin prep to impeccable kit hygiene, our standard for client comfort is non-negotiable.
                   </p>
                 </div>
-              </StaggerItem>
+              
 
-              <StaggerItem index={2}>
+              
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Private Network</h3>
@@ -940,8 +938,8 @@ function Home() {
                     <strong className="text-black">The list is small so it means something.</strong> We prioritize strict quality over volume, eliminating the guesswork of endless scrolling.
                   </p>
                 </div>
-              </StaggerItem>
-            </StaggerContainer>
+              
+            </ParallaxSection>
 
           </div>
         </section>
@@ -949,14 +947,14 @@ function Home() {
 {/* TESTIMONIALS SECTION */}
       <section className="testimonials">
         <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
-          <ScrollReveal direction="up" distance={30} duration={0.6}>
+          <ScrollEntrance direction="up" distance={40}>
             <div className="section-label">
               <span className="line"></span>
               <span>LOVE FROM OUR USERS</span>
               <span className="line"></span>
             </div>
             <h2 className="section-title">What people are saying</h2>
-          </ScrollReveal>
+          </ScrollEntrance>
           
           <div className="testimonials-grid">
             <div className="testimonial-card">
@@ -1006,7 +1004,7 @@ function Home() {
 
 {/* ---------------------------------------------------- */}
       {/* NEW: FOR MAKEUP ARTISTS CTA */}
-      <ScrollReveal direction="up" distance={45} duration={0.8}>
+      <ScrollEntrance direction="up" distance={50}>
         <section className="bg-[var(--bg-dark)] py-24 sm:py-32 px-5 border-t border-[var(--gold)]/20 text-center">
           <div className="max-w-[800px] mx-auto">
             <div className="section-label">
@@ -1030,13 +1028,13 @@ function Home() {
           </div>
         </div>
       </section>
-      </ScrollReveal>
+      </ScrollEntrance>
       {/* ---------------------------------------------------- */}
 
       {/* THE JOURNAL SECTION (Already exists in your file) */}
       <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-5 py-24 sm:px-8 lg:px-12 lg:py-36">
           <div className="max-w-[1400px] mx-auto">
-            <ScrollReveal direction="up" distance={35} duration={0.7}>
+            <ScrollEntrance direction="up" distance={40}>
               <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">From the journal</p>
@@ -1046,10 +1044,10 @@ function Home() {
                   Read all stories
                 </button>
               </div>
-            </ScrollReveal>
+            </ScrollEntrance>
             
-            <StaggerContainer staggerDelay={0.12} className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-              <StaggerItem index={0}>
+            <ParallaxSection speed={0.1} className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+              
                 <div className="group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Perspective · 06 min read</span>
                   <div>
@@ -1057,26 +1055,26 @@ function Home() {
                     <p className="text-sm font-bold uppercase tracking-widest text-white/60">A conversation about recognition and restraint.</p>
                   </div>
                 </div>
-              </StaggerItem>
+              
               <div className="grid gap-6">
-                <StaggerItem index={1}>
+                
                   <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Ritual · 03 min read</span>
                     <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight text-white">a small ritual before the chair.</h3>
                   </div>
-                </StaggerItem>
-                <StaggerItem index={2}>
+                
+                
                   <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Industry · 05 min read</span>
                     <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight text-white">the science of skin prep.</h3>
                   </div>
-                </StaggerItem>
+                
               </div>
-            </StaggerContainer>
+            </ParallaxSection>
           </div>
         </section>
 
-        <ScrollReveal direction="up" distance={30} duration={0.6}>
+        <ScrollEntrance direction="up" distance={40}>
           <footer className="bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10">
             <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
             <div className="lg:col-span-1">
@@ -1121,7 +1119,7 @@ function Home() {
             </div>
             </div>
           </footer>
-        </ScrollReveal>
+        </ScrollEntrance>
       </main>
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
