@@ -505,23 +505,53 @@ function Home() {
   return (
     <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
       
-      {/* 3-Column Grid Layout - OVERFLOW HIDDEN IS GONE SO ELEMENTS CAN HANG DOWN */}
+      {/* 3-Column Grid Layout - NO OVERFLOW HIDDEN */}
       <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[80px] bg-[var(--canvas-iv)] border-b border-[rgba(201,164,99,0.2)] shadow-sm">
         
-        {/* --- THE BREAKOUT FLOWING LINE (Matches your sketch's deep loops) --- */}
-        {/* Notice the height is 300px, meaning it drops 220px below the header! */}
+        {/* --- THE TEXTURED BRUSH STROKE --- */}
         <div className="absolute top-0 left-0 w-full h-[300px] pointer-events-none z-[-1]">
           <svg
             viewBox="0 0 1440 300"
             preserveAspectRatio="none"
-            className="w-full h-full opacity-50"
+            className="w-full h-full"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            {/* Main swooping thread that mimics the deep loops in your drawing */}
-            <path d="M-100,0 C 200,150 450,40 720,40 C 900,40 950,280 1150,150 C 1300,50 1400,-20 1500,0" stroke="#C9A463" strokeWidth="1.5" />
-            {/* Secondary overlapping thread to make it look like continuous cursive script */}
-            <path d="M-100,50 C 300,200 400,20 720,50 C 1050,80 1100,220 1250,100 C 1350,20 1450,0 1500,-20" stroke="#C9A463" strokeWidth="1" opacity="0.4" />
+            <defs>
+              {/* This SVG filter creates the frayed, painted bristle texture */}
+              <filter id="brushTexture" x="-20%" y="-20%" width="140%" height="140%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.04 0.1" numOctaves="4" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+            </defs>
+
+            {/* Thick Gold Paint Base (The heavy part of the brush) */}
+            <path 
+              d="M-50,20 C 250,180 500,40 720,50 C 950,60 1050,280 1250,120 C 1400,0 1450,-10 1500,20" 
+              stroke="#C9A463" 
+              strokeWidth="18" 
+              filter="url(#brushTexture)" 
+              opacity="0.12" 
+              strokeLinecap="round"
+            />
+            
+            {/* Core Bristle Streak (The sharper, darker pigment in the center) */}
+            <path 
+              d="M-50,20 C 250,180 500,40 720,50 C 950,60 1050,280 1250,120 C 1400,0 1450,-10 1500,20" 
+              stroke="#C9A463" 
+              strokeWidth="6" 
+              filter="url(#brushTexture)" 
+              opacity="0.25" 
+            />
+
+            {/* Subtle Purple Paint Drag (Adding depth to the brush stroke) */}
+            <path 
+              d="M-30,30 C 240,190 510,35 720,55 C 930,75 1060,260 1260,110 C 1390,-10 1460,0 1510,30" 
+              stroke="#B66CF2" 
+              strokeWidth="4" 
+              filter="url(#brushTexture)" 
+              opacity="0.15" 
+            />
           </svg>
         </div>
 
@@ -533,7 +563,6 @@ function Home() {
         </div>
 
         {/* CENTER: Massive Breakout Logo & Wordmark */}
-        {/* translate-y-[16px] pushes it down so it hangs over the edge of the navbar */}
         <div className="flex items-center justify-center cursor-pointer relative z-10 translate-y-[16px]" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-3 group">
             <img 
