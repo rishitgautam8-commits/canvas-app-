@@ -558,9 +558,9 @@ function Home() {
 
         {/* LEFT: Navigation Links */}
         <div className="hidden md:flex items-center gap-8 justify-start relative z-10">
-          <a onClick={() => scrollTo('discover')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">Shop Artists</a>
-          <a onClick={() => scrollTo('discover')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">Styles</a>
-          <a onClick={() => scrollTo('standard')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">About</a>
+          <a onClick={() => scrollTo('discover')} className="font-['Outfit'] text-[11px] font-semibold uppercase tracking-[0.25em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">Shop Artists</a>
+          <a onClick={() => scrollTo('discover')} className="font-['Outfit'] text-[11px] font-semibold uppercase tracking-[0.25em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">Styles</a>
+          <a onClick={() => scrollTo('standard')} className="font-['Outfit'] text-[11px] font-semibold uppercase tracking-[0.25em] text-[var(--canvas-rp)] hover:text-[#C9A463] cursor-pointer transition-colors">About</a>
         </div>
 
         {/* CENTER: Logo & Wordmark (Allowed to overhang slightly) */}
@@ -572,7 +572,8 @@ function Home() {
               className="w-12 h-12 md:w-14 md:h-14 object-contain transform group-hover:scale-105 transition-transform duration-500 drop-shadow-md"
             />
             {/* Rhode-style: thick, lowercase, tightly tracked */}
-            <span className="font-sans text-3xl md:text-4xl font-black text-[var(--canvas-rp)] tracking-tighter lowercase drop-shadow-sm">
+            {/* The Syne font naturally stretches wide, making lowercase logos look incredible */}
+            <span className="font-['Syne'] text-3xl md:text-4xl font-extrabold text-[var(--canvas-rp)] tracking-tighter lowercase drop-shadow-sm">
               canvas
             </span>
           </div>
@@ -620,7 +621,7 @@ function Home() {
             AI-powered beauty matching
           </div>
           
-          <h1 className="font-sans text-[48px] md:text-[60px] lg:text-[72px] font-bold leading-[0.95] tracking-tighter text-[var(--canvas-rp)] mb-6 lowercase">
+          <h1 className="font-['Syne'] text-[52px] md:text-[64px] lg:text-[76px] font-bold leading-[0.95] tracking-tight text-[var(--canvas-rp)] mb-6 lowercase">
             hyderabad's premium<br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--canvas-gd)] via-[var(--canvas-g)] to-[var(--canvas-gd)]">
               beauty match.
