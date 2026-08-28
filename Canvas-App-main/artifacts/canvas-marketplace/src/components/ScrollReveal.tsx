@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 
 interface ScrollRevealProps {
   children: React.ReactNode;
@@ -10,6 +10,16 @@ interface ScrollRevealProps {
   once?: boolean;
 }
 
+function getInitialTransform(direction: string, distance: number) {
+  switch (direction) {
+    case 'up': return `translateY(${distance}px)`;
+    case 'down': return `translateY(-${distance}px)`;
+    case 'left': return `translateX(${distance}px)`;
+    case 'right': return `translateX(-${distance}px)`;
+    default: return `translateY(${distance}px)`;
+  }
+}
+
 export function ScrollReveal({
   children,
   className = '',
@@ -19,36 +29,40 @@ export function ScrollReveal({
   duration = 0.7,
   once = false,
 }: ScrollRevealProps) {
-  const prefersReducedMotion = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
-  const directions = {
-    up: { y: distance, x: 0 },
-    down: { y: -distance, x: 0 },
-    left: { x: distance, y: 0 },
-    right: { x: -distance, y: 0 },
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          if (once) observer.unobserve(el);
+        } else if (!once) {
+          setIsVisible(false);
+        }
+      },
+      { threshold: 0.05, rootMargin: '-40px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [once]);
+
+  const style: React.CSSProperties = {
+    opacity: isVisible ? 1 : 0,
+    transform: isVisible ? 'translate(0, 0)' : getInitialTransform(direction, distance),
+    transition: `opacity ${duration}s ${delay}s cubic-bezier(0.25, 0.1, 0.25, 1), transform ${duration}s ${delay}s cubic-bezier(0.25, 0.1, 0.25, 1)`,
+    willChange: 'opacity, transform',
   };
 
-  const hidden = prefersReducedMotion
-    ? { opacity: 0.85 }
-    : { opacity: 0, ...directions[direction] };
-
-  const visible = { opacity: 1, x: 0, y: 0 };
-
   return (
-    <motion.div
-      initial={hidden}
-      whileInView={visible}
-      viewport={{ once, margin: '-60px', amount: 0.15 }}
-      transition={{
-        duration: prefersReducedMotion ? 0.2 : duration,
-        delay: prefersReducedMotion ? 0 : delay,
-        ease: [0.25, 0.1, 0.25, 1],
-      }}
-      className={className}
-      style={{ border: '2px solid red' }}
-    >
+    <div ref={ref} className={className} style={style}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -65,25 +79,33 @@ export function StaggerContainer({
   staggerDelay = 0.1,
   once = false,
 }: StaggerContainerProps) {
-  const prefersReducedMotion = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          if (once) observer.unobserve(el);
+        } else if (!once) {
+          setIsVisible(false);
+        }
+      },
+      { threshold: 0.05, rootMargin: '-30px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [once]);
 
   return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once, margin: '-40px', amount: 0.1 }}
-      variants={{
-        hidden: {},
-        visible: {
-          transition: {
-            staggerChildren: prefersReducedMotion ? 0 : staggerDelay,
-          },
-        },
-      }}
-      className={className}
-    >
-      {children}
-    </motion.div>
+    <div ref={ref} className={className}>
+      {isVisible && children}
+    </div>
   );
 }
 
@@ -92,6 +114,8 @@ interface StaggerItemProps {
   className?: string;
   direction?: 'up' | 'down' | 'left' | 'right';
   distance?: number;
+  index?: number;
+  staggerDelay?: number;
 }
 
 export function StaggerItem({
@@ -99,35 +123,18 @@ export function StaggerItem({
   className = '',
   direction = 'up',
   distance = 30,
+  index = 0,
+  staggerDelay = 0.1,
 }: StaggerItemProps) {
-  const prefersReducedMotion = useReducedMotion();
-
-  const directions = {
-    up: { y: distance, x: 0 },
-    down: { y: -distance, x: 0 },
-    left: { x: distance, y: 0 },
-    right: { x: -distance, y: 0 },
+  const style: React.CSSProperties = {
+    opacity: 1,
+    transform: 'translate(0, 0)',
+    animation: `scrollRevealFade ${0.6}s ${index * staggerDelay}s cubic-bezier(0.25, 0.1, 0.25, 1) both`,
   };
 
   return (
-    <motion.div
-      variants={{
-        hidden: prefersReducedMotion
-          ? { opacity: 0.8 }
-          : { opacity: 0, ...directions[direction] },
-        visible: {
-          opacity: 1,
-          x: 0,
-          y: 0,
-          transition: {
-            duration: prefersReducedMotion ? 0.2 : 0.6,
-            ease: [0.25, 0.1, 0.25, 1],
-          },
-        },
-      }}
-      className={className}
-    >
+    <div className={className} style={style}>
       {children}
-    </motion.div>
+    </div>
   );
 }

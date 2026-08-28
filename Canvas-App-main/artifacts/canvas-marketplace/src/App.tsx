@@ -663,22 +663,22 @@ function Home() {
         
         {/* NEW: THE STATS BAR */}
         <StaggerContainer staggerDelay={0.15} className="stats-bar">
-          <StaggerItem><div className="stat">
+          <StaggerItem index={0}><div className="stat">
             <div className="stat-number">5</div>
             <div className="stat-label">Verified Artists</div>
           </div></StaggerItem>
           <div className="stat-divider"></div>
-          <StaggerItem><div className="stat">
+          <StaggerItem index={1}><div className="stat">
             <div className="stat-number">₹21,700</div>
             <div className="stat-label">Avg Booking Value</div>
           </div></StaggerItem>
           <div className="stat-divider"></div>
-          <StaggerItem><div className="stat">
+          <StaggerItem index={2}><div className="stat">
             <div className="stat-number">88%</div>
             <div className="stat-label">Trial-to-Booking Rate</div>
           </div></StaggerItem>
           <div className="stat-divider"></div>
-          <StaggerItem><div className="stat">
+          <StaggerItem index={3}><div className="stat">
             <div className="stat-number">4.8★</div>
             <div className="stat-label">Platform Avg Rating</div>
           </div></StaggerItem>
@@ -906,7 +906,7 @@ function Home() {
             </div>
             
             <StaggerContainer staggerDelay={0.15} className="grid gap-12 border-t-[3px] border-black pt-12 sm:grid-cols-3">
-              <StaggerItem>
+              <StaggerItem index={0}>
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Curated Talent</h3>
@@ -918,7 +918,7 @@ function Home() {
                 </div>
               </StaggerItem>
 
-              <StaggerItem>
+              <StaggerItem index={1}>
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">The Experience</h3>
@@ -930,7 +930,7 @@ function Home() {
                 </div>
               </StaggerItem>
 
-              <StaggerItem>
+              <StaggerItem index={2}>
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Private Network</h3>
@@ -1049,26 +1049,26 @@ function Home() {
             </ScrollReveal>
             
             <StaggerContainer staggerDelay={0.12} className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-              <StaggerItem>
+              <StaggerItem index={0}>
                 <div className="group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors">
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Perspective · 06 min read</span>
                   <div>
-                    <h3 className="text-4xl font-bold lowercase tracking-tight mb-4">on keeping your own face.</h3>
+                    <h3 className="text-4xl font-bold lowercase tracking-tight mb-4 text-white">on keeping your own face.</h3>
                     <p className="text-sm font-bold uppercase tracking-widest text-white/60">A conversation about recognition and restraint.</p>
                   </div>
                 </div>
               </StaggerItem>
               <div className="grid gap-6">
-                <StaggerItem>
+                <StaggerItem index={1}>
                   <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Ritual · 03 min read</span>
-                    <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight">a small ritual before the chair.</h3>
+                    <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight text-white">a small ritual before the chair.</h3>
                   </div>
                 </StaggerItem>
-                <StaggerItem>
+                <StaggerItem index={2}>
                   <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Industry · 05 min read</span>
-                    <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight">the science of skin prep.</h3>
+                    <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight text-white">the science of skin prep.</h3>
                   </div>
                 </StaggerItem>
               </div>
