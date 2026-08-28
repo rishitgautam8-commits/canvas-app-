@@ -10,7 +10,6 @@ interface AuthModalProps {
 
 export function AuthModal({ open, onClose }: AuthModalProps) {
   const [isSignUp, setIsSignUp] = useState(false);
-  const [role, setRole] = useState<'client' | 'artist'>('client');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -27,7 +26,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
     try {
       if (isSignUp) {
-        // Sign up includes first name, last name, and role in user metadata
+        // Sign up now only grabs the essentials: Name & Email
         const { error } = await supabase.auth.signUp({ 
           email, 
           password,
@@ -35,14 +34,12 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             data: {
               first_name: firstName,
               last_name: lastName,
-              role: role
             }
           }
         });
         if (error) throw error;
         window.alert('Check your email for the confirmation link.');
       } else {
-        // Log in only requires email and password
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         onClose();
@@ -118,59 +115,30 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             <form onSubmit={handleAuth} className="space-y-6">
               
               {isSignUp && (
-                <>
-                  <div className="flex gap-4 mb-2">
-                    <label className="flex-1 cursor-pointer">
-                      <input 
-                        type="radio" 
-                        name="role" 
-                        className="peer sr-only" 
-                        checked={role === 'client'} 
-                        onChange={() => setRole('client')} 
-                      />
-                      <div className="border border-black/20 text-center py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 peer-checked:border-black peer-checked:bg-black peer-checked:text-white transition-all">
-                        Client
-                      </div>
-                    </label>
-                    <label className="flex-1 cursor-pointer">
-                      <input 
-                        type="radio" 
-                        name="role" 
-                        className="peer sr-only" 
-                        checked={role === 'artist'} 
-                        onChange={() => setRole('artist')} 
-                      />
-                      <div className="border border-black/20 text-center py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 peer-checked:border-black peer-checked:bg-black peer-checked:text-white transition-all">
-                        Artist
-                      </div>
-                    </label>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    <label className="block">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">First Name</span>
-                      <input 
-                        type="text" 
-                        required={isSignUp}
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="Jane" 
-                        className="mt-2 w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-black placeholder-black/20 outline-none focus:border-[#B66CF2] transition-colors" 
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Last Name</span>
-                      <input 
-                        type="text" 
-                        required={isSignUp}
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Doe" 
-                        className="mt-2 w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-black placeholder-black/20 outline-none focus:border-[#B66CF2] transition-colors" 
-                      />
-                    </label>
-                  </div>
-                </>
+                <div className="grid grid-cols-2 gap-6">
+                  <label className="block">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">First Name</span>
+                    <input 
+                      type="text" 
+                      required={isSignUp}
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Jane" 
+                      className="mt-2 w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-black placeholder-black/20 outline-none focus:border-[#B66CF2] transition-colors" 
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Last Name</span>
+                    <input 
+                      type="text" 
+                      required={isSignUp}
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Doe" 
+                      className="mt-2 w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-black placeholder-black/20 outline-none focus:border-[#B66CF2] transition-colors" 
+                    />
+                  </label>
+                </div>
               )}
 
               <label className="block">
