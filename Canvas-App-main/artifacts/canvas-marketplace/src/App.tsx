@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ArrowUpRight, Menu, X, Sparkles } from 'lucide-react';
 import { Route, Switch, useLocation, useLocation as useWouterLocation, Router as WouterRouter } from 'wouter';
-import { AnimatePresence, motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useScroll, useTransform, useReducedMotion, useMotionValueEvent } from 'framer-motion';
 import { ArtistCard } from '@/components/ArtistCard';
 import { HeroSearch, type HeroSearchValue } from '@/components/HeroSearch';
 import { HeroBackdrop } from '@/components/HeroBackdrop';
@@ -224,6 +224,20 @@ function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [visibleCount, setVisibleCount] = useState(9);
+
+const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+  const lastScrollY = useRef(0);
+  const { scrollY } = useScroll(); // Declare scrollY here first!
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const previous = lastScrollY.current;
+    if (latest > previous && latest > 80) {
+      setIsHeaderHidden(true);
+    } else {
+      setIsHeaderHidden(false);
+    }
+    lastScrollY.current = latest;
+  });
 
   // Dynamic Platform Statistics
   const [platformStats, setPlatformStats] = useState({
@@ -493,7 +507,6 @@ function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [discoverOpen]);
 
-  const { scrollY } = useScroll();
   const prefersReducedMotion = useReducedMotion();
 
   const [, setBgY] = useState(0);
