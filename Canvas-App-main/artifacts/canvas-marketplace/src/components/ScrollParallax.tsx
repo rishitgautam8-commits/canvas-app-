@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 
 interface ScrollZoomProps {
   children: React.ReactNode;
@@ -8,7 +8,7 @@ interface ScrollZoomProps {
   endScale?: number;
 }
 
-// Rhode-style: element zooms in as you scroll into view, zooms out as you scroll past
+// Rhode-style smooth scroll-linked zoom
 export function ScrollZoom({
   children,
   className = '',
@@ -22,13 +22,23 @@ export function ScrollZoom({
     offset: ['start end', 'end start'],
   });
 
-  // Scale zooms in as element enters viewport center, zooms out as it leaves
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [startScale, endScale, startScale]);
+  // Smooth the scroll progress with spring physics (this is the key!)
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 80,
+    damping: 25,
+    restDelta: 0.001,
+  });
+
+  const scale = useTransform(smoothProgress, [0, 0.5, 1], [startScale, endScale, startScale]);
 
   return (
     <motion.div
       ref={ref}
-      style={{ scale }}
+      style={{
+        scale,
+        willChange: 'transform',
+        transformOrigin: 'center center',
+      }}
       className={className}
     >
       {children}
@@ -36,7 +46,6 @@ export function ScrollZoom({
   );
 }
 
-// For sections that should zoom in and STAY zoomed (one-way)
 interface ScrollZoomInProps {
   children: React.ReactNode;
   className?: string;
@@ -57,12 +66,22 @@ export function ScrollZoomIn({
     offset: ['start end', 'center center'],
   });
 
-  const scale = useTransform(scrollYProgress, [0, 1], [startScale, endScale]);
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 80,
+    damping: 25,
+    restDelta: 0.001,
+  });
+
+  const scale = useTransform(smoothProgress, [0, 1], [startScale, endScale]);
 
   return (
     <motion.div
       ref={ref}
-      style={{ scale }}
+      style={{
+        scale,
+        willChange: 'transform',
+        transformOrigin: 'center center',
+      }}
       className={className}
     >
       {children}
@@ -70,7 +89,6 @@ export function ScrollZoomIn({
   );
 }
 
-// Giant text that scales dramatically (like the big "rhode")
 interface GiantZoomProps {
   children: React.ReactNode;
   className?: string;
@@ -87,14 +105,24 @@ export function GiantZoom({
     offset: ['start end', 'end start'],
   });
 
-  // Dramatic zoom: starts small, gets huge, then shrinks
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.7, 1.15, 0.8]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.4, 1, 1, 0.4]);
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 60,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
+  const scale = useTransform(smoothProgress, [0, 0.5, 1], [0.7, 1.15, 0.8]);
+  const opacity = useTransform(smoothProgress, [0, 0.3, 0.7, 1], [0.4, 1, 1, 0.4]);
 
   return (
     <motion.div
       ref={ref}
-      style={{ scale, opacity }}
+      style={{
+        scale,
+        opacity,
+        willChange: 'transform, opacity',
+        transformOrigin: 'center center',
+      }}
       className={className}
     >
       {children}
