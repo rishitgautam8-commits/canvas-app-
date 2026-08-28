@@ -505,31 +505,49 @@ function Home() {
   return (
     <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
       
-      {/* 3-Column Grid Layout exactly like Rhode and Fenty */}
-      <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[80px] bg-[var(--canvas-iv)] border-b border-[rgba(201,164,99,0.2)] shadow-sm">
+      {/* 3-Column Grid Layout */}
+      <nav className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[80px] bg-[var(--canvas-iv)] border-b border-[rgba(201,164,99,0.2)] shadow-sm overflow-hidden">
         
-        {/* LEFT: Navigation Links */}
-        <div className="hidden md:flex items-center gap-8 justify-start">
+        {/* --- NEW: The Flowing Logo Strand Background --- */}
+        <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.35]">
+          <svg
+            viewBox="0 0 1440 80"
+            preserveAspectRatio="none"
+            className="w-full h-full"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Purple Flowing Strands */}
+            <path d="M-100,20 C 250,-30 550,110 720,40 C 890,-30 1190,110 1540,20" stroke="#B66CF2" strokeWidth="2.5" />
+            <path d="M-100,30 C 270,-20 530,100 720,50 C 910,0 1170,120 1540,30" stroke="#B66CF2" strokeWidth="1" opacity="0.6" />
+            
+            {/* Gold Flowing Strands */}
+            <path d="M-100,70 C 320,130 420,-20 720,40 C 1020,100 1120,-40 1540,70" stroke="#C9A463" strokeWidth="2.5" />
+            <path d="M-100,80 C 300,140 400,-10 720,50 C 1040,110 1140,-30 1540,80" stroke="#C9A463" strokeWidth="1" opacity="0.6" />
+          </svg>
+        </div>
+
+        {/* LEFT: Navigation Links (relative z-10 keeps them clickable above the background) */}
+        <div className="hidden md:flex items-center gap-8 justify-start relative z-10">
           <a onClick={() => scrollTo('discover')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] cursor-pointer transition-colors">Shop Artists</a>
           <a onClick={() => scrollTo('discover')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] cursor-pointer transition-colors">Styles</a>
           <a onClick={() => scrollTo('standard')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] cursor-pointer transition-colors">About</a>
         </div>
 
         {/* CENTER: Free-Floating Logo & Wordmark */}
-        <div className="flex items-center justify-center cursor-pointer" onClick={() => scrollTo('top')}>
-          <div className="flex items-center gap-3 group">
+        <div className="flex items-center justify-center cursor-pointer relative z-10" onClick={() => scrollTo('top')}>
+          <div className="flex items-center gap-3 group bg-[var(--canvas-iv)] px-4 py-1 rounded-full shadow-[0_0_15px_rgba(251,248,242,0.8)]">
             <img 
               src="/logo.png" 
               alt="Canvas Logo" 
               className="w-10 h-10 md:w-11 md:h-11 object-contain transform group-hover:scale-105 transition-transform duration-500"
             />
-            {/* Bold serif wordmark like Fenty */}
             <span className="font-serif text-2xl md:text-3xl font-semibold text-[var(--canvas-rp)] tracking-tight uppercase">Canvas</span>
           </div>
         </div>
 
         {/* RIGHT: Utilities & Account */}
-        <div className="flex items-center gap-6 justify-end">
+        <div className="flex items-center gap-6 justify-end relative z-10">
           {session ? (
             <>
               <button onClick={() => setLocation('/dashboard')} className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--canvas-rp)] hover:text-[#B66CF2] transition-colors hidden sm:block">Dashboard</button>
