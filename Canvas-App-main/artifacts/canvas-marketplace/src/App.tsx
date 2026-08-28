@@ -507,30 +507,32 @@ function Home() {
       
       <nav className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between px-6 md:px-12 h-[72px] bg-[rgba(251,248,242,0.82)] backdrop-blur-md border-b border-[rgba(201,164,99,0.35)] shadow-sm">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollTo('top')}>
-          <div className="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 bg-[#FBFAF2] shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[rgba(201,164,99,0.3)] rounded-[10px] group transition-all duration-300 hover:shadow-[0_4px_12px_rgba(201,164,99,0.15)]">
+          {/* Deep Purple Base with Gold Border to match her image's premium color palette */}
+          <div className="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 bg-gradient-to-br from-[#2D1B4E] to-[#150A26] shadow-[0_2px_10px_rgba(201,164,99,0.2)] border border-[rgba(201,164,99,0.3)] rounded-[10px] group transition-all duration-300 hover:shadow-[0_4px_15px_rgba(201,164,99,0.4)]">
             <svg 
               viewBox="0 0 40 40" 
-              className="w-6 h-6 transform group-hover:scale-105 transition-transform duration-500" 
+              className="w-[22px] h-[22px] transform group-hover:scale-105 transition-transform duration-500" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
             >
-              {/* Inner frame representing the 'Canvas' structure */}
-              <rect x="4" y="4" width="32" height="32" rx="4" stroke="#C9A463" strokeWidth="0.75" strokeOpacity="0.6"/>
-              
-              {/* Bespoke Serif 'C' constructed from precise geometric paths */}
+              {/* Pure Minimalist Vector: The 'C' that forms a female profile on the inside edge */}
               <path 
-                d="M26.5 13.5C24.5 11.2 21.5 10 18 10C12 10 7.5 14.5 7.5 20C7.5 25.5 12 30 18 30C21.5 30 24.5 28.8 26.5 26.5" 
-                stroke="#150A26" 
-                strokeWidth="2.5" 
-                strokeLinecap="square"
+                d="M 27 8 
+                   C 12 8 6 13 6 20 
+                   C 6 27 12 32 27 32 
+                   C 22 31 19 28 19 25.5 
+                   C 19 24.5 21 23.5 20 22.5 
+                   C 18.5 21 19.5 19 21 18 
+                   C 22 17 21 14 23 11 
+                   C 24 9.5 25.5 8.5 27 8 Z" 
+                fill="#C9A463"
               />
-              
-              {/* Custom Serif Accents (The Editorial Touch) */}
-              <path d="M26 13.5L26 17" stroke="#150A26" strokeWidth="2.5" strokeLinecap="square"/>
-              <path d="M26 26.5L26 23" stroke="#150A26" strokeWidth="2.5" strokeLinecap="square"/>
-              
-              {/* The Artist's Mark (Gold Accent Dot) */}
-              <circle cx="21" cy="20" r="1.5" fill="#C9A463"/>
+              {/* Subtle aesthetic sparkle */}
+              <path 
+                d="M 12 10 L 12.5 11.5 L 14 12 L 12.5 12.5 L 12 14 L 11.5 12.5 L 10 12 L 11.5 11.5 Z" 
+                fill="#FBFAF2" 
+                opacity="0.7"
+              />
             </svg>
           </div>
           <span className="font-serif text-xl md:text-2xl font-semibold text-[var(--canvas-rp)]">Canvas | Hyderabad</span>
