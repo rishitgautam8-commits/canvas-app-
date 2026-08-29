@@ -15,6 +15,7 @@ export default function Dashboard({ session }: DashboardProps) {
   const [, setLocation] = useLocation();
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<'client' | 'artist' | null>(null);
+  const [hasAddonSkill, setHasAddonSkill] = useState(false);
 
   const [portfolio, setPortfolio] = useState<string[]>([]);
   const [uploadingPortfolio, setUploadingPortfolio] = useState(false);
@@ -201,7 +202,6 @@ export default function Dashboard({ session }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-[#F9F9F9] text-black pb-24">
-      <div className="bg-red-600 text-white text-center py-4 font-bold text-xl uppercase"></div>
       <header className="border-b border-black/10 bg-white px-6 py-6 sm:px-12 sticky top-0 z-50">
   <div className="mx-auto flex max-w-[1400px] items-center justify-between">
     <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
@@ -321,23 +321,102 @@ export default function Dashboard({ session }: DashboardProps) {
             )}
 
             {activeTab === 'logistics' && (
-              <form onSubmit={handleSaveLogistics} className="max-w-3xl bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
-                <div className="mb-10"><h3 className="text-3xl font-bold lowercase tracking-tight">search logistics.</h3></div>
-                <div className="grid gap-8 md:grid-cols-2">
-                  <label className="block">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Business Name</span>
-                    <input type="text" value={formData.business_name} onChange={(e) => setFormData({...formData, business_name: e.target.value})} className="mt-3 w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest outline-none" />
-                  </label>
-                  <label className="block">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">City</span>
-                    <input type="text" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className="mt-3 w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest outline-none" />
-                  </label>
-                </div>
-                <div className="mt-12 flex justify-end">
-                  <button type="submit" disabled={saving} className="bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white">{saving ? 'SAVING...' : 'SAVE CHANGES'}</button>
-                </div>
-              </form>
-            )}
+  <div className="mx-auto max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
+    <div className="mb-10">
+      <h3 className="text-3xl font-bold lowercase tracking-tight">artist profile & logistics.</h3>
+      <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">
+        Complete your profile to appear in client searches.
+      </p>
+    </div>
+
+    <form onSubmit={handleSaveLogistics} className="space-y-8">
+      
+      {/* BASIC INFO */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Artist / Business Name *</label>
+          <input type="text" value={formData.business_name} onChange={(e) => setFormData({...formData, business_name: e.target.value})} placeholder="e.g. Kaushal Makeover" className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+        </div>
+        <div>
+          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Base Location in Hyderabad *</label>
+          <input type="text" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} placeholder="e.g. Jubilee Hills" className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+        </div>
+      </div>
+
+      {/* PRICING & LOGISTICS */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Starting Package Price (₹) *</label>
+          <input type="number" value={formData.starting_price} onChange={(e) => setFormData({...formData, starting_price: parseInt(e.target.value)})} placeholder="15000" min="0" className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+        </div>
+        <div>
+          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Comfortable Travel Radius (km) *</label>
+          <input type="number" value={formData.max_travel_km} onChange={(e) => setFormData({...formData, max_travel_km: parseInt(e.target.value)})} placeholder="25" min="0" className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+        </div>
+      </div>
+
+      {/* EXPERTISE */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Makeup Specialisations *</label>
+          <input type="text" placeholder="Bridal, Editorial, Party..." className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+        </div>
+        <div>
+          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Qualifications / Certifications *</label>
+          <input type="text" placeholder="e.g. Certified by..." className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+        </div>
+      </div>
+
+      {/* MAIN PORTFOLIO */}
+      <div className="bg-black/5 p-6 border-l-2 border-black">
+        <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Primary Portfolio Upload *</label>
+        <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload a minimum of 2 photos. No maximum limit.</p>
+        
+        {/* We use portfolio.length < 2 to force the HTML required attribute if they haven't uploaded enough yet */}
+        <input type="file" multiple accept="image/*" onChange={handleAddPortfolioImage} className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" required={portfolio.length < 2} />
+        
+        {portfolio.length > 0 && (
+          <p className="mt-4 text-[10px] font-bold text-[#B66CF2] uppercase">{portfolio.length} photo(s) currently in portfolio</p>
+        )}
+      </div>
+
+      {/* ADD-ON SKILLS TOGGLE */}
+      <div className="border-t border-black/10 pt-8">
+        <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Do you offer any add-on skills? (e.g. Hairstyling, Saree Draping)</label>
+        <div className="flex gap-4 mb-6">
+          <button type="button" onClick={() => setHasAddonSkill(true)} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
+            Yes, I do
+          </button>
+          <button type="button" onClick={() => setHasAddonSkill(false)} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${!hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
+            No
+          </button>
+        </div>
+
+        {/* CONDITIONAL ADD-ON UPLOADER */}
+        {hasAddonSkill && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-black/5 p-6 border-l-2 border-[#B66CF2]">
+            <div>
+              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Describe Add-on Skill *</label>
+              <input type="text" placeholder="e.g. Advanced Hairstyling" className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required={hasAddonSkill} />
+            </div>
+            <div>
+              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Portfolio Upload *</label>
+              <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload at least 1 photo showcasing this specific skill.</p>
+              <input type="file" multiple accept="image/*" className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" required={hasAddonSkill} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* SUBMIT */}
+      <div className="pt-4 flex justify-end">
+        <button type="submit" disabled={saving || uploadingPortfolio} className="bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50">
+          {saving ? 'SAVING...' : 'SAVE CHANGES'}
+        </button>
+      </div>
+    </form>
+  </div>
+)}
           </>
         ) : (
           <div className="mt-16 max-w-4xl">
