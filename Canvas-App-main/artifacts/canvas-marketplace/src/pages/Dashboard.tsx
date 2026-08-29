@@ -145,11 +145,22 @@ export default function Dashboard({ session }: DashboardProps) {
     setSaving(true);
 
     try {
-      // 1. BULLETPROOF FIX: Guarantee the base profile exists before attaching artist info
-      await supabase.from('profiles').upsert({ id: session.user.id }, { onConflict: 'id' });
+      // 1. THE FAIL-SAFE: Force-create the base profile so the Foreign Key doesn't fail.
+      // We include email and name so it bypasses any "Not Null" database restrictions.
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: session.user.id,
+        email: session.user.email,
+        full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.first_name || 'Artist',
+        role: 'artist'
+      }, { onConflict: 'id' });
 
-      // 2. Now save the artist profile
-      const { error } = await supabase.from('artist_profiles').upsert({
+      // If the base profile fails, we throw an error immediately so we can see exactly why.
+      if (profileError) {
+        throw new Error(`Failed to create base profile: ${profileError.message}`);
+      }
+
+      // 2. Now safely save the artist profile
+      const { error: artistError } = await supabase.from('artist_profiles').upsert({
         id: session.user.id,
         business_name: formData.business_name,
         category: formData.category,
@@ -158,9 +169,9 @@ export default function Dashboard({ session }: DashboardProps) {
         max_travel_km: parseInt(formData.max_travel_km) || 0,
         starting_price: parseInt(formData.starting_price) || 0,
         years_experience: parseInt(formData.years_experience) || 0,
-      });
+      }, { onConflict: 'id' });
 
-      if (error) throw error;
+      if (artistError) throw artistError;
 
       window.alert('Logistics updated successfully! Your search filtering is now live.');
       setArtistProfile({ ...artistProfile, ...formData });
