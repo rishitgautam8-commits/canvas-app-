@@ -1,35 +1,109 @@
 import { useEffect, useState } from 'react';
 import { useRoute, useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, CheckCircle2, MessageSquare, Star, MapPin, Award, Clock } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, MessageSquare, MapPin, Clock, X, Calendar } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function ArtistProfile() {
   const [, params] = useRoute('/artist/:id');
   const [, setLocation] = useLocation();
   const [artist, setArtist] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Booking Calendar State
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedTime, setSelectedTime] = useState<string>('10:00');
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   const artistId = params?.id;
 
   useEffect(() => {
-    async function fetchArtist() {
+    async function fetchArtistAndBookings() {
       if (!artistId) return;
-      const { data, error } = await supabase
+      
+      // 1. Fetch the Artist Data
+      const { data: artistData, error: artistError } = await supabase
         .from('artist_profiles')
         .select('*')
         .eq('id', artistId)
         .single();
 
-      if (error) {
-        console.error('Error fetching artist:', error.message);
-      } else {
-        setArtist(data);
+      if (artistError) {
+        console.error('Error fetching artist:', artistError.message);
+        setLoading(false);
+        return;
       }
+      
+      setArtist(artistData);
+
+      // 2. Fetch all existing bookings to block those dates out too!
+      const { data: existingBookings } = await supabase
+        .from('bookings')
+        .select('booking_date')
+        .eq('artist_id', artistId)
+        .in('status', ['confirmed', 'pending']); // Block pending and confirmed
+
+      // 3. Combine manually blocked dates + already booked dates
+      const bookedDates = existingBookings ? existingBookings.map(b => b.booking_date).filter(Boolean) : [];
+      const manuallyBlocked = artistData.blocked_dates || [];
+      
+      // Merge them and remove duplicates
+      setUnavailableDates([...new Set([...bookedDates, ...manuallyBlocked])]);
       setLoading(false);
     }
 
-    fetchArtist();
+    fetchArtistAndBookings();
   }, [artistId]);
+
+  // Generate the next 30 days for our custom calendar UI
+  const next30Days = Array.from({ length: 30 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    // Format to YYYY-MM-DD exactly as it saves in the database
+    return d.toISOString().split('T')[0]; 
+  });
+
+  const handleConfirmBooking = async () => {
+    if (!selectedDate || !selectedTime) return window.alert("Please select a date and time.");
+    setBookingLoading(true);
+
+    try {
+      // Get the current logged-in user (the client)
+      const { data: authData } = await supabase.auth.getUser();
+      const user = authData.user;
+      
+      if (!user) {
+        window.alert("Please log in as a client to book an artist.");
+        setBookingLoading(false);
+        return;
+      }
+
+      // Save the booking to the database
+      const { error } = await supabase.from('bookings').insert({
+        artist_id: artistId,
+        client_id: user.id,
+        booking_date: selectedDate,
+        booking_time: selectedTime,
+        status: 'pending' // Artist has to accept it on their dashboard
+      });
+
+      if (error) throw error;
+
+      window.alert("Booking request sent successfully! The artist will confirm shortly.");
+      setShowBookingModal(false);
+      
+      // Instantly gray this date out on the calendar so no one else can click it
+      setUnavailableDates([...unavailableDates, selectedDate]); 
+      setSelectedDate('');
+
+    } catch (err: any) {
+      window.alert(`Error booking: ${err.message}`);
+    } finally {
+      setBookingLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -95,8 +169,11 @@ export default function ArtistProfile() {
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">Starting Package</p>
               <p className="text-3xl font-bold tracking-tight">₹{artist.starting_price?.toLocaleString() || '15,000'}</p>
             </div>
-            <button onClick={() => window.alert('Booking & Chat feature coming live!')} className="flex items-center justify-center gap-2 border border-black bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#B66CF2] hover:border-[#B66CF2] transition-colors">
-              <MessageSquare size={14} /> Chat & Book Live
+            <button 
+              onClick={() => setShowBookingModal(true)} 
+              className="flex items-center justify-center gap-2 border border-black bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#B66CF2] hover:border-[#B66CF2] transition-colors"
+            >
+              <Calendar size={14} /> View Availability & Book
             </button>
           </div>
         </div>
@@ -118,7 +195,7 @@ export default function ArtistProfile() {
                 </div>
                 <div className="p-6 flex items-center justify-between border-t border-black/10">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Look {index + 1}</span>
-                  <button onClick={() => window.alert(`Enquiring about Look ${index + 1}`)} className="text-[10px] font-bold uppercase tracking-widest text-black hover:text-[#B66CF2] transition-colors">
+                  <button onClick={() => setShowBookingModal(true)} className="text-[10px] font-bold uppercase tracking-widest text-black hover:text-[#B66CF2] transition-colors">
                     Enquire Look ↗
                   </button>
                 </div>
@@ -131,6 +208,90 @@ export default function ArtistProfile() {
           </div>
         )}
       </main>
+
+      {/* SMART BOOKING MODAL */}
+      <AnimatePresence>
+        {showBookingModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowBookingModal(false)}>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              exit={{ opacity: 0, y: 20 }} 
+              className="bg-white border border-black/10 w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]" 
+              onClick={(e) => e.stopPropagation()}
+            >
+              
+              <div className="p-8 border-b border-black/10 flex justify-between items-center bg-white sticky top-0">
+                <div>
+                  <h3 className="text-2xl font-bold lowercase tracking-tight">select date & time.</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-black/40 mt-1">Gray dates are unavailable or already booked.</p>
+                </div>
+                <button onClick={() => setShowBookingModal(false)} className="text-black/30 hover:text-black transition-colors"><X size={24} strokeWidth={1.5} /></button>
+              </div>
+
+              <div className="p-8 overflow-y-auto">
+                {/* 30-DAY ROLLING CALENDAR GRID */}
+                <div className="grid grid-cols-4 sm:grid-cols-7 gap-3 mb-8">
+                  {next30Days.map(dateStr => {
+                    const isBlocked = unavailableDates.includes(dateStr);
+                    const isSelected = selectedDate === dateStr;
+                    const dateObj = new Date(dateStr);
+                    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+                    const dayNum = dateObj.getDate();
+
+                    return (
+                      <button
+                        key={dateStr}
+                        disabled={isBlocked}
+                        onClick={() => setSelectedDate(dateStr)}
+                        className={`flex flex-col items-center justify-center p-3 border transition-all ${
+                          isBlocked 
+                            ? 'bg-black/5 text-black/20 border-transparent cursor-not-allowed line-through' 
+                            : isSelected 
+                              ? 'bg-black text-white border-black scale-105 shadow-md' 
+                              : 'bg-white text-black border-black/20 hover:border-black hover:bg-black/5'
+                        }`}
+                      >
+                        <span className="text-[10px] uppercase font-bold tracking-widest mb-1">{dayName}</span>
+                        <span className="text-xl font-bold">{dayNum}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* TIME SELECTOR */}
+                {selectedDate && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="border-t border-black/10 pt-6">
+                    <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Preferred Start Time</label>
+                    <div className="grid grid-cols-3 gap-4">
+                      {['08:00', '10:00', '14:00', '16:00', '18:00'].map(time => (
+                        <button
+                          key={time}
+                          onClick={() => setSelectedTime(time)}
+                          className={`py-3 text-xs font-bold tracking-widest border transition-all ${selectedTime === time ? 'bg-black text-white border-black' : 'bg-transparent text-black border-black/20 hover:border-black'}`}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              <div className="p-8 border-t border-black/10 bg-[#F9F9F9] sticky bottom-0">
+                <button 
+                  onClick={handleConfirmBooking}
+                  disabled={bookingLoading || !selectedDate}
+                  className="w-full bg-black py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100"
+                >
+                  {bookingLoading ? 'SENDING REQUEST...' : selectedDate ? `REQUEST BOOKING FOR ${new Date(selectedDate).toLocaleDateString()} @ ${selectedTime}` : 'SELECT A DATE TO CONTINUE'}
+                </button>
+              </div>
+
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
