@@ -3,15 +3,20 @@ import { useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { ArtistOnboardingModal } from '@/components/ArtistOnboardingModal';
-import { ArrowLeft, Save, Calendar, MapPin, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, Save, Calendar, MapPin, Sparkles, X, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { User } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
+import { switchGlobalRole } from '@/App';
 
-export default function Dashboard() {
+interface DashboardProps {
+  session: Session | null;
+}
+
+export default function Dashboard({ session }: DashboardProps) {
   const [, setLocation] = useLocation();
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<'client' | 'artist' | null>(null);
-  
+
   // Feature State
   const [portfolio, setPortfolio] = useState<string[]>([]);
   const [uploadingPortfolio, setUploadingPortfolio] = useState(false);
@@ -20,13 +25,15 @@ export default function Dashboard() {
   const [artistProfile, setArtistProfile] = useState<any>(null);
   const [bookings, setBookings] = useState<any[]>([]);
   const [clientBookings, setClientBookings] = useState<any[]>([]);
-  
+
   // UI State
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'logistics' | 'briefs'>('overview');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showRoleSwitchConfirm, setShowRoleSwitchConfirm] = useState(false);
+  const [pendingRole, setPendingRole] = useState<'client' | 'artist' | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -39,14 +46,14 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function loadDashboard() {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Use session from props, or redirect if null
       if (!session) {
         setLocation('/');
         return;
       }
 
       setUser(session.user);
-      
+
       // Check metadata role FIRST
       const metaRole = session.user.user_metadata?.role;
       setRole(metaRole || null);
@@ -134,39 +141,34 @@ export default function Dashboard() {
     }
 
     loadDashboard();
-  }, [setLocation]);
+  }, [session, setLocation]);
+
+  // ==========================================
+  // ROLE SWITCHING (from Dashboard)
+  // ==========================================
+  const handleRequestRoleSwitch = (targetRole: 'client' | 'artist') => {
+    if (targetRole === role) return;
+    setPendingRole(targetRole);
+    setShowRoleSwitchConfirm(true);
+  };
+
+  const confirmRoleSwitch = async () => {
+    if (!pendingRole || !user) return;
+    await switchGlobalRole(pendingRole, user.id, setUpdating);
+    // Page will reload on success
+  };
 
   const handleSelectRole = async (selectedRole: 'client' | 'artist') => {
+    // This is for initial onboarding only (when role is null)
+    if (!user) return;
     setUpdating(true);
-    
-    // Save to metadata
-    const { data, error } = await supabase.auth.updateUser({
-      data: { role: selectedRole }
-    });
-    
-    // Also sync to profiles table so older logic doesn't break
-    if (user) {
-      await supabase.from('profiles').update({ role: selectedRole }).eq('id', user.id);
-      if (selectedRole === 'artist') {
-        // Create an empty artist profile to prevent foreign key errors
-        await supabase.from('artist_profiles').upsert({ id: user.id });
-      }
-    }
-
-    if (!error && data.user) {
-      // Reloading the page cleanly initializes all their new tables and data
-      window.location.reload();
-    } else {
-      console.error(error);
-      window.alert("Failed to set account type. Please try again.");
-      setUpdating(false);
-    }
+    await switchGlobalRole(selectedRole, user.id, setUpdating);
   };
 
   const handleSaveLogistics = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-  
+
     const { error } = await supabase
       .from('artist_profiles')
       .update({
@@ -177,9 +179,9 @@ export default function Dashboard() {
         starting_price: formData.starting_price,
       })
       .eq('id', profile.id);
-  
+
     setSaving(false);
-  
+
     if (error) {
       window.alert(`Error saving: ${error.message}`);
     } else {
@@ -187,35 +189,35 @@ export default function Dashboard() {
       setArtistProfile({ ...artistProfile, ...formData });
     }
   };
-  
+
   const handleAddPortfolioImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
-  
+
     setUploadingPortfolio(true);
     try {
       const fileExt = file.name.split('.').pop();
       const filePath = `${profile.id}/portfolio-${Date.now()}.${fileExt}`;
-  
+
       const { error: uploadError } = await supabase.storage
         .from('portfolios')
         .upload(filePath, file, { upsert: true });
-  
+
       if (uploadError) throw uploadError;
-  
+
       const { data: publicUrlData } = supabase.storage
         .from('portfolios')
         .getPublicUrl(filePath);
-  
+
       const updatedPortfolio = [...portfolio, publicUrlData.publicUrl];
-  
+
       const { error: updateError } = await supabase
         .from('artist_profiles')
         .update({ portfolio: updatedPortfolio })
         .eq('id', profile.id);
-  
+
       if (updateError) throw updateError;
-  
+
       setPortfolio(updatedPortfolio);
     } catch (err: any) {
       window.alert(`Failed to upload image: ${err.message}`);
@@ -224,16 +226,16 @@ export default function Dashboard() {
       e.target.value = '';
     }
   };
-  
+
   const handleRemovePortfolioImage = async (urlToRemove: string) => {
     if (!profile) return;
     const updatedPortfolio = portfolio.filter((url) => url !== urlToRemove);
-  
+
     const { error } = await supabase
       .from('artist_profiles')
       .update({ portfolio: updatedPortfolio })
       .eq('id', profile.id);
-  
+
     if (error) {
       window.alert(`Failed to remove image: ${error.message}`);
     } else {
@@ -266,6 +268,7 @@ export default function Dashboard() {
 
   // ==========================================
   // 1. THE FORK IN THE ROAD (ONBOARDING)
+  // Only shown if user has no role set
   // ==========================================
   if (!role) {
     return (
@@ -325,7 +328,43 @@ export default function Dashboard() {
           <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
             <ArrowLeft size={14} /> Back to Directory
           </button>
+
+          {/* ROLE SWITCHER UI */}
           <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-2 bg-black/5 rounded-full p-1">
+              <button
+                onClick={() => handleRequestRoleSwitch('client')}
+                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
+                  role === 'client' 
+                    ? 'bg-black text-white shadow-sm' 
+                    : 'text-black/50 hover:text-black hover:bg-black/10'
+                }`}
+              >
+                Client
+              </button>
+              <button
+                onClick={() => handleRequestRoleSwitch('artist')}
+                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
+                  role === 'artist' 
+                    ? 'bg-black text-white shadow-sm' 
+                    : 'text-black/50 hover:text-black hover:bg-black/10'
+                }`}
+              >
+                Artist
+              </button>
+            </div>
+
+            {/* Mobile role indicator + switch */}
+            <div className="sm:hidden">
+              <button
+                onClick={() => handleRequestRoleSwitch(role === 'client' ? 'artist' : 'client')}
+                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 hover:text-black transition-colors"
+              >
+                <RefreshCw size={12} />
+                {role === 'client' ? 'Switch to Artist' : 'Switch to Client'}
+              </button>
+            </div>
+
             <span className="text-[10px] font-bold uppercase tracking-[0.3em] bg-black/5 px-4 py-2 text-[#B66CF2]">
               {role === 'artist' ? 'Artist Studio Hub' : 'Client Hub'}
             </span>
@@ -335,6 +374,49 @@ export default function Dashboard() {
           </div>
         </div>
       </header>
+
+      {/* ROLE SWITCH CONFIRMATION MODAL */}
+      {showRoleSwitchConfirm && pendingRole && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowRoleSwitchConfirm(false)}>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white border border-black/10 p-8 sm:p-12 max-w-md w-full mx-4 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-8">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2] mb-2">Switch Account Type</p>
+                <h3 className="text-2xl font-bold lowercase tracking-tight">switch to {pendingRole}?</h3>
+              </div>
+              <button onClick={() => setShowRoleSwitchConfirm(false)} className="text-black/30 hover:text-black transition-colors">
+                <X size={20} strokeWidth={1.5} />
+              </button>
+            </div>
+
+            <p className="text-sm text-black/60 leading-relaxed mb-8">
+              You are about to switch from <strong className="text-black">{role}</strong> to <strong className="text-black">{pendingRole}</strong>. 
+              Your dashboard will reload with the new interface. All your data remains intact.
+            </p>
+
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setShowRoleSwitchConfirm(false)}
+                className="flex-1 border border-black/20 bg-transparent px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:border-black hover:text-black transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmRoleSwitch}
+                disabled={updating}
+                className="flex-1 border border-black bg-black px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#B66CF2] hover:border-[#B66CF2] transition-colors disabled:opacity-50"
+              >
+                {updating ? 'Switching...' : 'Confirm Switch'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       <main className="mx-auto max-w-[1400px] px-6 py-12 sm:px-12">
         <h1 className="text-5xl sm:text-7xl font-bold lowercase tracking-tight">welcome, {displayFirstName}.</h1>

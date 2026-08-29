@@ -1138,11 +1138,47 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
   );
 }
 
+
+// ==========================================
+// GLOBAL ROLE SWITCHER (can be called from Dashboard)
+// ==========================================
+export async function switchGlobalRole(
+  selectedRole: 'client' | 'artist',
+  userId: string,
+  setUpdating?: (v: boolean) => void
+) {
+  if (setUpdating) setUpdating(true);
+
+  try {
+    const { data, error } = await supabase.auth.updateUser({
+      data: { role: selectedRole }
+    });
+
+    if (error) throw error;
+
+    // Sync to profiles table
+    await supabase.from('profiles').update({ role: selectedRole }).eq('id', userId);
+
+    if (selectedRole === 'artist') {
+      await supabase.from('artist_profiles').upsert({ id: userId });
+    }
+
+    // Hard reload to re-initialize everything cleanly
+    window.location.reload();
+  } catch (err: any) {
+    console.error('Role switch failed:', err);
+    window.alert(`Failed to switch role: ${err.message}`);
+    if (setUpdating) setUpdating(false);
+  }
+}
+
+// ==========================================
+// APP (Root Component)
+// ==========================================
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
   const [updatingRole, setUpdatingRole] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -1157,26 +1193,14 @@ export default function App() {
   }, []);
 
   const handleGlobalSelectRole = async (selectedRole: 'client' | 'artist') => {
-    setUpdatingRole(true);
-    const { data, error } = await supabase.auth.updateUser({
-      data: { role: selectedRole }
-    });
-    if (session?.user) {
-      await supabase.from('profiles').update({ role: selectedRole }).eq('id', session.user.id);
-      if (selectedRole === 'artist') {
-        await supabase.from('artist_profiles').upsert({ id: session.user.id });
-      }
-    }
-    if (!error && data.user) {
-      window.location.reload();
-    } else {
-      setUpdatingRole(false);
-    }
+    if (!session?.user) return;
+    await switchGlobalRole(selectedRole, session.user.id, setUpdatingRole);
   };
 
   // ==========================================
   // GLOBAL ONBOARDING INTERCEPTOR
-  // If signed in but no role chosen yet, take over!
+  // Runs BEFORE any routing. If user is logged in but has no role,
+  // this takes over the entire screen immediately.
   // ==========================================
   if (!loadingSession && session && !session.user.user_metadata?.role) {
     return (
@@ -1226,7 +1250,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <Router />
+          <Router session={session} />
         </WouterRouter>
         <Toaster />
       </TooltipProvider>
@@ -1234,25 +1258,17 @@ export default function App() {
   );
 }
 
-function Router() {
+// ==========================================
+// ROUTER (Receives session from App)
+// ==========================================
+function Router({ session }: { session: Session | null }) {
   const [authOpen, setAuthOpen] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
 
   return (
     <ErrorBoundary resetKey={useLocation()[0]}>
       <Switch>
         <Route path="/" component={() => <Home session={session} setAuthOpen={setAuthOpen} />} />
-        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/dashboard" component={() => <Dashboard session={session} />} />
         <Route path="/beauty-demo" component={BeautyDemo} />
         <Route component={NotFound} />
       </Switch>
