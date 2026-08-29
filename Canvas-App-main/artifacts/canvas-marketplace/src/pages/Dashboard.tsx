@@ -370,7 +370,7 @@ export default function Dashboard({ session }: DashboardProps) {
 
       <ArtistOnboardingModal open={showOnboarding} userId={profile?.id} onComplete={() => window.location.reload()} />
       
-      {/* ESCAPE HATCH: Lets users trapped in onboarding switch back to Client */}
+      {/* ESCAPE HATCH */}
       {showOnboarding && (
         <div className="fixed top-6 left-6 z-[9999]">
           <button 
@@ -386,3 +386,10 @@ export default function Dashboard({ session }: DashboardProps) {
           </button>
         </div>
       )}
+
+      {activeChatBooking && (
+        <ChatDrawer open={Boolean(activeChatBooking)} bookingId={activeChatBooking.id} currentUserId={user?.id || ''} otherPartyName={role === 'artist' ? (activeChatBooking.client?.full_name || 'Client') : 'Artist Studio'} onClose={() => setActiveChatBooking(null)} />
+      )}
+    </div>
+  );
+}
