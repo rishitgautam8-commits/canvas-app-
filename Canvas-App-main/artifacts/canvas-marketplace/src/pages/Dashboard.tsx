@@ -201,6 +201,7 @@ export default function Dashboard({ session }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-[#F9F9F9] text-black pb-24">
+      <div className="bg-red-600 text-white text-center py-4 font-bold text-xl uppercase"></div>
       <header className="border-b border-black/10 bg-white px-6 py-6 sm:px-12 sticky top-0 z-50">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">
           <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
