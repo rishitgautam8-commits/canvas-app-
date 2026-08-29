@@ -947,6 +947,9 @@ function Router({ session }: { session: Session | null }) {
           {() => <Dashboard session={session} />}
         </Route>
         <Route path="/beauty-demo" component={BeautyDemo} />
+        <Route path="/artist/:id">
+  {() => <BeautyDemo />}
+</Route>
         <Route component={NotFound} />
       </Switch>
 
