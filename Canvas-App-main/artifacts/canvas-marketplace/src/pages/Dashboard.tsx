@@ -145,8 +145,12 @@ export default function Dashboard({ session }: DashboardProps) {
     setSaving(true);
 
     try {
+      // 1. BULLETPROOF FIX: Guarantee the base profile exists before attaching artist info
+      await supabase.from('profiles').upsert({ id: session.user.id }, { onConflict: 'id' });
+
+      // 2. Now save the artist profile
       const { error } = await supabase.from('artist_profiles').upsert({
-        id: session.user.id, // Ensures it creates the row if it's missing
+        id: session.user.id,
         business_name: formData.business_name,
         category: formData.category,
         qualifications: formData.qualifications,
