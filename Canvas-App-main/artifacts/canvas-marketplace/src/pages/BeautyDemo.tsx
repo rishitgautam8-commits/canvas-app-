@@ -1,85 +1,136 @@
-import { Search, ShoppingBag, Menu } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useRoute, useLocation } from 'wouter';
+import { supabase } from '@/lib/supabase';
+import { ArrowLeft, CheckCircle2, MessageSquare, Star, MapPin, Award, Clock } from 'lucide-react';
 
-export default function BeautyDemo() {
-  return (
-    <div className="min-h-screen bg-white text-neutral-900 font-sans selection:bg-rose-200">
-      
-      {/* ANNOUNCEMENT BAR */}
-      <div className="bg-[#f9eaea] text-center py-2.5 text-[10px] sm:text-xs font-medium tracking-[0.2em] uppercase text-neutral-800">
-        Free shipping on all orders over $100
+export default function ArtistProfile() {
+  const [, params] = useRoute('/artist/:id');
+  const [, setLocation] = useLocation();
+  const [artist, setArtist] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const artistId = params?.id;
+
+  useEffect(() => {
+    async function fetchArtist() {
+      if (!artistId) return;
+      const { data, error } = await supabase
+        .from('artist_profiles')
+        .select('*')
+        .eq('id', artistId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching artist:', error.message);
+      } else {
+        setArtist(data);
+      }
+      setLoading(false);
+    }
+
+    fetchArtist();
+  }, [artistId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center">
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/40 animate-pulse">Loading Artist Profile...</p>
       </div>
+    );
+  }
 
-      {/* HEADER */}
-      <header className="px-6 md:px-12 py-5 flex items-center justify-between border-b border-neutral-100 sticky top-0 bg-white z-50">
-        <div className="md:hidden">
-          <Menu size={24} className="text-neutral-800" />
-        </div>
-        
-        <div className="text-center md:text-left flex-1 md:flex-none">
-          <h1 className="font-serif text-2xl tracking-widest uppercase font-bold text-neutral-900">
-            Beauty<br/><span className="text-[10px] tracking-[0.3em] font-sans font-normal">And Co.</span>
-          </h1>
-        </div>
+  if (!artist) {
+    return (
+      <div className="min-h-screen bg-[#F9F9F9] flex flex-col items-center justify-center p-6 text-center">
+        <h2 className="text-3xl font-bold lowercase tracking-tight mb-4">artist not found.</h2>
+        <button onClick={() => setLocation('/')} className="border border-black bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+          Back to Directory
+        </button>
+      </div>
+    );
+  }
 
-        <nav className="hidden md:flex items-center gap-8 text-[13px] uppercase tracking-widest font-medium text-neutral-600">
-          <a href="#" className="text-neutral-900 border-b border-neutral-900 pb-1">Home</a>
-          <a href="#" className="hover:text-neutral-900 transition-colors">Catalog</a>
-          <a href="#" className="hover:text-neutral-900 transition-colors">Contact</a>
-        </nav>
-
-        <div className="flex items-center gap-5">
-          <Search size={20} className="text-neutral-800 cursor-pointer hover:text-rose-400 transition-colors" />
-          <ShoppingBag size={20} className="text-neutral-800 cursor-pointer hover:text-rose-400 transition-colors" />
+  return (
+    <div className="min-h-screen bg-[#F9F9F9] text-black pb-24">
+      {/* HEADER NAV */}
+      <header className="border-b border-black/10 bg-white px-6 py-6 sm:px-12 sticky top-0 z-50">
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between">
+          <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
+            <ArrowLeft size={14} /> Back to Directory
+          </button>
+          <div className="flex items-center gap-3">
+            <span className="rounded-full bg-black/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/70">Verified Studio</span>
+          </div>
         </div>
       </header>
 
-      {/* HERO SECTION */}
-      <section className="flex flex-col md:flex-row items-center bg-[#fdf8f8] min-h-[500px]">
-        <div className="w-full md:w-1/2 h-[300px] md:h-[600px]">
-          <img 
-            src="https://images.unsplash.com/photo-1615397323861-12501a4e101f?auto=format&fit=crop&w=1000&q=80" 
-            alt="Skincare Model" 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <div className="w-full md:w-1/2 p-10 md:p-20 text-center md:text-left flex flex-col justify-center">
-          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-neutral-900 mb-6 leading-tight">
-            New Cleansers, <br/>Toners & Lip Oils
-          </h2>
-          <p className="text-neutral-600 text-sm md:text-base mb-8 max-w-md mx-auto md:mx-0 leading-relaxed">
-            Shop our new line of cleansers, toners, lip products and more! Formulated for sensitive skin and combination skin.
-          </p>
-          <div>
-            <button className="bg-neutral-900 text-white px-10 py-4 text-xs tracking-[0.2em] uppercase font-bold hover:bg-rose-300 transition-colors">
-              Shop Now
+      {/* ARTIST HERO SECTION */}
+      <section className="bg-white border-b border-black/10 py-16 px-6 sm:px-12">
+        <div className="mx-auto max-w-[1400px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+          <div className="flex items-center gap-6">
+            <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-black/10 flex items-center justify-center text-3xl font-bold uppercase text-black/40 border border-black/10 overflow-hidden">
+              {artist.business_name?.charAt(0) || 'A'}
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <h1 className="text-3xl sm:text-5xl font-bold lowercase tracking-tight">{artist.business_name || 'Artist Studio'}</h1>
+                <CheckCircle2 className="text-[#B66CF2]" size={24} />
+              </div>
+              <p className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-black/50 mb-4">
+                <span className="flex items-center gap-1"><MapPin size={14} /> {artist.city || 'Hyderabad'}</span>
+                {artist.years_experience && <span className="flex items-center gap-1"><Clock size={14} /> {artist.years_experience} yrs experience</span>}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {artist.category && artist.category.split(',').map((spec: string, i: number) => (
+                  <span key={i} className="border border-black/20 bg-black/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-black/70">
+                    {spec.trim()}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row md:flex-col gap-4 w-full md:w-auto">
+            <div className="text-left md:text-right">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">Starting Package</p>
+              <p className="text-3xl font-bold tracking-tight">₹{artist.starting_price?.toLocaleString() || '15,000'}</p>
+            </div>
+            <button onClick={() => window.alert('Booking & Chat feature coming live!')} className="flex items-center justify-center gap-2 border border-black bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#B66CF2] hover:border-[#B66CF2] transition-colors">
+              <MessageSquare size={14} /> Chat & Book Live
             </button>
           </div>
         </div>
       </section>
 
-      {/* CATEGORIES */}
-      <section className="py-20 px-6 md:px-12 max-w-7xl mx-auto">
-        <h3 className="font-serif text-3xl mb-12 text-center md:text-left">Collections</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {[
-            { name: "Cleansers", img: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&w=400&q=80" },
-            { name: "Toners", img: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=400&q=80" },
-            { name: "Jade Rollers", img: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=400&q=80" },
-            { name: "Makeup", img: "https://images.unsplash.com/photo-1596462502278-27bf85033e5a?auto=format&fit=crop&w=400&q=80" },
-            { name: "Moisturizers", img: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80" },
-            { name: "Eye Cream", img: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=400&q=80" },
-          ].map((cat, i) => (
-            <div key={i} className="group cursor-pointer text-center">
-              <div className="aspect-square bg-[#fdf8f8] mb-4 overflow-hidden rounded-sm">
-                <img src={cat.img} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              </div>
-              <p className="text-xs uppercase tracking-widest font-medium text-neutral-800 flex items-center justify-center gap-1 group-hover:text-rose-400 transition-colors">
-                {cat.name} <span className="text-[10px]">→</span>
-              </p>
-            </div>
-          ))}
+      {/* PORTFOLIO GRID */}
+      <main className="mx-auto max-w-[1400px] px-6 py-16 sm:px-12">
+        <div className="mb-10">
+          <h2 className="text-3xl font-bold lowercase tracking-tight">verified portfolio.</h2>
+          <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">Real client work showcasing signature aesthetic and technical execution.</p>
         </div>
-      </section>
+
+        {artist.portfolio && artist.portfolio.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {artist.portfolio.map((imgUrl: string, index: number) => (
+              <div key={index} className="bg-white border border-black/10 overflow-hidden shadow-sm group">
+                <div className="aspect-[4/5] bg-black/5 overflow-hidden">
+                  <img src={imgUrl} alt="Portfolio work" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                </div>
+                <div className="p-6 flex items-center justify-between border-t border-black/10">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Look {index + 1}</span>
+                  <button onClick={() => window.alert(`Enquiring about Look ${index + 1}`)} className="text-[10px] font-bold uppercase tracking-widest text-black hover:text-[#B66CF2] transition-colors">
+                    Enquire Look ↗
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="border border-dashed border-black/20 bg-white p-12 text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-black/40">No portfolio photos uploaded yet.</p>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
