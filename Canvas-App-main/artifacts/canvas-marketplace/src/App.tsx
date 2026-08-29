@@ -178,7 +178,7 @@ async function analyzeLookWithAI(file: File): Promise<string[]> {
 }
 
 // ==========================================
-// HOME COMPONENT — receives session as prop
+// HOME COMPONENT
 // ==========================================
 interface HomeProps {
   session: Session | null;
@@ -258,7 +258,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
             location: `${item.city || 'Jubilee Hills'}, Hyderabad`,
             maxTravelKm: item.max_travel_km || 25,
             pricePerSession: item.starting_price || 15000,
-            startingPrice: `₹${(item.starting_price || 15000).toLocaleString('en-IN')}`,
+            startingPrice: `₹{(item.starting_price || 15000).toLocaleString('en-IN')}`,
             rating: 4.9,
             reviewCount: 24 + (index % 40),
             reviewsCount: 24 + (index % 40),
@@ -288,7 +288,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
         if (artists && artists.length > 0) {
           const validPrices = artists.map((a: any) => a.starting_price).filter((p: number) => p > 0);
           if (validPrices.length > 0) {
-            avgPrice = Math.round(validPrices.reduce((a, b) => a + b, 0) / validPrices.length);
+            avgPrice = Math.round(validPrices.reduce((a: number, b: number) => a + b, 0) / validPrices.length);
           }
         }
         const { count: bookingCount } = await supabase
@@ -321,7 +321,6 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
   const [briefOpen, setBriefOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
 
-  // Listen for global auth trigger from Router
   useEffect(() => {
     const handler = () => setAuthOpen(true);
     window.addEventListener('canvas:open-auth', handler);
@@ -459,7 +458,6 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
 
   return (
     <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
-      {/* NAVIGATION */}
       <motion.nav 
         animate={{ y: (isChatOpen || isHeaderHidden) ? -120 : 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
@@ -473,14 +471,8 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
 
         <div className="flex items-center justify-center cursor-pointer group" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-2.5">
-            <img 
-              src="/logo.png" 
-              alt="Canvas Logo" 
-              className="w-10 h-10 md:w-12 md:h-12 object-contain transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 group-hover:drop-shadow-[0_4px_12px_rgba(182,108,242,0.3)]" 
-            />
-            <span className="text-2xl md:text-3xl font-bold lowercase tracking-[-0.04em] text-black transition-colors duration-500 group-hover:text-[#B66CF2]">
-              canvas
-            </span>
+            <img src="/logo.png" alt="Canvas Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 group-hover:drop-shadow-[0_4px_12px_rgba(182,108,242,0.3)]" />
+            <span className="text-2xl md:text-3xl font-bold lowercase tracking-[-0.04em] text-black transition-colors duration-500 group-hover:text-[#B66CF2]">canvas</span>
           </div>
         </div>
 
@@ -513,7 +505,6 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
         )}
       </AnimatePresence>
 
-      {/* HERO */}
       <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[100px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
@@ -532,17 +523,8 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
               The exclusive AI-powered bridal and beauty booking platform for Hyderabad and Cyberabad.
             </p>
             <div className="flex gap-4 flex-wrap">
-              <button onClick={() => scrollTo('demo-search')} className="bg-[var(--canvas-g)] hover:bg-[#D9B86E] text-[var(--canvas-dp)] px-8 py-3.5 rounded-lg text-[14px] font-medium transition-all shadow-[0_10px_30px_-8px_rgba(201,164,99,0.4)] hover:-translate-y-0.5">Try the Live Demo →</button>
+              <button onClick={() => scrollTo('demo-search')} className="bg-[var(--canvas-g)] hover:bg-[#D9B86E] text-[var(--canvas-dp)] px-8 py-3.5 rounded-lg text-[14px] font-medium transition-all shadow-[0_10px_30px_-8px_rgba(201,164,99,0.4)] hover:-translate-y-0.5">Try the Live Demo</button>
               <button onClick={() => scrollTo('how-it-works')} className="bg-transparent hover:bg-[rgba(201,164,99,0.12)] border border-[var(--canvas-g)] text-[var(--canvas-gd)] px-7 py-3 rounded-lg text-[14px] transition-all hover:-translate-y-0.5">How it works</button>
-            </div>
-            <div className="flex items-center gap-3 mt-10">
-              <div className="flex">
-                <div className="w-8 h-8 rounded-full border-2 border-[var(--canvas-iv)] flex items-center justify-center text-[10px] font-semibold bg-[#EDE0F5] text-[#6B2D8B] -ml-0 shadow-sm z-40">PK</div>
-                <div className="w-8 h-8 rounded-full border-2 border-[var(--canvas-iv)] flex items-center justify-center text-[10px] font-semibold bg-[#2D0A3E] text-[#C4A8D4] -ml-2 shadow-sm z-30">TU</div>
-                <div className="w-8 h-8 rounded-full border-2 border-[var(--canvas-iv)] flex items-center justify-center text-[10px] font-semibold bg-[#F7E7B3] text-[#8B6914] -ml-2 shadow-sm z-20">GA</div>
-                <div className="w-8 h-8 rounded-full border-2 border-[var(--canvas-iv)] flex items-center justify-center text-[10px] font-semibold bg-[#6B2D8B] text-[#EDE0F5] -ml-2 shadow-sm z-10">ER</div>
-              </div>
-              <p className="text-[12.5px] text-[var(--canvas-mut)]"><strong className="text-[var(--canvas-rp)] font-semibold">Verified premium artists</strong> across Hyderabad</p>
             </div>
           </div>
         </ScrollZoomIn>
@@ -554,7 +536,6 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
         </ScrollZoom>
       </section>
 
-      {/* CANVAS WAY */}
       <section id="how-it-works" className="canvas-way border-y border-[var(--gold)]/20">
         <div className="max-w-[1400px] mx-auto">
           <ScrollZoomIn>
@@ -565,7 +546,6 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
             </div>
             <h2 className="canvas-way-title !capitalize">Stop Guessing. Start Matching.</h2>
           </ScrollZoomIn>
-
           <div className="steps-grid">
             <div className="step">
               <ScrollZoom delay={0}><div className="step-icon">I</div></ScrollZoom>
@@ -586,23 +566,15 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
         </div>
       </section>
 
-      {/* SEARCH */}
       <section id="demo-search" className="relative z-20 bg-[var(--bg-beige)] py-24 border-b border-[var(--border-light)]">
         <ScrollZoomIn>
           <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12">
-            <HeroSearch
-              value={search}
-              onChange={handleSearchChange}
-              onSubmit={(vals) => { setSearch(vals); setHasSearched(true); scrollTo('discover'); }}
-              isAuthenticated={!!session}
-              onAuthRequired={onAuthRequired}
-            />
+            <HeroSearch value={search} onChange={handleSearchChange} onSubmit={(vals) => { setSearch(vals); setHasSearched(true); scrollTo('discover'); }} isAuthenticated={!!session} onAuthRequired={onAuthRequired} />
           </div>
         </ScrollZoomIn>
       </section>
 
       <main className="relative z-20">
-        {/* STATS BAR */}
         <ScrollZoomIn className="stats-bar">
           <div className="stat">
             <ScrollZoom><div className="stat-number">{sourceArtists.length}</div></ScrollZoom>
@@ -620,12 +592,11 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
           </div>
           <div className="stat-divider"></div>
           <div className="stat">
-            <ScrollZoom><div className="stat-number">{platformStats.avgRating}★</div></ScrollZoom>
+            <ScrollZoom><div className="stat-number">{platformStats.avgRating} ★</div></ScrollZoom>
             <ScrollZoomIn delay={100}><div className="stat-label">Platform Avg Rating</div></ScrollZoomIn>
           </div>
         </ScrollZoomIn>
 
-        {/* DISCOVER / ARTIST GRID */}
         <section id="discover" className="bg-white text-black py-24 sm:py-32">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
             <ScrollZoomIn>
@@ -644,11 +615,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
               <div className="mb-12 flex flex-wrap gap-3 border-b border-black/10 pb-8">
                 {discoverCategories.map((cat) => (
                   <button key={cat.id} onClick={() => setSelectedCategoryFilter(cat.id)}
-                    className={`px-6 py-3 text-xs font-bold tracking-[0.15em] uppercase border transition-colors ${
-                      selectedCategoryFilter === cat.id
-                        ? 'border-black bg-black text-white'
-                        : 'border-black/20 bg-transparent text-black/70 hover:border-black hover:text-black'
-                    }`}>
+                    className={`px-6 py-3 text-xs font-bold tracking-[0.15em] uppercase border transition-colors ${selectedCategoryFilter === cat.id ? 'border-black bg-black text-white' : 'border-black/20 bg-transparent text-black/70 hover:border-black hover:text-black'}`}>
                     {cat.label}
                   </button>
                 ))}
@@ -687,8 +654,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
               <ScrollZoomIn className="lg:col-span-1 bg-[#F9F9F9] border border-black/10 p-6 space-y-8 sticky top-8">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-black/70 mb-3">Sort by</label>
-                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full bg-white border border-black/20 p-3 text-xs font-bold uppercase tracking-wider text-black outline-none cursor-pointer">
+                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full bg-white border border-black/20 p-3 text-xs font-bold uppercase tracking-wider text-black outline-none cursor-pointer">
                     <option value="Best match">Best match</option>
                     <option value="Highest rated">Highest rated</option>
                     <option value="Price: low to high">Price: low to high</option>
@@ -700,8 +666,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                     <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-black/70">Max Budget</label>
                     <span className="text-xs font-bold text-[#B66CF2]">₹{maxBudget.toLocaleString('en-IN')}</span>
                   </div>
-                  <input type="range" min="5000" max="65000" step="1000" value={maxBudget}
-                    onChange={(e) => setMaxBudget(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+                  <input type="range" min="5000" max="65000" step="1000" value={maxBudget} onChange={(e) => setMaxBudget(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                   <p className="text-[10px] text-black/50 mt-1 uppercase tracking-wider">Up to ₹{maxBudget.toLocaleString('en-IN')}</p>
                 </div>
                 <div className="mb-10">
@@ -709,18 +674,12 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                   <div className="space-y-4">
                     {Object.keys(cityFilters).map((city) => (
                       <label key={city} className="flex cursor-pointer items-center group">
-                        <div onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))}
-                          className={`mr-4 flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border ${
-                            cityFilters[city] ? 'border-[#BA965B] bg-[#BA965B]' : 'border-[#E7DCC8] group-hover:border-[#BA965B]'
-                          } transition-colors`}>
+                        <div onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))} className={`mr-4 flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border ${cityFilters[city] ? 'border-[#BA965B] bg-[#BA965B]' : 'border-[#E7DCC8] group-hover:border-[#BA965B]'} transition-colors`}>
                           {cityFilters[city] && (
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                           )}
                         </div>
-                        <span onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))}
-                          className={`text-[11px] font-bold uppercase tracking-wider ${cityFilters[city] ? 'text-[#150420]' : 'text-[#5C3D6E]/60'} transition-colors`}>
-                          {city}
-                        </span>
+                        <span onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))} className={`text-[11px] font-bold uppercase tracking-wider ${cityFilters[city] ? 'text-[#150420]' : 'text-[#5C3D6E]/60'} transition-colors`}>{city}</span>
                       </label>
                     ))}
                   </div>
@@ -729,36 +688,22 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
 
               <div className="lg:col-span-3">
                 <ScrollZoomIn>
-                  <p className="text-xs font-bold uppercase tracking-widest text-black/50 mb-6">
-                    Showing {uniqueArtists.length} of {sourceArtists.length} artists
-                  </p>
+                  <p className="text-xs font-bold uppercase tracking-widest text-black/50 mb-6">Showing {uniqueArtists.length} of {sourceArtists.length} artists</p>
                 </ScrollZoomIn>
-
                 <motion.div style={{ y: gridY, willChange: 'transform' }}>
                   {uniqueArtists.length > 0 ? (
                     <>
                       <div className="grid gap-x-6 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
                         {uniqueArtists.slice(0, visibleCount).map((artist, index) => (
                           <ScrollZoom key={artist.id || index} delay={index * 80}>
-                            <ArtistCard
-                              name={artist.name}
-                              image={artist.image}
-                              hoverImage={artist.hoverImage}
-                              portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)}
-                              startingPrice={artist.startingPrice}
-                              tags={artist.tags}
-                              onClick={() => handleSelectArtist(artist)}
-                            />
+                            <ArtistCard name={artist.name} image={artist.image} hoverImage={artist.hoverImage} portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)} startingPrice={artist.startingPrice} tags={artist.tags} onClick={() => handleSelectArtist(artist)} />
                           </ScrollZoom>
                         ))}
                       </div>
                       {visibleCount < uniqueArtists.length && (
                         <ScrollZoomIn>
                           <div className="mt-16 flex justify-center">
-                            <button type="button" onClick={() => setVisibleCount(prev => prev + 9)}
-                              className="border border-[var(--canvas-g)] text-[var(--canvas-gd)] px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[var(--canvas-g)] hover:text-[var(--canvas-dp)] transition-colors shadow-sm">
-                              Load More Artists
-                            </button>
+                            <button type="button" onClick={() => setVisibleCount(prev => prev + 9)} className="border border-[var(--canvas-g)] text-[var(--canvas-gd)] px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[var(--canvas-g)] hover:text-[var(--canvas-dp)] transition-colors shadow-sm">Load More Artists</button>
                           </div>
                         </ScrollZoomIn>
                       )}
@@ -768,13 +713,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                       <div className="flex min-h-[300px] flex-col items-center justify-center border border-[var(--canvas-bd)] bg-white px-6 text-center shadow-sm">
                         <p className="text-3xl font-bold lowercase tracking-tight text-[var(--canvas-rp)]">no artists found</p>
                         <p className="mt-4 max-w-sm text-sm text-[var(--canvas-mut)] uppercase tracking-widest">Adjust your budget or city filters</p>
-                        <button type="button" onClick={() => {
-                          setMaxBudget(65000);
-                          setCityFilters({ 'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true, 'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true, 'Begumpet': true, 'Secunderabad': true });
-                          setVisibleCount(9);
-                        }} className="mt-8 border border-[var(--canvas-rp)] bg-[var(--canvas-rp)] px-8 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-transparent hover:text-[var(--canvas-rp)] transition-colors">
-                          Reset Filters
-                        </button>
+                        <button type="button" onClick={() => { setMaxBudget(65000); setCityFilters({ 'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true, 'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true, 'Begumpet': true, 'Secunderabad': true }); setVisibleCount(9); }} className="mt-8 border border-[var(--canvas-rp)] bg-[var(--canvas-rp)] px-8 py-3 text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-transparent hover:text-[var(--canvas-rp)] transition-colors">Reset Filters</button>
                       </div>
                     </ScrollZoomIn>
                   )}
@@ -784,23 +723,17 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
           </div>
         </section>
 
-        {/* CANVAS STANDARD */}
         <section id="standard" className="bg-[#F9F9F9] text-black py-24 sm:py-32 border-t border-black/5">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-end mb-24">
               <ScrollZoomIn className="lg:col-span-8">
                 <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-8">The Canvas Standard</p>
-                <h2 className="text-5xl sm:text-7xl md:text-8xl font-bold capitalize text-black leading-[1.1] tracking-tight">
-                  Beauty Is A Point Of View.
-                </h2>
+                <h2 className="text-5xl sm:text-7xl md:text-8xl font-bold capitalize text-black leading-[1.1] tracking-tight">Beauty Is A Point Of View.</h2>
               </ScrollZoomIn>
               <ScrollZoomIn className="lg:col-span-4 pb-3" delay={150}>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] leading-[2] text-black/50">
-                  Canvas is a private directory, not an open marketplace. Every artist on this platform has been rigorously vetted for their technical execution, kit hygiene, and distinct aesthetic vision.
-                </p>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] leading-[2] text-black/50">Canvas is a private directory, not an open marketplace. Every artist on this platform has been rigorously vetted for their technical execution, kit hygiene, and distinct aesthetic vision.</p>
               </ScrollZoomIn>
             </div>
-
             <div className="grid gap-12 border-t-[3px] border-black pt-12 sm:grid-cols-3">
               <ScrollZoomIn delay={0}>
                 <div className="group cursor-default">
@@ -808,9 +741,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                     <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Curated Talent</h3>
                     <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">01</p>
                   </div>
-                  <p className="text-sm font-medium leading-relaxed text-black/60">
-                    <strong className="text-black">Distinct hand, not a uniform finish.</strong> We reject cookie-cutter application, selecting artists exclusively for their unique ability to elevate natural features.
-                  </p>
+                  <p className="text-sm font-medium leading-relaxed text-black/60"><strong className="text-black">Distinct hand, not a uniform finish.</strong> We reject cookie-cutter application, selecting artists exclusively for their unique ability to elevate natural features.</p>
                 </div>
               </ScrollZoomIn>
               <ScrollZoomIn delay={120}>
@@ -819,9 +750,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                     <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">The Experience</h3>
                     <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">02</p>
                   </div>
-                  <p className="text-sm font-medium leading-relaxed text-black/60">
-                    <strong className="text-black">Care in the details and generosity.</strong> From high-end skin prep to impeccable kit hygiene, our standard for client comfort is non-negotiable.
-                  </p>
+                  <p className="text-sm font-medium leading-relaxed text-black/60"><strong className="text-black">Care in the details and generosity.</strong> From high-end skin prep to impeccable kit hygiene, our standard for client comfort is non-negotiable.</p>
                 </div>
               </ScrollZoomIn>
               <ScrollZoomIn delay={240}>
@@ -830,16 +759,13 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                     <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black">Private Network</h3>
                     <p className="text-4xl font-bold text-black/20 transition-colors group-hover:text-[#B66CF2]">03</p>
                   </div>
-                  <p className="text-sm font-medium leading-relaxed text-black/60">
-                    <strong className="text-black">The list is small so it means something.</strong> We prioritize strict quality over volume, eliminating the guesswork of endless scrolling.
-                  </p>
+                  <p className="text-sm font-medium leading-relaxed text-black/60"><strong className="text-black">The list is small so it means something.</strong> We prioritize strict quality over volume, eliminating the guesswork of endless scrolling.</p>
                 </div>
               </ScrollZoomIn>
             </div>
           </div>
         </section>
 
-        {/* TESTIMONIALS */}
         <section className="testimonials">
           <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
             <ScrollZoom>
@@ -850,7 +776,6 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
               </div>
               <h2 className="section-title !capitalize">What People Are Saying</h2>
             </ScrollZoom>
-
             <div className="testimonials-grid">
               <ScrollZoomIn delay={0}>
                 <div className="testimonial-card">
@@ -861,15 +786,11 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                   <ScrollZoom delay={100}>
                     <div className="author">
                       <div className="avatar" style={{ background: '#E8D5F2', color: '#2D1B4E' }}>SR</div>
-                      <div className="author-info">
-                        <div className="name">Sneha R.</div>
-                        <div className="meta">Bridal • Jubilee Hills</div>
-                      </div>
+                      <div className="author-info"><div className="name">Sneha R.</div><div className="meta">Bridal &bull; Jubilee Hills</div></div>
                     </div>
                   </ScrollZoom>
                 </div>
               </ScrollZoomIn>
-
               <ScrollZoomIn delay={120}>
                 <div className="testimonial-card">
                   <div className="stars">★★★★★</div>
@@ -879,15 +800,11 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                   <ScrollZoom delay={100}>
                     <div className="author">
                       <div className="avatar" style={{ background: '#1A0B2E', color: '#C4A35A' }}>KM</div>
-                      <div className="author-info">
-                        <div className="name">Kavya M.</div>
-                        <div className="meta">Editorial • HITEC City</div>
-                      </div>
+                      <div className="author-info"><div className="name">Kavya M.</div><div className="meta">Editorial &bull; HITEC City</div></div>
                     </div>
                   </ScrollZoom>
                 </div>
               </ScrollZoomIn>
-
               <ScrollZoomIn delay={240}>
                 <div className="testimonial-card">
                   <div className="stars">★★★★★</div>
@@ -897,10 +814,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                   <ScrollZoom delay={100}>
                     <div className="author">
                       <div className="avatar" style={{ background: '#F5E6C8', color: '#2D1B4E' }}>TP</div>
-                      <div className="author-info">
-                        <div className="name">Tara P.</div>
-                        <div className="meta">Glam • Gachibowli</div>
-                      </div>
+                      <div className="author-info"><div className="name">Tara P.</div><div className="meta">Glam &bull; Gachibowli</div></div>
                     </div>
                   </ScrollZoom>
                 </div>
@@ -909,7 +823,6 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
           </div>
         </section>
 
-        {/* FOR ARTISTS CTA */}
         <ScrollZoomIn>
           <section className="bg-[var(--bg-dark)] py-24 sm:py-32 px-5 border-t border-[var(--gold)]/20 text-center">
             <div className="max-w-[800px] mx-auto">
@@ -918,25 +831,16 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                 <span>FOR MAKEUP ARTISTS</span>
                 <span className="line"></span>
               </div>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-8 capitalize tracking-tight">
-                Are You A Makeup Artist?
-              </h2>
-              <p className="font-sans text-[15px] text-[var(--text-light)] leading-[1.8] mb-12 max-w-[680px] mx-auto">
-                It is completely free to list your verified portfolio on CANVAS. When our AI matches you with a bride, you will receive a blurred notification. To unlock the client&apos;s WhatsApp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. You can also upgrade to Canvas Pro for a flat monthly subscription to unlock unlimited leads and priority placement in our AI search results.
-              </p>
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-8 capitalize tracking-tight">Are You A Makeup Artist?</h2>
+              <p className="font-sans text-[15px] text-[var(--text-light)] leading-[1.8] mb-12 max-w-[680px] mx-auto">It is completely free to list your verified portfolio on CANVAS. When our AI matches you with a bride, you will receive a blurred notification. To unlock the client&apos;s WhatsApp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. You can also upgrade to Canvas Pro for a flat monthly subscription to unlock unlimited leads and priority placement in our AI search results.</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <button className="bg-transparent text-[var(--gold)] border border-[var(--gold)] px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] transition-colors">
-                  Explore Pro Features
-                </button>
-                <button className="bg-[var(--gold)] text-[var(--bg-dark)] border border-[var(--gold)] px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#B08D45] transition-colors">
-                  Apply to join Canvas
-                </button>
+                <button className="bg-transparent text-[var(--gold)] border border-[var(--gold)] px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] transition-colors">Explore Pro Features</button>
+                <button className="bg-[var(--gold)] text-[var(--bg-dark)] border border-[var(--gold)] px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#B08D45] transition-colors">Apply to join Canvas</button>
               </div>
             </div>
           </section>
         </ScrollZoomIn>
 
-        {/* JOURNAL */}
         <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-5 py-24 sm:px-8 lg:px-12 lg:py-36">
           <div className="max-w-[1400px] mx-auto">
             <ScrollZoomIn>
@@ -945,18 +849,14 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">From the journal</p>
                   <h2 className="text-5xl sm:text-7xl font-bold text-white capitalize">From The Journal.</h2>
                 </div>
-                <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')}
-                  className="text-xs font-bold uppercase tracking-[0.2em] hover:text-[#B66CF2] transition-colors border-b border-white/30 pb-1">
-                  Read all stories
-                </button>
+                <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className="text-xs font-bold uppercase tracking-[0.2em] hover:text-[#B66CF2] transition-colors border-b border-white/30 pb-1">Read all stories</button>
               </div>
             </ScrollZoomIn>
-
             <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
               <ScrollZoom>
                 <div className="group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors">
                   <ScrollZoomIn delay={150}>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Perspective · 06 min read</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Perspective &bull; 06 min read</span>
                     <div>
                       <h3 className="text-4xl font-bold lowercase tracking-tight mb-4 text-white">on keeping your own face.</h3>
                       <p className="text-sm font-bold uppercase tracking-widest text-white/60">A conversation about recognition and restraint.</p>
@@ -964,17 +864,16 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                   </ScrollZoomIn>
                 </div>
               </ScrollZoom>
-
               <div className="grid gap-6">
                 <ScrollZoomIn delay={100}>
                   <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Ritual · 03 min read</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Ritual &bull; 03 min read</span>
                     <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight text-white">a small ritual before the chair.</h3>
                   </div>
                 </ScrollZoomIn>
                 <ScrollZoomIn delay={200}>
                   <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Industry · 05 min read</span>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#F3B8F0]">Industry &bull; 05 min read</span>
                     <h3 className="mt-6 text-2xl font-bold lowercase tracking-tight text-white">the science of skin prep.</h3>
                   </div>
                 </ScrollZoomIn>
@@ -983,15 +882,12 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
           </div>
         </section>
 
-        {/* FOOTER */}
         <ScrollZoomIn>
           <footer className="bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10">
             <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
               <div className="lg:col-span-1">
                 <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-white mb-4">Down for more? We got you!</h3>
-                <p className="text-[13px] text-white/60 mb-6 font-bold uppercase tracking-wider leading-relaxed">
-                  The latest artists, drops, in-store event info + more—straight to your inbox.
-                </p>
+                <p className="text-[13px] text-white/60 mb-6 font-bold uppercase tracking-wider leading-relaxed">The latest artists, drops, in-store event info + more&mdash;straight to your inbox.</p>
                 <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
                   <div className="relative border-b border-white/30 pb-2">
                     <input type="email" placeholder="Email address" className="w-full bg-transparent text-sm font-bold uppercase tracking-widest text-white placeholder-white/40 outline-none" />
@@ -1008,7 +904,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                   <li className="pt-2"><button className="hover:text-[#B66CF2] transition-colors text-white">concierge@canvas.com</button></li>
                   <li><button className="hover:text-white transition-colors">1-800-CANVAS</button></li>
                   <li className="pt-4"><button className="hover:text-white transition-colors">Contact Us</button></li>
-                  <li><button className="hover:text-white transition-colors">Help & FAQs</button></li>
+                  <li><button className="hover:text-white transition-colors">Help &amp; FAQs</button></li>
                 </ul>
               </div>
               <div className="lg:col-span-1">
@@ -1032,16 +928,13 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
       </main>
 
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-      <ProfileModal open={Boolean(selectedArtist)} artist={selectedArtist} onClose={() => setSelectedArtist(null)} onBookAppointment={openBrief}
-        onOpenChat={() => { setSelectedArtist(null); setIsChatOpen(true); }} />
+      <ProfileModal open={Boolean(selectedArtist)} artist={selectedArtist} onClose={() => setSelectedArtist(null)} onBookAppointment={openBrief} onOpenChat={() => { setSelectedArtist(null); setIsChatOpen(true); }} />
       <ChatDrawer open={isChatOpen} onClose={() => setIsChatOpen(false)} />
 
       {briefOpen && (
         <div className="fixed inset-0 z-[100] flex justify-end bg-black/80 backdrop-blur-sm" role="presentation" onClick={() => setBriefOpen(false)}>
-          <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="bg-[#0A0510] border-l border-white/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col"
-            role="dialog" onClick={(e) => e.stopPropagation()}>
+          <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="bg-[#0A0510] border-l border-white/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col" role="dialog" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between border-b border-white/10 pb-8 mb-8">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2] mb-2">{sent ? 'REQUEST SECURED' : 'PRIVATE CONCIERGE'}</p>
@@ -1049,16 +942,12 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
               </div>
               <button type="button" onClick={() => setBriefOpen(false)} className="text-white/40 hover:text-white transition-colors"><X size={28} strokeWidth={1.5} /></button>
             </div>
-
             {sent ? (
               <div className="flex-1 flex flex-col justify-center mb-20">
                 <div className="w-16 h-16 rounded-full bg-[#B66CF2]/10 text-[#B66CF2] flex items-center justify-center mb-6"><Sparkles size={32} /></div>
                 <h3 className="text-2xl font-bold lowercase mb-4">the artist has been notified.</h3>
                 <p className="text-sm text-white/50 leading-relaxed mb-10">Your brief is securely in the artist&apos;s queue. You will receive a notification in your Canvas Dashboard once they review the logistics and confirm the slot.</p>
-                <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }}
-                  className="w-full border border-white bg-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-black hover:bg-transparent hover:text-white transition-all">
-                  Return to Directory
-                </button>
+                <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className="w-full border border-white bg-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] text-black hover:bg-transparent hover:text-white transition-all">Return to Directory</button>
               </div>
             ) : (
               <div className="flex-1 flex flex-col">
@@ -1082,7 +971,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                       <select required name="slot" defaultValue="" className="mt-3 w-full border-b border-white/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest text-white outline-none focus:border-[#B66CF2] transition-colors [&>option]:bg-[#0A0510]">
                         <option value="" disabled>Select phase...</option>
                         <option value="Morning (Before 12 PM)">Slot 1: Morning Prep (Before 12PM)</option>
-                        <option value="Afternoon (12 PM - 4 PM)">Slot 2: Afternoon Glam (12PM–4PM)</option>
+                        <option value="Afternoon (12 PM - 4 PM)">Slot 2: Afternoon Glam (12PM&ndash;4PM)</option>
                         <option value="Evening (After 4 PM)">Slot 3: Evening Glam (After 4PM)</option>
                       </select>
                     </label>
@@ -1099,9 +988,7 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
                     <button type="submit" disabled={isSubmitting} className="w-full bg-white px-8 py-5 text-xs font-bold uppercase tracking-[0.2em] text-black hover:bg-[#B66CF2] hover:text-white transition-colors border border-transparent hover:border-white disabled:opacity-50">
                       {isSubmitting ? 'ENCRYPTING & SENDING...' : 'SUBMIT CONCIERGE BRIEF'}
                     </button>
-                    <p className="text-center text-[10px] text-white/30 uppercase tracking-widest mt-4">
-                      Your brief is securely transmitted to the artist.
-                    </p>
+                    <p className="text-center text-[10px] text-white/30 uppercase tracking-widest mt-4">Your brief is securely transmitted to the artist.</p>
                   </div>
                 </form>
               </div>
@@ -1117,6 +1004,8 @@ function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
 // ROUTER
 // ==========================================
 function Router({ session }: { session: Session | null }) {
+  const [location] = useLocation();
+
   const handleAuthRequired = () => {
     window.dispatchEvent(new CustomEvent('canvas:open-auth'));
   };
@@ -1127,7 +1016,7 @@ function Router({ session }: { session: Session | null }) {
   };
 
   return (
-    <ErrorBoundary resetKey={useLocation()[0]}>
+    <ErrorBoundary resetKey={location}>
       <Switch>
         <Route path="/">
           <Home session={session} onAuthRequired={handleAuthRequired} onSignOut={handleSignOut} />
@@ -1143,77 +1032,221 @@ function Router({ session }: { session: Session | null }) {
 }
 
 // ==========================================
-// APP ROOT — CRITICAL FIXES HERE
+// ROLE SELECTOR COMPONENT
+// ==========================================
+function RoleSelector({ 
+  onSelectRole, 
+  updating 
+}: { 
+  onSelectRole: (role: 'client' | 'artist') => void; 
+  updating: boolean;
+}) {
+  return (
+    <div className="h-screen w-full flex flex-col md:flex-row overflow-hidden bg-[#F9F9F9] fixed inset-0 z-[9999]">
+      <motion.div 
+        initial={{ opacity: 0, x: -20 }} 
+        animate={{ opacity: 1, x: 0 }} 
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
+        onClick={() => !updating && onSelectRole('client')} 
+        className="flex-1 relative bg-[#F9F9F9] text-black flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group"
+      >
+        <div className="absolute inset-0 overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1516975080661-46bfa2c281c7?auto=format&fit=crop&w=1200&q=80" alt="Client" className="w-full h-full object-cover opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" />
+        </div>
+        <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
+          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Clients</p>
+          <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am looking<br/>for an artist.</h2>
+          <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-black/40 max-w-sm mx-auto mb-10 leading-relaxed">
+            Book premium beauty services, manage appointments, and build your aesthetic profile.
+          </p>
+          <div className="inline-block border border-black px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-black group-hover:text-white transition-colors shadow-sm">
+            {updating ? 'Setting up...' : 'Join as Client'}
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div 
+        initial={{ opacity: 0, x: 20 }} 
+        animate={{ opacity: 1, x: 0 }} 
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
+        onClick={() => !updating && onSelectRole('artist')} 
+        className="flex-1 relative bg-[#05020A] text-white flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group border-t md:border-t-0 md:border-l border-white/10"
+      >
+        <div className="absolute inset-0 overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" />
+        </div>
+        <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
+          <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Professionals</p>
+          <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am a<br/>makeup artist.</h2>
+          <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-white/50 max-w-sm mx-auto mb-10 leading-relaxed">
+            List your verified portfolio, manage bookings, and access Canvas Pro client leads.
+          </p>
+          <div className="inline-block border border-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-white group-hover:text-black transition-colors shadow-sm">
+            {updating ? 'Setting up...' : 'Apply to Roster'}
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// ==========================================
+// APP ROOT — CRITICAL FIXES
 // ==========================================
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
   const [updatingRole, setUpdatingRole] = useState(false);
+  // CRITICAL FIX #1: Track resolved role from DB separately from metadata
+  const [resolvedRole, setResolvedRole] = useState<'client' | 'artist' | null | 'loading'>('loading');
 
+  // CRITICAL FIX #2: Fetch session AND check profiles table for role
   useEffect(() => {
-    const checkSession = async () => {
+    async function initSession() {
+      setLoadingSession(true);
+
+      // Get current session
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
-      setLoadingSession(false);
-    };
-    
-    checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+      if (currentSession?.user) {
+        // CRITICAL: Check BOTH metadata AND database for role
+        const metaRole = currentSession.user.user_metadata?.role;
+
+        if (metaRole === 'client' || metaRole === 'artist') {
+          // Role is in metadata - trust it
+          setResolvedRole(metaRole);
+        } else {
+          // No role in metadata - check database profiles table
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', currentSession.user.id)
+            .single();
+
+          if (profile?.role === 'client' || profile?.role === 'artist') {
+            // Role found in DB but not in metadata - sync it back to metadata
+            await supabase.auth.updateUser({ data: { role: profile.role } });
+            setResolvedRole(profile.role);
+          } else {
+            // No role anywhere - user needs to select
+            setResolvedRole(null);
+          }
+        }
+      } else {
+        setResolvedRole(null);
+      }
+
+      setLoadingSession(false);
+    }
+
+    initSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+
+      // Re-resolve role on auth state change
+      if (newSession?.user) {
+        const metaRole = newSession.user.user_metadata?.role;
+        if (metaRole === 'client' || metaRole === 'artist') {
+          setResolvedRole(metaRole);
+        } else {
+          // Will be checked on next render cycle via the effect above
+          setResolvedRole('loading');
+        }
+      } else {
+        setResolvedRole(null);
+      }
+
       setLoadingSession(false);
     });
-    
+
     return () => subscription.unsubscribe();
   }, []);
 
+  // CRITICAL FIX #3: Re-check DB when resolvedRole is 'loading'
+  useEffect(() => {
+    if (resolvedRole !== 'loading' || !session?.user) return;
+
+    async function checkDbRole() {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session!.user.id)
+        .single();
+
+      if (profile?.role === 'client' || profile?.role === 'artist') {
+        await supabase.auth.updateUser({ data: { role: profile.role } });
+        setResolvedRole(profile.role);
+      } else {
+        setResolvedRole(null);
+      }
+    }
+
+    checkDbRole();
+  }, [resolvedRole, session]);
+
+  // CRITICAL FIX #4: handleGlobalSelectRole properly sets role and forces reload
   const handleGlobalSelectRole = async (selectedRole: 'client' | 'artist') => {
-    if (!session?.user) return;
+    if (!session?.user || updatingRole) return;
     setUpdatingRole(true);
+
     try {
-      // FIX: Use setSession instead of updateUser to avoid token expiry issues
-      // updateUser can fail with INVALID_AUTH_TOKEN during OAuth redirects
-      const { error } = await supabase.auth.updateUser({ 
+      const userId = session.user.id;
+      const fullName = session.user.user_metadata?.name 
+        || session.user.user_metadata?.full_name 
+        || 'User';
+
+      // Step 1: Update auth metadata (this is the source of truth for the session)
+      const { error: metaError } = await supabase.auth.updateUser({ 
         data: { role: selectedRole } 
       });
-      
-      if (error) {
-        // If updateUser fails (e.g., token expired), try refreshing session first
+
+      if (metaError) {
+        // If token expired, refresh and retry
         const { error: refreshError } = await supabase.auth.refreshSession();
         if (refreshError) throw refreshError;
-        
-        // Retry after refresh
+
         const { error: retryError } = await supabase.auth.updateUser({ 
           data: { role: selectedRole } 
         });
         if (retryError) throw retryError;
       }
 
-      const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User';
-      await supabase.from('profiles').upsert({ 
-        id: session.user.id, 
+      // Step 2: Upsert profile in database
+      const { error: profileError } = await supabase.from('profiles').upsert({ 
+        id: userId, 
         role: selectedRole, 
         full_name: fullName 
       });
-      
-      if (selectedRole === 'artist') {
-        await supabase.from('artist_profiles').upsert({ id: session.user.id });
+
+      if (profileError) {
+        console.warn('Profile upsert warning:', profileError.message);
       }
-      
-      // Refresh session to get updated metadata
-      const { data: { session: refreshedSession } } = await supabase.auth.getSession();
-      setSession(refreshedSession);
-      
-      // Navigate to dashboard
-      window.location.href = '/dashboard';
+
+      // Step 3: Create artist profile if needed
+      if (selectedRole === 'artist') {
+        const { error: artistError } = await supabase.from('artist_profiles').upsert({ 
+          id: userId 
+        });
+        if (artistError) {
+          console.warn('Artist profile upsert warning:', artistError.message);
+        }
+      }
+
+      // Step 4: CRITICAL - Force full page reload to get fresh session with new role
+      // Use window.location.replace to prevent back-button issues
+      window.location.replace('/dashboard');
+
     } catch (err: any) {
+      console.error('Role selection failed:', err);
       window.alert(`Failed to set account type: ${err.message}`);
       setUpdatingRole(false);
     }
   };
 
-  // ALWAYS show loading until session is known
-  if (loadingSession) {
+  // Show loading spinner while checking session
+  if (loadingSession || resolvedRole === 'loading') {
     return (
       <div className="h-screen w-full bg-[#F9F9F9] flex items-center justify-center fixed inset-0 z-[9999]">
         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2] animate-pulse">Authenticating...</p>
@@ -1221,62 +1254,20 @@ export default function App() {
     );
   }
 
-  // CHECK IF USER NEEDS TO PICK A ROLE
-  const userRole = session?.user?.user_metadata?.role;
-  const needsRole = session && (!userRole || (userRole !== 'client' && userRole !== 'artist'));
+  // CRITICAL FIX #5: Show role selector IMMEDIATELY if no resolved role
+  // This blocks ALL other UI until user selects a role
+  const needsRole = session && resolvedRole === null;
 
-  // FORCE ROLE SELECTOR IF NO ROLE IS SET
   if (needsRole) {
     return (
-      <div className="h-screen w-full flex flex-col md:flex-row overflow-hidden bg-[#F9F9F9] fixed inset-0 z-[9999]">
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }} 
-          animate={{ opacity: 1, x: 0 }} 
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
-          onClick={() => !updatingRole && handleGlobalSelectRole('client')} 
-          className="flex-1 relative bg-[#F9F9F9] text-black flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group"
-        >
-          <div className="absolute inset-0 overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1516975080661-46bfa2c281c7?auto=format&fit=crop&w=1200&q=80" alt="Client" className="w-full h-full object-cover opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" />
-          </div>
-          <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
-            <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Clients</p>
-            <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am looking<br/>for an artist.</h2>
-            <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-black/40 max-w-sm mx-auto mb-10 leading-relaxed">
-              Book premium beauty services, manage appointments, and build your aesthetic profile.
-            </p>
-            <div className="inline-block border border-black px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-black group-hover:text-white transition-colors shadow-sm">
-              {updatingRole ? 'Setting up...' : 'Join as Client'}
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }} 
-          animate={{ opacity: 1, x: 0 }} 
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
-          onClick={() => !updatingRole && handleGlobalSelectRole('artist')} 
-          className="flex-1 relative bg-[#05020A] text-white flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group border-t md:border-t-0 md:border-l border-white/10"
-        >
-          <div className="absolute inset-0 overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" />
-          </div>
-          <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
-            <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Professionals</p>
-            <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am a<br/>makeup artist.</h2>
-            <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-white/50 max-w-sm mx-auto mb-10 leading-relaxed">
-              List your verified portfolio, manage bookings, and access Canvas Pro client leads.
-            </p>
-            <div className="inline-block border border-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-white group-hover:text-black transition-colors shadow-sm">
-              {updatingRole ? 'Setting up...' : 'Apply to Roster'}
-            </div>
-          </div>
-        </motion.div>
-      </div>
+      <RoleSelector 
+        onSelectRole={handleGlobalSelectRole} 
+        updating={updatingRole} 
+      />
     );
   }
 
-  // LOAD APP NORMALLY IF ROLE IS ALREADY SET
+  // Normal app render when role is set or no session
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

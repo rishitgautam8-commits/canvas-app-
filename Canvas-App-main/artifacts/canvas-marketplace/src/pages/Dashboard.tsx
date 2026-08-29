@@ -43,6 +43,7 @@ export default function Dashboard({ session }: DashboardProps) {
     starting_price: 15000,
   });
 
+  // CRITICAL FIX: Load dashboard data and resolve role from BOTH metadata and DB
   useEffect(() => {
     async function loadDashboard() {
       if (!session) {
@@ -51,21 +52,52 @@ export default function Dashboard({ session }: DashboardProps) {
       }
 
       setUser(session.user);
-      const metaRole = session.user.user_metadata?.role;
-      setRole(metaRole || null);
 
-      if (!metaRole) {
-        setLoading(false);
-        return; 
+      // CRITICAL FIX: Resolve role from metadata first, fallback to DB
+      let resolvedRole: 'client' | 'artist' | null = null;
+      const metaRole = session.user.user_metadata?.role;
+
+      if (metaRole === 'client' || metaRole === 'artist') {
+        resolvedRole = metaRole;
+      } else {
+        // Check database as fallback
+        const { data: userData } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (userData?.role === 'client' || userData?.role === 'artist') {
+          resolvedRole = userData.role;
+          // Sync back to metadata for future sessions
+          await supabase.auth.updateUser({ data: { role: userData.role } });
+        }
       }
 
-      const { data: userData } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+      setRole(resolvedRole);
+
+      if (!resolvedRole) {
+        // No role set - show role selector immediately
+        setLoading(false);
+        return;
+      }
+
+      // Load profile data
+      const { data: userData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
 
       if (userData) {
         setProfile(userData);
 
-        if (metaRole === 'artist') {
-          const { data: artistData } = await supabase.from('artist_profiles').select('*').eq('id', session.user.id).single();
+        if (resolvedRole === 'artist') {
+          const { data: artistData } = await supabase
+            .from('artist_profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
 
           if (!artistData || !artistData.business_name) {
             setShowOnboarding(true);
@@ -81,22 +113,36 @@ export default function Dashboard({ session }: DashboardProps) {
             });
           }
 
-          const { data: bookingsData } = await supabase.from('bookings').select('*').eq('artist_id', session.user.id).order('created_at', { ascending: false });
+          const { data: bookingsData } = await supabase
+            .from('bookings')
+            .select('*')
+            .eq('artist_id', session.user.id)
+            .order('created_at', { ascending: false });
 
           if (bookingsData && bookingsData.length > 0) {
             const clientIds = [...new Set(bookingsData.map((b) => b.client_id))];
-            const { data: clientsData } = await supabase.from('profiles').select('id, full_name, email').in('id', clientIds);
+            const { data: clientsData } = await supabase
+              .from('profiles')
+              .select('id, full_name, email')
+              .in('id', clientIds);
             const clientsById = Object.fromEntries((clientsData || []).map((c) => [c.id, c]));
             setBookings(bookingsData.map((b) => ({ ...b, client: clientsById[b.client_id] || null })));
           } else {
             setBookings(bookingsData || []);
           }
         } else {
-          const { data: clientBookingsData } = await supabase.from('bookings').select('*').eq('client_id', session.user.id).order('created_at', { ascending: false });
+          const { data: clientBookingsData } = await supabase
+            .from('bookings')
+            .select('*')
+            .eq('client_id', session.user.id)
+            .order('created_at', { ascending: false });
 
           if (clientBookingsData && clientBookingsData.length > 0) {
             const artistIds = [...new Set(clientBookingsData.map((b) => b.artist_id))];
-            const { data: artistsData } = await supabase.from('artist_profiles').select('id, business_name, city').in('id', artistIds);
+            const { data: artistsData } = await supabase
+              .from('artist_profiles')
+              .select('id, business_name, city')
+              .in('id', artistIds);
             const artistsById = Object.fromEntries((artistsData || []).map((a) => [a.id, a]));
             setClientBookings(clientBookingsData.map((b) => ({ ...b, artist: artistsById[b.artist_id] || null })));
           } else {
@@ -110,7 +156,7 @@ export default function Dashboard({ session }: DashboardProps) {
   }, [session, setLocation]);
 
   // ==========================================
-  // ROLE SWITCHING — FIXED WITH SESSION REFRESH
+  // ROLE SWITCHING — FIXED
   // ==========================================
   const handleRequestRoleSwitch = (targetRole: 'client' | 'artist') => {
     if (targetRole === role) return;
@@ -122,24 +168,33 @@ export default function Dashboard({ session }: DashboardProps) {
     if (!pendingRole || !user) return;
     setUpdating(true);
     try {
-      // FIX: Refresh session first to ensure token is valid
-      const { error: refreshError } = await supabase.auth.refreshSession();
-      if (refreshError) console.warn('Session refresh warning:', refreshError.message);
-      
-      const { error } = await supabase.auth.updateUser({ data: { role: pendingRole } });
-      if (error) throw error;
-      
+      // CRITICAL FIX: Update metadata FIRST (this is what App.tsx checks)
+      const { error: metaError } = await supabase.auth.updateUser({ 
+        data: { role: pendingRole } 
+      });
+
+      if (metaError) {
+        // Try refreshing session if token is stale
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError) console.warn('Session refresh warning:', refreshError.message);
+
+        const { error: retryError } = await supabase.auth.updateUser({ 
+          data: { role: pendingRole } 
+        });
+        if (retryError) throw retryError;
+      }
+
+      // Update database
       await supabase.from('profiles').update({ role: pendingRole }).eq('id', user.id);
+
       if (pendingRole === 'artist') {
         await supabase.from('artist_profiles').upsert({ id: user.id });
       }
-      
-      // Update local state immediately so UI reflects change before reload
-      setRole(pendingRole);
+
       setShowRoleSwitchConfirm(false);
       setPendingRole(null);
-      
-      // Force full reload to re-initialize everything with new role
+
+      // Force reload to re-initialize with new role
       window.location.reload();
     } catch (err: any) {
       window.alert(`Failed to switch role: ${err.message}`);
@@ -147,24 +202,43 @@ export default function Dashboard({ session }: DashboardProps) {
     }
   };
 
+  // CRITICAL FIX: handleSelectRole for initial role selection
   const handleSelectRole = async (selectedRole: 'client' | 'artist') => {
-    if (!user) return;
+    if (!session?.user) return;
     setUpdating(true);
     try {
-      // FIX: Refresh session first
-      const { error: refreshError } = await supabase.auth.refreshSession();
-      if (refreshError) console.warn('Session refresh warning:', refreshError.message);
-      
-      const { error } = await supabase.auth.updateUser({ data: { role: selectedRole } });
-      if (error) throw error;
-      
-      const fullName = session?.user.user_metadata?.name || session?.user.user_metadata?.full_name || 'User';
-      await supabase.from('profiles').upsert({ id: user.id, role: selectedRole, full_name: fullName });
-      
-      if (selectedRole === 'artist') {
-        await supabase.from('artist_profiles').upsert({ id: user.id });
+      const userId = session.user.id;
+      const fullName = session.user.user_metadata?.name 
+        || session.user.user_metadata?.full_name 
+        || 'User';
+
+      // Update auth metadata
+      const { error: metaError } = await supabase.auth.updateUser({ 
+        data: { role: selectedRole } 
+      });
+
+      if (metaError) {
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError) console.warn('Refresh warning:', refreshError.message);
+
+        const { error: retryError } = await supabase.auth.updateUser({ 
+          data: { role: selectedRole } 
+        });
+        if (retryError) throw retryError;
       }
-      
+
+      // Upsert profile
+      await supabase.from('profiles').upsert({ 
+        id: userId, 
+        role: selectedRole, 
+        full_name: fullName 
+      });
+
+      if (selectedRole === 'artist') {
+        await supabase.from('artist_profiles').upsert({ id: userId });
+      }
+
+      // Reload to re-initialize
       window.location.reload();
     } catch (err: any) {
       window.alert(`Failed to set account type: ${err.message}`);
@@ -351,7 +425,7 @@ export default function Dashboard({ session }: DashboardProps) {
             <div className="mt-12 mb-8 flex gap-8 border-b border-black/10 pb-px overflow-x-auto">
               <button onClick={() => setActiveTab('overview')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Overview</button>
               <button onClick={() => setActiveTab('briefs')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'briefs' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
-              <button onClick={() => setActiveTab('logistics')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Profile & Logistics</button>
+              <button onClick={() => setActiveTab('logistics')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Profile &amp; Logistics</button>
             </div>
 
             {activeTab === 'overview' && (
@@ -406,8 +480,8 @@ export default function Dashboard({ session }: DashboardProps) {
                           <div className="flex items-start gap-3">
                             <Calendar className="mt-0.5 text-black/40" size={16} strokeWidth={1.5} />
                             <div>
-                              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Date & Time</p>
-                              <p className="mt-1 text-sm font-bold uppercase tracking-widest">{new Date(booking.event_date).toLocaleDateString()} · {booking.time_slot}</p>
+                              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Date &amp; Time</p>
+                              <p className="mt-1 text-sm font-bold uppercase tracking-widest">{new Date(booking.event_date).toLocaleDateString()} &bull; {booking.time_slot}</p>
                             </div>
                           </div>
                           <div className="flex items-start gap-3">
@@ -420,7 +494,7 @@ export default function Dashboard({ session }: DashboardProps) {
                           <div className="flex items-start gap-3 sm:col-span-2 border-t border-black/10 pt-6 mt-2">
                             <Sparkles className="mt-0.5 text-[#B66CF2]" size={16} strokeWidth={1.5} />
                             <div>
-                              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#B66CF2]">Look Details & Reference</p>
+                              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#B66CF2]">Look Details &amp; Reference</p>
                               <p className="mt-2 text-sm leading-relaxed text-black/70">{booking.look_details}</p>
                             </div>
                           </div>
@@ -452,7 +526,10 @@ export default function Dashboard({ session }: DashboardProps) {
                     <label className="block">
                       <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Primary Category</span>
                       <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="mt-3 w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold uppercase tracking-widest outline-none transition-colors focus:border-[#B66CF2]">
-                        <option value="Bridal & Wedding">Bridal & Wedding</option><option value="Party & Event Glam">Party & Event Glam</option><option value="Natural & Soft Aesthetics">Natural & Soft Aesthetics</option><option value="Editorial & High Fashion">Editorial & High Fashion</option>
+                        <option value="Bridal &amp; Wedding">Bridal &amp; Wedding</option>
+                        <option value="Party &amp; Event Glam">Party &amp; Event Glam</option>
+                        <option value="Natural &amp; Soft Aesthetics">Natural &amp; Soft Aesthetics</option>
+                        <option value="Editorial &amp; High Fashion">Editorial &amp; High Fashion</option>
                       </select>
                     </label>
                     <label className="block">
@@ -516,8 +593,8 @@ export default function Dashboard({ session }: DashboardProps) {
                       <div className="flex items-start gap-3">
                         <Calendar className="mt-0.5 text-black/40" size={16} strokeWidth={1.5} />
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Date & Time</p>
-                          <p className="mt-1 text-sm font-bold uppercase tracking-widest">{new Date(booking.event_date).toLocaleDateString()} · {booking.time_slot}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Date &amp; Time</p>
+                          <p className="mt-1 text-sm font-bold uppercase tracking-widest">{new Date(booking.event_date).toLocaleDateString()} &bull; {booking.time_slot}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
