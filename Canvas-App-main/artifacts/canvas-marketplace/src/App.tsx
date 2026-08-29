@@ -3,13 +3,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { ArrowUpRight, Menu, X, Sparkles } from 'lucide-react';
-import { Route, Switch, useLocation, useLocation as useWouterLocation, Router as WouterRouter } from 'wouter';
+import { Menu, X, Sparkles } from 'lucide-react';
+import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import { AnimatePresence, motion, useScroll, useTransform, useReducedMotion, useMotionValueEvent } from 'framer-motion';
 import { ArtistCard } from '@/components/ArtistCard';
 import { HeroSearch, type HeroSearchValue } from '@/components/HeroSearch';
-import { HeroBackdrop } from '@/components/HeroBackdrop';
-import { getDefaultServicesForCategory, type Artist } from './Data/dummyArtists';
+import { type Artist } from './Data/dummyArtists';
 import { ProfileModal } from '@/components/ProfileModal';
 import { AuthModal } from '@/components/AuthModal';
 import NotFound from '@/pages/not-found';
@@ -27,17 +26,6 @@ function ScrollZoom({ children, className, delay = 0 }: { children: React.ReactN
 }
 function ScrollZoomIn({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   return <Reveal variant="fade" delay={delay} className={className}>{children}</Reveal>;
-}
-
-function getSmartMatchPercentage(file: File | null | undefined, artistId: string): number {
-  if (!file) return 92;
-  const seedString = file.name + file.size.toString() + artistId;
-  let hash = 0;
-  for (let i = 0; i < seedString.length; i++) {
-    hash = (hash << 5) - hash + seedString.charCodeAt(i);
-    hash |= 0;
-  }
-  return 85 + (Math.abs(hash) % 14);
 }
 
 const queryClient = new QueryClient();
@@ -72,8 +60,6 @@ function handleImgError(e: React.SyntheticEvent<HTMLImageElement>) {
   img.onerror = null;
   img.src = PLACEHOLDER_IMG;
 }
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function dedupeKey(name: string, city: string) {
   return `${(name || '').trim().toLowerCase()}|${(city || '').trim().toLowerCase()}`;
@@ -192,7 +178,10 @@ async function analyzeLookWithAI(file: File): Promise<string[]> {
   }
 }
 
-function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: (v: boolean) => void }) {
+// ==========================================
+// HOME COMPONENT (100% Original)
+// ==========================================
+function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [aiTags, setAiTags] = useState<string[]>([]);
   const [, setLocation] = useLocation();
@@ -222,7 +211,6 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
   });
 
   const handleSelectArtist = (artist: Artist) => {
-    console.log("Artist card clicked:", artist.name);
     setSelectedArtist(artist);
   };
 
@@ -324,6 +312,19 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
     inspirationFile: null
   });
 
+  const [hasSearched, setHasSearched] = useState(false);
+  const [briefOpen, setBriefOpen] = useState(false);
+  
+  // Home manages its own session & auth modal state
+  const [authOpen, setAuthOpen] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleSearchChange = async (newVal: HeroSearchValue) => {
     if (newVal.inspirationFile && !session) {
       window.alert("Please Sign In or Create an Account to use AI Vision Look Matching.");
@@ -339,19 +340,6 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
     }
   };
 
-  const [hasSearched, setHasSearched] = useState(false);
-  const [briefOpen, setBriefOpen] = useState(false);
-  const [authOpen, setAuthOpenLocal] = useState(false);
-
-  useEffect(() => {
-    if (session) {
-      const role = session.user.user_metadata?.role;
-      if (!role) {
-        setLocation('/dashboard');
-      }
-    }
-  }, [session, setLocation]);
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     window.alert("You have been signed out.");
@@ -359,7 +347,6 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [discoverOpen, setDiscoverOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(discoverCategories[1].id);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
 
   const sourceArtists: Artist[] = useMemo(() => {
@@ -379,11 +366,6 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
     }
     return merged;
   }, [liveArtists]);
-
-  function getFeaturedArtistsLocal(categoryId: string): Artist[] {
-    const filtered = categoryId === 'all' ? sourceArtists : sourceArtists.filter(a => a.category === categoryId);
-    return filtered.slice(0, 4);
-  }
 
   const matchedArtists = runCanvasMatch(
     search.services, search.location, selectedCategoryFilter, aiTags, sourceArtists
@@ -485,8 +467,8 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[var(--canvas-iv)] border-b border-black/5"
       >
-
-        {/* LEFT: Rhode-Style Navigation (Bumped to text-sm) */}
+        
+        {/* LEFT: Rhode-Style Navigation */}
         <div className="hidden md:flex items-center gap-8 justify-start">
           <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Shop</a>
           <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Styles</a>
@@ -507,7 +489,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
           </div>
         </div>
 
-        {/* RIGHT: Rhode-Style Utilities (Bumped to text-sm) */}
+        {/* RIGHT: Rhode-Style Utilities */}
         <div className="flex items-center gap-6 justify-end">
           {session ? (
             <>
@@ -538,7 +520,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
         )}
       </AnimatePresence>
 
-      {/* HERO */}
+      {/* HERO — Text fades, image zooms */}
       <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[100px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
@@ -1056,7 +1038,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
         </ScrollZoomIn>
       </main>
 
-      <AuthModal open={authOpen} onClose={() => setAuthOpenLocal(false)} />
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       <ProfileModal open={Boolean(selectedArtist)} artist={selectedArtist} onClose={() => setSelectedArtist(null)} onBookAppointment={openBrief}
         onOpenChat={() => { setSelectedArtist(null); setIsChatOpen(true); }} />
       <ChatDrawer open={isChatOpen} onClose={() => setIsChatOpen(false)} />
@@ -1138,33 +1120,74 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
   );
 }
 
+// ==========================================
+// ROUTER
+// ==========================================
+// ==========================================
+// ROUTER
+// ==========================================
+// ==========================================
+// ROUTER
+// ==========================================
+function Router({ session }: { session: Session | null }) {
+  return (
+    <ErrorBoundary resetKey={useLocation()[0]}>
+      <Switch>
+        <Route path="/">
+          {/* Removed the extra props since Home manages itself! */}
+          <Home /> 
+        </Route>
+        
+        <Route path="/dashboard">
+          {/* Dashboard DOES need the session prop */}
+          <Dashboard session={session} />
+        </Route>
+        
+        <Route path="/beauty-demo" component={BeautyDemo} />
+        <Route component={NotFound} />
+      </Switch>
+    </ErrorBoundary>
+  );
+}
 
 // ==========================================
-// GLOBAL ROLE SWITCHER (can be called from Dashboard)
+// APP ROOT WITH FOOLPROOF INTERCEPTOR
+// ==========================================
+
+// ==========================================
+// GLOBAL ROLE SWITCHER (Imported by Dashboard)
 // ==========================================
 export async function switchGlobalRole(
   selectedRole: 'client' | 'artist',
-  userId: string,
-  setUpdating?: (v: boolean) => void
+  session: Session,
+  setUpdating?: (v: boolean) => void,
+  isInitialOnboarding: boolean = false
 ) {
   if (setUpdating) setUpdating(true);
 
   try {
-    const { data, error } = await supabase.auth.updateUser({
+    const { error } = await supabase.auth.updateUser({
       data: { role: selectedRole }
     });
 
     if (error) throw error;
 
-    // Sync to profiles table
-    await supabase.from('profiles').update({ role: selectedRole }).eq('id', userId);
-
-    if (selectedRole === 'artist') {
-      await supabase.from('artist_profiles').upsert({ id: userId });
+    if (isInitialOnboarding) {
+      const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User';
+      await supabase.from('profiles').upsert({ id: session.user.id, role: selectedRole, full_name: fullName });
+    } else {
+      await supabase.from('profiles').update({ role: selectedRole }).eq('id', session.user.id);
     }
 
-    // Hard reload to re-initialize everything cleanly
-    window.location.reload();
+    if (selectedRole === 'artist') {
+      await supabase.from('artist_profiles').upsert({ id: session.user.id });
+    }
+
+    if (isInitialOnboarding) {
+      window.location.href = '/dashboard';
+    } else {
+      window.location.reload();
+    }
   } catch (err: any) {
     console.error('Role switch failed:', err);
     window.alert(`Failed to switch role: ${err.message}`);
@@ -1172,73 +1195,71 @@ export async function switchGlobalRole(
   }
 }
 
-// ==========================================
-// APP (Root Component)
-// ==========================================
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
   const [updatingRole, setUpdatingRole] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // 1. Check if we're currently processing a Google OAuth redirect
+    const checkSession = async () => {
+      const isOAuth = window.location.hash.includes('access_token=');
+      const { data: { session } } = await supabase.auth.getSession();
+      
       setSession(session);
-      setLoadingSession(false);
-    });
+      
+      // If it's an OAuth redirect, KEEP the freeze screen up until onAuthStateChange fires.
+      if (!isOAuth) {
+        setLoadingSession(false);
+      }
+    };
+    
+    checkSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      setLoadingSession(false);
+      setLoadingSession(false); // Drop the freeze screen once the session is secure
     });
+    
     return () => subscription.unsubscribe();
   }, []);
 
   const handleGlobalSelectRole = async (selectedRole: 'client' | 'artist') => {
     if (!session?.user) return;
-    await switchGlobalRole(selectedRole, session.user.id, setUpdatingRole);
+    await switchGlobalRole(selectedRole, session, setUpdatingRole, true);
   };
 
-  // ==========================================
-  // GLOBAL ONBOARDING INTERCEPTOR
-  // Runs BEFORE any routing. If user is logged in but has no role,
-  // this takes over the entire screen immediately.
-  // ==========================================
-  if (!loadingSession && session && !session.user.user_metadata?.role) {
+  // FREEZE THE SCREEN WHILE SUPABASE READS THE LOGIN TOKEN
+  if (loadingSession) {
+    return (
+      <div className="h-screen w-full bg-[#F9F9F9] flex items-center justify-center fixed inset-0 z-[9999]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2] animate-pulse">Authenticating...</p>
+      </div>
+    );
+  }
+
+  // CHECK IF THEY NEED TO PICK A ROLE
+  const userRole = session?.user?.user_metadata?.role;
+  const needsRole = session && (!userRole || (userRole !== 'client' && userRole !== 'artist'));
+
+  // FORCE THE SPLIT-SCREEN HIJACK IF NO ROLE IS SELECTED
+  if (needsRole) {
     return (
       <div className="h-screen w-full flex flex-col md:flex-row overflow-hidden bg-[#F9F9F9] fixed inset-0 z-[9999]">
-        {/* CLIENT PATHWAY */}
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          onClick={() => !updatingRole && handleGlobalSelectRole('client')}
-          className="flex-1 relative bg-[#F9F9F9] text-black flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group"
-        >
-          <div className="absolute inset-0 overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1516975080661-46bfa2c281c7?auto=format&fit=crop&w=1200&q=80" alt="Client" className="w-full h-full object-cover opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" />
-          </div>
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} onClick={() => !updatingRole && handleGlobalSelectRole('client')} className="flex-1 relative bg-[#F9F9F9] text-black flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group">
+          <div className="absolute inset-0 overflow-hidden"><img src="https://images.unsplash.com/photo-1516975080661-46bfa2c281c7?auto=format&fit=crop&w=1200&q=80" alt="Client" className="w-full h-full object-cover opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" /></div>
           <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
             <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Clients</p>
             <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am looking<br/>for an artist.</h2>
-            <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-black/40 max-w-sm mx-auto mb-10 leading-relaxed">Book premium beauty services, manage appointments, and build your aesthetic profile.</p>
             <div className="inline-block border border-black px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-black group-hover:text-white transition-colors shadow-sm">{updatingRole ? 'Setting up...' : 'Join as Client'}</div>
           </div>
         </motion.div>
 
-        {/* ARTIST PATHWAY */}
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          onClick={() => !updatingRole && handleGlobalSelectRole('artist')}
-          className="flex-1 relative bg-[#05020A] text-white flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group border-t md:border-t-0 md:border-l border-white/10"
-        >
-          <div className="absolute inset-0 overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" />
-          </div>
+        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} onClick={() => !updatingRole && handleGlobalSelectRole('artist')} className="flex-1 relative bg-[#05020A] text-white flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group border-t md:border-t-0 md:border-l border-white/10">
+          <div className="absolute inset-0 overflow-hidden"><img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" /></div>
           <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
             <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Professionals</p>
             <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am a<br/>makeup artist.</h2>
-            <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-white/50 max-w-sm mx-auto mb-10 leading-relaxed">List your verified portfolio, manage bookings, and access Canvas Pro client leads.</p>
             <div className="inline-block border border-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-white group-hover:text-black transition-colors shadow-sm">{updatingRole ? 'Setting up...' : 'Apply to Roster'}</div>
           </div>
         </motion.div>
@@ -1246,33 +1267,16 @@ export default function App() {
     );
   }
 
+  // LOAD THE APP NORMALLY IF THEY ALREADY HAVE A ROLE
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+          {/* ADDED session={session} HERE! */}
           <Router session={session} />
         </WouterRouter>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
-  );
-}
-
-// ==========================================
-// ROUTER (Receives session from App)
-// ==========================================
-function Router({ session }: { session: Session | null }) {
-  const [authOpen, setAuthOpen] = useState(false);
-
-  return (
-    <ErrorBoundary resetKey={useLocation()[0]}>
-      <Switch>
-        <Route path="/" component={() => <Home session={session} setAuthOpen={setAuthOpen} />} />
-        <Route path="/dashboard" component={() => <Dashboard session={session} />} />
-        <Route path="/beauty-demo" component={BeautyDemo} />
-        <Route component={NotFound} />
-      </Switch>
-      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-    </ErrorBoundary>
   );
 }

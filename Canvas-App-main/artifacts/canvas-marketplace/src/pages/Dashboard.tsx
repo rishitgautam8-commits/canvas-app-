@@ -6,7 +6,6 @@ import { ArtistOnboardingModal } from '@/components/ArtistOnboardingModal';
 import { ArrowLeft, Save, Calendar, MapPin, Sparkles, X, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { User, Session } from '@supabase/supabase-js';
-import { switchGlobalRole } from '@/App';
 
 interface DashboardProps {
   session: Session | null;
@@ -153,16 +152,40 @@ export default function Dashboard({ session }: DashboardProps) {
   };
 
   const confirmRoleSwitch = async () => {
-    if (!pendingRole || !user) return;
-    await switchGlobalRole(pendingRole, user.id, setUpdating);
-    // Page will reload on success
+    if (!pendingRole || !session) return;
+    setUpdating(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { role: pendingRole } });
+      if (error) throw error;
+      
+      await supabase.from('profiles').update({ role: pendingRole }).eq('id', session.user.id);
+      if (pendingRole === 'artist') {
+        await supabase.from('artist_profiles').upsert({ id: session.user.id });
+      }
+      window.location.reload();
+    } catch (err: any) {
+      window.alert(`Failed to switch role: ${err.message}`);
+      setUpdating(false);
+    }
   };
 
   const handleSelectRole = async (selectedRole: 'client' | 'artist') => {
-    // This is for initial onboarding only (when role is null)
-    if (!user) return;
+    if (!session) return;
     setUpdating(true);
-    await switchGlobalRole(selectedRole, user.id, setUpdating);
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { role: selectedRole } });
+      if (error) throw error;
+
+      const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User';
+      await supabase.from('profiles').upsert({ id: session.user.id, role: selectedRole, full_name: fullName });
+      if (selectedRole === 'artist') {
+        await supabase.from('artist_profiles').upsert({ id: session.user.id });
+      }
+      window.location.href = '/dashboard';
+    } catch (err: any) {
+      window.alert(`Failed to set account type: ${err.message}`);
+      setUpdating(false);
+    }
   };
 
   const handleSaveLogistics = async (e: React.FormEvent) => {
