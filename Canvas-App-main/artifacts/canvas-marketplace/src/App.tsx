@@ -20,7 +20,6 @@ import BeautyDemo from '@/pages/BeautyDemo';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { Reveal } from '@/components/Reveal';
 
-// Rhode-style scroll reveal wrappers
 function ScrollZoom({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   return <Reveal variant="zoom" delay={delay} className={className}>{children}</Reveal>;
 }
@@ -179,9 +178,15 @@ async function analyzeLookWithAI(file: File): Promise<string[]> {
 }
 
 // ==========================================
-// HOME COMPONENT (100% Original)
+// HOME COMPONENT — receives session as prop
 // ==========================================
-function Home() {
+interface HomeProps {
+  session: Session | null;
+  onAuthRequired: () => void;
+  onSignOut: () => Promise<void>;
+}
+
+function Home({ session, onAuthRequired, onSignOut }: HomeProps) {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [aiTags, setAiTags] = useState<string[]>([]);
   const [, setLocation] = useLocation();
@@ -314,21 +319,19 @@ function Home() {
 
   const [hasSearched, setHasSearched] = useState(false);
   const [briefOpen, setBriefOpen] = useState(false);
-  
-  // Home manages its own session & auth modal state
   const [authOpen, setAuthOpen] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
 
+  // Listen for global auth trigger from Router
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setSession(session));
-    return () => subscription.unsubscribe();
+    const handler = () => setAuthOpen(true);
+    window.addEventListener('canvas:open-auth', handler);
+    return () => window.removeEventListener('canvas:open-auth', handler);
   }, []);
 
   const handleSearchChange = async (newVal: HeroSearchValue) => {
     if (newVal.inspirationFile && !session) {
       window.alert("Please Sign In or Create an Account to use AI Vision Look Matching.");
-      setAuthOpen(true);
+      onAuthRequired();
       return;
     }
     setSearch(newVal);
@@ -338,11 +341,6 @@ function Home() {
     } else {
       setAiTags([]);
     }
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    window.alert("You have been signed out.");
   };
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -428,7 +426,7 @@ function Home() {
     if (!session) {
       window.alert("Please Sign In or Create an Account to secure a booking.");
       setBriefOpen(false);
-      setAuthOpen(true);
+      onAuthRequired();
       return;
     }
     if (!selectedArtist?.id || !(selectedArtist as any).isLiveDb) {
@@ -461,21 +459,18 @@ function Home() {
 
   return (
     <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
-      {/* NAVIGATION with hide-on-scroll */}
+      {/* NAVIGATION */}
       <motion.nav 
         animate={{ y: (isChatOpen || isHeaderHidden) ? -120 : 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[var(--canvas-iv)] border-b border-black/5"
       >
-        
-        {/* LEFT: Rhode-Style Navigation */}
         <div className="hidden md:flex items-center gap-8 justify-start">
           <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Shop</a>
           <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Styles</a>
           <a onClick={() => scrollTo('standard')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">About</a>
         </div>
 
-        {/* CENTER: Premium Wordmark & Logo */}
         <div className="flex items-center justify-center cursor-pointer group" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-2.5">
             <img 
@@ -489,12 +484,11 @@ function Home() {
           </div>
         </div>
 
-        {/* RIGHT: Rhode-Style Utilities */}
         <div className="flex items-center gap-6 justify-end">
           {session ? (
             <>
               <button onClick={() => setLocation('/dashboard')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors hidden sm:block">Dashboard</button>
-              <button onClick={handleSignOut} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors hidden sm:block">Sign Out</button>
+              <button onClick={onSignOut} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors hidden sm:block">Sign Out</button>
             </>
           ) : (
             <button onClick={() => setAuthOpen(true)} className="hidden sm:block text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black transition-colors">Account</button>
@@ -503,7 +497,6 @@ function Home() {
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-
       </motion.nav>
 
       <AnimatePresence>
@@ -520,7 +513,7 @@ function Home() {
         )}
       </AnimatePresence>
 
-      {/* HERO — Text fades, image zooms */}
+      {/* HERO */}
       <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[100px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
@@ -602,7 +595,7 @@ function Home() {
               onChange={handleSearchChange}
               onSubmit={(vals) => { setSearch(vals); setHasSearched(true); scrollTo('discover'); }}
               isAuthenticated={!!session}
-              onAuthRequired={() => setAuthOpen(true)}
+              onAuthRequired={onAuthRequired}
             />
           </div>
         </ScrollZoomIn>
@@ -1123,29 +1116,25 @@ function Home() {
 // ==========================================
 // ROUTER
 // ==========================================
-// ==========================================
-// ROUTER
-// ==========================================
-// ==========================================
-// ROUTER
-// ==========================================
-// ==========================================
-// ROUTER
-// ==========================================
-// ==========================================
-// ROUTER
-// ==========================================
 function Router({ session }: { session: Session | null }) {
+  const handleAuthRequired = () => {
+    window.dispatchEvent(new CustomEvent('canvas:open-auth'));
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    window.alert("You have been signed out.");
+  };
+
   return (
     <ErrorBoundary resetKey={useLocation()[0]}>
       <Switch>
-        {/* Fix 1: Removed props from Home since it manages itself */}
-        <Route path="/" component={Home} />
-        
+        <Route path="/">
+          <Home session={session} onAuthRequired={handleAuthRequired} onSignOut={handleSignOut} />
+        </Route>
         <Route path="/dashboard">
           {() => <Dashboard session={session} />}
         </Route>
-        
         <Route path="/beauty-demo" component={BeautyDemo} />
         <Route component={NotFound} />
       </Switch>
@@ -1154,48 +1143,7 @@ function Router({ session }: { session: Session | null }) {
 }
 
 // ==========================================
-// GLOBAL ROLE SWITCHER
-// ==========================================
-export async function switchGlobalRole(
-  selectedRole: 'client' | 'artist',
-  session: Session,
-  setUpdating?: (v: boolean) => void,
-  isInitialOnboarding: boolean = false
-) {
-  if (setUpdating) setUpdating(true);
-
-  try {
-    const { error } = await supabase.auth.updateUser({
-      data: { role: selectedRole }
-    });
-
-    if (error) throw error;
-
-    if (isInitialOnboarding) {
-      const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User';
-      await supabase.from('profiles').upsert({ id: session.user.id, role: selectedRole, full_name: fullName });
-    } else {
-      await supabase.from('profiles').update({ role: selectedRole }).eq('id', session.user.id);
-    }
-
-    if (selectedRole === 'artist') {
-      await supabase.from('artist_profiles').upsert({ id: session.user.id });
-    }
-
-    if (isInitialOnboarding) {
-      window.location.href = '/dashboard';
-    } else {
-      window.location.reload();
-    }
-  } catch (err: any) {
-    console.error('Role switch failed:', err);
-    window.alert(`Failed to switch role: ${err.message}`);
-    if (setUpdating) setUpdating(false);
-  }
-}
-
-// ==========================================
-// APP ROOT WITH FOOLPROOF INTERCEPTOR
+// APP ROOT — CRITICAL FIXES HERE
 // ==========================================
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -1203,24 +1151,17 @@ export default function App() {
   const [updatingRole, setUpdatingRole] = useState(false);
 
   useEffect(() => {
-    // 1. Check if we're currently processing a Google OAuth redirect
     const checkSession = async () => {
-      const isOAuth = window.location.hash.includes('access_token=') || window.location.search.includes('code=');
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      setSession(session);
-      
-      // If it's an OAuth redirect, KEEP the freeze screen up until onAuthStateChange fires.
-      if (!isOAuth) {
-        setLoadingSession(false);
-      }
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      setSession(currentSession);
+      setLoadingSession(false);
     };
     
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      setLoadingSession(false); // Drop the freeze screen once the session is secure
+      setLoadingSession(false);
     });
     
     return () => subscription.unsubscribe();
@@ -1230,15 +1171,40 @@ export default function App() {
     if (!session?.user) return;
     setUpdatingRole(true);
     try {
-      const { error } = await supabase.auth.updateUser({ data: { role: selectedRole } });
-      if (error) throw error;
+      // FIX: Use setSession instead of updateUser to avoid token expiry issues
+      // updateUser can fail with INVALID_AUTH_TOKEN during OAuth redirects
+      const { error } = await supabase.auth.updateUser({ 
+        data: { role: selectedRole } 
+      });
+      
+      if (error) {
+        // If updateUser fails (e.g., token expired), try refreshing session first
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError) throw refreshError;
+        
+        // Retry after refresh
+        const { error: retryError } = await supabase.auth.updateUser({ 
+          data: { role: selectedRole } 
+        });
+        if (retryError) throw retryError;
+      }
 
       const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User';
-      await supabase.from('profiles').upsert({ id: session.user.id, role: selectedRole, full_name: fullName });
+      await supabase.from('profiles').upsert({ 
+        id: session.user.id, 
+        role: selectedRole, 
+        full_name: fullName 
+      });
       
       if (selectedRole === 'artist') {
         await supabase.from('artist_profiles').upsert({ id: session.user.id });
       }
+      
+      // Refresh session to get updated metadata
+      const { data: { session: refreshedSession } } = await supabase.auth.getSession();
+      setSession(refreshedSession);
+      
+      // Navigate to dashboard
       window.location.href = '/dashboard';
     } catch (err: any) {
       window.alert(`Failed to set account type: ${err.message}`);
@@ -1246,7 +1212,7 @@ export default function App() {
     }
   };
 
-  // FREEZE THE SCREEN WHILE SUPABASE READS THE LOGIN TOKEN
+  // ALWAYS show loading until session is known
   if (loadingSession) {
     return (
       <div className="h-screen w-full bg-[#F9F9F9] flex items-center justify-center fixed inset-0 z-[9999]">
@@ -1255,41 +1221,66 @@ export default function App() {
     );
   }
 
-  // CHECK IF THEY NEED TO PICK A ROLE
+  // CHECK IF USER NEEDS TO PICK A ROLE
   const userRole = session?.user?.user_metadata?.role;
   const needsRole = session && (!userRole || (userRole !== 'client' && userRole !== 'artist'));
 
-  // FORCE THE SPLIT-SCREEN HIJACK IF NO ROLE IS SELECTED
+  // FORCE ROLE SELECTOR IF NO ROLE IS SET
   if (needsRole) {
     return (
       <div className="h-screen w-full flex flex-col md:flex-row overflow-hidden bg-[#F9F9F9] fixed inset-0 z-[9999]">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} onClick={() => !updatingRole && handleGlobalSelectRole('client')} className="flex-1 relative bg-[#F9F9F9] text-black flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group">
-          <div className="absolute inset-0 overflow-hidden"><img src="https://images.unsplash.com/photo-1516975080661-46bfa2c281c7?auto=format&fit=crop&w=1200&q=80" alt="Client" className="w-full h-full object-cover opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" /></div>
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
+          onClick={() => !updatingRole && handleGlobalSelectRole('client')} 
+          className="flex-1 relative bg-[#F9F9F9] text-black flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group"
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1516975080661-46bfa2c281c7?auto=format&fit=crop&w=1200&q=80" alt="Client" className="w-full h-full object-cover opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" />
+          </div>
           <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
             <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Clients</p>
             <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am looking<br/>for an artist.</h2>
-            <div className="inline-block border border-black px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-black group-hover:text-white transition-colors shadow-sm">{updatingRole ? 'Setting up...' : 'Join as Client'}</div>
+            <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-black/40 max-w-sm mx-auto mb-10 leading-relaxed">
+              Book premium beauty services, manage appointments, and build your aesthetic profile.
+            </p>
+            <div className="inline-block border border-black px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-black group-hover:text-white transition-colors shadow-sm">
+              {updatingRole ? 'Setting up...' : 'Join as Client'}
+            </div>
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} onClick={() => !updatingRole && handleGlobalSelectRole('artist')} className="flex-1 relative bg-[#05020A] text-white flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group border-t md:border-t-0 md:border-l border-white/10">
-          <div className="absolute inset-0 overflow-hidden"><img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" /></div>
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
+          onClick={() => !updatingRole && handleGlobalSelectRole('artist')} 
+          className="flex-1 relative bg-[#05020A] text-white flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group border-t md:border-t-0 md:border-l border-white/10"
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" />
+          </div>
           <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
             <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Professionals</p>
             <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am a<br/>makeup artist.</h2>
-            <div className="inline-block border border-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-white group-hover:text-black transition-colors shadow-sm">{updatingRole ? 'Setting up...' : 'Apply to Roster'}</div>
+            <p className="text-xs md:text-sm font-bold uppercase tracking-widest text-white/50 max-w-sm mx-auto mb-10 leading-relaxed">
+              List your verified portfolio, manage bookings, and access Canvas Pro client leads.
+            </p>
+            <div className="inline-block border border-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-white group-hover:text-black transition-colors shadow-sm">
+              {updatingRole ? 'Setting up...' : 'Apply to Roster'}
+            </div>
           </div>
         </motion.div>
       </div>
     );
   }
 
-// LOAD THE APP NORMALLY IF THEY ALREADY HAVE A ROLE
+  // LOAD APP NORMALLY IF ROLE IS ALREADY SET
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          {/* Fix 2: Added session={session} to fix the red line! */}
           <Router session={session} />
         </WouterRouter>
         <Toaster />

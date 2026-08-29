@@ -110,7 +110,7 @@ export default function Dashboard({ session }: DashboardProps) {
   }, [session, setLocation]);
 
   // ==========================================
-  // ROLE SWITCHING SECURELY IN DASHBOARD
+  // ROLE SWITCHING — FIXED WITH SESSION REFRESH
   // ==========================================
   const handleRequestRoleSwitch = (targetRole: 'client' | 'artist') => {
     if (targetRole === role) return;
@@ -122,6 +122,10 @@ export default function Dashboard({ session }: DashboardProps) {
     if (!pendingRole || !user) return;
     setUpdating(true);
     try {
+      // FIX: Refresh session first to ensure token is valid
+      const { error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) console.warn('Session refresh warning:', refreshError.message);
+      
       const { error } = await supabase.auth.updateUser({ data: { role: pendingRole } });
       if (error) throw error;
       
@@ -129,6 +133,13 @@ export default function Dashboard({ session }: DashboardProps) {
       if (pendingRole === 'artist') {
         await supabase.from('artist_profiles').upsert({ id: user.id });
       }
+      
+      // Update local state immediately so UI reflects change before reload
+      setRole(pendingRole);
+      setShowRoleSwitchConfirm(false);
+      setPendingRole(null);
+      
+      // Force full reload to re-initialize everything with new role
       window.location.reload();
     } catch (err: any) {
       window.alert(`Failed to switch role: ${err.message}`);
@@ -140,6 +151,10 @@ export default function Dashboard({ session }: DashboardProps) {
     if (!user) return;
     setUpdating(true);
     try {
+      // FIX: Refresh session first
+      const { error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) console.warn('Session refresh warning:', refreshError.message);
+      
       const { error } = await supabase.auth.updateUser({ data: { role: selectedRole } });
       if (error) throw error;
       
@@ -149,6 +164,7 @@ export default function Dashboard({ session }: DashboardProps) {
       if (selectedRole === 'artist') {
         await supabase.from('artist_profiles').upsert({ id: user.id });
       }
+      
       window.location.reload();
     } catch (err: any) {
       window.alert(`Failed to set account type: ${err.message}`);
