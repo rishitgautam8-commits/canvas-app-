@@ -203,38 +203,42 @@ export default function Dashboard({ session }: DashboardProps) {
     <div className="min-h-screen bg-[#F9F9F9] text-black pb-24">
       <div className="bg-red-600 text-white text-center py-4 font-bold text-xl uppercase"></div>
       <header className="border-b border-black/10 bg-white px-6 py-6 sm:px-12 sticky top-0 z-50">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between">
-          <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
-            <ArrowLeft size={14} /> Back to Directory
-          </button>
+  <div className="mx-auto flex max-w-[1400px] items-center justify-between">
+    <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
+      <ArrowLeft size={14} /> Back to Directory
+    </button>
 
-          <div className="flex items-center gap-4">
-            {/* CLIENT / ARTIST TOGGLE BUTTONS */}
-            <div className="flex items-center gap-2 bg-black/5 rounded-full p-1">
-              <button
-                onClick={() => handleRequestRoleSwitch('client')}
-                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
-                  role === 'client' ? 'bg-black text-white shadow-sm' : 'text-black/50 hover:text-black hover:bg-black/10'
-                }`}
-              >
-                Client
-              </button>
-              <button
-                onClick={() => handleRequestRoleSwitch('artist')}
-                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
-                  role === 'artist' ? 'bg-black text-white shadow-sm' : 'text-black/50 hover:text-black hover:bg-black/10'
-                }`}
-              >
-                Artist
-              </button>
-            </div>
+    <div className="flex items-center gap-4">
+      {/* ROLE SWITCHING TOGGLES */}
+      <div className="flex items-center gap-1 bg-black/5 p-1 rounded-full">
+        <button
+          onClick={() => handleRequestRoleSwitch('client')}
+          className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
+            role === 'client' ? 'bg-black text-white shadow-sm' : 'text-black/50 hover:text-black'
+          }`}
+        >
+          Client
+        </button>
+        <button
+          onClick={() => handleRequestRoleSwitch('artist')}
+          className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
+            role === 'artist' ? 'bg-black text-white shadow-sm' : 'text-black/50 hover:text-black'
+          }`}
+        >
+          Artist
+        </button>
+      </div>
 
-            <div className="h-8 w-8 bg-black flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-widest">
-              {displayFirstName.charAt(0)}
-            </div>
-          </div>
-        </div>
-      </header>
+      <div className="rounded-full bg-black/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/70">
+        Artist Studio Hub
+      </div>
+
+      <div className="h-8 w-8 bg-black flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-widest">
+        {displayFirstName.charAt(0)}
+      </div>
+    </div>
+  </div>
+</header>
 
       {/* ROLE SWITCH CONFIRMATION MODAL */}
       <AnimatePresence>
