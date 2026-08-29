@@ -36,10 +36,14 @@ export default function Dashboard({ session }: DashboardProps) {
 
   const [formData, setFormData] = useState({
     business_name: '',
-    category: '',
+    category: '', 
+    qualifications: '',
     city: '',
-    max_travel_km: 25,
-    starting_price: 15000,
+    max_travel_km: '',
+    starting_price: '', 
+    years_experience: '',
+    addon_name: '',
+    addon_price: '',
   });
 
   useEffect(() => {
@@ -67,12 +71,17 @@ export default function Dashboard({ session }: DashboardProps) {
             setArtistProfile(artistData);
             setPortfolio(artistData.portfolio || []);
             setFormData({
-              business_name: artistData.business_name || '',
-              category: artistData.category || 'Bridal & Wedding',
-              city: artistData.city || 'Hyderabad',
-              max_travel_km: artistData.max_travel_km || 25,
-              starting_price: artistData.starting_price || 15000,
-            });
+  business_name: artistData.business_name || '',
+  category: artistData.category || '',
+  qualifications: artistData.qualifications || '',
+  city: artistData.city || '',
+  // We add .toString() because our strict regex inputs expect text strings, not raw numbers
+  max_travel_km: artistData.max_travel_km?.toString() || '',
+  starting_price: artistData.starting_price?.toString() || '',
+  years_experience: artistData.years_experience?.toString() || '',
+  addon_name: artistData.addon_name || '',
+  addon_price: artistData.addon_price?.toString() || '',
+});
           }
 
           const { data: bookingsData } = await supabase.from('bookings').select('*').eq('artist_id', session.user.id).order('created_at', { ascending: false });
@@ -331,15 +340,49 @@ export default function Dashboard({ session }: DashboardProps) {
 
     <form onSubmit={handleSaveLogistics} className="space-y-8">
       
+      {/* PROFILE PIC & EXPERIENCE */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Profile Picture *</label>
+          <input type="file" accept="image/*" className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-black/5 file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" />
+        </div>
+        <div>
+          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Years of Experience *</label>
+          <input 
+            type="text" 
+            value={formData.years_experience} 
+            onChange={(e) => setFormData({...formData, years_experience: e.target.value.replace(/\D/g, '')})} 
+            placeholder="e.g. 6" 
+            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+            required 
+          />
+        </div>
+      </div>
+
       {/* BASIC INFO */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Artist / Business Name *</label>
-          <input type="text" value={formData.business_name} onChange={(e) => setFormData({...formData, business_name: e.target.value})} placeholder="e.g. Kaushal Makeover" className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+          <input 
+            type="text" 
+            value={formData.business_name} 
+            // Allows letters and spaces only
+            onChange={(e) => setFormData({...formData, business_name: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
+            placeholder="e.g. Kaushal Makeover" 
+            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+            required 
+          />
         </div>
         <div>
           <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Base Location in Hyderabad *</label>
-          <input type="text" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} placeholder="e.g. Jubilee Hills" className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+          <input 
+            type="text" 
+            value={formData.city} 
+            onChange={(e) => setFormData({...formData, city: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
+            placeholder="e.g. Jubilee Hills" 
+            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+            required 
+          />
         </div>
       </div>
 
@@ -347,11 +390,25 @@ export default function Dashboard({ session }: DashboardProps) {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Starting Package Price (₹) *</label>
-          <input type="number" value={formData.starting_price} onChange={(e) => setFormData({...formData, starting_price: parseInt(e.target.value)})} placeholder="15000" min="0" className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+          <input 
+            type="text" 
+            value={formData.starting_price} 
+            onChange={(e) => setFormData({...formData, starting_price: e.target.value.replace(/\D/g, '')})} 
+            placeholder="15000" 
+            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+            required 
+          />
         </div>
         <div>
           <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Comfortable Travel Radius (km) *</label>
-          <input type="number" value={formData.max_travel_km} onChange={(e) => setFormData({...formData, max_travel_km: parseInt(e.target.value)})} placeholder="25" min="0" className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+          <input 
+            type="text" 
+            value={formData.max_travel_km} 
+            onChange={(e) => setFormData({...formData, max_travel_km: e.target.value.replace(/\D/g, '')})} 
+            placeholder="25" 
+            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+            required 
+          />
         </div>
       </div>
 
@@ -359,11 +416,26 @@ export default function Dashboard({ session }: DashboardProps) {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Makeup Specialisations *</label>
-          <input type="text" placeholder="Bridal, Editorial, Party..." className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+          <input 
+            type="text" 
+            value={formData.category} 
+            // Allows letters, spaces, and commas
+            onChange={(e) => setFormData({...formData, category: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
+            placeholder="e.g. Bridal, Editorial, Party" 
+            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+            required 
+          />
         </div>
         <div>
           <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Qualifications / Certifications *</label>
-          <input type="text" placeholder="e.g. Certified by..." className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required />
+          <input 
+            type="text" 
+            value={formData.qualifications} 
+            onChange={(e) => setFormData({...formData, qualifications: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
+            placeholder="e.g. Certified by MAC" 
+            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+            required 
+          />
         </div>
       </div>
 
@@ -372,7 +444,6 @@ export default function Dashboard({ session }: DashboardProps) {
         <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Primary Portfolio Upload *</label>
         <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload a minimum of 2 photos. No maximum limit.</p>
         
-        {/* We use portfolio.length < 2 to force the HTML required attribute if they haven't uploaded enough yet */}
         <input type="file" multiple accept="image/*" onChange={handleAddPortfolioImage} className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" required={portfolio.length < 2} />
         
         {portfolio.length > 0 && (
@@ -382,12 +453,12 @@ export default function Dashboard({ session }: DashboardProps) {
 
       {/* ADD-ON SKILLS TOGGLE */}
       <div className="border-t border-black/10 pt-8">
-        <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Do you offer any add-on skills? (e.g. Hairstyling, Saree Draping)</label>
+        <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Do you offer any add-on skills? (e.g. Hairstyling, Brow Tinting)</label>
         <div className="flex gap-4 mb-6">
           <button type="button" onClick={() => setHasAddonSkill(true)} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
             Yes, I do
           </button>
-          <button type="button" onClick={() => setHasAddonSkill(false)} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${!hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
+          <button type="button" onClick={() => { setHasAddonSkill(false); setFormData({...formData, addon_name: '', addon_price: ''}); }} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${!hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
             No
           </button>
         </div>
@@ -395,14 +466,34 @@ export default function Dashboard({ session }: DashboardProps) {
         {/* CONDITIONAL ADD-ON UPLOADER */}
         {hasAddonSkill && (
           <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-black/5 p-6 border-l-2 border-[#B66CF2]">
-            <div>
-              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Describe Add-on Skill *</label>
-              <input type="text" placeholder="e.g. Advanced Hairstyling" className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" required={hasAddonSkill} />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Skill Name *</label>
+                <input 
+                  type="text" 
+                  value={formData.addon_name} 
+                  onChange={(e) => setFormData({...formData, addon_name: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
+                  placeholder="e.g. Brow Tinting" 
+                  className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                  required={hasAddonSkill} 
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Price (₹) *</label>
+                <input 
+                  type="text" 
+                  value={formData.addon_price} 
+                  onChange={(e) => setFormData({...formData, addon_price: e.target.value.replace(/\D/g, '')})} 
+                  placeholder="e.g. 1200" 
+                  className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                  required={hasAddonSkill} 
+                />
+              </div>
             </div>
             <div>
               <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Portfolio Upload *</label>
               <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload at least 1 photo showcasing this specific skill.</p>
-              <input type="file" multiple accept="image/*" className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" required={hasAddonSkill} />
+              <input type="file" accept="image/*" className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" required={hasAddonSkill} />
             </div>
           </div>
         )}
