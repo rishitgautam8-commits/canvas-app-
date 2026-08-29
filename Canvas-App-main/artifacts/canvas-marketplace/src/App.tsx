@@ -14,7 +14,7 @@ import { AuthModal } from '@/components/AuthModal';
 import NotFound from '@/pages/not-found';
 import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
-import Dashboard from '@/pages/Dashboard';
+import Dashboard from './pages/Dashboard';
 import { artistsData as artists } from './Data/artistsData';
 import BeautyDemo from '@/pages/BeautyDemo';
 import { ChatDrawer } from '@/components/ChatDrawer';
