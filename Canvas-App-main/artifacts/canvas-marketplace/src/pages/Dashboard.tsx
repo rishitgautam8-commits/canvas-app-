@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { ArtistOnboardingModal } from '@/components/ArtistOnboardingModal';
-import { ArrowLeft, Save, Calendar, MapPin, Sparkles, X, RefreshCw } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Session } from '@supabase/supabase-js';
 
@@ -73,14 +73,14 @@ export default function Dashboard({ session }: DashboardProps) {
             setArtistProfile(artistData);
             setPortfolio(artistData.portfolio || []);
             setFormData({
-        business_name: artistData.business_name || '',
-        category: artistData.category || '',
-        qualifications: artistData.qualifications || '',
-        city: artistData.city || '',
-        max_travel_km: artistData.max_travel_km?.toString() || '',
-        starting_price: artistData.starting_price?.toString() || '',
-        years_experience: artistData.years_experience?.toString() || '',
-      });
+              business_name: artistData.business_name || '',
+              category: artistData.category || '',
+              qualifications: artistData.qualifications || '',
+              city: artistData.city || '',
+              max_travel_km: artistData.max_travel_km?.toString() || '',
+              starting_price: artistData.starting_price?.toString() || '',
+              years_experience: artistData.years_experience?.toString() || '',
+            });
           }
 
           const { data: bookingsData } = await supabase.from('bookings').select('*').eq('artist_id', session.user.id).order('created_at', { ascending: false });
@@ -112,9 +112,6 @@ export default function Dashboard({ session }: DashboardProps) {
     loadDashboard();
   }, [session, setLocation]);
 
-  // ==========================================
-  // DASHBOARD ROLE SWITCHING LOGIC
-  // ==========================================
   const handleRequestRoleSwitch = (targetRole: 'client' | 'artist') => {
     if (targetRole === role) return;
     setPendingRole(targetRole);
@@ -144,51 +141,51 @@ export default function Dashboard({ session }: DashboardProps) {
 
   const handleSaveLogistics = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!session?.user) return;
     setSaving(true);
 
-    const { error } = await supabase.from('artist_profiles').update({
-        business_name: formData.business_name, category: formData.category, city: formData.city,
-        max_travel_km: formData.max_travel_km, starting_price: formData.starting_price,
-      }).eq('id', profile.id);
+    try {
+      const { error } = await supabase.from('artist_profiles').update({
+        business_name: formData.business_name,
+        category: formData.category,
+        qualifications: formData.qualifications,
+        city: formData.city,
+        max_travel_km: parseInt(formData.max_travel_km) || 0,
+        starting_price: parseInt(formData.starting_price) || 0,
+        years_experience: parseInt(formData.years_experience) || 0,
+      }).eq('id', session.user.id);
 
-    setSaving(false);
+      if (error) throw error;
 
-    if (error) { window.alert(`Error saving: ${error.message}`); } 
-    else {
       window.alert('Logistics updated successfully! Your search filtering is now live.');
       setArtistProfile({ ...artistProfile, ...formData });
+    } catch (err: any) {
+      window.alert(`Error saving: ${err.message}`);
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleAddPortfolioImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !profile) return;
+    if (!file || !session?.user) return;
 
     setUploadingPortfolio(true);
     try {
       const fileExt = file.name.split('.').pop();
-      const filePath = `${profile.id}/portfolio-${Date.now()}.${fileExt}`;
+      const filePath = `${session.user.id}/portfolio-${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage.from('portfolios').upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
 
       const { data: publicUrlData } = supabase.storage.from('portfolios').getPublicUrl(filePath);
       const updatedPortfolio = [...portfolio, publicUrlData.publicUrl];
-      const { error: updateError } = await supabase.from('artist_profiles').update({ portfolio: updatedPortfolio }).eq('id', profile.id);
+      const { error: updateError } = await supabase.from('artist_profiles').update({ portfolio: updatedPortfolio }).eq('id', session.user.id);
 
       if (updateError) throw updateError;
       setPortfolio(updatedPortfolio);
     } catch (err: any) { window.alert(`Failed to upload image: ${err.message}`); } 
     finally { setUploadingPortfolio(false); e.target.value = ''; }
-  };
-
-  const handleRemovePortfolioImage = async (urlToRemove: string) => {
-    if (!profile) return;
-    const updatedPortfolio = portfolio.filter((url) => url !== urlToRemove);
-    const { error } = await supabase.from('artist_profiles').update({ portfolio: updatedPortfolio }).eq('id', profile.id);
-
-    if (error) { window.alert(`Failed to remove image: ${error.message}`); } 
-    else { setPortfolio(updatedPortfolio); }
   };
 
   const handleUpdateBookingStatus = async (bookingId: string, newStatus: 'confirmed' | 'declined') => {
@@ -211,44 +208,42 @@ export default function Dashboard({ session }: DashboardProps) {
   return (
     <div className="min-h-screen bg-[#F9F9F9] text-black pb-24">
       <header className="border-b border-black/10 bg-white px-6 py-6 sm:px-12 sticky top-0 z-50">
-  <div className="mx-auto flex max-w-[1400px] items-center justify-between">
-    <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
-      <ArrowLeft size={14} /> Back to Directory
-    </button>
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between">
+          <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
+            <ArrowLeft size={14} /> Back to Directory
+          </button>
 
-    <div className="flex items-center gap-4">
-      {/* ROLE SWITCHING TOGGLES */}
-      <div className="flex items-center gap-1 bg-black/5 p-1 rounded-full">
-        <button
-          onClick={() => handleRequestRoleSwitch('client')}
-          className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
-            role === 'client' ? 'bg-black text-white shadow-sm' : 'text-black/50 hover:text-black'
-          }`}
-        >
-          Client
-        </button>
-        <button
-          onClick={() => handleRequestRoleSwitch('artist')}
-          className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
-            role === 'artist' ? 'bg-black text-white shadow-sm' : 'text-black/50 hover:text-black'
-          }`}
-        >
-          Artist
-        </button>
-      </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 bg-black/5 p-1 rounded-full">
+              <button
+                onClick={() => handleRequestRoleSwitch('client')}
+                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
+                  role === 'client' ? 'bg-black text-white shadow-sm' : 'text-black/50 hover:text-black'
+                }`}
+              >
+                Client
+              </button>
+              <button
+                onClick={() => handleRequestRoleSwitch('artist')}
+                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
+                  role === 'artist' ? 'bg-black text-white shadow-sm' : 'text-black/50 hover:text-black'
+                }`}
+              >
+                Artist
+              </button>
+            </div>
 
-      <div className="rounded-full bg-black/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/70">
-        Artist Studio Hub
-      </div>
+            <div className="rounded-full bg-black/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/70">
+              Artist Studio Hub
+            </div>
 
-      <div className="h-8 w-8 bg-black flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-widest">
-        {displayFirstName.charAt(0)}
-      </div>
-    </div>
-  </div>
-</header>
+            <div className="h-8 w-8 bg-black flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-widest">
+              {displayFirstName.charAt(0)}
+            </div>
+          </div>
+        </div>
+      </header>
 
-      {/* ROLE SWITCH CONFIRMATION MODAL */}
       <AnimatePresence>
         {showRoleSwitchConfirm && pendingRole && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowRoleSwitchConfirm(false)}>
@@ -329,240 +324,229 @@ export default function Dashboard({ session }: DashboardProps) {
             )}
 
             {activeTab === 'logistics' && (
-  <div className="mx-auto max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
-    <div className="mb-10">
-      <h3 className="text-3xl font-bold lowercase tracking-tight">artist profile & logistics.</h3>
-      <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">
-        Complete your profile to appear in client searches.
-      </p>
-    </div>
-
-    <form onSubmit={handleSaveLogistics} className="space-y-8">
-      
-      {/* PROFILE PIC & EXPERIENCE */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Profile Picture *</label>
-          <input type="file" accept="image/*" className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-black/5 file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" />
-        </div>
-        <div>
-          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Years of Experience *</label>
-          <input 
-            type="text" 
-            value={formData.years_experience} 
-            onChange={(e) => setFormData({...formData, years_experience: e.target.value.replace(/\D/g, '')})} 
-            placeholder="e.g. 6" 
-            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-            required 
-          />
-        </div>
-      </div>
-
-      {/* BASIC INFO */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Artist / Business Name *</label>
-          <input 
-            type="text" 
-            value={formData.business_name} 
-            // Allows letters and spaces only
-            onChange={(e) => setFormData({...formData, business_name: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
-            placeholder="e.g. Kaushal Makeover" 
-            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-            required 
-          />
-        </div>
-        <div>
-          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Base Location in Hyderabad *</label>
-          <input 
-            type="text" 
-            value={formData.city} 
-            onChange={(e) => setFormData({...formData, city: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
-            placeholder="e.g. Jubilee Hills" 
-            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-            required 
-          />
-        </div>
-      </div>
-
-      {/* PRICING & LOGISTICS */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Starting Package Price (₹) *</label>
-          <input 
-            type="text" 
-            value={formData.starting_price} 
-            onChange={(e) => setFormData({...formData, starting_price: e.target.value.replace(/\D/g, '')})} 
-            placeholder="15000" 
-            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-            required 
-          />
-        </div>
-        <div>
-          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Comfortable Travel Radius (km) *</label>
-          <input 
-            type="text" 
-            value={formData.max_travel_km} 
-            onChange={(e) => setFormData({...formData, max_travel_km: e.target.value.replace(/\D/g, '')})} 
-            placeholder="25" 
-            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-            required 
-          />
-        </div>
-      </div>
-
-      {/* EXPERTISE */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Makeup Specialisations *</label>
-          <input 
-            type="text" 
-            value={formData.category} 
-            // Allows letters, spaces, and commas
-            onChange={(e) => setFormData({...formData, category: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
-            placeholder="e.g. Bridal, Editorial, Party" 
-            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-            required 
-          />
-        </div>
-        <div>
-          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Qualifications / Certifications *</label>
-          <input 
-            type="text" 
-            value={formData.qualifications} 
-            onChange={(e) => setFormData({...formData, qualifications: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
-            placeholder="e.g. Certified by MAC" 
-            className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-            required 
-          />
-        </div>
-      </div>
-
-      {/* MAIN PORTFOLIO */}
-      <div className="bg-black/5 p-6 border-l-2 border-black">
-        <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Primary Portfolio Upload *</label>
-        <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload a minimum of 2 photos. No maximum limit.</p>
-        
-        <input type="file" multiple accept="image/*" onChange={handleAddPortfolioImage} className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" required={portfolio.length < 2} />
-        
-        {portfolio.length > 0 && (
-          <p className="mt-4 text-[10px] font-bold text-[#B66CF2] uppercase">{portfolio.length} photo(s) currently in portfolio</p>
-        )}
-      </div>
-
-      {/* ADD-ON SKILLS TOGGLE */}
-      <div className="border-t border-black/10 pt-8">
-        <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Do you offer any add-on skills? (e.g. Hairstyling, Brow Tinting)</label>
-        <div className="flex gap-4 mb-6">
-          <button type="button" onClick={() => setHasAddonSkill(true)} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
-            Yes, I do
-          </button>
-          <button 
-  type="button" 
-  onClick={() => { 
-    setHasAddonSkill(false); 
-    setAddons([{ name: '', price: '', file: null }]); 
-  }} 
-  className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${!hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}
->
-  No
-</button>
-        </div>
-
-        {/* CONDITIONAL ADD-ON UPLOADER */}
-        {/* DYNAMIC MULTI-SKILL CONTAINER */}
-        {hasAddonSkill && (
-          <div className="space-y-6">
-            {addons.map((addon, index) => (
-              <div key={index} className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-black/5 p-6 border-l-2 border-[#B66CF2] relative">
-                
-                {addons.length > 1 && (
-                  <button 
-                    type="button" 
-                    onClick={() => {
-                      const updated = addons.filter((_, i) => i !== index);
-                      setAddons(updated);
-                    }} 
-                    className="absolute top-4 right-4 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:underline"
-                  >
-                    Remove Skill
-                  </button>
-                )}
-
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#B66CF2]">Add-on Skill #{index + 1}</p>
-
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  <div>
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Skill Name *</label>
-                    <input 
-                      type="text" 
-                      value={addon.name} 
-                      onChange={(e) => {
-                        const updated = [...addons];
-                        updated[index].name = e.target.value.replace(/[^a-zA-Z\s]/g, '');
-                        setAddons(updated);
-                      }} 
-                      placeholder="e.g. Brow Tinting" 
-                      className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-                      required={hasAddonSkill} 
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Price (₹) *</label>
-                    <input 
-                      type="text" 
-                      value={addon.price} 
-                      onChange={(e) => {
-                        const updated = [...addons];
-                        updated[index].price = e.target.value.replace(/\D/g, '');
-                        setAddons(updated);
-                      }} 
-                      placeholder="e.g. 1200" 
-                      className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-                      required={hasAddonSkill} 
-                    />
-                  </div>
+              <div className="mx-auto max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
+                <div className="mb-10">
+                  <h3 className="text-3xl font-bold lowercase tracking-tight">artist profile & logistics.</h3>
+                  <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">
+                    Complete your profile to appear in client searches.
+                  </p>
                 </div>
-                <div>
-                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Portfolio Upload *</label>
-                  <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload at least 1 photo showcasing this specific skill.</p>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      const updated = [...addons];
-                      updated[index].file = file;
-                      setAddons(updated);
-                    }}
-                    className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" 
-                    required={hasAddonSkill && !addon.file} 
-                  />
-                </div>
+
+                <form onSubmit={handleSaveLogistics} className="space-y-8">
+                  
+                  {/* PROFILE PIC & EXPERIENCE */}
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Profile Picture *</label>
+                      <input type="file" accept="image/*" className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-black/5 file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Years of Experience *</label>
+                      <input 
+                        type="text" 
+                        value={formData.years_experience} 
+                        onChange={(e) => setFormData({...formData, years_experience: e.target.value.replace(/\D/g, '')})} 
+                        placeholder="e.g. 6" 
+                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        required 
+                      />
+                    </div>
+                  </div>
+
+                  {/* BASIC INFO */}
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Artist / Business Name *</label>
+                      <input 
+                        type="text" 
+                        value={formData.business_name} 
+                        onChange={(e) => setFormData({...formData, business_name: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
+                        placeholder="e.g. Kaushal Makeover" 
+                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        required 
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Base Location in Hyderabad *</label>
+                      <input 
+                        type="text" 
+                        value={formData.city} 
+                        onChange={(e) => setFormData({...formData, city: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
+                        placeholder="e.g. Jubilee Hills" 
+                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        required 
+                      />
+                    </div>
+                  </div>
+
+                  {/* PRICING & LOGISTICS */}
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Starting Package Price (₹) *</label>
+                      <input 
+                        type="text" 
+                        value={formData.starting_price} 
+                        onChange={(e) => setFormData({...formData, starting_price: e.target.value.replace(/\D/g, '')})} 
+                        placeholder="15000" 
+                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        required 
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Comfortable Travel Radius (km) *</label>
+                      <input 
+                        type="text" 
+                        value={formData.max_travel_km} 
+                        onChange={(e) => setFormData({...formData, max_travel_km: e.target.value.replace(/\D/g, '')})} 
+                        placeholder="25" 
+                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        required 
+                      />
+                    </div>
+                  </div>
+
+                  {/* EXPERTISE */}
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Makeup Specialisations *</label>
+                      <input 
+                        type="text" 
+                        value={formData.category} 
+                        onChange={(e) => setFormData({...formData, category: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
+                        placeholder="e.g. Bridal, Editorial, Party" 
+                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        required 
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Qualifications / Certifications *</label>
+                      <input 
+                        type="text" 
+                        value={formData.qualifications} 
+                        onChange={(e) => setFormData({...formData, qualifications: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
+                        placeholder="e.g. Certified by MAC" 
+                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        required 
+                      />
+                    </div>
+                  </div>
+
+                  {/* MAIN PORTFOLIO */}
+                  <div className="bg-black/5 p-6 border-l-2 border-black">
+                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Primary Portfolio Upload *</label>
+                    <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload a minimum of 2 photos. No maximum limit.</p>
+                    
+                    <input type="file" multiple accept="image/*" onChange={handleAddPortfolioImage} className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" required={portfolio.length < 2} />
+                    
+                    {portfolio.length > 0 && (
+                      <p className="mt-4 text-[10px] font-bold text-[#B66CF2] uppercase">{portfolio.length} photo(s) currently in portfolio</p>
+                    )}
+                  </div>
+
+                  {/* ADD-ON SKILLS TOGGLE */}
+                  <div className="border-t border-black/10 pt-8">
+                    <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Do you offer any add-on skills? (e.g. Hairstyling, Brow Tinting)</label>
+                    <div className="flex gap-4 mb-6">
+                      <button type="button" onClick={() => setHasAddonSkill(true)} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
+                        Yes, I do
+                      </button>
+                      <button type="button" onClick={() => { setHasAddonSkill(false); setAddons([{ name: '', price: '', file: null }]); }} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${!hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
+                        No
+                      </button>
+                    </div>
+
+                    {/* DYNAMIC MULTI-SKILL CONTAINER */}
+                    {hasAddonSkill && (
+                      <div className="space-y-6">
+                        {addons.map((addon, index) => (
+                          <div key={index} className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-black/5 p-6 border-l-2 border-[#B66CF2] relative">
+                            
+                            {addons.length > 1 && (
+                              <button 
+                                type="button" 
+                                onClick={() => {
+                                  const updated = addons.filter((_, i) => i !== index);
+                                  setAddons(updated);
+                                }} 
+                                className="absolute top-4 right-4 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:underline"
+                              >
+                                Remove Skill
+                              </button>
+                            )}
+
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#B66CF2]">Add-on Skill #{index + 1}</p>
+
+                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                              <div>
+                                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Skill Name *</label>
+                                <input 
+                                  type="text" 
+                                  value={addon.name} 
+                                  onChange={(e) => {
+                                    const updated = [...addons];
+                                    updated[index].name = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                                    setAddons(updated);
+                                  }} 
+                                  placeholder="e.g. Brow Tinting" 
+                                  className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                                  required={hasAddonSkill} 
+                                />
+                              </div>
+                              <div>
+                                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Price (₹) *</label>
+                                <input 
+                                  type="text" 
+                                  value={addon.price} 
+                                  onChange={(e) => {
+                                    const updated = [...addons];
+                                    updated[index].price = e.target.value.replace(/\D/g, '');
+                                    setAddons(updated);
+                                  }} 
+                                  placeholder="e.g. 1200" 
+                                  className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                                  required={hasAddonSkill} 
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Portfolio Upload *</label>
+                              <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload at least 1 photo showcasing this specific skill.</p>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0] || null;
+                                  const updated = [...addons];
+                                  updated[index].file = file;
+                                  setAddons(updated);
+                                }}
+                                className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" 
+                                required={hasAddonSkill && !addon.file} 
+                              />
+                            </div>
+                          </div>
+                        ))}
+
+                        <button
+                          type="button"
+                          onClick={() => setAddons([...addons, { name: '', price: '', file: null }])}
+                          className="w-full border border-dashed border-black/30 bg-white py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-black hover:border-black transition-colors"
+                        >
+                          + Add Another Add-on Skill
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SUBMIT */}
+                  <div className="pt-4 flex justify-end">
+                    <button type="submit" disabled={saving || uploadingPortfolio} className="bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50">
+                      {saving ? 'SAVING...' : 'SAVE CHANGES'}
+                    </button>
+                  </div>
+                </form>
               </div>
-            ))}
-
-            {/* BUTTON TO ADD ANOTHER SKILL */}
-            <button
-              type="button"
-              onClick={() => setAddons([...addons, { name: '', price: '', file: null }])}
-              className="w-full border border-dashed border-black/30 bg-white py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-black hover:border-black transition-colors"
-            >
-              + Add Another Add-on Skill
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* SUBMIT */}
-      <div className="pt-4 flex justify-end">
-        <button type="submit" disabled={saving || uploadingPortfolio} className="bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50">
-          {saving ? 'SAVING...' : 'SAVE CHANGES'}
-        </button>
-      </div>
-    </form>
-  </div>
-)}
+            )}
           </>
         ) : (
           <div className="mt-16 max-w-4xl">
@@ -590,7 +574,6 @@ export default function Dashboard({ session }: DashboardProps) {
 
       <ArtistOnboardingModal open={showOnboarding} userId={profile?.id} onComplete={() => window.location.reload()} />
       
-      {/* ESCAPE HATCH */}
       {showOnboarding && (
         <div className="fixed top-6 left-6 z-[9999]">
           <button 
