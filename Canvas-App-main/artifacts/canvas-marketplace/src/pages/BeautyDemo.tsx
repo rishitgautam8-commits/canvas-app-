@@ -11,10 +11,12 @@ export default function ArtistProfile() {
   const [loading, setLoading] = useState(true);
   
   // Booking Calendar State
+  // Booking Calendar State
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
+  const [manuallyBlockedDates, setManuallyBlockedDates] = useState<string[]>([]);
+  const [bookedTimeSlots, setBookedTimeSlots] = useState<Record<string, string[]>>({});
   const [selectedDate, setSelectedDate] = useState<string>('');
-  const [selectedTime, setSelectedTime] = useState<string>('10:00');
+  const [selectedTime, setSelectedTime] = useState<string>('');
   const [bookingLoading, setBookingLoading] = useState(false);
 
   const artistId = params?.id;
@@ -23,7 +25,7 @@ export default function ArtistProfile() {
     async function fetchArtistAndBookings() {
       if (!artistId) return;
       
-      // 1. Fetch the Artist Data
+      // 1. Fetch the Artist Data (to get their manual vacation days)
       const { data: artistData, error: artistError } = await supabase
         .from('artist_profiles')
         .select('*')
@@ -37,20 +39,27 @@ export default function ArtistProfile() {
       }
       
       setArtist(artistData);
+      setManuallyBlockedDates(artistData.blocked_dates || []); // Only manual vacation days go here
 
-      // 2. Fetch all existing bookings to block those dates out too!
+      // 2. Fetch all existing bookings (to block SPECIFIC times)
       const { data: existingBookings } = await supabase
         .from('bookings')
-        .select('booking_date')
+        .select('booking_date, booking_time')
         .eq('artist_id', artistId)
-        .in('status', ['confirmed', 'pending']); // Block pending and confirmed
+        .in('status', ['confirmed', 'pending']); 
 
-      // 3. Combine manually blocked dates + already booked dates
-      const bookedDates = existingBookings ? existingBookings.map(b => b.booking_date).filter(Boolean) : [];
-      const manuallyBlocked = artistData.blocked_dates || [];
-      
-      // Merge them and remove duplicates
-      setUnavailableDates([...new Set([...bookedDates, ...manuallyBlocked])]);
+      // Group booked times by their specific dates automatically!
+      const slots: Record<string, string[]> = {};
+      if (existingBookings) {
+        existingBookings.forEach(booking => {
+          if (!slots[booking.booking_date]) {
+            slots[booking.booking_date] = [];
+          }
+          // Store the specific time that is already booked
+          slots[booking.booking_date].push(booking.booking_time);
+        });
+      }
+      setBookedTimeSlots(slots);
       setLoading(false);
     }
 
@@ -94,9 +103,14 @@ export default function ArtistProfile() {
       window.alert("Booking request sent successfully! The artist will confirm shortly.");
       setShowBookingModal(false);
       
-      // Instantly gray this date out on the calendar so no one else can click it
-      setUnavailableDates([...unavailableDates, selectedDate]); 
+      // Instantly gray out THIS specific time phase on the calendar 
+      setBookedTimeSlots(prev => ({
+        ...prev,
+        [selectedDate]: [...(prev[selectedDate] || []), selectedTime]
+      }));
+      
       setSelectedDate('');
+      setSelectedTime('');
 
     } catch (err: any) {
       window.alert(`Error booking: ${err.message}`);
@@ -233,7 +247,8 @@ export default function ArtistProfile() {
                 {/* 30-DAY ROLLING CALENDAR GRID */}
                 <div className="grid grid-cols-4 sm:grid-cols-7 gap-3 mb-8">
                   {next30Days.map(dateStr => {
-                    const isBlocked = unavailableDates.includes(dateStr);
+                    // Only gray out the whole day if the artist manually marked it as a day off
+                    const isVacation = manuallyBlockedDates.includes(dateStr);
                     const isSelected = selectedDate === dateStr;
                     const dateObj = new Date(dateStr);
                     const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
@@ -242,10 +257,10 @@ export default function ArtistProfile() {
                     return (
                       <button
                         key={dateStr}
-                        disabled={isBlocked}
-                        onClick={() => setSelectedDate(dateStr)}
+                        disabled={isVacation}
+                        onClick={() => { setSelectedDate(dateStr); setSelectedTime(''); }} // Reset time when picking new date
                         className={`flex flex-col items-center justify-center p-3 border transition-all ${
-                          isBlocked 
+                          isVacation 
                             ? 'bg-black/5 text-black/20 border-transparent cursor-not-allowed line-through' 
                             : isSelected 
                               ? 'bg-black text-white border-black scale-105 shadow-md' 
@@ -259,32 +274,54 @@ export default function ArtistProfile() {
                   })}
                 </div>
 
-                {/* TIME SELECTOR */}
+                {/* SMART TIME SELECTOR */}
+                {/* SMART TIME SELECTOR */}
                 {selectedDate && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="border-t border-black/10 pt-6">
-                    <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Preferred Start Time</label>
-                    <div className="grid grid-cols-3 gap-4">
-                      {['08:00', '10:00', '14:00', '16:00', '18:00'].map(time => (
-                        <button
-                          key={time}
-                          onClick={() => setSelectedTime(time)}
-                          className={`py-3 text-xs font-bold tracking-widest border transition-all ${selectedTime === time ? 'bg-black text-white border-black' : 'bg-transparent text-black border-black/20 hover:border-black'}`}
-                        >
-                          {time}
-                        </button>
-                      ))}
+                    <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Select Phase of Day</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { display: 'First Half (Morning)', value: '09:00:00' },
+                        { display: 'Second Half (Evening)', value: '15:00:00' }
+                      ].map(slot => {
+                        // Check if this specific phase is booked. 
+                        // We check if the DB returned a time starting with 09:00 or 15:00
+                        const isTimeBooked = bookedTimeSlots[selectedDate]?.some(t => t.startsWith(slot.value.substring(0, 5)));
+                        
+                        return (
+                          <button
+                            key={slot.value}
+                            disabled={isTimeBooked}
+                            onClick={() => setSelectedTime(slot.value)}
+                            className={`py-4 text-xs font-bold uppercase tracking-widest border transition-all ${
+                              isTimeBooked
+                                ? 'bg-black/5 text-black/20 border-transparent cursor-not-allowed line-through'
+                                : selectedTime === slot.value 
+                                  ? 'bg-black text-white border-black' 
+                                  : 'bg-transparent text-black border-black/20 hover:border-black'
+                            }`}
+                          >
+                            {slot.display}
+                          </button>
+                        );
+                      })}
                     </div>
                   </motion.div>
                 )}
               </div>
 
+              {/* ACTION BUTTON */}
               <div className="p-8 border-t border-black/10 bg-[#F9F9F9] sticky bottom-0">
                 <button 
                   onClick={handleConfirmBooking}
-                  disabled={bookingLoading || !selectedDate}
+                  disabled={bookingLoading || !selectedDate || !selectedTime}
                   className="w-full bg-black py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100"
                 >
-                  {bookingLoading ? 'SENDING REQUEST...' : selectedDate ? `REQUEST BOOKING FOR ${new Date(selectedDate).toLocaleDateString()} @ ${selectedTime}` : 'SELECT A DATE TO CONTINUE'}
+                  {bookingLoading 
+                    ? 'SENDING REQUEST...' 
+                    : (selectedDate && selectedTime) 
+                      ? `REQUEST BOOKING FOR ${new Date(selectedDate).toLocaleDateString()} — ${selectedTime === '09:00:00' ? 'FIRST HALF' : 'SECOND HALF'}` 
+                      : 'SELECT A DATE & PHASE TO CONTINUE'}
                 </button>
               </div>
 
