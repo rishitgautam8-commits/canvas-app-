@@ -369,9 +369,20 @@ export default function Dashboard({ session }: DashboardProps) {
       </main>
 
       <ArtistOnboardingModal open={showOnboarding} userId={profile?.id} onComplete={() => window.location.reload()} />
-      {activeChatBooking && (
-        <ChatDrawer open={Boolean(activeChatBooking)} bookingId={activeChatBooking.id} currentUserId={user?.id || ''} otherPartyName={role === 'artist' ? (activeChatBooking.client?.full_name || 'Client') : 'Artist Studio'} onClose={() => setActiveChatBooking(null)} />
+      
+      {/* ESCAPE HATCH: Lets users trapped in onboarding switch back to Client */}
+      {showOnboarding && (
+        <div className="fixed top-6 left-6 z-[9999]">
+          <button 
+            onClick={async () => {
+              if (!user) return;
+              await supabase.auth.updateUser({ data: { role: 'client' } });
+              await supabase.from('profiles').update({ role: 'client' }).eq('id', user.id);
+              window.location.reload();
+            }}
+            className="flex items-center gap-2 border border-black bg-black px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-2xl transition-colors hover:bg-[#B66CF2] hover:border-[#B66CF2]"
+          >
+            <ArrowLeft size={14} /> Wait, I'm a Client
+          </button>
+        </div>
       )}
-    </div>
-  );
-}
