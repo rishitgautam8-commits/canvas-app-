@@ -208,8 +208,8 @@ export default function Dashboard({ session }: DashboardProps) {
           </button>
 
           <div className="flex items-center gap-4">
-            {/* DESKTOP TOGGLE */}
-            <div className="hidden sm:flex items-center gap-2 bg-black/5 rounded-full p-1">
+            {/* CLIENT / ARTIST TOGGLE BUTTONS */}
+            <div className="flex items-center gap-2 bg-black/5 rounded-full p-1">
               <button
                 onClick={() => handleRequestRoleSwitch('client')}
                 className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
@@ -228,16 +228,6 @@ export default function Dashboard({ session }: DashboardProps) {
               </button>
             </div>
 
-            {/* MOBILE TOGGLE */}
-            <div className="sm:hidden">
-              <button onClick={() => handleRequestRoleSwitch(role === 'client' ? 'artist' : 'client')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 hover:text-black transition-colors">
-                <RefreshCw size={12} /> {role === 'client' ? 'Switch to Artist' : 'Switch to Client'}
-              </button>
-            </div>
-
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em] bg-black/5 px-4 py-2 text-[#B66CF2] hidden md:block">
-              {role === 'artist' ? 'Artist Studio Hub' : 'Client Hub'}
-            </span>
             <div className="h-8 w-8 bg-black flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-widest">
               {displayFirstName.charAt(0)}
             </div>
