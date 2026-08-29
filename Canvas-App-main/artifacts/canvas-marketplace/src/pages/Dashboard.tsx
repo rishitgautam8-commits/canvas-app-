@@ -453,7 +453,7 @@ export default function Dashboard({ session }: DashboardProps) {
                   {/* UNAVAILABLE / BLOCKED DATES */}
       <div className="border-t border-black/10 pt-8 pb-4">
         <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Unavailable / Blocked Dates</label>
-        <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Select dates you are already booked or unavailable.</p>
+        <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Select personal days or vacations when you are completely unavailable. (Confirmed client bookings are blocked automatically).</p>
         
         <div className="flex gap-4 mb-4">
           <input 
