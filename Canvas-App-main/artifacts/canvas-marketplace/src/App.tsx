@@ -510,7 +510,11 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
 
         <ScrollZoom>
           <div className="flex flex-col items-center justify-center py-10 md:py-16 relative hidden md:flex animate-float-in delay-2">
-            <img src="/makeup-hero.png" alt="Canvas Beauty" className="w-full h-full object-cover" />
+            <img 
+  src="/makeup-hero.png" 
+  alt="Canvas Beauty" 
+  className="w-full max-w-5xl object-cover rounded-[2rem] shadow-2xl" 
+/>
           </div>
         </ScrollZoom>
       </section>
