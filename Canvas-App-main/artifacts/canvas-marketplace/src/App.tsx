@@ -936,7 +936,7 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
 // ==========================================
 function Router({ session }: { session: Session | null }) {
   const [authOpen, setAuthOpen] = useState(false);
-  
+
   return (
     <ErrorBoundary resetKey={useLocation()[0]}>
       <Switch>
@@ -949,6 +949,10 @@ function Router({ session }: { session: Session | null }) {
         <Route path="/beauty-demo" component={BeautyDemo} />
         <Route component={NotFound} />
       </Switch>
+
+      {/* PASTE THIS EXACT LINE HERE! */}
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+
     </ErrorBoundary>
   );
 }
