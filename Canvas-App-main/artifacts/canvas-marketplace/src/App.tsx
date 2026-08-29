@@ -1129,20 +1129,17 @@ function Home() {
 // ==========================================
 // ROUTER
 // ==========================================
+// ==========================================
+// ROUTER
+// ==========================================
 function Router({ session }: { session: Session | null }) {
   return (
     <ErrorBoundary resetKey={useLocation()[0]}>
       <Switch>
-        <Route path="/">
-          {/* Removed the extra props since Home manages itself! */}
-          <Home /> 
-        </Route>
-        
+        <Route path="/" component={Home} />
         <Route path="/dashboard">
-          {/* Dashboard DOES need the session prop */}
-          <Dashboard session={session} />
+          {() => <Dashboard session={session} />}
         </Route>
-        
         <Route path="/beauty-demo" component={BeautyDemo} />
         <Route component={NotFound} />
       </Switch>
@@ -1153,48 +1150,6 @@ function Router({ session }: { session: Session | null }) {
 // ==========================================
 // APP ROOT WITH FOOLPROOF INTERCEPTOR
 // ==========================================
-
-// ==========================================
-// GLOBAL ROLE SWITCHER (Imported by Dashboard)
-// ==========================================
-export async function switchGlobalRole(
-  selectedRole: 'client' | 'artist',
-  session: Session,
-  setUpdating?: (v: boolean) => void,
-  isInitialOnboarding: boolean = false
-) {
-  if (setUpdating) setUpdating(true);
-
-  try {
-    const { error } = await supabase.auth.updateUser({
-      data: { role: selectedRole }
-    });
-
-    if (error) throw error;
-
-    if (isInitialOnboarding) {
-      const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User';
-      await supabase.from('profiles').upsert({ id: session.user.id, role: selectedRole, full_name: fullName });
-    } else {
-      await supabase.from('profiles').update({ role: selectedRole }).eq('id', session.user.id);
-    }
-
-    if (selectedRole === 'artist') {
-      await supabase.from('artist_profiles').upsert({ id: session.user.id });
-    }
-
-    if (isInitialOnboarding) {
-      window.location.href = '/dashboard';
-    } else {
-      window.location.reload();
-    }
-  } catch (err: any) {
-    console.error('Role switch failed:', err);
-    window.alert(`Failed to switch role: ${err.message}`);
-    if (setUpdating) setUpdating(false);
-  }
-}
-
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
@@ -1203,7 +1158,7 @@ export default function App() {
   useEffect(() => {
     // 1. Check if we're currently processing a Google OAuth redirect
     const checkSession = async () => {
-      const isOAuth = window.location.hash.includes('access_token=');
+      const isOAuth = window.location.hash.includes('access_token=') || window.location.search.includes('code=');
       const { data: { session } } = await supabase.auth.getSession();
       
       setSession(session);
@@ -1226,7 +1181,22 @@ export default function App() {
 
   const handleGlobalSelectRole = async (selectedRole: 'client' | 'artist') => {
     if (!session?.user) return;
-    await switchGlobalRole(selectedRole, session, setUpdatingRole, true);
+    setUpdatingRole(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { role: selectedRole } });
+      if (error) throw error;
+
+      const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User';
+      await supabase.from('profiles').upsert({ id: session.user.id, role: selectedRole, full_name: fullName });
+      
+      if (selectedRole === 'artist') {
+        await supabase.from('artist_profiles').upsert({ id: session.user.id });
+      }
+      window.location.href = '/dashboard';
+    } catch (err: any) {
+      window.alert(`Failed to set account type: ${err.message}`);
+      setUpdatingRole(false);
+    }
   };
 
   // FREEZE THE SCREEN WHILE SUPABASE READS THE LOGIN TOKEN
@@ -1272,7 +1242,6 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          {/* ADDED session={session} HERE! */}
           <Router session={session} />
         </WouterRouter>
         <Toaster />
