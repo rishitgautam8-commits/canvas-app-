@@ -42,6 +42,7 @@ export default function Dashboard({ session }: DashboardProps) {
     max_travel_km: '',
     starting_price: '',
     years_experience: '',
+    blocked_dates: [] as string[], // <-- NEW LINE
   });
 
   const [addons, setAddons] = useState<Array<{ name: string; price: string; file: File | null }>>([
@@ -80,7 +81,8 @@ export default function Dashboard({ session }: DashboardProps) {
               max_travel_km: artistData.max_travel_km?.toString() || '',
               starting_price: artistData.starting_price?.toString() || '',
               years_experience: artistData.years_experience?.toString() || '',
-            });
+              blocked_dates: artistData.blocked_dates || [], // <-- NEW LINE
+  });
           }
 
           const { data: bookingsData } = await supabase.from('bookings').select('*').eq('artist_id', session.user.id).order('created_at', { ascending: false });
@@ -145,8 +147,7 @@ export default function Dashboard({ session }: DashboardProps) {
     setSaving(true);
 
     try {
-      // 1. THE FAIL-SAFE: Force-create the base profile so the Foreign Key doesn't fail.
-      // We include email and name so it bypasses any "Not Null" database restrictions.
+      // 1. BASE PROFILE (No blocked dates here)
       const { error: profileError } = await supabase.from('profiles').upsert({
         id: session.user.id,
         email: session.user.email,
@@ -154,12 +155,11 @@ export default function Dashboard({ session }: DashboardProps) {
         role: 'artist'
       }, { onConflict: 'id' });
 
-      // If the base profile fails, we throw an error immediately so we can see exactly why.
       if (profileError) {
         throw new Error(`Failed to create base profile: ${profileError.message}`);
       }
 
-      // 2. Now safely save the artist profile
+      // 2. ARTIST PROFILE (Blocked dates go here!)
       const { error: artistError } = await supabase.from('artist_profiles').upsert({
         id: session.user.id,
         business_name: formData.business_name,
@@ -169,6 +169,7 @@ export default function Dashboard({ session }: DashboardProps) {
         max_travel_km: parseInt(formData.max_travel_km) || 0,
         starting_price: parseInt(formData.starting_price) || 0,
         years_experience: parseInt(formData.years_experience) || 0,
+        blocked_dates: formData.blocked_dates, // <-- Correctly placed here!
       }, { onConflict: 'id' });
 
       if (artistError) throw artistError;
@@ -449,6 +450,51 @@ export default function Dashboard({ session }: DashboardProps) {
                   </div>
 
                   {/* MAIN PORTFOLIO */}
+                  {/* UNAVAILABLE / BLOCKED DATES */}
+      <div className="border-t border-black/10 pt-8 pb-4">
+        <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Unavailable / Blocked Dates</label>
+        <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Select dates you are already booked or unavailable.</p>
+        
+        <div className="flex gap-4 mb-4">
+          <input 
+            type="date" 
+            id="datePicker" 
+            className="border-b border-black/20 bg-transparent py-2 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+          />
+          <button 
+            type="button" 
+            onClick={() => {
+              const dateInput = document.getElementById('datePicker') as HTMLInputElement;
+              const dateVal = dateInput.value;
+              if (dateVal && !formData.blocked_dates.includes(dateVal)) {
+                setFormData({...formData, blocked_dates: [...formData.blocked_dates, dateVal]});
+                dateInput.value = ''; // clear input after adding
+              }
+            }} 
+            className="bg-black px-6 py-2 text-[10px] font-bold text-white uppercase tracking-widest hover:bg-[#B66CF2] transition-colors"
+          >
+            Block Date
+          </button>
+        </div>
+
+        {/* Display Blocked Dates */}
+        {formData.blocked_dates.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {formData.blocked_dates.map(date => (
+               <span key={date} className="border border-black/20 bg-black/5 px-4 py-2 text-xs font-bold tracking-widest flex items-center gap-3">
+                 {new Date(date).toLocaleDateString('en-GB')} 
+                 <button 
+                   type="button" 
+                   onClick={() => setFormData({...formData, blocked_dates: formData.blocked_dates.filter(d => d !== date)})} 
+                   className="text-red-500 hover:text-red-700 text-sm"
+                 >
+                   ✕
+                 </button>
+               </span>
+            ))}
+          </div>
+        )}
+      </div>
                   <div className="bg-black/5 p-6 border-l-2 border-black">
                     <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Primary Portfolio Upload *</label>
                     <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload a minimum of 2 photos. No maximum limit.</p>
