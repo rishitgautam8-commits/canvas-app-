@@ -40,11 +40,13 @@ export default function Dashboard({ session }: DashboardProps) {
     qualifications: '',
     city: '',
     max_travel_km: '',
-    starting_price: '', 
+    starting_price: '',
     years_experience: '',
-    addon_name: '',
-    addon_price: '',
   });
+
+  const [addons, setAddons] = useState<Array<{ name: string; price: string; file: File | null }>>([
+    { name: '', price: '', file: null }
+  ]);
 
   useEffect(() => {
     async function loadDashboard() {
@@ -71,17 +73,14 @@ export default function Dashboard({ session }: DashboardProps) {
             setArtistProfile(artistData);
             setPortfolio(artistData.portfolio || []);
             setFormData({
-  business_name: artistData.business_name || '',
-  category: artistData.category || '',
-  qualifications: artistData.qualifications || '',
-  city: artistData.city || '',
-  // We add .toString() because our strict regex inputs expect text strings, not raw numbers
-  max_travel_km: artistData.max_travel_km?.toString() || '',
-  starting_price: artistData.starting_price?.toString() || '',
-  years_experience: artistData.years_experience?.toString() || '',
-  addon_name: artistData.addon_name || '',
-  addon_price: artistData.addon_price?.toString() || '',
-});
+        business_name: artistData.business_name || '',
+        category: artistData.category || '',
+        qualifications: artistData.qualifications || '',
+        city: artistData.city || '',
+        max_travel_km: artistData.max_travel_km?.toString() || '',
+        starting_price: artistData.starting_price?.toString() || '',
+        years_experience: artistData.years_experience?.toString() || '',
+      });
           }
 
           const { data: bookingsData } = await supabase.from('bookings').select('*').eq('artist_id', session.user.id).order('created_at', { ascending: false });
@@ -458,43 +457,98 @@ export default function Dashboard({ session }: DashboardProps) {
           <button type="button" onClick={() => setHasAddonSkill(true)} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
             Yes, I do
           </button>
-          <button type="button" onClick={() => { setHasAddonSkill(false); setFormData({...formData, addon_name: '', addon_price: ''}); }} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${!hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
-            No
-          </button>
+          <button 
+  type="button" 
+  onClick={() => { 
+    setHasAddonSkill(false); 
+    setAddons([{ name: '', price: '', file: null }]); 
+  }} 
+  className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${!hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}
+>
+  No
+</button>
         </div>
 
         {/* CONDITIONAL ADD-ON UPLOADER */}
+        {/* DYNAMIC MULTI-SKILL CONTAINER */}
         {hasAddonSkill && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-black/5 p-6 border-l-2 border-[#B66CF2]">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Skill Name *</label>
-                <input 
-                  type="text" 
-                  value={formData.addon_name} 
-                  onChange={(e) => setFormData({...formData, addon_name: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
-                  placeholder="e.g. Brow Tinting" 
-                  className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-                  required={hasAddonSkill} 
-                />
+          <div className="space-y-6">
+            {addons.map((addon, index) => (
+              <div key={index} className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-black/5 p-6 border-l-2 border-[#B66CF2] relative">
+                
+                {addons.length > 1 && (
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      const updated = addons.filter((_, i) => i !== index);
+                      setAddons(updated);
+                    }} 
+                    className="absolute top-4 right-4 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:underline"
+                  >
+                    Remove Skill
+                  </button>
+                )}
+
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#B66CF2]">Add-on Skill #{index + 1}</p>
+
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Skill Name *</label>
+                    <input 
+                      type="text" 
+                      value={addon.name} 
+                      onChange={(e) => {
+                        const updated = [...addons];
+                        updated[index].name = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                        setAddons(updated);
+                      }} 
+                      placeholder="e.g. Brow Tinting" 
+                      className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                      required={hasAddonSkill} 
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Price (₹) *</label>
+                    <input 
+                      type="text" 
+                      value={addon.price} 
+                      onChange={(e) => {
+                        const updated = [...addons];
+                        updated[index].price = e.target.value.replace(/\D/g, '');
+                        setAddons(updated);
+                      }} 
+                      placeholder="e.g. 1200" 
+                      className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                      required={hasAddonSkill} 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Portfolio Upload *</label>
+                  <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload at least 1 photo showcasing this specific skill.</p>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      const updated = [...addons];
+                      updated[index].file = file;
+                      setAddons(updated);
+                    }}
+                    className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" 
+                    required={hasAddonSkill && !addon.file} 
+                  />
+                </div>
               </div>
-              <div>
-                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Price (₹) *</label>
-                <input 
-                  type="text" 
-                  value={formData.addon_price} 
-                  onChange={(e) => setFormData({...formData, addon_price: e.target.value.replace(/\D/g, '')})} 
-                  placeholder="e.g. 1200" 
-                  className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-                  required={hasAddonSkill} 
-                />
-              </div>
-            </div>
-            <div>
-              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Portfolio Upload *</label>
-              <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload at least 1 photo showcasing this specific skill.</p>
-              <input type="file" accept="image/*" className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" required={hasAddonSkill} />
-            </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => setAddons([...addons, { name: '', price: '', file: null }])}
+              className="w-full border border-dashed border-black/30 bg-white py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-black hover:border-black transition-colors"
+            >
+              + Add Another Add-on Skill
+            </button>
           </div>
         )}
       </div>
