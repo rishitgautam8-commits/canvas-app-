@@ -208,6 +208,7 @@ export default function Dashboard({ session }: DashboardProps) {
           </button>
 
           <div className="flex items-center gap-4">
+            {/* DESKTOP TOGGLE */}
             <div className="hidden sm:flex items-center gap-2 bg-black/5 rounded-full p-1">
               <button
                 onClick={() => handleRequestRoleSwitch('client')}
@@ -227,6 +228,7 @@ export default function Dashboard({ session }: DashboardProps) {
               </button>
             </div>
 
+            {/* MOBILE TOGGLE */}
             <div className="sm:hidden">
               <button onClick={() => handleRequestRoleSwitch(role === 'client' ? 'artist' : 'client')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 hover:text-black transition-colors">
                 <RefreshCw size={12} /> {role === 'client' ? 'Switch to Artist' : 'Switch to Client'}
@@ -255,7 +257,7 @@ export default function Dashboard({ session }: DashboardProps) {
                 </div>
                 <button onClick={() => setShowRoleSwitchConfirm(false)} className="text-black/30 hover:text-black transition-colors"><X size={20} strokeWidth={1.5} /></button>
               </div>
-              <p className="text-sm text-black/60 leading-relaxed mb-8">You are about to switch from <strong className="text-black">{role}</strong> to <strong className="text-black">{pendingRole}</strong>. Your dashboard will reload with the new interface. All your data remains intact.</p>
+              <p className="text-sm text-black/60 leading-relaxed mb-8">You are about to switch from <strong className="text-black">{role}</strong> to <strong className="text-black">{pendingRole}</strong>. Your dashboard will reload with the new interface.</p>
               <div className="flex gap-4">
                 <button onClick={() => setShowRoleSwitchConfirm(false)} className="flex-1 border border-black/20 bg-transparent px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:border-black hover:text-black transition-colors">Cancel</button>
                 <button onClick={confirmRoleSwitch} disabled={updating} className="flex-1 border border-black bg-black px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#B66CF2] hover:border-[#B66CF2] transition-colors disabled:opacity-50">
