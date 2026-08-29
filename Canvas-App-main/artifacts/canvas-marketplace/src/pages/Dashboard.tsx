@@ -542,6 +542,7 @@ export default function Dashboard({ session }: DashboardProps) {
               </div>
             ))}
 
+            {/* BUTTON TO ADD ANOTHER SKILL */}
             <button
               type="button"
               onClick={() => setAddons([...addons, { name: '', price: '', file: null }])}
