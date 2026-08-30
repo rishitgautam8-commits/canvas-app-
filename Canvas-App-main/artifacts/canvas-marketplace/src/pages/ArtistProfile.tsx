@@ -370,10 +370,10 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                     <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Select Phase of Day</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
-                        { display: 'First Half (Morning)', value: '09:00:00' },
-                        { display: 'Second Half (Evening)', value: '15:00:00' }
+                        { display: 'First Half (Morning)', value: 'Morning (Before 12 PM)', keyword: 'Morning' },
+                        { display: 'Second Half (Evening)', value: 'Evening (After 4 PM)', keyword: 'Evening' }
                       ].map(slot => {
-                        const isTimeBooked = bookedTimeSlots[selectedDate]?.some(t => t?.startsWith(slot.value.substring(0, 5)));
+                        const isTimeBooked = bookedTimeSlots[selectedDate]?.some(t => t?.includes(slot.keyword));
                         
                         return (
                           <button
@@ -397,6 +397,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                 )}
               </div>
 
+              {/* ACTION BUTTON */}
               <div className="p-8 border-t border-black/10 bg-[#F9F9F9] sticky bottom-0">
                 <button 
                   onClick={handleConfirmBooking}
@@ -406,7 +407,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                   {bookingLoading 
                     ? 'SENDING REQUEST...' 
                     : (selectedDate && selectedTime) 
-                      ? `REQUEST BOOKING FOR ${new Date(selectedDate).toLocaleDateString()} — ${selectedTime === '09:00:00' ? 'FIRST HALF' : 'SECOND HALF'}` 
+                      ? `REQUEST BOOKING FOR ${new Date(selectedDate).toLocaleDateString()} — ${selectedTime.includes('Morning') ? 'FIRST HALF' : 'SECOND HALF'}` 
                       : 'SELECT A DATE & PHASE TO CONTINUE'}
                 </button>
               </div>
