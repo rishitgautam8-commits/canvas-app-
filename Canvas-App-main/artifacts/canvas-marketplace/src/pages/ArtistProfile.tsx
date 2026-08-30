@@ -17,6 +17,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   const [bookedTimeSlots, setBookedTimeSlots] = useState<Record<string, string[]>>({});
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
+  const [venueAddress, setVenueAddress] = useState<string>('');
   const [bookingLoading, setBookingLoading] = useState(false);
 
   const artistId = params?.id;
@@ -91,6 +92,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
   const handleConfirmBooking = async () => {
     if (!selectedDate || !selectedTime) return window.alert("Please select a date and time.");
+    if (!venueAddress.trim()) return window.alert("Please enter a venue address.");
     setBookingLoading(true);
 
     try {
@@ -108,16 +110,22 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         return;
       }
 
-      // Save using the correct database columns: event_date and time_slot (matching the enum)
+      // Save using the correct database columns: event_date, time_slot (matching the enum), and venue_address (required, not-null)
       const { error } = await supabase.from('bookings').insert({
         artist_id: artistId,
         client_id: user.id,
         event_date: selectedDate,
         time_slot: selectedTime,
+        venue_address: venueAddress.trim(),
         status: 'pending'
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23502') {
+          throw new Error('A required booking detail is missing — please check every field and try again.');
+        }
+        throw error;
+      }
 
       window.alert("Booking request sent successfully! The artist will confirm shortly.");
       setShowBookingModal(false);
@@ -129,6 +137,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       
       setSelectedDate('');
       setSelectedTime('');
+      setVenueAddress('');
 
     } catch (err: any) {
       window.alert(`Error booking: ${err.message}`);
@@ -393,6 +402,17 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                         );
                       })}
                     </div>
+
+                    <div className="mt-6">
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Venue Address</label>
+                      <input
+                        type="text"
+                        value={venueAddress}
+                        onChange={(e) => setVenueAddress(e.target.value)}
+                        placeholder="Where should the artist come to?"
+                        className="w-full border border-black/20 px-4 py-3 text-sm outline-none focus:border-black transition-colors"
+                      />
+                    </div>
                   </motion.div>
                 )}
               </div>
@@ -401,14 +421,16 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               <div className="p-8 border-t border-black/10 bg-[#F9F9F9] sticky bottom-0">
                 <button 
                   onClick={handleConfirmBooking}
-                  disabled={bookingLoading || !selectedDate || !selectedTime}
+                  disabled={bookingLoading || !selectedDate || !selectedTime || !venueAddress.trim()}
                   className="w-full bg-black py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100"
                 >
                   {bookingLoading 
                     ? 'SENDING REQUEST...' 
-                    : (selectedDate && selectedTime) 
+                    : (selectedDate && selectedTime && venueAddress.trim()) 
                       ? `REQUEST BOOKING FOR ${new Date(selectedDate).toLocaleDateString()} — ${selectedTime.includes('Morning') ? 'FIRST HALF' : 'SECOND HALF'}` 
-                      : 'SELECT A DATE & PHASE TO CONTINUE'}
+                      : (selectedDate && selectedTime)
+                        ? 'ENTER A VENUE ADDRESS TO CONTINUE'
+                        : 'SELECT A DATE & PHASE TO CONTINUE'}
                 </button>
               </div>
             </motion.div>
