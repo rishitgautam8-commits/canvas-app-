@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useRoute, useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, CheckCircle2, MessageSquare, MapPin, Clock, X, Calendar } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, MapPin, Clock, X, Calendar } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { artistsData } from '@/Data/artistsData';
 
-// We added the setAuthOpen prop here so the component can trigger the login modal!
 export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boolean) => void }) {
   const [, params] = useRoute('/artist/:id');
   const [, setLocation] = useLocation();
@@ -26,11 +25,10 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
     async function fetchArtistData() {
       if (!artistId) return;
 
-      // 1. THE ILLUSION: Check if it's a mock static artist (ID doesn't contain a hyphen)
+      // 1. Check if it's a mock static artist (ID doesn't contain a hyphen)
       const isMockId = !String(artistId).includes('-');
 
       if (isMockId) {
-        // Silently load ALL the fake artist data into the real calendar UI
         const foundMock = artistsData.find((a: any) => String(a.id) === String(artistId));
         if (foundMock) {
           setArtist({
@@ -39,24 +37,21 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
             years_experience: (foundMock as any).experience_years || 6,
             starting_price: parseInt(String(foundMock.startingPrice).replace(/[^0-9]/g, '')) || 25000,
             category: (foundMock.tags && foundMock.tags.join(', ')) || foundMock.category || 'Bridal & Wedding',
-            
-            // --- NEW: Pull in the missing rich data from the template ---
             image: foundMock.image,
             rating: foundMock.rating || 4.9,
             reviewsCount: foundMock.reviewsCount || foundMock.reviewCount || 125,
             bio: foundMock.bio || foundMock.signature || `Expert in Bridal styling. Available for bookings in ${foundMock.location || 'Hyderabad'}.`,
-            
             portfolio: foundMock.portfolio || [foundMock.image],
             addons: foundMock.addons || [],
             blocked_dates: []
           });
-          setBookedTimeSlots({}); // Fake artists have wide open calendars
+          setBookedTimeSlots({});
           setLoading(false);
           return;
         }
       }
 
-      // 2. THE REALITY: Fetch from Supabase for real registered artists
+      // 2. Fetch from Supabase for real registered artists
       const { data: artistData, error: artistError } = await supabase
         .from('artist_profiles')
         .select('*')
@@ -71,20 +66,20 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       
       setArtist(artistData);
 
-      // Fetch real database bookings for double-booking prevention
+      // Fetch real database bookings using correct columns: event_date & time_slot
       const { data: existingBookings } = await supabase
         .from('bookings')
-        .select('booking_date, booking_time')
+        .select('event_date, time_slot')
         .eq('artist_id', artistId)
         .in('status', ['confirmed', 'pending']); 
 
       const slots: Record<string, string[]> = {};
       if (existingBookings) {
         existingBookings.forEach(booking => {
-          if (!slots[booking.booking_date]) {
-            slots[booking.booking_date] = [];
+          if (!slots[booking.event_date]) {
+            slots[booking.event_date] = [];
           }
-          slots[booking.booking_date].push(booking.booking_time);
+          slots[booking.event_date].push(booking.time_slot);
         });
       }
       setBookedTimeSlots(slots);
@@ -99,29 +94,27 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
     setBookingLoading(true);
 
     try {
-      // Get the current logged-in user (the client)
       const { data: authData } = await supabase.auth.getUser();
       const user = authData.user;
       
       if (!user) {
         window.alert("Please log in as a client to book an artist.");
-        setShowBookingModal(false); // Closes the calendar modal
-        setBookingLoading(false);   // Resets the loading state
+        setShowBookingModal(false);
+        setBookingLoading(false);
         
-        // This instantly pops the login modal over the CURRENT page instead of kicking them out
         if (setAuthOpen) {
           setAuthOpen(true);
         }
         return;
       }
 
-      // Save the booking to the database
+      // Save the booking to the database using correct column names
       const { error } = await supabase.from('bookings').insert({
         artist_id: artistId,
         client_id: user.id,
-        booking_date: selectedDate,
-        booking_time: selectedTime,
-        status: 'pending' // Artist has to accept it on their dashboard
+        event_date: selectedDate,
+        time_slot: selectedTime,
+        status: 'pending'
       });
 
       if (error) throw error;
@@ -129,7 +122,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       window.alert("Booking request sent successfully! The artist will confirm shortly.");
       setShowBookingModal(false);
       
-      // Instantly gray out THIS specific time phase on the calendar 
       setBookedTimeSlots(prev => ({
         ...prev,
         [selectedDate]: [...(prev[selectedDate] || []), selectedTime]
@@ -164,9 +156,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
     );
   }
 
-  // ==========================================
-  // PORTFOLIO & ADD-ON SEPARATION
-  // ==========================================
   const rawPortfolio = artist?.portfolio || [];
   const allImages = rawPortfolio.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean);
   if (allImages.length === 0 && artist?.image) allImages.push(artist.image);
@@ -176,11 +165,8 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   const hasAddonText = Array.isArray(artist?.addons) && artist?.addons.length > 0;
   const hasAddonImages = addonImages.length > 0;
 
-  // ==========================================
-  // SMART CALENDAR LOGIC (Grouped by Month)
-  // ==========================================
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Sets time to strictly midnight so past dates are perfectly excluded
+  today.setHours(0, 0, 0, 0);
 
   const next30Days = Array.from({ length: 30 }).map((_, i) => {
     const d = new Date(today);
@@ -188,7 +174,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
     return d;
   });
 
-  // Group dates by Month & Year (e.g., "August 2026", "September 2026")
   const groupedDates = next30Days.reduce((acc, date) => {
     const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
     if (!acc[monthYear]) acc[monthYear] = [];
@@ -196,10 +181,8 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
     return acc;
   }, {} as Record<string, Date[]>);
 
-
   return (
     <div className="min-h-screen bg-[#F9F9F9] text-black pb-24">
-      {/* HEADER NAV */}
       <header className="border-b border-black/10 bg-white px-6 py-6 sm:px-12 sticky top-0 z-50">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">
           <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
@@ -211,17 +194,12 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         </div>
       </header>
 
-      {/* ARTIST HERO SECTION */}
       <section className="bg-white border-b border-black/10 py-16 px-6 sm:px-12">
         <div className="mx-auto max-w-[1400px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
             <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-black/10 flex items-center justify-center text-3xl font-bold uppercase text-black/40 border border-black/10 overflow-hidden shrink-0">
               {artist.image ? (
-                <img 
-                  src={artist.image} 
-                  alt={artist.business_name} 
-                  className="h-full w-full object-cover"
-                />
+                <img src={artist.image} alt={artist.business_name} className="h-full w-full object-cover" />
               ) : (
                 artist.business_name?.charAt(0) || 'A'
               )}
@@ -260,10 +238,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         </div>
       </section>
 
-      {/* PORTFOLIO GRID & ADD-ONS */}
       <main className="mx-auto max-w-[1400px] px-6 py-16 sm:px-12">
-        
-        {/* --- VERIFIED PORTFOLIO --- */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold capitalize tracking-tight mb-2">Verified Portfolio.</h2>
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Real client work showcasing signature aesthetic and technical execution.</p>
@@ -289,11 +264,9 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
           </div>
         )}
 
-        {/* --- ADD-ONS & UPGRADES --- */}
         {(hasAddonText || hasAddonImages) && (
           <div className="mt-20 pt-16 border-t border-black/10">
             <div className="flex flex-col lg:flex-row gap-16 lg:items-start">
-              
               {hasAddonText && (
                 <div className={`flex-1 ${!hasAddonImages ? 'max-w-3xl' : ''}`}>
                   <h2 className="text-3xl font-bold capitalize tracking-tight mb-4">Add-ons & Upgrades.</h2>
@@ -323,14 +296,11 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                   ))}
                 </div>
               )}
-              
             </div>
           </div>
         )}
-
       </main>
 
-      {/* SMART BOOKING MODAL */}
       <AnimatePresence>
         {showBookingModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowBookingModal(false)}>
@@ -341,7 +311,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               className="bg-white border border-black/10 w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]" 
               onClick={(e) => e.stopPropagation()}
             >
-              
               <div className="p-8 border-b border-black/10 flex justify-between items-center bg-white sticky top-0">
                 <div>
                   <h3 className="text-2xl font-bold capitalize tracking-tight">Select Date & Time.</h3>
@@ -351,7 +320,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               </div>
 
               <div className="p-8 overflow-y-auto">
-                {/* --- MONTH-GROUPED CALENDAR --- */}
                 <div className="max-h-[50vh] overflow-y-auto pr-4 mb-6 custom-scrollbar">
                   {Object.entries(groupedDates).map(([monthYear, dates]) => (
                     <div key={monthYear} className="mb-8">
@@ -360,7 +328,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                       </h3>
                       <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
                         {dates.map((d, i) => {
-                          // Format date strictly to YYYY-MM-DD to avoid timezone shifting
                           const year = d.getFullYear();
                           const month = String(d.getMonth() + 1).padStart(2, '0');
                           const day = String(d.getDate()).padStart(2, '0');
@@ -398,7 +365,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                   ))}
                 </div>
 
-                {/* SMART TIME SELECTOR */}
                 {selectedDate && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="border-t border-black/10 pt-6">
                     <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Select Phase of Day</label>
@@ -407,8 +373,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                         { display: 'First Half (Morning)', value: '09:00:00' },
                         { display: 'Second Half (Evening)', value: '15:00:00' }
                       ].map(slot => {
-                        // Check if this specific phase is booked. 
-                        const isTimeBooked = bookedTimeSlots[selectedDate]?.some(t => t.startsWith(slot.value.substring(0, 5)));
+                        const isTimeBooked = bookedTimeSlots[selectedDate]?.some(t => t?.startsWith(slot.value.substring(0, 5)));
                         
                         return (
                           <button
@@ -432,7 +397,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                 )}
               </div>
 
-              {/* ACTION BUTTON */}
               <div className="p-8 border-t border-black/10 bg-[#F9F9F9] sticky bottom-0">
                 <button 
                   onClick={handleConfirmBooking}
@@ -446,7 +410,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                       : 'SELECT A DATE & PHASE TO CONTINUE'}
                 </button>
               </div>
-
             </motion.div>
           </div>
         )}

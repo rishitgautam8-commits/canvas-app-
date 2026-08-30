@@ -16,7 +16,7 @@ import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import Dashboard from './pages/Dashboard';
 import { artistsData as artists } from './Data/artistsData';
-import BeautyDemo from '@/pages/BeautyDemo';
+import BeautyDemo from '@/pages/ArtistProfile';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { Reveal } from '@/components/Reveal';
 
