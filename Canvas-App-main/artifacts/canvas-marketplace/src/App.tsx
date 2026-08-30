@@ -797,9 +797,19 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-8 capitalize tracking-tight">Are You A Makeup Artist?</h2>
               <p className="font-sans text-[15px] text-[var(--text-light)] leading-[1.8] mb-12 max-w-[680px] mx-auto">It is completely free to list your verified portfolio on CANVAS. When our AI matches you with a bride, you will receive a blurred notification. To unlock the client&apos;s WhatsApp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. You can also upgrade to Canvas Pro for a flat monthly subscription to unlock unlimited leads and priority placement in our AI search results.</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <button className="bg-transparent text-[var(--gold)] border border-[var(--gold)] px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] transition-colors">Explore Pro Features</button>
-                <button className="bg-[var(--gold)] text-[var(--bg-dark)] border border-[var(--gold)] px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#B08D45] transition-colors">Apply to join Canvas</button>
-              </div>
+              <button 
+                onClick={() => window.alert('Canvas Pro features are launching soon! Create a free account today to get early access.')} 
+                className="bg-transparent text-[var(--gold)] border border-[var(--gold)] px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] transition-colors"
+              >
+                Explore Pro Features
+              </button>
+              <button 
+                onClick={() => setAuthOpen(true)} 
+                className="bg-[var(--gold)] text-[var(--bg-dark)] border border-[var(--gold)] px-8 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#B08D45] transition-colors"
+              >
+                Apply to join Canvas
+              </button>
+            </div>
             </div>
           </section>
         </ScrollZoomIn>
