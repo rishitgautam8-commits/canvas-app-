@@ -211,18 +211,13 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
 
   const handleSelectArtist = (artist: Artist) => {
     console.log("Artist card clicked:", artist.name);
+    // If it's a live database artist with a UUID, you can choose to route them directly or open the modal
     setSelectedArtist(artist);
   };
 
+  // Inside the Home component:
   const [liveArtists, setLiveArtists] = useState<Artist[]>([]);
   const [, setLoadingArtists] = useState(true);
-  const [sortBy, setSortBy] = useState('Best match');
-  const [maxBudget, setMaxBudget] = useState(65000);
-  const [cityFilters, setCityFilters] = useState<Record<string, boolean>>({
-    'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true,
-    'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true,
-    'Begumpet': true, 'Secunderabad': true
-  });
 
   const editorialImages = [
     '1522337360788-8b13fee7a3af', '1515377905703-c4788e51af15', '1508186225823-0963cfdbaa18',
@@ -237,15 +232,14 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
       if (error) {
         console.error('Error fetching live artists:', error.message);
       } else if (data) {
-        const realUsersOnly = data.filter((item: any) => item.id && item.id.includes('-'));
-        const formatted: Artist[] = realUsersOnly.map((item: any, index: number) => {
+        const formatted: Artist[] = data.map((item: any, index: number) => {
           const rawPortfolio = item.portfolio || [];
           const mainImage = rawPortfolio.length > 0
             ? typeof rawPortfolio[0] === 'string' ? rawPortfolio[0] : rawPortfolio[0]?.image
             : `https://images.unsplash.com/photo-${editorialImages[index % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
           const normalizedPortfolio = normalizePortfolio(rawPortfolio, mainImage);
           return {
-            id: item.id,
+            id: item.id, // This is the real Supabase UUID!
             name: item.business_name || 'Canvas Artist',
             category: item.category || 'Bridal & Wedding',
             services: ['Makeup Artist', item.category || 'Bridal & Wedding'],
@@ -274,6 +268,13 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
     }
     fetchLiveArtists();
   }, []);
+  const [sortBy, setSortBy] = useState('Best match');
+  const [maxBudget, setMaxBudget] = useState(65000);
+  const [cityFilters, setCityFilters] = useState<Record<string, boolean>>({
+    'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true,
+    'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true,
+    'Begumpet': true, 'Secunderabad': true
+  });
 
   useEffect(() => {
     async function fetchStats() {
@@ -863,7 +864,7 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
                 <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-white mb-6">Client Service</h3>
                 <ul className="space-y-4 text-[11px] font-bold uppercase tracking-widest text-white/50">
                   <li><button className="hover:text-white transition-colors text-left">Operating hours are from<br/>9am-9pm EST Mon-Fri</button></li>
-                  <li className="pt-2"><button className="hover:text-[#B66CF2] transition-colors text-white">concierge@canvas.com</button></li>
+                  <li className="pt-2"><button className="hover:text-[#B66CF2] transition-colors text-white">thecanvasbeauty@gmail.com</button></li>
                   <li><button className="hover:text-white transition-colors">1-800-CANVAS</button></li>
                   <li className="pt-4"><button className="hover:text-white transition-colors">Contact Us</button></li>
                   <li><button className="hover:text-white transition-colors">Help & FAQs</button></li>
@@ -940,9 +941,10 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
 // ==========================================
 function Router({ session }: { session: Session | null }) {
   const [authOpen, setAuthOpen] = useState(false);
+  const [location] = useLocation();
 
   return (
-    <ErrorBoundary resetKey={useLocation()[0]}>
+    <ErrorBoundary resetKey={location}>
       <Switch>
         <Route path="/">
           <Home session={session} setAuthOpen={setAuthOpen} />
