@@ -215,8 +215,16 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       <section className="bg-white border-b border-black/10 py-16 px-6 sm:px-12">
         <div className="mx-auto max-w-[1400px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
-            <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-black/10 flex items-center justify-center text-3xl font-bold uppercase text-black/40 border border-black/10 overflow-hidden">
-              {artist.business_name?.charAt(0) || 'A'}
+            <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-full bg-black/10 flex items-center justify-center text-3xl font-bold uppercase text-black/40 border border-black/10 overflow-hidden shrink-0">
+              {artist.image ? (
+                <img 
+                  src={artist.image} 
+                  alt={artist.business_name} 
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                artist.business_name?.charAt(0) || 'A'
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
