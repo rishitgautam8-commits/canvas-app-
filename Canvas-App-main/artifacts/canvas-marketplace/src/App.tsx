@@ -954,8 +954,8 @@ function Router({ session }: { session: Session | null }) {
         </Route>
         <Route path="/beauty-demo" component={BeautyDemo} />
         <Route path="/artist/:id">
-  {() => <BeautyDemo />}
-</Route>
+          {() => <BeautyDemo setAuthOpen={setAuthOpen} />}
+        </Route>
         <Route component={NotFound} />
       </Switch>
 

@@ -5,7 +5,8 @@ import { ArrowLeft, CheckCircle2, MessageSquare, MapPin, Clock, X, Calendar } fr
 import { AnimatePresence, motion } from 'framer-motion';
 import { artistsData } from '@/Data/artistsData';
 
-export default function ArtistProfile() {
+// We added the setAuthOpen prop here so the component can trigger the login modal!
+export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boolean) => void }) {
   const [, params] = useRoute('/artist/:id');
   const [, setLocation] = useLocation();
   const [artist, setArtist] = useState<any>(null);
@@ -99,7 +100,11 @@ export default function ArtistProfile() {
         window.alert("Please log in as a client to book an artist.");
         setShowBookingModal(false); // Closes the calendar modal
         setBookingLoading(false);   // Resets the loading state
-        setLocation('/dashboard');  // Instantly routes them to the sign-in page!
+        
+        // This instantly pops the login modal over the CURRENT page instead of kicking them out
+        if (setAuthOpen) {
+          setAuthOpen(true);
+        }
         return;
       }
 
