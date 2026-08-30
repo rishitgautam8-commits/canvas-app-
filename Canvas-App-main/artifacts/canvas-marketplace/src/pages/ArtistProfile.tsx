@@ -18,10 +18,11 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [venueAddress, setVenueAddress] = useState<string>('');
+  const [lookDetails, setLookDetails] = useState<string>('');
   const [bookingLoading, setBookingLoading] = useState(false);
 
   const artistId = params?.id;
-//
+
   useEffect(() => {
     async function fetchArtistData() {
       if (!artistId) return;
@@ -93,6 +94,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   const handleConfirmBooking = async () => {
     if (!selectedDate || !selectedTime) return window.alert("Please select a date and time.");
     if (!venueAddress.trim()) return window.alert("Please enter a venue address.");
+    if (!lookDetails.trim()) return window.alert("Please describe the look you'd like.");
     setBookingLoading(true);
 
     try {
@@ -110,13 +112,15 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         return;
       }
 
-      // Save using the correct database columns: event_date, time_slot (matching the enum), and venue_address (required, not-null)
+      // Save using the correct database columns: event_date, time_slot (matching the enum),
+      // venue_address and look_details are both required (not-null) on the bookings table
       const { error } = await supabase.from('bookings').insert({
         artist_id: artistId,
         client_id: user.id,
         event_date: selectedDate,
         time_slot: selectedTime,
         venue_address: venueAddress.trim(),
+        look_details: lookDetails.trim(),
         status: 'pending'
       });
 
@@ -138,6 +142,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       setSelectedDate('');
       setSelectedTime('');
       setVenueAddress('');
+      setLookDetails('');
 
     } catch (err: any) {
       window.alert(`Error booking: ${err.message}`);
@@ -413,6 +418,17 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                         className="w-full border border-black/20 px-4 py-3 text-sm outline-none focus:border-black transition-colors"
                       />
                     </div>
+
+                    <div className="mt-6">
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Look Details</label>
+                      <textarea
+                        value={lookDetails}
+                        onChange={(e) => setLookDetails(e.target.value)}
+                        placeholder="Describe the look you'd like (occasion, style, references, etc.)"
+                        rows={3}
+                        className="w-full border border-black/20 px-4 py-3 text-sm outline-none focus:border-black transition-colors resize-none"
+                      />
+                    </div>
                   </motion.div>
                 )}
               </div>
@@ -421,16 +437,18 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               <div className="p-8 border-t border-black/10 bg-[#F9F9F9] sticky bottom-0">
                 <button 
                   onClick={handleConfirmBooking}
-                  disabled={bookingLoading || !selectedDate || !selectedTime || !venueAddress.trim()}
+                  disabled={bookingLoading || !selectedDate || !selectedTime || !venueAddress.trim() || !lookDetails.trim()}
                   className="w-full bg-black py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100"
                 >
                   {bookingLoading 
                     ? 'SENDING REQUEST...' 
-                    : (selectedDate && selectedTime && venueAddress.trim()) 
+                    : (selectedDate && selectedTime && venueAddress.trim() && lookDetails.trim()) 
                       ? `REQUEST BOOKING FOR ${new Date(selectedDate).toLocaleDateString()} — ${selectedTime.includes('Morning') ? 'FIRST HALF' : 'SECOND HALF'}` 
-                      : (selectedDate && selectedTime)
-                        ? 'ENTER A VENUE ADDRESS TO CONTINUE'
-                        : 'SELECT A DATE & PHASE TO CONTINUE'}
+                      : (selectedDate && selectedTime && venueAddress.trim())
+                        ? 'DESCRIBE THE LOOK TO CONTINUE'
+                        : (selectedDate && selectedTime)
+                          ? 'ENTER A VENUE ADDRESS TO CONTINUE'
+                          : 'SELECT A DATE & PHASE TO CONTINUE'}
                 </button>
               </div>
             </motion.div>
