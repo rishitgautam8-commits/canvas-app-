@@ -108,7 +108,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         return;
       }
 
-      // Save the booking to the database using correct column names
+      // Save using the correct database columns: event_date and time_slot (matching the enum)
       const { error } = await supabase.from('bookings').insert({
         artist_id: artistId,
         client_id: user.id,
