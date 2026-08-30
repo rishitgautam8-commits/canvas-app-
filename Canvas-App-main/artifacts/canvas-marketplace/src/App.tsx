@@ -457,9 +457,9 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
         className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[var(--canvas-iv)] border-b border-black/5"
       >
         <div className="hidden md:flex items-center gap-8 justify-start">
-          <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Shop</a>
-          <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Styles</a>
-          <a onClick={() => scrollTo('standard')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">About</a>
+          <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Directory</a>
+          <a onClick={() => scrollTo('how-it-works')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">How it Works</a>
+          <a onClick={() => scrollTo('standard')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">The Standard</a>
         </div>
         <div className="flex items-center justify-center cursor-pointer group" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-2.5">
