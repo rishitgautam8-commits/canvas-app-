@@ -22,40 +22,37 @@ export default function ArtistProfile() {
   const artistId = params?.id;
 
   useEffect(() => {
-    async function fetchArtistAndBookings() {
+    async function fetchArtistData() {
       if (!artistId) return;
-      
-      // 1. Fetch the Artist Data (to get their manual vacation days)
+
+      // 1. FETCH DIRECTLY FROM SUPABASE (Real-world database query)
       const { data: artistData, error: artistError } = await supabase
         .from('artist_profiles')
         .select('*')
         .eq('id', artistId)
         .single();
 
-      if (artistError) {
-        console.error('Error fetching artist:', artistError.message);
+      if (artistError || !artistData) {
+        console.error('Artist not found in database:', artistError?.message);
         setLoading(false);
         return;
       }
       
       setArtist(artistData);
-      setManuallyBlockedDates(artistData.blocked_dates || []); // Only manual vacation days go here
 
-      // 2. Fetch all existing bookings (to block SPECIFIC times)
+      // 2. FETCH REAL-WORLD BOOKINGS FROM SUPABASE
       const { data: existingBookings } = await supabase
         .from('bookings')
         .select('booking_date, booking_time')
         .eq('artist_id', artistId)
         .in('status', ['confirmed', 'pending']); 
 
-      // Group booked times by their specific dates automatically!
       const slots: Record<string, string[]> = {};
       if (existingBookings) {
         existingBookings.forEach(booking => {
           if (!slots[booking.booking_date]) {
             slots[booking.booking_date] = [];
           }
-          // Store the specific time that is already booked
           slots[booking.booking_date].push(booking.booking_time);
         });
       }
@@ -63,7 +60,7 @@ export default function ArtistProfile() {
       setLoading(false);
     }
 
-    fetchArtistAndBookings();
+    fetchArtistData();
   }, [artistId]);
 
   // Generate the next 30 days for our custom calendar UI
