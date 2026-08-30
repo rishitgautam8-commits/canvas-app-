@@ -3,6 +3,7 @@ import { useRoute, useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, CheckCircle2, MessageSquare, MapPin, Clock, X, Calendar } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { artistsData } from '@/Data/artistsData';
 
 export default function ArtistProfile() {
   const [, params] = useRoute('/artist/:id');
@@ -25,14 +26,29 @@ export default function ArtistProfile() {
     async function fetchArtistData() {
       if (!artistId) return;
 
-      // GUARD: If it's a numeric mock ID from the old template, don't query Supabase (prevents the UUID crash)
-      const isNumericId = /^\d+$/.test(artistId);
-      if (isNumericId) {
-        setLoading(false);
-        return;
+      // 1. THE ILLUSION: Check if it's a mock static artist (ID doesn't contain a hyphen)
+      const isMockId = !String(artistId).includes('-');
+
+      if (isMockId) {
+        // Silently load the fake artist data into the real calendar UI
+        const foundMock = artistsData.find((a: any) => String(a.id) === String(artistId));
+        if (foundMock) {
+          setArtist({
+            business_name: foundMock.name,
+            city: foundMock.city || foundMock.location || 'Hyderabad',
+            years_experience: (foundMock as any).experience_years || 6,
+            starting_price: parseInt(String(foundMock.startingPrice).replace(/[^0-9]/g, '')) || 15000,
+            category: foundMock.category || 'Bridal & Wedding',
+            portfolio: foundMock.portfolio || [foundMock.image],
+            blocked_dates: []
+          });
+          setBookedTimeSlots({}); // Fake artists have wide open calendars
+          setLoading(false);
+          return;
+        }
       }
 
-      // 1. REAL-WORLD SUPABASE QUERY FOR UUIDs
+      // 2. THE REALITY: Fetch from Supabase for real registered artists
       const { data: artistData, error: artistError } = await supabase
         .from('artist_profiles')
         .select('*')
@@ -47,7 +63,7 @@ export default function ArtistProfile() {
       
       setArtist(artistData);
 
-      // 2. FETCH REAL BOOKINGS FROM SUPABASE
+      // Fetch real database bookings for double-booking prevention
       const { data: existingBookings } = await supabase
         .from('bookings')
         .select('booking_date, booking_time')

@@ -30,15 +30,10 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
 
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
-  // --- THE REAL-WORLD SAFEGUARD ---
+  // --- SILENT ROUTING FOR BOTH REAL AND FAKE ARTISTS ---
   const handleBookingRoute = () => {
-    // Real Supabase UUIDs contain hyphens. Static template IDs do not.
-    if (String(data?.id).includes('-')) {
-      onClose();
-      setLocation(`/artist/${data.id}`);
-    } else {
-      window.alert("This is a static template demo artist. Since your app is now 100% real-world, it cannot load a live booking calendar for fake data! Register a real artist in your Dashboard to test the calendar.");
-    }
+    onClose();
+    setLocation(`/artist/${data.id}`);
   };
 
   useEffect(() => {
