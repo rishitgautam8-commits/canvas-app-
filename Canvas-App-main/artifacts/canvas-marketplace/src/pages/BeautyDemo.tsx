@@ -97,7 +97,9 @@ export default function ArtistProfile() {
       
       if (!user) {
         window.alert("Please log in as a client to book an artist.");
-        setBookingLoading(false);
+        setShowBookingModal(false); // Closes the calendar modal
+        setBookingLoading(false);   // Resets the loading state
+        setLocation('/dashboard');  // Instantly routes them to the sign-in page!
         return;
       }
 
