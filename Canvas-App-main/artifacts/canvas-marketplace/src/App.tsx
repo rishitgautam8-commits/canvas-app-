@@ -373,19 +373,23 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
 
   const filteredArtists = matchedArtists.filter(artist => {
     if (artist.pricePerSession > maxBudget) return false;
-    const activeCities = Object.entries(cityFilters).filter(([_, checked]) => checked).map(([city]) => city.toLowerCase());
+    
+    const activeCities = Object.entries(cityFilters)
+      .filter(([_, isChecked]) => isChecked)
+      .map(([city]) => city.toLowerCase());
+
     if (activeCities.length > 0 && activeCities.length < 10) {
       const matchesCity = activeCities.some(ac => {
         const parts = ac.split('/').map(p => p.trim());
         return parts.some(part => {
           const aCity = (artist.city || '').toLowerCase();
           const aLoc = (artist.location || '').toLowerCase();
-          // Bidirectional check: matches if part includes city OR city includes part
           return aCity.includes(part) || part.includes(aCity) || aLoc.includes(part) || part.includes(aLoc);
         });
       });
       if (!matchesCity) return false;
     }
+    
     return true;
   }).sort((a, b) => {
     if (sortBy === 'Highest rated') return b.rating - a.rating;
