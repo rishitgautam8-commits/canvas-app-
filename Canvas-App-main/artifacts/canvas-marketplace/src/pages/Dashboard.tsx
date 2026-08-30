@@ -147,11 +147,12 @@ export default function Dashboard({ session }: DashboardProps) {
     setSaving(true);
 
     try {
-      // 1. BASE PROFILE: Upsert using ONLY id, role, and name. 
-      // Omitting 'email' completely prevents any 'profiles_email_key' unique constraint collisions.
+      // 1. BASE PROFILE: Include email (required by NOT NULL constraint) 
+      // and target onConflict: 'id' (the primary key) to safely update the existing row.
       const { error: profileError } = await supabase.from('profiles').upsert(
         {
           id: session.user.id,
+          email: session.user.email,
           role: 'artist',
           full_name:
             session.user.user_metadata?.full_name ||
@@ -165,8 +166,7 @@ export default function Dashboard({ session }: DashboardProps) {
         throw new Error(`Failed to save base profile: ${profileError.message}`);
       }
 
-      // 2. ARTIST PROFILE: Now that the parent profile row is 100% guaranteed to exist, 
-      // upsert the logistics data safely.
+      // 2. ARTIST PROFILE: Now that the parent profile exists, upsert logistics data safely.
       const { error: artistError } = await supabase.from('artist_profiles').upsert(
         {
           id: session.user.id,
