@@ -25,7 +25,14 @@ export default function ArtistProfile() {
     async function fetchArtistData() {
       if (!artistId) return;
 
-      // 1. FETCH DIRECTLY FROM SUPABASE (Real-world database query)
+      // GUARD: If it's a numeric mock ID from the old template, don't query Supabase (prevents the UUID crash)
+      const isNumericId = /^\d+$/.test(artistId);
+      if (isNumericId) {
+        setLoading(false);
+        return;
+      }
+
+      // 1. REAL-WORLD SUPABASE QUERY FOR UUIDs
       const { data: artistData, error: artistError } = await supabase
         .from('artist_profiles')
         .select('*')
@@ -40,7 +47,7 @@ export default function ArtistProfile() {
       
       setArtist(artistData);
 
-      // 2. FETCH REAL-WORLD BOOKINGS FROM SUPABASE
+      // 2. FETCH REAL BOOKINGS FROM SUPABASE
       const { data: existingBookings } = await supabase
         .from('bookings')
         .select('booking_date, booking_time')
