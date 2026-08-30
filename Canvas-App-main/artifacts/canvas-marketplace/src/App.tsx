@@ -380,7 +380,7 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
         return parts.some(part => {
           const aCity = (artist.city || '').toLowerCase();
           const aLoc = (artist.location || '').toLowerCase();
-          // Mutual inclusion check: handles "Jubilee" matching "Jubilee Hills"
+          // Bidirectional check: matches if part includes city OR city includes part
           return aCity.includes(part) || part.includes(aCity) || aLoc.includes(part) || part.includes(aLoc);
         });
       });
