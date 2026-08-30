@@ -377,10 +377,12 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
     if (activeCities.length > 0 && activeCities.length < 10) {
       const matchesCity = activeCities.some(ac => {
         const parts = ac.split('/').map(p => p.trim());
-        return parts.some(part =>
-          artist.city.toLowerCase().includes(part) ||
-          (artist.location && artist.location.toLowerCase().includes(part))
-        );
+        return parts.some(part => {
+          const aCity = (artist.city || '').toLowerCase();
+          const aLoc = (artist.location || '').toLowerCase();
+          // Mutual inclusion check: handles "Jubilee" matching "Jubilee Hills"
+          return aCity.includes(part) || part.includes(aCity) || aLoc.includes(part) || part.includes(aLoc);
+        });
       });
       if (!matchesCity) return false;
     }
