@@ -455,6 +455,7 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
         look_details: dataElements.get('message'),
         status: 'pending'
       };
+      console.log('BOOKING PAYLOAD:', bookingData);
       const { error } = await supabase.from('bookings').insert([bookingData]);
       if (error) throw error;
       setSent(true);
