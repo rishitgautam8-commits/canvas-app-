@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Star, CheckCircle2, MapPin, ArrowLeft, MessageCircle, X } from 'lucide-react';
+import { Star, CheckCircle2, MapPin, ArrowLeft, X } from 'lucide-react';
+import { useLocation } from 'wouter'; //[cite: 1]
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -19,10 +20,11 @@ export type ProfileModalProps = {
   artist: any | null; 
   onClose: () => void;
   onBookAppointment: () => void;
-  onOpenChat?: () => void; // Add this line here
+  onOpenChat?: () => void; 
 };
 
-export function ProfileModal({ open, artist, onClose, onBookAppointment, onOpenChat }: ProfileModalProps) {
+export function ProfileModal({ open, artist, onClose, onBookAppointment }: ProfileModalProps) {
+  const [, setLocation] = useLocation(); //[cite: 1]
   const displayed = useRef(artist);
   if (open && artist) displayed.current = artist;
   const data = open ? artist : displayed.current;
@@ -168,18 +170,16 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment, onOpenC
                       <span className="text-white/50 text-xs">Bridal Package</span>
                     </div>
 
+                    {/* REPLACED BUTTON: Directs to real booking calendar page */}
                     <button 
-  onClick={() => {
-    if (onOpenChat) {
-      onOpenChat(); // This opens your secure web chat drawer!
-    } else {
-      onBookAppointment();
-    }
-  }} 
-  className="w-full max-w-[280px] bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-[#B08D45] transition-colors py-3.5 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2 shadow-lg cursor-pointer"
->
-  <MessageCircle size={16} /> Chat with Artist Live
-</button>
+                      onClick={() => {
+                        onClose();
+                        setLocation(`/artist/${data.id}`);
+                      }} 
+                      className="w-full max-w-[280px] bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-[#B08D45] transition-colors py-3.5 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+                    >
+                      View Availability & Book ↗
+                    </button>
 
                   </div>
                 </div>
@@ -228,7 +228,10 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment, onOpenC
                           </h3>
                           <p className="text-[12px] text-[var(--text-secondary)] mb-6 flex-1">A verified example of the aesthetic.</p>
                           <button 
-                            onClick={onBookAppointment} 
+                            onClick={() => {
+                              onClose();
+                              setLocation(`/artist/${data.id}`);
+                            }} 
                             className="w-full bg-[#D1B88A] hover:bg-[var(--gold)] text-[var(--bg-dark)] transition-colors py-2.5 rounded text-[11px] font-bold tracking-[0.1em] uppercase"
                           >
                             Enquire Look
@@ -275,7 +278,10 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment, onOpenC
                           </div>
                           
                           <button 
-                            onClick={onBookAppointment} 
+                            onClick={() => {
+                              onClose();
+                              setLocation(`/artist/${data.id}`);
+                            }} 
                             className="mt-8 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] transition-colors px-6 py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest w-full sm:w-auto"
                           >
                             Enquire About Add-ons
