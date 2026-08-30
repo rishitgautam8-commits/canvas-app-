@@ -120,7 +120,8 @@ const local100Artists: Artist[] = artists.slice(0, 100).map((a: any, index: numb
 function getEstimatedDistance(clientLoc: string, artistCity: string, artistId: string): number {
   const locLower = clientLoc.toLowerCase();
   const cityLower = artistCity.toLowerCase();
-  if (locLower === '' || cityLower.includes(locLower)) return 5;
+  // Bidirectional substring match handles "Jubilee Hills" vs "Jubilee"
+  if (locLower === '' || cityLower.includes(locLower) || locLower.includes(cityLower)) return 5;
   const stableNum = parseInt(artistId.replace(/\D/g, '')) || 0;
   return (stableNum % 21) + 5;
 }
@@ -136,12 +137,14 @@ function runCanvasMatch(
     if (categoryFilter !== 'all') {
       const artistCat = (artist.category || '').toLowerCase();
       const filterCat = categoryFilter.toLowerCase();
-      // Flexible matching so "Bridal" matches "Bridal & Wedding"
       if (!artistCat.includes(filterCat) && !filterCat.includes(artistCat)) return false;
     }
     if (services.length > 0 && !artist.services.some(s => services.includes(s))) return false;
+    
     const estDistance = getEstimatedDistance(location, artist.city, artist.id);
-    if (estDistance > artist.maxTravelKm) return false;
+    // Bypass distance check for live registered database artists
+    if (!(artist as any).isLiveDb && estDistance > artist.maxTravelKm) return false;
+    
     return true;
   }).map(artist => {
     let matchScore = 78;
