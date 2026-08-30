@@ -147,29 +147,40 @@ export default function Dashboard({ session }: DashboardProps) {
     setSaving(true);
 
     try {
-      // 1. BASE PROFILE: Use .update() matching strictly by ID. 
-      // This avoids touching the unique email column entirely, preventing any constraint errors!
-      const { error: profileError } = await supabase.from('profiles').update({
-        full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.first_name || 'Artist',
-        role: 'artist'
-      }).eq('id', session.user.id);
+      // 1. BASE PROFILE: Upsert using ONLY id, role, and name. 
+      // Omitting 'email' completely prevents any 'profiles_email_key' unique constraint collisions.
+      const { error: profileError } = await supabase.from('profiles').upsert(
+        {
+          id: session.user.id,
+          role: 'artist',
+          full_name:
+            session.user.user_metadata?.full_name ||
+            session.user.user_metadata?.first_name ||
+            'Artist',
+        },
+        { onConflict: 'id' }
+      );
 
       if (profileError) {
-        throw new Error(`Failed to update base profile: ${profileError.message}`);
+        throw new Error(`Failed to save base profile: ${profileError.message}`);
       }
 
-      // 2. ARTIST PROFILE: Upsert logistics data safely
-      const { error: artistError } = await supabase.from('artist_profiles').upsert({
-        id: session.user.id,
-        business_name: formData.business_name,
-        category: formData.category,
-        qualifications: formData.qualifications,
-        city: formData.city,
-        max_travel_km: parseInt(formData.max_travel_km) || 0,
-        starting_price: parseInt(formData.starting_price) || 0,
-        years_experience: parseInt(formData.years_experience) || 0,
-        blocked_dates: formData.blocked_dates,
-      }, { onConflict: 'id' });
+      // 2. ARTIST PROFILE: Now that the parent profile row is 100% guaranteed to exist, 
+      // upsert the logistics data safely.
+      const { error: artistError } = await supabase.from('artist_profiles').upsert(
+        {
+          id: session.user.id,
+          business_name: formData.business_name,
+          category: formData.category,
+          qualifications: formData.qualifications,
+          city: formData.city,
+          max_travel_km: parseInt(formData.max_travel_km) || 0,
+          starting_price: parseInt(formData.starting_price) || 0,
+          years_experience: parseInt(formData.years_experience) || 0,
+          blocked_dates: formData.blocked_dates,
+        },
+        { onConflict: 'id' }
+      );
 
       if (artistError) throw artistError;
 
