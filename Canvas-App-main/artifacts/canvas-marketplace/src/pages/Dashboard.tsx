@@ -42,7 +42,7 @@ export default function Dashboard({ session }: DashboardProps) {
     max_travel_km: '',
     starting_price: '',
     years_experience: '',
-    blocked_dates: [] as string[], // <-- NEW LINE
+    blocked_dates: [] as string[],
   });
 
   const [addons, setAddons] = useState<Array<{ name: string; price: string; file: File | null }>>([
@@ -81,8 +81,8 @@ export default function Dashboard({ session }: DashboardProps) {
               max_travel_km: artistData.max_travel_km?.toString() || '',
               starting_price: artistData.starting_price?.toString() || '',
               years_experience: artistData.years_experience?.toString() || '',
-              blocked_dates: artistData.blocked_dates || [], // <-- NEW LINE
-  });
+              blocked_dates: artistData.blocked_dates || [],
+            });
           }
 
           const { data: bookingsData } = await supabase.from('bookings').select('*').eq('artist_id', session.user.id).order('created_at', { ascending: false });
@@ -147,19 +147,17 @@ export default function Dashboard({ session }: DashboardProps) {
     setSaving(true);
 
     try {
-      // 1. BASE PROFILE (No blocked dates here)
-      const { error: profileError } = await supabase.from('profiles').upsert({
-        id: session.user.id,
-        email: session.user.email,
+      // 1. BASE PROFILE: Use .update() instead of .upsert() to avoid email uniqueness conflicts
+      const { error: profileError } = await supabase.from('profiles').update({
         full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.first_name || 'Artist',
         role: 'artist'
-      }, { onConflict: 'id' });
+      }).eq('id', session.user.id);
 
       if (profileError) {
-        throw new Error(`Failed to create base profile: ${profileError.message}`);
+        throw new Error(`Failed to update base profile: ${profileError.message}`);
       }
 
-      // 2. ARTIST PROFILE (Blocked dates go here!)
+      // 2. ARTIST PROFILE: Upsert logistics data safely
       const { error: artistError } = await supabase.from('artist_profiles').upsert({
         id: session.user.id,
         business_name: formData.business_name,
@@ -169,7 +167,7 @@ export default function Dashboard({ session }: DashboardProps) {
         max_travel_km: parseInt(formData.max_travel_km) || 0,
         starting_price: parseInt(formData.starting_price) || 0,
         years_experience: parseInt(formData.years_experience) || 0,
-        blocked_dates: formData.blocked_dates, // <-- Correctly placed here!
+        blocked_dates: formData.blocked_dates,
       }, { onConflict: 'id' });
 
       if (artistError) throw artistError;
@@ -268,7 +266,7 @@ export default function Dashboard({ session }: DashboardProps) {
               <div className="flex items-start justify-between mb-8">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2] mb-2">Switch Account Type</p>
-                  <h3 className="text-2xl font-bold lowercase tracking-tight">switch to {pendingRole}?</h3>
+                  <h3 className="text-2xl font-bold capitalize tracking-tight">Switch to {pendingRole}?</h3>
                 </div>
                 <button onClick={() => setShowRoleSwitchConfirm(false)} className="text-black/30 hover:text-black transition-colors"><X size={20} strokeWidth={1.5} /></button>
               </div>
@@ -290,38 +288,38 @@ export default function Dashboard({ session }: DashboardProps) {
         {role === 'artist' ? (
           <>
             <div className="mt-12 mb-8 flex gap-8 border-b border-black/10 pb-px overflow-x-auto">
-  <button onClick={() => setActiveTab('overview')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Overview</button>
-  <button onClick={() => setActiveTab('briefs')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'briefs' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
-  <button onClick={() => setActiveTab('logistics')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Profile & Logistics</button>
-  <button onClick={() => setLocation(`/artist/${session?.user.id}`)} className="text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 text-[#B66CF2] hover:text-black transition-colors">Preview Public Page ↗</button>
-</div>
+              <button onClick={() => setActiveTab('overview')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Overview</button>
+              <button onClick={() => setActiveTab('briefs')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'briefs' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
+              <button onClick={() => setActiveTab('logistics')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Profile & Logistics</button>
+              <button onClick={() => setLocation(`/artist/${session?.user.id}`)} className="text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 text-[#B66CF2] hover:text-black transition-colors">Preview Public Page ↗</button>
+            </div>
 
             {activeTab === 'overview' && (
               <div className="grid gap-6 md:grid-cols-3">
                 <div className="bg-white border border-black/10 p-8 shadow-sm">
                   <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/50">New Bookings</p>
-                  <p className="mt-4 text-6xl font-bold lowercase tracking-tight text-[#B66CF2]">{bookings.length}</p>
+                  <p className="mt-4 text-6xl font-bold tracking-tight text-[#B66CF2]">{bookings.length}</p>
                 </div>
                 <div className="bg-white border border-black/10 p-8 shadow-sm">
                   <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/50">Upcoming Bookings</p>
-                  <p className="mt-4 text-6xl font-bold lowercase tracking-tight text-black">0</p>
+                  <p className="mt-4 text-6xl font-bold tracking-tight text-black">0</p>
                 </div>
                 <div className="bg-white border border-black/10 p-8 shadow-sm">
                   <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/50">Travel Radius</p>
-                  <p className="mt-4 text-5xl font-bold lowercase tracking-tight text-black">{artistProfile?.max_travel_km || 0} km</p>
+                  <p className="mt-4 text-5xl font-bold tracking-tight text-black">{artistProfile?.max_travel_km || 0} km</p>
                 </div>
               </div>
             )}
 
             {activeTab === 'briefs' && (
               <div className="max-w-4xl bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
-                <div className="mb-10"><h3 className="text-3xl font-bold lowercase tracking-tight">new bookings.</h3></div>
+                <div className="mb-10"><h3 className="text-3xl font-bold capitalize tracking-tight">New Bookings.</h3></div>
                 {bookings.length > 0 ? (
                   <div className="space-y-6">
                     {bookings.map((booking) => (
                       <div key={booking.id} className="border border-black/10 bg-[#F9F9F9] p-6 sm:p-8">
                         <div className="flex flex-col justify-between gap-4 border-b border-black/10 pb-6 sm:flex-row sm:items-center">
-                          <div><h4 className="mt-4 text-2xl font-bold lowercase tracking-tight">{booking.client?.full_name || 'Canvas Client'}</h4></div>
+                          <div><h4 className="mt-4 text-2xl font-bold capitalize tracking-tight">{booking.client?.full_name || 'Canvas Client'}</h4></div>
                           <div className="flex gap-3 items-center">
                             {booking.status === 'pending' && (
                               <>
@@ -344,7 +342,7 @@ export default function Dashboard({ session }: DashboardProps) {
             {activeTab === 'logistics' && (
               <div className="mx-auto max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
                 <div className="mb-10">
-                  <h3 className="text-3xl font-bold lowercase tracking-tight">artist profile & logistics.</h3>
+                  <h3 className="text-3xl font-bold capitalize tracking-tight">Artist Profile & Logistics.</h3>
                   <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">
                     Complete your profile to appear in client searches.
                   </p>
@@ -352,7 +350,6 @@ export default function Dashboard({ session }: DashboardProps) {
 
                 <form onSubmit={handleSaveLogistics} className="space-y-8">
                   
-                  {/* PROFILE PIC & EXPERIENCE */}
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Profile Picture *</label>
@@ -371,7 +368,6 @@ export default function Dashboard({ session }: DashboardProps) {
                     </div>
                   </div>
 
-                  {/* BASIC INFO */}
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Artist / Business Name *</label>
@@ -397,7 +393,6 @@ export default function Dashboard({ session }: DashboardProps) {
                     </div>
                   </div>
 
-                  {/* PRICING & LOGISTICS */}
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Starting Package Price (₹) *</label>
@@ -423,7 +418,6 @@ export default function Dashboard({ session }: DashboardProps) {
                     </div>
                   </div>
 
-                  {/* EXPERTISE */}
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Makeup Specialisations *</label>
@@ -449,52 +443,50 @@ export default function Dashboard({ session }: DashboardProps) {
                     </div>
                   </div>
 
-                  {/* MAIN PORTFOLIO */}
-                  {/* UNAVAILABLE / BLOCKED DATES */}
-      <div className="border-t border-black/10 pt-8 pb-4">
-        <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Unavailable / Blocked Dates</label>
-        <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Select personal days or vacations when you are completely unavailable. (Confirmed client bookings are blocked automatically).</p>
-        
-        <div className="flex gap-4 mb-4">
-          <input 
-            type="date" 
-            id="datePicker" 
-            className="border-b border-black/20 bg-transparent py-2 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
-          />
-          <button 
-            type="button" 
-            onClick={() => {
-              const dateInput = document.getElementById('datePicker') as HTMLInputElement;
-              const dateVal = dateInput.value;
-              if (dateVal && !formData.blocked_dates.includes(dateVal)) {
-                setFormData({...formData, blocked_dates: [...formData.blocked_dates, dateVal]});
-                dateInput.value = ''; // clear input after adding
-              }
-            }} 
-            className="bg-black px-6 py-2 text-[10px] font-bold text-white uppercase tracking-widest hover:bg-[#B66CF2] transition-colors"
-          >
-            Block Date
-          </button>
-        </div>
+                  <div className="border-t border-black/10 pt-8 pb-4">
+                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Unavailable / Blocked Dates</label>
+                    <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Select personal days or vacations when you are completely unavailable. (Confirmed client bookings are blocked automatically).</p>
+                    
+                    <div className="flex gap-4 mb-4">
+                      <input 
+                        type="date" 
+                        id="datePicker" 
+                        className="border-b border-black/20 bg-transparent py-2 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          const dateInput = document.getElementById('datePicker') as HTMLInputElement;
+                          const dateVal = dateInput.value;
+                          if (dateVal && !formData.blocked_dates.includes(dateVal)) {
+                            setFormData({...formData, blocked_dates: [...formData.blocked_dates, dateVal]});
+                            dateInput.value = '';
+                          }
+                        }} 
+                        className="bg-black px-6 py-2 text-[10px] font-bold text-white uppercase tracking-widest hover:bg-[#B66CF2] transition-colors"
+                      >
+                        Block Date
+                      </button>
+                    </div>
 
-        {/* Display Blocked Dates */}
-        {formData.blocked_dates.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-4">
-            {formData.blocked_dates.map(date => (
-               <span key={date} className="border border-black/20 bg-black/5 px-4 py-2 text-xs font-bold tracking-widest flex items-center gap-3">
-                 {new Date(date).toLocaleDateString('en-GB')} 
-                 <button 
-                   type="button" 
-                   onClick={() => setFormData({...formData, blocked_dates: formData.blocked_dates.filter(d => d !== date)})} 
-                   className="text-red-500 hover:text-red-700 text-sm"
-                 >
-                   ✕
-                 </button>
-               </span>
-            ))}
-          </div>
-        )}
-      </div>
+                    {formData.blocked_dates.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {formData.blocked_dates.map(date => (
+                           <span key={date} className="border border-black/20 bg-black/5 px-4 py-2 text-xs font-bold tracking-widest flex items-center gap-3">
+                             {new Date(date).toLocaleDateString('en-GB')} 
+                             <button 
+                               type="button" 
+                               onClick={() => setFormData({...formData, blocked_dates: formData.blocked_dates.filter(d => d !== date)})} 
+                               className="text-red-500 hover:text-red-700 text-sm"
+                             >
+                               ✕
+                             </button>
+                           </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="bg-black/5 p-6 border-l-2 border-black">
                     <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Primary Portfolio Upload *</label>
                     <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload a minimum of 2 photos. No maximum limit.</p>
@@ -506,7 +498,6 @@ export default function Dashboard({ session }: DashboardProps) {
                     )}
                   </div>
 
-                  {/* ADD-ON SKILLS TOGGLE */}
                   <div className="border-t border-black/10 pt-8">
                     <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Do you offer any add-on skills? (e.g. Hairstyling, Brow Tinting)</label>
                     <div className="flex gap-4 mb-6">
@@ -518,7 +509,6 @@ export default function Dashboard({ session }: DashboardProps) {
                       </button>
                     </div>
 
-                    {/* DYNAMIC MULTI-SKILL CONTAINER */}
                     {hasAddonSkill && (
                       <div className="space-y-6">
                         {addons.map((addon, index) => (
@@ -601,7 +591,6 @@ export default function Dashboard({ session }: DashboardProps) {
                     )}
                   </div>
 
-                  {/* SUBMIT */}
                   <div className="pt-4 flex justify-end">
                     <button type="submit" disabled={saving || uploadingPortfolio} className="bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50">
                       {saving ? 'SAVING...' : 'SAVE CHANGES'}
@@ -618,7 +607,7 @@ export default function Dashboard({ session }: DashboardProps) {
                 {clientBookings.map((booking) => (
                   <div key={booking.id} className="bg-white border border-black/10 p-8 shadow-sm flex justify-between items-center">
                     <div>
-                      <h4 className="text-2xl font-bold lowercase tracking-tight">{booking.artist?.business_name || 'Canvas Artist'}</h4>
+                      <h4 className="text-2xl font-bold capitalize tracking-tight">{booking.artist?.business_name || 'Canvas Artist'}</h4>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-black/40">{booking.artist?.city}</p>
                     </div>
                     <button onClick={() => setActiveChatBooking(booking)} className="border border-black bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white">Open Chat</button>
@@ -627,7 +616,7 @@ export default function Dashboard({ session }: DashboardProps) {
               </div>
             ) : (
               <div className="flex min-h-[300px] flex-col items-center justify-center border border-dashed border-black/20 bg-white p-8 text-center shadow-sm">
-                <p className="text-3xl font-bold lowercase tracking-tight text-black/30">no bookings yet.</p>
+                <p className="text-3xl font-bold tracking-tight text-black/30">No bookings yet.</p>
                 <button onClick={() => setLocation('/')} className="mt-8 border border-black bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white">Browse Artists</button>
               </div>
             )}
