@@ -147,13 +147,12 @@ export default function Dashboard({ session }: DashboardProps) {
     setSaving(true);
 
     try {
-      // 1. BASE PROFILE: Upsert safely using the user ID as the conflict target
-      const { error: profileError } = await supabase.from('profiles').upsert({
-        id: session.user.id,
-        email: session.user.email,
+      // 1. BASE PROFILE: Use .update() matching strictly by ID. 
+      // This avoids touching the unique email column entirely, preventing any constraint errors!
+      const { error: profileError } = await supabase.from('profiles').update({
         full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.first_name || 'Artist',
         role: 'artist'
-      }, { onConflict: 'id' });
+      }).eq('id', session.user.id);
 
       if (profileError) {
         throw new Error(`Failed to update base profile: ${profileError.message}`);
