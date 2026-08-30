@@ -30,15 +30,22 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       const isMockId = !String(artistId).includes('-');
 
       if (isMockId) {
-        // Silently load the fake artist data into the real calendar UI
+        // Silently load ALL the fake artist data into the real calendar UI
         const foundMock = artistsData.find((a: any) => String(a.id) === String(artistId));
         if (foundMock) {
           setArtist({
             business_name: foundMock.name,
-            city: foundMock.city || foundMock.location || 'Hyderabad',
+            city: foundMock.location || foundMock.city || 'Hyderabad',
             years_experience: (foundMock as any).experience_years || 6,
-            starting_price: parseInt(String(foundMock.startingPrice).replace(/[^0-9]/g, '')) || 15000,
-            category: foundMock.category || 'Bridal & Wedding',
+            starting_price: parseInt(String(foundMock.startingPrice).replace(/[^0-9]/g, '')) || 25000,
+            category: (foundMock.tags && foundMock.tags.join(', ')) || foundMock.category || 'Bridal & Wedding',
+            
+            // --- NEW: Pull in the missing rich data from the template ---
+            image: foundMock.image,
+            rating: foundMock.rating || 4.9,
+            reviewsCount: foundMock.reviewsCount || foundMock.reviewCount || 125,
+            bio: foundMock.bio || foundMock.signature || `Expert in Bridal styling. Available for bookings in ${foundMock.location || 'Hyderabad'}.`,
+            
             portfolio: foundMock.portfolio || [foundMock.image],
             addons: foundMock.addons || [],
             blocked_dates: []
