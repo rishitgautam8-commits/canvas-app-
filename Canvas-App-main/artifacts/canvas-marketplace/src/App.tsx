@@ -1058,21 +1058,47 @@ export default function App() {
   if (needsRole) {
     return (
       <div className="h-screen w-full flex flex-col md:flex-row overflow-hidden bg-[#F9F9F9] fixed inset-0 z-[9999]">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} onClick={() => !updatingRole && handleGlobalSelectRole('client')} className="flex-1 relative bg-[#F9F9F9] text-black flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group">
-          <div className="absolute inset-0 overflow-hidden"><img src="https://images.unsplash.com/photo-1516975080661-46bfa2c281c7?auto=format&fit=crop&w=1200&q=80" alt="Client" className="w-full h-full object-cover opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" /></div>
+        {/* CLIENT SELECTION */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
+          onClick={() => !updatingRole && handleGlobalSelectRole('client')} 
+          className="flex-1 relative bg-[#F9F9F9] text-black flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group"
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1516975080661-46bfa2c281c7?auto=format&fit=crop&w=1200&q=80" alt="Client" className="w-full h-full object-cover opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" />
+          </div>
           <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
             <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Clients</p>
-            <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am looking<br/>for an artist.</h2>
-            <div className="inline-block border border-black px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-black group-hover:text-white transition-colors shadow-sm">{updatingRole ? 'Setting up...' : 'Join as Client'}</div>
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-black mb-6">
+              I Am Looking<br />For An Artist
+            </h2>
+            <div className="inline-block border border-black px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-black group-hover:text-white transition-colors shadow-sm">
+              {updatingRole ? 'Setting up...' : 'Join as Client'}
+            </div>
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} onClick={() => !updatingRole && handleGlobalSelectRole('artist')} className="flex-1 relative bg-[#05020A] text-white flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group border-t md:border-t-0 md:border-l border-white/10">
-          <div className="absolute inset-0 overflow-hidden"><img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" /></div>
+        {/* ARTIST SELECTION */}
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
+          onClick={() => !updatingRole && handleGlobalSelectRole('artist')} 
+          className="flex-1 relative bg-[#05020A] text-white flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group border-t md:border-t-0 md:border-l border-white/10"
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" />
+          </div>
           <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
             <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-6">For Professionals</p>
-            <h2 className="text-4xl md:text-6xl font-bold lowercase tracking-tight mb-6">i am a<br/>makeup artist.</h2>
-            <div className="inline-block border border-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-white group-hover:text-black transition-colors shadow-sm">{updatingRole ? 'Setting up...' : 'Apply to Roster'}</div>
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-white mb-6">
+              I Am A<br />Makeup Artist
+            </h2>
+            <div className="inline-block border border-white px-8 py-4 text-xs font-bold uppercase tracking-[0.2em] group-hover:bg-white group-hover:text-black transition-colors shadow-sm">
+              {updatingRole ? 'Setting up...' : 'Apply to Roster'}
+            </div>
           </div>
         </motion.div>
       </div>
