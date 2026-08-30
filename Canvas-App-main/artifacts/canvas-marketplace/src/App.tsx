@@ -133,7 +133,12 @@ function runCanvasMatch(
   pool: Artist[] = local100Artists
 ) {
   return pool.filter(artist => {
-    if (categoryFilter !== 'all' && artist.category !== categoryFilter) return false;
+    if (categoryFilter !== 'all') {
+      const artistCat = (artist.category || '').toLowerCase();
+      const filterCat = categoryFilter.toLowerCase();
+      // Flexible matching so "Bridal" matches "Bridal & Wedding"
+      if (!artistCat.includes(filterCat) && !filterCat.includes(artistCat)) return false;
+    }
     if (services.length > 0 && !artist.services.some(s => services.includes(s))) return false;
     const estDistance = getEstimatedDistance(location, artist.city, artist.id);
     if (estDistance > artist.maxTravelKm) return false;
@@ -342,20 +347,23 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
 
   const sourceArtists: Artist[] = useMemo(() => {
-    const localNameKeys = new Set(local100Artists.map(a => dedupeKey(a.name, a.city)));
     const seenIds = new Set<string>();
     const merged: Artist[] = [];
+    
+    // Always put live database artists first so they are never filtered out
     for (const artist of liveArtists) {
       if (seenIds.has(artist.id)) continue;
-      if (localNameKeys.has(dedupeKey(artist.name, artist.city))) continue;
       seenIds.add(artist.id);
       merged.push(artist);
     }
+    
+    // Then add the mock template artists
     for (const artist of local100Artists) {
       if (seenIds.has(artist.id)) continue;
       seenIds.add(artist.id);
       merged.push(artist);
     }
+    
     return merged;
   }, [liveArtists]);
 
