@@ -21,7 +21,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   const [bookingLoading, setBookingLoading] = useState(false);
 
   const artistId = params?.id;
-
+//
   useEffect(() => {
     async function fetchArtistData() {
       if (!artistId) return;
