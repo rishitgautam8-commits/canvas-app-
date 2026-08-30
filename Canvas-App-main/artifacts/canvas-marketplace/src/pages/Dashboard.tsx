@@ -285,7 +285,7 @@ export default function Dashboard({ session }: DashboardProps) {
       </AnimatePresence>
 
       <main className="mx-auto max-w-[1400px] px-6 py-12 sm:px-12">
-        <h1 className="text-5xl sm:text-7xl font-bold lowercase tracking-tight">welcome, {displayFirstName}.</h1>
+        <h1 className="text-5xl sm:text-7xl font-bold tracking-tight">Welcome, {displayFirstName}.</h1>
 
         {role === 'artist' ? (
           <>
