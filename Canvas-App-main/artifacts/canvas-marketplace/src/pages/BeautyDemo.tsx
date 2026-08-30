@@ -12,7 +12,6 @@ export default function ArtistProfile() {
   const [loading, setLoading] = useState(true);
   
   // Booking Calendar State
-  // Booking Calendar State
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [manuallyBlockedDates, setManuallyBlockedDates] = useState<string[]>([]);
   const [bookedTimeSlots, setBookedTimeSlots] = useState<Record<string, string[]>>({});
@@ -40,6 +39,7 @@ export default function ArtistProfile() {
             starting_price: parseInt(String(foundMock.startingPrice).replace(/[^0-9]/g, '')) || 15000,
             category: foundMock.category || 'Bridal & Wedding',
             portfolio: foundMock.portfolio || [foundMock.image],
+            addons: foundMock.addons || [],
             blocked_dates: []
           });
           setBookedTimeSlots({}); // Fake artists have wide open calendars
@@ -85,14 +85,6 @@ export default function ArtistProfile() {
 
     fetchArtistData();
   }, [artistId]);
-
-  // Generate the next 30 days for our custom calendar UI
-  const next30Days = Array.from({ length: 30 }).map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    // Format to YYYY-MM-DD exactly as it saves in the database
-    return d.toISOString().split('T')[0]; 
-  });
 
   const handleConfirmBooking = async () => {
     if (!selectedDate || !selectedTime) return window.alert("Please select a date and time.");
@@ -158,6 +150,39 @@ export default function ArtistProfile() {
     );
   }
 
+  // ==========================================
+  // PORTFOLIO & ADD-ON SEPARATION
+  // ==========================================
+  const rawPortfolio = artist?.portfolio || [];
+  const allImages = rawPortfolio.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean);
+  if (allImages.length === 0 && artist?.image) allImages.push(artist.image);
+
+  const makeupImages = allImages.filter((img: string) => !img.toLowerCase().includes('addon'));
+  const addonImages = allImages.filter((img: string) => img.toLowerCase().includes('addon'));
+  const hasAddonText = Array.isArray(artist?.addons) && artist?.addons.length > 0;
+  const hasAddonImages = addonImages.length > 0;
+
+  // ==========================================
+  // SMART CALENDAR LOGIC (Grouped by Month)
+  // ==========================================
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Sets time to strictly midnight so past dates are perfectly excluded
+
+  const next30Days = Array.from({ length: 30 }).map((_, i) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+
+  // Group dates by Month & Year (e.g., "August 2026", "September 2026")
+  const groupedDates = next30Days.reduce((acc, date) => {
+    const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+    if (!acc[monthYear]) acc[monthYear] = [];
+    acc[monthYear].push(date);
+    return acc;
+  }, {} as Record<string, Date[]>);
+
+
   return (
     <div className="min-h-screen bg-[#F9F9F9] text-black pb-24">
       {/* HEADER NAV */}
@@ -213,25 +238,25 @@ export default function ArtistProfile() {
         </div>
       </section>
 
-      {/* PORTFOLIO GRID */}
+      {/* PORTFOLIO GRID & ADD-ONS */}
       <main className="mx-auto max-w-[1400px] px-6 py-16 sm:px-12">
-        <div className="mb-10">
-          <h2 className="text-3xl font-bold lowercase tracking-tight">verified portfolio.</h2>
-          <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">Real client work showcasing signature aesthetic and technical execution.</p>
+        
+        {/* --- VERIFIED PORTFOLIO --- */}
+        <div className="mb-12">
+          <h2 className="text-3xl font-bold lowercase tracking-tight mb-2">verified portfolio.</h2>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Real client work showcasing signature aesthetic and technical execution.</p>
         </div>
 
-        {artist.portfolio && artist.portfolio.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {artist.portfolio.map((imgUrl: string, index: number) => (
-              <div key={index} className="bg-white border border-black/10 overflow-hidden shadow-sm group">
-                <div className="aspect-[4/5] bg-black/5 overflow-hidden">
-                  <img src={imgUrl} alt="Portfolio work" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        {makeupImages.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {makeupImages.map((img: string, i: number) => (
+              <div key={i} className="group cursor-pointer">
+                <div className="relative overflow-hidden bg-[#F9F9F9] mb-4 border border-black/10 shadow-sm">
+                  <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/5] object-cover group-hover:scale-105 transition-transform duration-700" />
                 </div>
-                <div className="p-6 flex items-center justify-between border-t border-black/10">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Look {index + 1}</span>
-                  <button onClick={() => setShowBookingModal(true)} className="text-[10px] font-bold uppercase tracking-widest text-black hover:text-[#B66CF2] transition-colors">
-                    Enquire Look ↗
-                  </button>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-black/50">Look 0{i + 1}</span>
+                  <button onClick={() => setShowBookingModal(true)} className="text-[10px] font-bold uppercase tracking-widest text-black hover:text-[#B66CF2] transition-colors">Enquire Look ↗</button>
                 </div>
               </div>
             ))}
@@ -241,6 +266,46 @@ export default function ArtistProfile() {
             <p className="text-xs font-bold uppercase tracking-widest text-black/40">No portfolio photos uploaded yet.</p>
           </div>
         )}
+
+        {/* --- ADD-ONS & UPGRADES --- */}
+        {(hasAddonText || hasAddonImages) && (
+          <div className="mt-20 pt-16 border-t border-black/10">
+            <div className="flex flex-col lg:flex-row gap-16 lg:items-start">
+              
+              {hasAddonText && (
+                <div className={`flex-1 ${!hasAddonImages ? 'max-w-3xl' : ''}`}>
+                  <h2 className="text-3xl font-bold lowercase tracking-tight mb-4">add-ons & upgrades.</h2>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-black/50 mb-10 leading-relaxed">Enhance your booking with specialized services.</p>
+                  
+                  <div className="space-y-0">
+                    {artist.addons.map((addon: string, idx: number) => {
+                      if (typeof addon !== 'string') return null;
+                      const parts = addon.split('(');
+                      return (
+                        <div key={idx} className="flex items-center justify-between py-5 border-b border-black/10 last:border-0">
+                          <span className="text-sm font-bold uppercase tracking-widest">{parts[0].trim()}</span>
+                          {parts.length > 1 && <span className="text-[10px] font-bold text-white tracking-[0.2em] bg-black px-3 py-1.5">{parts[1].replace(')', '').trim()}</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {hasAddonImages && (
+                <div className={`w-full ${hasAddonText ? 'lg:w-1/2' : 'w-full'} flex gap-4 overflow-x-auto pb-4 custom-scrollbar`}>
+                  {addonImages.map((img: string, i: number) => (
+                    <div key={i} className="shrink-0 w-[280px]">
+                      <img src={img} alt="Addon" className="w-full aspect-[4/5] object-cover bg-[#F9F9F9] border border-black/10" />
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+            </div>
+          </div>
+        )}
+
       </main>
 
       {/* SMART BOOKING MODAL */}
@@ -264,37 +329,53 @@ export default function ArtistProfile() {
               </div>
 
               <div className="p-8 overflow-y-auto">
-                {/* 30-DAY ROLLING CALENDAR GRID */}
-                <div className="grid grid-cols-4 sm:grid-cols-7 gap-3 mb-8">
-                  {next30Days.map(dateStr => {
-                    // Only gray out the whole day if the artist manually marked it as a day off
-                    const isVacation = manuallyBlockedDates.includes(dateStr);
-                    const isSelected = selectedDate === dateStr;
-                    const dateObj = new Date(dateStr);
-                    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-                    const dayNum = dateObj.getDate();
-
-                    return (
-                      <button
-                        key={dateStr}
-                        disabled={isVacation}
-                        onClick={() => { setSelectedDate(dateStr); setSelectedTime(''); }} // Reset time when picking new date
-                        className={`flex flex-col items-center justify-center p-3 border transition-all ${
-                          isVacation 
-                            ? 'bg-black/5 text-black/20 border-transparent cursor-not-allowed line-through' 
-                            : isSelected 
-                              ? 'bg-black text-white border-black scale-105 shadow-md' 
-                              : 'bg-white text-black border-black/20 hover:border-black hover:bg-black/5'
-                        }`}
-                      >
-                        <span className="text-[10px] uppercase font-bold tracking-widest mb-1">{dayName}</span>
-                        <span className="text-xl font-bold">{dayNum}</span>
-                      </button>
-                    );
-                  })}
+                {/* --- MONTH-GROUPED CALENDAR --- */}
+                <div className="max-h-[50vh] overflow-y-auto pr-4 mb-6 custom-scrollbar">
+                  {Object.entries(groupedDates).map(([monthYear, dates]) => (
+                    <div key={monthYear} className="mb-8">
+                      <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black mb-4 pb-2 border-b border-black/10">
+                        {monthYear}
+                      </h3>
+                      <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
+                        {dates.map((d, i) => {
+                          // Format date strictly to YYYY-MM-DD to avoid timezone shifting
+                          const year = d.getFullYear();
+                          const month = String(d.getMonth() + 1).padStart(2, '0');
+                          const day = String(d.getDate()).padStart(2, '0');
+                          const dateStr = `${year}-${month}-${day}`;
+                          
+                          const isBooked = bookedTimeSlots[dateStr]?.length >= 2;
+                          const disabled = isBooked || manuallyBlockedDates.includes(dateStr);
+                          const isSelected = selectedDate === dateStr;
+                          
+                          return (
+                            <button
+                              key={i}
+                              disabled={disabled}
+                              onClick={() => {
+                                setSelectedDate(dateStr);
+                                setSelectedTime('');
+                              }}
+                              className={`
+                                flex flex-col items-center justify-center p-3 sm:p-4 border transition-all
+                                ${disabled ? 'opacity-30 cursor-not-allowed bg-black/5 border-transparent line-through' : 'cursor-pointer hover:border-black'}
+                                ${isSelected ? 'border-black bg-black text-white' : 'border-black/10 bg-white text-black'}
+                              `}
+                            >
+                              <span className={`text-[10px] font-bold uppercase tracking-widest ${isSelected ? 'text-white/70' : 'text-black/50'}`}>
+                                {d.toLocaleDateString('en-US', { weekday: 'short' })}
+                              </span>
+                              <span className="text-xl sm:text-2xl font-bold mt-1">
+                                {d.getDate()}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
-                {/* SMART TIME SELECTOR */}
                 {/* SMART TIME SELECTOR */}
                 {selectedDate && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="border-t border-black/10 pt-6">
@@ -305,7 +386,6 @@ export default function ArtistProfile() {
                         { display: 'Second Half (Evening)', value: '15:00:00' }
                       ].map(slot => {
                         // Check if this specific phase is booked. 
-                        // We check if the DB returned a time starting with 09:00 or 15:00
                         const isTimeBooked = bookedTimeSlots[selectedDate]?.some(t => t.startsWith(slot.value.substring(0, 5)));
                         
                         return (
