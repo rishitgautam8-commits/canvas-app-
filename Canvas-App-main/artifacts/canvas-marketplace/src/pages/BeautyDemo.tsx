@@ -156,7 +156,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   if (!artist) {
     return (
       <div className="min-h-screen bg-[#F9F9F9] flex flex-col items-center justify-center p-6 text-center">
-        <h2 className="text-3xl font-bold lowercase tracking-tight mb-4">artist not found.</h2>
+        <h2 className="text-3xl font-bold capitalize tracking-tight mb-4">Artist Not Found.</h2>
         <button onClick={() => setLocation('/')} className="border border-black bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
           Back to Directory
         </button>
@@ -220,7 +220,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <h1 className="text-3xl sm:text-5xl font-bold lowercase tracking-tight">{artist.business_name || 'Artist Studio'}</h1>
+                <h1 className="text-3xl sm:text-5xl font-bold capitalize tracking-tight">{artist.business_name || 'Artist Studio'}</h1>
                 <CheckCircle2 className="text-[#B66CF2]" size={24} />
               </div>
               <p className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-black/50 mb-4">
@@ -257,7 +257,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         
         {/* --- VERIFIED PORTFOLIO --- */}
         <div className="mb-12">
-          <h2 className="text-3xl font-bold lowercase tracking-tight mb-2">verified portfolio.</h2>
+          <h2 className="text-3xl font-bold capitalize tracking-tight mb-2">Verified Portfolio.</h2>
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Real client work showcasing signature aesthetic and technical execution.</p>
         </div>
 
@@ -288,7 +288,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               
               {hasAddonText && (
                 <div className={`flex-1 ${!hasAddonImages ? 'max-w-3xl' : ''}`}>
-                  <h2 className="text-3xl font-bold lowercase tracking-tight mb-4">add-ons & upgrades.</h2>
+                  <h2 className="text-3xl font-bold capitalize tracking-tight mb-4">Add-ons & Upgrades.</h2>
                   <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-black/50 mb-10 leading-relaxed">Enhance your booking with specialized services.</p>
                   
                   <div className="space-y-0">
@@ -336,7 +336,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               
               <div className="p-8 border-b border-black/10 flex justify-between items-center bg-white sticky top-0">
                 <div>
-                  <h3 className="text-2xl font-bold lowercase tracking-tight">select date & time.</h3>
+                  <h3 className="text-2xl font-bold capitalize tracking-tight">Select Date & Time.</h3>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-black/40 mt-1">Gray dates are unavailable or already booked.</p>
                 </div>
                 <button onClick={() => setShowBookingModal(false)} className="text-black/30 hover:text-black transition-colors"><X size={24} strokeWidth={1.5} /></button>
