@@ -952,7 +952,9 @@ function Router({ session }: { session: Session | null }) {
         <Route path="/dashboard">
           {() => <Dashboard session={session} />}
         </Route>
-        <Route path="/beauty-demo" component={BeautyDemo} />
+        <Route path="/beauty-demo">
+  {() => <BeautyDemo setAuthOpen={setAuthOpen} />}
+</Route>
         <Route path="/artist/:id">
           {() => <BeautyDemo setAuthOpen={setAuthOpen} />}
         </Route>
