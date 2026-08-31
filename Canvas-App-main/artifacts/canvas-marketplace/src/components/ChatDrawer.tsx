@@ -64,7 +64,11 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
           filter: `booking_id=eq.${bookingId}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new]);
+          setMessages((prev) => {
+            // DEDUPLICATION SAFETY: Make sure we never render the same DB message twice
+            if (prev.some(msg => msg.id === payload.new.id)) return prev;
+            return [...prev, payload.new];
+          });
         }
       )
       .subscribe();
@@ -88,28 +92,32 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
     const contentToSend = newMessage.trim();
     setNewMessage('');
 
-    // 1. Instantly update the local state so the message appears on screen
-    const localMsg = {
-      id: Date.now().toString(),
-      content: contentToSend,
-      sender_id: currentUserId || 'client-demo',
-      created_at: new Date().toISOString()
-    };
-    setMessages(prev => [...prev, localMsg]);
+    // If we are in demo mode (no booking ID), manually update the UI so it works visually
+    if (!bookingId) {
+      const localMsg = {
+        id: Date.now().toString(),
+        content: contentToSend,
+        sender_id: currentUserId || 'client-demo',
+        created_at: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, localMsg]);
+      return;
+    }
 
-    // 2. Try syncing with Supabase if a bookingId exists
-    if (bookingId) {
-      const { error } = await supabase.from('messages').insert([
-        {
-          booking_id: bookingId,
-          sender_id: currentUserId || '00000000-0000-0000-0000-000000000000',
-          content: contentToSend,
-        },
-      ]);
+    // REAL BOOKING LOGIC: We DO NOT manually update setMessages here.
+    // We send it to Supabase, and the real-time listener above will catch it 
+    // instantly (~50ms) and update the UI perfectly. No more double-bubbles!
+    const { error } = await supabase.from('messages').insert([
+      {
+        booking_id: bookingId,
+        sender_id: currentUserId || '00000000-0000-0000-0000-000000000000',
+        content: contentToSend,
+      },
+    ]);
 
-      if (error) {
-        console.error('Demo mode note (Supabase sync skipped):', error);
-      }
+    if (error) {
+      console.error('Failed to send message:', error);
+      window.alert("Message failed to send. Please try again.");
     }
   };
 
@@ -137,7 +145,7 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
         </div>
 
         {/* Message Feed */}
-        <div className="my-4 flex-1 overflow-y-auto space-y-4 pr-2">
+        <div className="my-4 flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
           {loading ? (
             <div className="flex h-full items-center justify-center">
               <p className="eyebrow animate-pulse text-[#e0aaff]">Decrypting secure chat...</p>
@@ -183,7 +191,7 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
           />
           <button 
             type="submit" 
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e0aaff] text-[#251037] transition-transform hover:scale-105"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e0aaff] text-[#251037] transition-transform hover:scale-105 active:scale-95"
           >
             <Send size={18} />
           </button>
