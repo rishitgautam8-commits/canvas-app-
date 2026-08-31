@@ -469,11 +469,11 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
   };
 
   return (
-    <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[var(--canvas-iv)]">
+    <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[#FDF3F1]">
       <motion.nav 
         animate={{ y: (isChatOpen || isHeaderHidden) ? -120 : 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[var(--canvas-iv)] border-b border-black/5"
+        className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[#FDF3F1] border-b border-black/5"
       >
         <div className="hidden md:flex items-center gap-8 justify-start">
           <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Directory</a>
@@ -483,7 +483,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
         <div className="flex items-center justify-center cursor-pointer group" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Canvas Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 group-hover:drop-shadow-[0_4px_12px_rgba(182,108,242,0.3)]" />
-            <span className="text-2xl md:text-3xl font-bold lowercase tracking-[-0.04em] text-black transition-colors duration-500 group-hover:text-[#B66CF2]">canvas</span>
+            <span className="text-2xl md:text-3xl font-bold tracking-[-0.04em] text-black transition-colors duration-500 group-hover:text-[#B66CF2]">Canvas</span>
           </div>
         </div>
         <div className="flex items-center gap-6 justify-end">
@@ -501,7 +501,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
 
       <AnimatePresence>
         {menuOpen && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="fixed top-[72px] left-0 right-0 z-[190] bg-[var(--canvas-iv)] border-b border-[var(--canvas-bd)] p-6 flex flex-col gap-4 shadow-lg md:hidden">
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="fixed top-[72px] left-0 right-0 z-[190] bg-bg-[#FDF3F1] border-b border-[var(--canvas-bd)] p-6 flex flex-col gap-4 shadow-lg md:hidden">
             {session && <a onClick={() => { setLocation('/dashboard'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)] border-b border-[var(--canvas-bd)] pb-3">Dashboard</a>}
             <a onClick={() => { scrollTo('top'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)]">Home</a>
             <a onClick={() => { scrollTo('discover'); setMenuOpen(false); }} className="text-[15px] font-medium text-[var(--canvas-rp)]">Browse artists</a>
@@ -565,7 +565,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
         </div>
       </section>
 
-      <section id="demo-search" className="relative z-20 bg-[var(--bg-beige)] py-24 border-b border-[var(--border-light)]">
+      <section id="demo-search" className="relative z-20 bg-[#FDF3F1] py-24 border-b border-[var(--border-light)]">
         <ScrollZoomIn>
           <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12">
             <HeroSearch value={search} onChange={handleSearchChange} onSubmit={(vals) => { setSearch(vals); setHasSearched(true); scrollTo('discover'); }} isAuthenticated={!!session} onAuthRequired={() => setAuthOpen(true)} />
@@ -596,7 +596,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
           </div>
         </ScrollZoomIn>
 
-        <section id="discover" className="bg-white text-black py-24 sm:py-32">
+        <section id="discover" className="bg-[#FDF3F1] text-black py-24 sm:py-32">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
             <ScrollZoomIn>
               <div className="mb-12 flex flex-col gap-5">
@@ -713,7 +713,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
           </div>
         </section>
 
-        <section id="standard" className="bg-[#F9F9F9] text-black py-24 sm:py-32 border-t border-black/5">
+        <section id="standard" className="bg-[#F9EBE8] text-black py-24 sm:py-32 border-t border-black/5">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-end mb-24">
               <ScrollZoomIn className="lg:col-span-8">

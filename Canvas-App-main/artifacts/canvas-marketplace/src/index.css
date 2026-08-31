@@ -7,10 +7,10 @@
   --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   
   /* 1. Luxury Brand Palette */
-  --bg-cream: #FBFAF2;
-  --bg-card: #FFFFFF;
+  --bg-cream: #FDF3F1; /* Updated to Soft Peach */
+  --bg-card: #FFFFFF;  /* Kept white so portfolio images still pop */
   --bg-dark: #1A0B2E;
-  --bg-beige: #EDE8DE;
+  --bg-beige: #F9EBE8; /* Updated to a slightly deeper peach for section contrast */
 
   --text-primary: #1A1A1A;
   --text-secondary: #6B5B7A;
