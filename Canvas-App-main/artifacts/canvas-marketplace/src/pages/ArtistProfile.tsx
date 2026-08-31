@@ -106,6 +106,21 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         return;
       }
 
+      // 1. DEFENSIVE PROFILE UPSERT
+      // Guarantees your user row exists in the 'profiles' table before booking, 
+      // completely preventing the bookings_client_id_fkey constraint error.
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: user.id,
+        email: user.email,
+        role: user.user_metadata?.role || 'client',
+        full_name: user.user_metadata?.full_name || user.user_metadata?.name || 'Canvas Client'
+      }, { onConflict: 'email' });
+
+      if (profileError) {
+        console.error("Profile sync error:", profileError);
+      }
+
+      // 2. INSERT BOOKING
       const payload = {
         artist_id: artistId,
         client_id: user.id,
@@ -115,8 +130,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         look_details: lookDetails.trim(),
         status: 'pending'
       };
-
-      console.log("Sending booking payload to Supabase:", payload);
 
       const { error } = await supabase.from('bookings').insert(payload);
 
