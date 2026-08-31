@@ -645,13 +645,16 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start mt-10">
-              <ScrollZoomIn className="lg:col-span-1 bg-[#F9F9F9] border border-black/10 p-6 space-y-8 sticky top-8">
+              {/* 👇 Updated sidebar background */}
+              <ScrollZoomIn className="lg:col-span-1 bg-white/40 backdrop-blur-md border border-black/10 p-6 space-y-8 sticky top-8">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-black/70 mb-3">Sort by</label>
-                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full bg-white border border-black/20 p-3 text-xs font-bold uppercase tracking-wider text-black outline-none cursor-pointer">
+                  {/* 👇 Updated dropdown background */}
+                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full bg-transparent border border-black/20 p-3 text-xs font-bold uppercase tracking-wider text-black outline-none cursor-pointer">
                     <option value="Best match">Best match</option><option value="Highest rated">Highest rated</option><option value="Price: low to high">Price: low to high</option><option value="Price: high to low">Price: high to low</option>
                   </select>
                 </div>
+                {/* ... rest of the sidebar ... */}
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-black/70">Max Budget</label>

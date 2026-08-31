@@ -8,7 +8,7 @@
   
   /* 1. Luxury Brand Palette */
   --bg-cream: #FDF3F1; /* Updated to Soft Peach */
-  --bg-card: #FFFFFF;  /* Kept white so portfolio images still pop */
+  --bg-card: rgba(255, 255, 255, 0.4);  /* Kept white so portfolio images still pop */
   --bg-dark: #1A0B2E;
   --bg-beige: #F9EBE8; /* Updated to a slightly deeper peach for section contrast */
 
@@ -228,6 +228,7 @@
 }
 .testimonial-card {
   background: var(--bg-card);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-card);
   padding: 32px;

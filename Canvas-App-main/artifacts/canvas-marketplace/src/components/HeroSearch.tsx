@@ -45,7 +45,6 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [activeOccasion, setActiveOccasion] = useState('Wedding');
   
-  // Re-added location dropdown state
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -118,7 +117,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-white rounded-[32px] p-8 md:p-14 shadow-[0_20px_50px_-12px_rgba(21,4,32,0.06)] border border-[#F1E9DC]/60 relative overflow-visible"
+        className="bg-white/40 backdrop-blur-md rounded-[32px] p-8 md:p-14 shadow-[0_20px_50px_-12px_rgba(21,4,32,0.04)] border border-white/50 relative overflow-visible"
       >
         <form onSubmit={handleSubmit}>
           
@@ -126,19 +125,19 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
           <div className="flex flex-col md:flex-row gap-4 mb-10 relative">
             
             {/* 1. Look Description */}
-            <div className="flex-[2] flex items-center bg-white border border-[#E7DCC8] rounded-[20px] px-6 py-4 shadow-[0_2px_8px_rgba(21,4,32,0.03)] focus-within:border-[#C9A463] focus-within:ring-4 focus-within:ring-[#C9A463]/10 transition-all duration-300">
+            <div className="flex-[2] flex items-center bg-white/50 backdrop-blur-sm border border-white/60 rounded-[20px] px-6 py-4 shadow-[0_2px_8px_rgba(21,4,32,0.02)] focus-within:border-[#BA965B] focus-within:bg-white/70 focus-within:ring-4 focus-within:ring-[#BA965B]/10 transition-all duration-300">
               <Search size={22} className="text-[#5C3D6E] mr-4 opacity-50 shrink-0" />
               <input
                 type="text"
                 value={value?.lookDescription || ''}
                 onChange={(e) => onChange({ ...value, lookDescription: e.target.value })}
                 placeholder="nizami bridal..."
-                className="w-full bg-transparent outline-none text-[#150420] text-[16px] font-medium placeholder:text-[#150420]/30"
+                className="w-full bg-transparent outline-none text-[#150420] text-[16px] font-medium placeholder:text-[#150420]/40"
               />
             </div>
 
             {/* 2. Hyderabad Location Dropdown */}
-            <div className="flex-[1.5] relative flex items-center bg-white border border-[#E7DCC8] rounded-[20px] px-6 py-4 shadow-[0_2px_8px_rgba(21,4,32,0.03)] focus-within:border-[#C9A463] focus-within:ring-4 focus-within:ring-[#C9A463]/10 transition-all duration-300">
+            <div className="flex-[1.5] relative flex items-center bg-white/50 backdrop-blur-sm border border-white/60 rounded-[20px] px-6 py-4 shadow-[0_2px_8px_rgba(21,4,32,0.02)] focus-within:border-[#BA965B] focus-within:bg-white/70 focus-within:ring-4 focus-within:ring-[#BA965B]/10 transition-all duration-300">
               <MapPin size={22} className="text-[#BA965B] mr-4 opacity-80 shrink-0" />
               <input
                 type="text"
@@ -149,12 +148,12 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
                 }}
                 onFocus={() => setShowLocationDropdown(true)}
                 placeholder="Anywhere in Hyd"
-                className="w-full bg-transparent outline-none text-[#150420] text-[16px] font-medium placeholder:text-[#150420]/30"
+                className="w-full bg-transparent outline-none text-[#150420] text-[16px] font-medium placeholder:text-[#150420]/40"
               />
               
               {/* Elegant Dropdown Menu */}
               {showLocationDropdown && filteredLocations.length > 0 && (
-                <div className="absolute top-[110%] left-0 w-full bg-white border border-[#E7DCC8] rounded-[16px] shadow-[0_10px_40px_rgba(21,4,32,0.08)] z-50 max-h-56 overflow-y-auto py-2">
+                <div className="absolute top-[110%] left-0 w-full bg-white/80 backdrop-blur-lg border border-white/50 rounded-[16px] shadow-[0_10px_40px_rgba(21,4,32,0.06)] z-50 max-h-56 overflow-y-auto py-2">
                   {filteredLocations.map(loc => (
                     <div
                       key={loc}
@@ -162,7 +161,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
                         onChange({ ...value, location: loc });
                         setShowLocationDropdown(false);
                       }}
-                      className="px-6 py-3 text-[14px] font-medium text-[#5C3D6E] hover:bg-[#FBF8F2] hover:text-[#150420] cursor-pointer transition-colors"
+                      className="px-6 py-3 text-[14px] font-medium text-[#5C3D6E] hover:bg-white/60 hover:text-[#150420] cursor-pointer transition-colors"
                     >
                       {loc}
                     </div>
@@ -183,7 +182,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
 
           {/* Elegant Divider */}
           <div className="flex items-center justify-center gap-6 mb-10">
-            <span className="text-[12px] font-medium uppercase tracking-[0.25em] text-[#5C3D6E] opacity-50">
+            <span className="text-[12px] font-medium uppercase tracking-[0.25em] text-[#5C3D6E] opacity-60">
               Or Upload Inspiration
             </span>
           </div>
@@ -202,8 +201,8 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
             }}
             className={`relative border-[1.5px] border-dashed rounded-[32px] p-10 md:p-14 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-400 ease-out ${
               isDragging 
-                ? 'bg-[#FBF8F2] scale-[1.02] border-[#BA965B] shadow-[0_0_30px_rgba(186,150,91,0.15)]' 
-                : 'bg-[#FCFAF5] border-[#DCD3C6] hover:border-[#BA965B] hover:bg-[#FBF8F2]'
+                ? 'bg-white/60 scale-[1.02] border-[#BA965B] shadow-[0_0_30px_rgba(186,150,91,0.15)]' 
+                : 'bg-white/20 border-white/60 hover:border-[#BA965B] hover:bg-white/40'
             }`}
           >
             <input
@@ -218,20 +217,20 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
               }}
             />
 
-            <div className="w-16 h-16 rounded-full bg-white text-[#BA965B] flex items-center justify-center mb-6 border border-[#E7DCC8] shadow-sm">
+            <div className="w-16 h-16 rounded-full bg-white/60 backdrop-blur-sm text-[#BA965B] flex items-center justify-center mb-6 border border-white/80 shadow-sm">
               <Upload size={24} strokeWidth={1.5} />
             </div>
 
             <h3 className="font-serif text-[28px] md:text-[32px] leading-tight text-[#150420] mb-4">
               Upload a Pinterest screenshot or Instagram save
             </h3>
-            <p className="text-[13px] text-[#5C3D6E] opacity-70 tracking-wide mb-10 font-medium">
+            <p className="text-[13px] text-[#5C3D6E] opacity-80 tracking-wide mb-10 font-medium">
               JPG, PNG, WEBP · Max 10MB · Or drag & drop
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
               {SUGGESTION_PILLS.map((pill) => (
-                <span key={pill} className="bg-[#FBF8F2] border border-[#E7DCC8] text-[#7C5916] px-5 py-2.5 rounded-full text-[12px] font-medium tracking-wide shadow-sm">
+                <span key={pill} className="bg-white/40 border border-white/60 text-[#7C5916] px-5 py-2.5 rounded-full text-[12px] font-medium tracking-wide shadow-sm">
                   {pill}
                 </span>
               ))}
@@ -240,7 +239,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
 
           {/* Bottom Occasion Row */}
           <div className="mt-12 flex flex-col sm:flex-row items-center justify-start gap-6">
-            <span className="text-[12px] font-medium uppercase tracking-[0.25em] text-[#5C3D6E] opacity-70">
+            <span className="text-[12px] font-medium uppercase tracking-[0.25em] text-[#5C3D6E] opacity-80">
               Occasion:
             </span>
             <div className="flex flex-wrap items-center gap-3">
@@ -252,7 +251,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
                   className={`px-7 py-3 rounded-full text-[14px] font-medium tracking-wide transition-all duration-300 border ${
                     activeOccasion === occasion
                       ? 'bg-[#BA965B] text-[#150420] border-[#BA965B] shadow-md scale-105'
-                      : 'bg-white text-[#33103E] border-[#E7DCC8] hover:border-[#BA965B] hover:text-[#150420]'
+                      : 'bg-white/30 text-[#33103E] border-white/50 hover:border-[#BA965B] hover:bg-white/50'
                   }`}
                 >
                   {occasion}
@@ -272,12 +271,12 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-[#FBF8F2]/95 backdrop-blur-xl p-6"
+            className="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-[#FDF3F1]/80 backdrop-blur-xl p-6"
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="relative max-w-md w-full bg-white border border-[#E7DCC8] rounded-[32px] p-10 text-center shadow-[0_30px_60px_rgba(21,4,32,0.1)] overflow-hidden"
+              className="relative max-w-md w-full bg-white/60 backdrop-blur-md border border-white/50 rounded-[32px] p-10 text-center shadow-[0_30px_60px_rgba(21,4,32,0.06)] overflow-hidden"
             >
               <motion.div
                 animate={{ y: ['0%', '100%', '0%'] }}
@@ -286,7 +285,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
               />
 
               {previewUrl && (
-                <div className="relative w-36 h-36 mx-auto mb-8 rounded-[20px] overflow-hidden border-2 border-[#E7DCC8] shadow-inner">
+                <div className="relative w-36 h-36 mx-auto mb-8 rounded-[20px] overflow-hidden border-2 border-white/60 shadow-inner">
                   <img src={previewUrl} alt="Inspiration Preview" className="w-full h-full object-cover filter brightness-95" />
                   <div className="absolute inset-0 bg-[#BA965B]/10 mix-blend-overlay" />
                 </div>
@@ -316,7 +315,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
                 </AnimatePresence>
               </div>
 
-              <div className="w-full bg-[#F1E9DC] h-1.5 rounded-full mt-6 overflow-hidden">
+              <div className="w-full bg-white/50 h-1.5 rounded-full mt-6 overflow-hidden">
                 <motion.div
                   initial={{ width: '0%' }}
                   animate={{ width: '100%' }}
