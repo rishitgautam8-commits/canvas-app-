@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -58,10 +58,6 @@ function handleImgError(e: React.SyntheticEvent<HTMLImageElement>) {
   if (img.src === PLACEHOLDER_IMG) return;
   img.onerror = null;
   img.src = PLACEHOLDER_IMG;
-}
-
-function dedupeKey(name: string, city: string) {
-  return `${(name || '').trim().toLowerCase()}|${(city || '').trim().toLowerCase()}`;
 }
 
 function normalizePortfolio(
@@ -219,35 +215,41 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
 
   const handleSelectArtist = (artist: Artist) => {
     console.log("Artist card clicked:", artist.name);
-    // If it's a live database artist with a UUID, you can choose to route them directly or open the modal
-    setSelectedArtist(artist);
+    // If it's a live database artist with a UUID, route directly to their page
+    if ((artist as any).isLiveDb || String(artist.id).includes('-')) {
+      setLocation(`/artist/${artist.id}`);
+    } else {
+      setSelectedArtist(artist);
+    }
   };
-
-  // Inside the Home component:
-  const [liveArtists, setLiveArtists] = useState<Artist[]>([]);
-  const [, setLoadingArtists] = useState(true);
 
   const editorialImages = [
     '1522337360788-8b13fee7a3af', '1515377905703-c4788e51af15', '1508186225823-0963cfdbaa18',
     '1509967419530-da38b4704bc6', '1542452255199-3172cb8cbce8', '1518049362265-d5b2a6467637'
   ];
 
-  useEffect(() => {
-    async function fetchLiveArtists() {
+  // 1. THIS IS THE FIX: useQuery caches the live artists so the grid NEVER flashes!
+  const { data: liveArtists = [] } = useQuery({
+    queryKey: ['liveArtists'],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('artist_profiles')
         .select(`id, business_name, category, city, max_travel_km, starting_price, portfolio`);
+      
       if (error) {
         console.error('Error fetching live artists:', error.message);
-      } else if (data) {
-        const formatted: Artist[] = data.map((item: any, index: number) => {
+        return [];
+      }
+      
+      if (data) {
+        return data.map((item: any, index: number) => {
           const rawPortfolio = item.portfolio || [];
           const mainImage = rawPortfolio.length > 0
             ? typeof rawPortfolio[0] === 'string' ? rawPortfolio[0] : rawPortfolio[0]?.image
             : `https://images.unsplash.com/photo-${editorialImages[index % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
           const normalizedPortfolio = normalizePortfolio(rawPortfolio, mainImage);
           return {
-            id: item.id, // This is the real Supabase UUID!
+            id: item.id,
             name: item.business_name || 'Canvas Artist',
             category: item.category || 'Bridal & Wedding',
             services: ['Makeup Artist', item.category || 'Bridal & Wedding'],
@@ -270,12 +272,12 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
             isLiveDb: true,
           } as Artist & { isLiveDb?: boolean };
         });
-        setLiveArtists(formatted);
       }
-      setLoadingArtists(false);
-    }
-    fetchLiveArtists();
-  }, []);
+      return [];
+    },
+    staleTime: 1000 * 60 * 5, // Keeps data fresh in memory cache for 5 minutes
+  });
+
   const [sortBy, setSortBy] = useState('Best match');
   const [maxBudget, setMaxBudget] = useState(65000);
   const [cityFilters, setCityFilters] = useState<Record<string, boolean>>({
@@ -338,7 +340,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
 
   const [hasSearched, setHasSearched] = useState(false);
   const [briefOpen, setBriefOpen] = useState(false);
-const openBrief = () => { setSent(false); setBriefOpen(true); };
+  const openBrief = () => { setSent(false); setBriefOpen(true); };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -455,7 +457,6 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
         look_details: dataElements.get('message'),
         status: 'pending'
       };
-      console.log('BOOKING PAYLOAD:', bookingData);
       const { error } = await supabase.from('bookings').insert([bookingData]);
       if (error) throw error;
       setSent(true);
@@ -530,10 +531,10 @@ const openBrief = () => { setSent(false); setBriefOpen(true); };
         <ScrollZoom>
           <div className="flex flex-col items-center justify-center py-10 md:py-16 relative hidden md:flex animate-float-in delay-2">
             <img 
-  src="/makeup-hero.png" 
-  alt="Canvas Beauty" 
-  className="w-full max-w-5xl object-cover rounded-[2rem] shadow-2xl" 
-/>
+              src="/makeup-hero.png" 
+              alt="Canvas Beauty" 
+              className="w-full max-w-5xl object-cover rounded-[2rem] shadow-2xl" 
+            />
           </div>
         </ScrollZoom>
       </section>

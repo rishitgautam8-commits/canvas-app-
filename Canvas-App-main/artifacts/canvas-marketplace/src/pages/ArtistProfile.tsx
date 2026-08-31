@@ -27,7 +27,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
     async function fetchArtistData() {
       if (!artistId) return;
 
-      // 1. Check if it's a mock static artist (ID doesn't contain a hyphen)
       const isMockId = !String(artistId).includes('-');
 
       if (isMockId) {
@@ -53,7 +52,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         }
       }
 
-      // 2. Fetch from Supabase for real registered artists
       const { data: artistData, error: artistError } = await supabase
         .from('artist_profiles')
         .select('*')
@@ -68,7 +66,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       
       setArtist(artistData);
 
-      // Fetch real database bookings using correct columns: event_date & time_slot
       const { data: existingBookings } = await supabase
         .from('bookings')
         .select('event_date, time_slot')
@@ -105,16 +102,11 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         window.alert("Please log in as a client to book an artist.");
         setShowBookingModal(false);
         setBookingLoading(false);
-        
-        if (setAuthOpen) {
-          setAuthOpen(true);
-        }
+        if (setAuthOpen) setAuthOpen(true);
         return;
       }
 
-      // Save using the correct database columns: event_date, time_slot (matching the enum),
-      // venue_address and look_details are both required (not-null) on the bookings table
-      const { error } = await supabase.from('bookings').insert({
+      const payload = {
         artist_id: artistId,
         client_id: user.id,
         event_date: selectedDate,
@@ -122,7 +114,11 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         venue_address: venueAddress.trim(),
         look_details: lookDetails.trim(),
         status: 'pending'
-      });
+      };
+
+      console.log("Sending booking payload to Supabase:", payload);
+
+      const { error } = await supabase.from('bookings').insert(payload);
 
       if (error) {
         if (error.code === '23502') {
@@ -145,6 +141,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       setLookDetails('');
 
     } catch (err: any) {
+      console.error("Booking failed:", err);
       window.alert(`Error booking: ${err.message}`);
     } finally {
       setBookingLoading(false);
@@ -327,7 +324,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
             >
               <div className="p-8 border-b border-black/10 flex justify-between items-center bg-white sticky top-0">
                 <div>
-                  <h3 className="text-2xl font-bold capitalize tracking-tight">Select Date & Time.</h3>
+                  <h3 className="text-2xl font-bold capitalize tracking-tight">Select Date & Time Phase.</h3>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-black/40 mt-1">Gray dates are unavailable or already booked.</p>
                 </div>
                 <button onClick={() => setShowBookingModal(false)} className="text-black/30 hover:text-black transition-colors"><X size={24} strokeWidth={1.5} /></button>
@@ -433,7 +430,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                 )}
               </div>
 
-              {/* ACTION BUTTON */}
               <div className="p-8 border-t border-black/10 bg-[#F9F9F9] sticky bottom-0">
                 <button 
                   onClick={handleConfirmBooking}
