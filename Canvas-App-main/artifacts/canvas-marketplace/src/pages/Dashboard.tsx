@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { ArtistOnboardingModal } from '@/components/ArtistOnboardingModal';
+import { ReviewModal } from '@/components/ReviewModal'; // Added Import
 import { ArrowLeft, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Session } from '@supabase/supabase-js';
@@ -33,6 +34,10 @@ export default function Dashboard({ session }: DashboardProps) {
   
   const [showRoleSwitchConfirm, setShowRoleSwitchConfirm] = useState(false);
   const [pendingRole, setPendingRole] = useState<'client' | 'artist' | null>(null);
+
+  // Review Modal State added correctly inside the component
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [bookingToReview, setBookingToReview] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     business_name: '',
@@ -147,8 +152,6 @@ export default function Dashboard({ session }: DashboardProps) {
     setSaving(true);
 
     try {
-      // 1. BASE PROFILE: Upsert targeting 'email' so old ghost records 
-      // automatically update to your current session ID instead of throwing constraints.
       const { error: profileError } = await supabase.from('profiles').upsert(
         {
           id: session.user.id,
@@ -166,7 +169,6 @@ export default function Dashboard({ session }: DashboardProps) {
         throw new Error(`Failed to save base profile: ${profileError.message}`);
       }
 
-      // 2. ARTIST PROFILE: Upsert logistics data safely using 'id'
       const { error: artistError } = await supabase.from('artist_profiles').upsert(
         {
           id: session.user.id,
@@ -300,11 +302,11 @@ export default function Dashboard({ session }: DashboardProps) {
         {role === 'artist' ? (
           <>
             <div className="mt-12 mb-8 flex gap-8 border-b border-black/10 pb-px overflow-x-auto">
-  <button onClick={() => setActiveTab('logistics')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Profile & Logistics</button>
-  <button onClick={() => setActiveTab('overview')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Overview</button>
-  <button onClick={() => setActiveTab('briefs')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'briefs' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
-  <button onClick={() => setLocation(`/artist/${session?.user.id}`)} className="text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 text-[#B66CF2] hover:text-black transition-colors">Preview Public Page ↗</button>
-</div>
+              <button onClick={() => setActiveTab('logistics')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Profile & Logistics</button>
+              <button onClick={() => setActiveTab('overview')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Overview</button>
+              <button onClick={() => setActiveTab('briefs')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'briefs' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
+              <button onClick={() => setLocation(`/artist/${session?.user.id}`)} className="text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 text-[#B66CF2] hover:text-black transition-colors">Preview Public Page ↗</button>
+            </div>
 
             {activeTab === 'overview' && (
               <div className="grid gap-6 md:grid-cols-3">
@@ -622,7 +624,23 @@ export default function Dashboard({ session }: DashboardProps) {
                       <h4 className="text-2xl font-bold capitalize tracking-tight">{booking.artist?.business_name || 'Canvas Artist'}</h4>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-black/40">{booking.artist?.city}</p>
                     </div>
-                    <button onClick={() => setActiveChatBooking(booking)} className="border border-black bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white">Open Chat</button>
+                    
+                    {/* The new button section for the Client side! */}
+                    <div className="flex gap-4 items-center">
+                      <button 
+                        onClick={() => {
+                          setBookingToReview(booking);
+                          setReviewModalOpen(true);
+                        }}
+                        className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#B66CF2] hover:text-black transition-colors"
+                      >
+                        Leave a Review
+                      </button>
+                      <button onClick={() => setActiveChatBooking(booking)} className="border border-black bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#B66CF2] hover:border-[#B66CF2] transition-colors">
+                        Open Chat
+                      </button>
+                    </div>
+
                   </div>
                 ))}
               </div>
@@ -656,6 +674,18 @@ export default function Dashboard({ session }: DashboardProps) {
 
       {activeChatBooking && (
         <ChatDrawer open={Boolean(activeChatBooking)} bookingId={activeChatBooking.id} currentUserId={user?.id || ''} otherPartyName={role === 'artist' ? (activeChatBooking.client?.full_name || 'Client') : 'Artist Studio'} onClose={() => setActiveChatBooking(null)} />
+      )}
+
+      {/* The Review Modal renders here safely at the bottom! */}
+      {reviewModalOpen && bookingToReview && (
+        <ReviewModal 
+          isOpen={reviewModalOpen}
+          onClose={() => setReviewModalOpen(false)}
+          bookingId={bookingToReview.id}
+          artistId={bookingToReview.artist_id}
+          clientId={bookingToReview.client_id}
+          artistName={bookingToReview.artist?.business_name || "your artist"}
+        />
       )}
     </div>
   );
