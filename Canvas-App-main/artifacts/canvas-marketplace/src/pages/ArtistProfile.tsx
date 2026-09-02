@@ -106,21 +106,28 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         return;
       }
 
-      // 1. DEFENSIVE PROFILE UPSERT
-      // Guarantees your user row exists in the 'profiles' table before booking, 
-      // completely preventing the bookings_client_id_fkey constraint error.
-      const { error: profileError } = await supabase.from('profiles').upsert({
-        id: user.id,
-        email: user.email,
-        role: user.user_metadata?.role || 'client',
-        full_name: user.user_metadata?.full_name || user.user_metadata?.name || 'Canvas Client'
-      }, { onConflict: 'email' });
-
-      if (profileError) {
-        console.error("Profile sync error:", profileError);
+      // 1. CHECK FOR DUMMY ARTIST
+      const isMockId = !String(artistId).includes('-');
+      
+      if (isMockId) {
+        // SIMULATE SUCCESS FOR DEMO PROFILES (Bypass Database)
+        window.alert("Booking request sent successfully! The artist will confirm shortly.");
+        setShowBookingModal(false);
+        
+        setBookedTimeSlots(prev => ({
+          ...prev,
+          [selectedDate]: [...(prev[selectedDate] || []), selectedTime]
+        }));
+        
+        setSelectedDate('');
+        setSelectedTime('');
+        setVenueAddress('');
+        setLookDetails('');
+        setBookingLoading(false);
+        return; // Stop here so it doesn't crash the database!
       }
 
-      // 2. INSERT BOOKING
+      // 2. REAL ARTIST LOGIC (Hits Database)
       const payload = {
         artist_id: artistId,
         client_id: user.id,
