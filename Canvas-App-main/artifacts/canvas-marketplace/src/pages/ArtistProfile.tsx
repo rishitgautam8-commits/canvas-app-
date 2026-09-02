@@ -108,11 +108,12 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
       // 1. CHECK FOR DUMMY ARTIST
       // 1. CHECK FOR DUMMY ARTIST
+      // 1. CHECK FOR DUMMY ARTIST
       const isMockId = !String(artistId).includes('-');
       
       if (isMockId) {
         // SIMULATE SUCCESS FOR DEMO PROFILES (Bypass Database)
-        setBookingLoading(false); // <--- Turned off FIRST so button unlocks
+        setBookingLoading(false); 
         setShowBookingModal(false);
         
         setBookedTimeSlots(prev => ({
@@ -125,8 +126,12 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         setVenueAddress('');
         setLookDetails('');
 
-        window.alert("Booking request sent successfully! The artist will confirm shortly."); // <--- Alert triggers LAST
-        return; // Stop here so it doesn't crash the database!
+        // Give React 50ms to unlock the button text BEFORE the alert freezes the screen
+        setTimeout(() => {
+          window.alert("Booking request sent successfully! The artist will confirm shortly.");
+        }, 50);
+
+        return; 
       }
 
       // 2. REAL ARTIST LOGIC (Hits Database)
