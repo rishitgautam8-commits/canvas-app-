@@ -107,13 +107,11 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       }
 
       // 1. CHECK FOR DUMMY ARTIST
-      // 1. CHECK FOR DUMMY ARTIST
-      // 1. CHECK FOR DUMMY ARTIST
       const isMockId = !String(artistId).includes('-');
       
       if (isMockId) {
-        // SIMULATE SUCCESS FOR DEMO PROFILES (Bypass Database & Alert)
-        setBookingLoading(false);
+        // SIMULATE SUCCESS FOR DEMO PROFILES (Bypass Database)
+        window.alert("Booking request sent successfully! The artist will confirm shortly.");
         setShowBookingModal(false);
         
         setBookedTimeSlots(prev => ({
@@ -125,7 +123,8 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         setSelectedTime('');
         setVenueAddress('');
         setLookDetails('');
-        return; 
+        setBookingLoading(false);
+        return; // Stop here so it doesn't crash the database!
       }
 
       // 2. REAL ARTIST LOGIC (Hits Database)
@@ -136,7 +135,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         time_slot: selectedTime,
         venue_address: venueAddress.trim(),
         look_details: lookDetails.trim(),
-        status: 'confirmed' // <-- CHANGE THIS FROM 'pending' TO 'confirmed'////////
+        status: 'pending' // <-- CHANGE THIS FROM 'pending' TO 'confirmed'////////
       };
 
       const { error } = await supabase.from('bookings').insert(payload);
