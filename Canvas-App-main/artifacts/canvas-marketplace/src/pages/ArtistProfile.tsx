@@ -128,6 +128,15 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       }
 
       // 2. REAL ARTIST LOGIC (Hits Database)
+      
+      // BULLETPROOF FIX: Ensure the client's profile exists in the database first
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        email: user.email,
+        full_name: user.user_metadata?.full_name || user.user_metadata?.first_name || 'Client',
+        role: 'client'
+      }, { onConflict: 'id' });
+
       const payload = {
         artist_id: artistId,
         client_id: user.id,
@@ -135,7 +144,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         time_slot: selectedTime,
         venue_address: venueAddress.trim(),
         look_details: lookDetails.trim(),
-        status: 'pending' // <-- CHANGE THIS FROM 'pending' TO 'confirmed'////////
+        status: 'pending' // <--- Changed back to require artist confirmation!
       };
 
       const { error } = await supabase.from('bookings').insert(payload);
