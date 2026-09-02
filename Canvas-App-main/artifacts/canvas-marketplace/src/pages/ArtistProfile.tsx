@@ -112,8 +112,8 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       const isMockId = !String(artistId).includes('-');
       
       if (isMockId) {
-        // SIMULATE SUCCESS FOR DEMO PROFILES (Bypass Database)
-        setBookingLoading(false); 
+        // SIMULATE SUCCESS FOR DEMO PROFILES (Bypass Database & Alert)
+        setBookingLoading(false);
         setShowBookingModal(false);
         
         setBookedTimeSlots(prev => ({
@@ -125,12 +125,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         setSelectedTime('');
         setVenueAddress('');
         setLookDetails('');
-
-        // Give React 50ms to unlock the button text BEFORE the alert freezes the screen
-        setTimeout(() => {
-          window.alert("Booking request sent successfully! The artist will confirm shortly.");
-        }, 50);
-
         return; 
       }
 
