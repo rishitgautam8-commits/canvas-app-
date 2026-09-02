@@ -41,9 +41,9 @@ export function ReviewModal({ isOpen, onClose, bookingId, artistId, clientId, ar
       onClose();
       setReviewText('');
     } catch (err: any) {
-      console.error("Error submitting review:", err);
-      window.alert("Something went wrong. Please try again.");
-    } finally {
+  console.error("Error submitting review:", err);
+  window.alert(`Error: ${err.message}`); // Shows the exact database error
+} finally {
       setIsSubmitting(false);
     }
   };
