@@ -17,6 +17,7 @@ export default function Dashboard({ session }: DashboardProps) {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<'client' | 'artist' | null>(null);
   const [hasAddonSkill, setHasAddonSkill] = useState(false);
+  const [artistReviews, setArtistReviews] = useState<any[]>([]);
 
   const [portfolio, setPortfolio] = useState<string[]>([]);
   const [uploadingPortfolio, setUploadingPortfolio] = useState(false);
@@ -31,7 +32,6 @@ export default function Dashboard({ session }: DashboardProps) {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'logistics' | 'briefs'>('logistics');
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [artistReviews, setArtistReviews] = useState<any[]>([]);
   
   const [showRoleSwitchConfirm, setShowRoleSwitchConfirm] = useState(false);
   const [pendingRole, setPendingRole] = useState<'client' | 'artist' | null>(null);
