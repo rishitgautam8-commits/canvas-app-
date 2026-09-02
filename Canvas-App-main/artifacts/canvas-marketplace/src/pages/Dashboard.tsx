@@ -31,6 +31,7 @@ export default function Dashboard({ session }: DashboardProps) {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'logistics' | 'briefs'>('logistics');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [artistReviews, setArtistReviews] = useState<any[]>([]);
   
   const [showRoleSwitchConfirm, setShowRoleSwitchConfirm] = useState(false);
   const [pendingRole, setPendingRole] = useState<'client' | 'artist' | null>(null);
@@ -72,7 +73,14 @@ export default function Dashboard({ session }: DashboardProps) {
 
         if (metaRole === 'artist') {
           const { data: artistData } = await supabase.from('artist_profiles').select('*').eq('id', session.user.id).single();
+          // Fetch reviews for this artist
+const { data: reviewsData } = await supabase
+  .from('reviews')
+  .select('*, client:profiles(full_name)')
+  .eq('artist_id', session.user.id)
+  .order('created_at', { ascending: false });
 
+setArtistReviews(reviewsData || []);
           if (!artistData || !artistData.business_name) {
             setShowOnboarding(true);
           } else {
