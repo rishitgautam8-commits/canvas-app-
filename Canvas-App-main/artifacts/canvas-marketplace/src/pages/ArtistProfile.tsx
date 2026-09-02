@@ -135,7 +135,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         time_slot: selectedTime,
         venue_address: venueAddress.trim(),
         look_details: lookDetails.trim(),
-        status: 'confirmed' // <-- CHANGE THIS FROM 'pending' TO 'confirmed'
+        status: 'confirmed' // <-- CHANGE THIS FROM 'pending' TO 'confirmed'////////
       };
 
       const { error } = await supabase.from('bookings').insert(payload);
