@@ -366,6 +366,39 @@ setArtistReviews(reviewsData || []);
                 )}
               </div>
             )}
+            {activeTab === 'reviews' && (
+  <div className="max-w-4xl bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
+    <div className="mb-10">
+      <h3 className="text-3xl font-bold capitalize tracking-tight">Client Reviews.</h3>
+      <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">
+        Feedback and ratings from your completed bookings.
+      </p>
+    </div>
+
+    {artistReviews.length > 0 ? (
+      <div className="space-y-6">
+        {artistReviews.map((review) => (
+          <div key={review.id} className="border border-black/10 bg-[#F9F9F9] p-6 sm:p-8 space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="text-lg font-bold">{review.client?.full_name || 'Verified Client'}</h4>
+              <div className="flex gap-1 text-[#BA965B]">
+                {[...Array(review.rating)].map((_, i) => (
+                  <span key={i}>★</span>
+                ))}
+              </div>
+            </div>
+            <p className="text-sm text-black/70 leading-relaxed">"{review.comment}"</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-black/40">
+              {new Date(review.created_at).toLocaleDateString()}
+            </p>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <p className="text-xs font-bold uppercase tracking-widest text-black/40">No reviews yet.</p>
+    )}
+  </div>
+)}
 
             {activeTab === 'logistics' && (
               <div className="mx-auto max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
