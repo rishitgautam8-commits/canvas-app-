@@ -28,7 +28,7 @@ export default function Dashboard({ session }: DashboardProps) {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'logistics' | 'briefs'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'logistics' | 'briefs'>('logistics');
   const [showOnboarding, setShowOnboarding] = useState(false);
   
   const [showRoleSwitchConfirm, setShowRoleSwitchConfirm] = useState(false);
@@ -300,11 +300,11 @@ export default function Dashboard({ session }: DashboardProps) {
         {role === 'artist' ? (
           <>
             <div className="mt-12 mb-8 flex gap-8 border-b border-black/10 pb-px overflow-x-auto">
-              <button onClick={() => setActiveTab('overview')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Overview</button>
-              <button onClick={() => setActiveTab('briefs')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'briefs' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
-              <button onClick={() => setActiveTab('logistics')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Profile & Logistics</button>
-              <button onClick={() => setLocation(`/artist/${session?.user.id}`)} className="text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 text-[#B66CF2] hover:text-black transition-colors">Preview Public Page ↗</button>
-            </div>
+  <button onClick={() => setActiveTab('logistics')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Profile & Logistics</button>
+  <button onClick={() => setActiveTab('overview')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Overview</button>
+  <button onClick={() => setActiveTab('briefs')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'briefs' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
+  <button onClick={() => setLocation(`/artist/${session?.user.id}`)} className="text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 text-[#B66CF2] hover:text-black transition-colors">Preview Public Page ↗</button>
+</div>
 
             {activeTab === 'overview' && (
               <div className="grid gap-6 md:grid-cols-3">
