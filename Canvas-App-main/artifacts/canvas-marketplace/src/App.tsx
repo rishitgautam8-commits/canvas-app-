@@ -34,10 +34,6 @@ function ScrollZoomIn({ children, className }: { children: React.ReactNode; clas
 
 const queryClient = new QueryClient();
 
-// ==========================================
-// DYNAMIC THEME ENGINE (OPTIONS 1, 2, 3, & 4)
-// ==========================================
-
 const discoverCategories = [
   { id: 'all', label: 'all artists' },
   { id: 'Bridal & Wedding', label: 'bridal & wedding' },
@@ -586,37 +582,35 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       </section>
 
       <main className="relative z-20">
-  <ScrollZoomIn className="stats-bar">
-    <div className="stat">
-      <ScrollZoom><div className={theme.stat}>{sourceArtists.length}</div></ScrollZoom>
-      <ScrollZoomIn delay={100}>
-        <div className={`${theme.eyebrow} !text-black/80`}>verified artists</div>
-      </ScrollZoomIn>
-    </div>
-    <div className="stat-divider"></div>
-    <div className="stat">
-      <ScrollZoom><div className={theme.stat}>₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div></ScrollZoom>
-      <ScrollZoomIn delay={100}>
-        <div className={`${theme.eyebrow} !text-black/80`}>avg booking value</div>
-      </ScrollZoomIn>
-    </div>
-    <div className="stat-divider"></div>
-    <div className="stat">
-      <ScrollZoom><div className={theme.stat}>{platformStats.totalBookings.toLocaleString('en-US')}+</div></ScrollZoom>
-      <ScrollZoomIn delay={100}>
-        <div className={`${theme.eyebrow} !text-black/80`}>successful bookings</div>
-      </ScrollZoomIn>
-    </div>
-    <div className="stat-divider"></div>
-    <div className="stat">
-      <ScrollZoom><div className={theme.stat}>{platformStats.avgRating}★</div></ScrollZoom>
-      <ScrollZoomIn delay={100}>
-        <div className={`${theme.eyebrow} !text-black/80`}>platform avg rating</div>
-      </ScrollZoomIn>
-    </div>
-  </ScrollZoomIn>
-
-  {/* ... rest of your code (section id="discover") ... */}
+        <ScrollZoomIn className="stats-bar">
+          <div className="stat">
+            <ScrollZoom><div className={theme.stat}>{sourceArtists.length}</div></ScrollZoom>
+            <ScrollZoomIn delay={100}>
+              <div className={`${theme.eyebrow} !text-black/80`}>verified artists</div>
+            </ScrollZoomIn>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat">
+            <ScrollZoom><div className={theme.stat}>₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div></ScrollZoom>
+            <ScrollZoomIn delay={100}>
+              <div className={`${theme.eyebrow} !text-black/80`}>avg booking value</div>
+            </ScrollZoomIn>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat">
+            <ScrollZoom><div className={theme.stat}>{platformStats.totalBookings.toLocaleString('en-US')}+</div></ScrollZoom>
+            <ScrollZoomIn delay={100}>
+              <div className={`${theme.eyebrow} !text-black/80`}>successful bookings</div>
+            </ScrollZoomIn>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat">
+            <ScrollZoom><div className={theme.stat}>{platformStats.avgRating}★</div></ScrollZoom>
+            <ScrollZoomIn delay={100}>
+              <div className={`${theme.eyebrow} !text-black/80`}>platform avg rating</div>
+            </ScrollZoomIn>
+          </div>
+        </ScrollZoomIn>
 
         <section id="discover" className="bg-[#FDF3F1] text-black py-24 sm:py-32">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
@@ -708,7 +702,16 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                       <div className="grid gap-x-6 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
                         {uniqueArtists.slice(0, visibleCount).map((artist, index) => (
                           <ScrollZoom key={artist.id || index} delay={index * 80}>
-                            <ArtistCard name={artist.name} image={artist.image} hoverImage={artist.hoverImage} portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)} startingPrice={artist.startingPrice} tags={artist.tags} onClick={() => handleSelectArtist(artist)} />
+                            <ArtistCard 
+                              name={artist.name} 
+                              image={artist.image} 
+                              hoverImage={artist.hoverImage} 
+                              portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)} 
+                              startingPrice={artist.startingPrice} 
+                              tags={artist.tags} 
+                              matchPercentage={artist.match}
+                              onClick={() => handleSelectArtist(artist)} 
+                            />
                           </ScrollZoom>
                         ))}
                       </div>
@@ -828,13 +831,13 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button 
                 onClick={() => window.alert('Canvas Pro features are launching soon! Create a free account today to get early access.')} 
-                className={`${theme.btnOutline} !border-[#BA965B] !text-[#BA965B] hover:!bg-[#BA965B] hover:!text-white`}
+                className={`${theme.btnOutline} !border-white !text-white hover:!bg-white hover:!text-black`}
               >
                 explore pro features
               </button>
               <button 
                 onClick={() => setAuthOpen(true)} 
-                className={theme.btnPrimary}
+                className={`${theme.btnPrimary} !bg-white !text-black hover:!bg-[#B66CF2] hover:!text-white`}
               >
                 apply to join canvas
               </button>

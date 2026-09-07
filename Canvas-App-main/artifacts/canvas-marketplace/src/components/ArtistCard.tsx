@@ -1,5 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
+import { getTheme } from '@/lib/theme';
 
 const DEFAULT_TAGS = ['Bridal Glam', '+ Mehendi', '+ Nails'] as const;
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -28,9 +30,10 @@ export type ArtistCardProps = {
   hoverImage?: string;
   portfolioImages?: string[];
   hoverVideo?: string;
-  startingPrice?: string;
+  startingPrice?: string | number;
   tags?: string[];
   tint?: ArtistTint;
+  matchPercentage?: number; // <--- The AI Percentage Prop!
   onClick?: () => void;
   testId?: string;
 };
@@ -44,12 +47,18 @@ export function ArtistCard({
   startingPrice = 'Starts at ₹5,000',
   tags = [...DEFAULT_TAGS],
   tint,
+  matchPercentage,
   onClick,
   testId,
 }: ArtistCardProps) {
   const [hovered, setHovered] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Read style query param for the Dynamic Theme Engine
+  const queryParams = new URLSearchParams(window.location.search);
+  const styleVersion = queryParams.get('style') || '2';
+  const theme = getTheme(styleVersion);
 
   const imagesList = portfolioImages.length > 0 
     ? portfolioImages 
@@ -97,22 +106,33 @@ export function ArtistCard({
       <button
         type="button"
         onClick={onClick}
-        className="w-full bg-transparent text-left outline-none cursor-pointer"
+        className="w-full bg-transparent text-left outline-none cursor-pointer flex flex-col gap-4"
         aria-label={`View ${name}'s profile`}
       >
-        <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-neutral-100">
+        <div className={`relative aspect-[4/5] w-full overflow-hidden bg-black/5 ${theme.cardRadius}`}>
+          
+          {/* AI MATCH PERCENTAGE BADGE */}
+          {matchPercentage && (
+            <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-3 py-1.5 shadow-sm rounded-full">
+              <Sparkles size={12} className="text-[#B66CF2]" />
+              <span className={`text-[10px] font-bold text-black tracking-widest ${styleVersion === '1' || styleVersion === '3' ? "font-['Montserrat'] uppercase" : "font-['Manrope'] lowercase"}`}>
+                {matchPercentage}% match
+              </span>
+            </div>
+          )}
+
           {/* Default Profile Headshot */}
           <motion.img
             src={image}
             alt={`${name}'s profile`}
             onError={(e) => {
-  if (e.currentTarget.dataset.hasFailed) return;
-  e.currentTarget.dataset.hasFailed = 'true';
-  e.currentTarget.src = getFallback(name);   // unique per artist
-}}
+              if (e.currentTarget.dataset.hasFailed) return;
+              e.currentTarget.dataset.hasFailed = 'true';
+              e.currentTarget.src = getFallback(name);
+            }}
             className="absolute inset-0 h-full w-full object-cover"
             style={imageStyle}
-            animate={{ opacity: hovered && hasPortfolio ? 0 : 1, scale: hovered ? 1.03 : 1 }}
+            animate={{ opacity: hovered && hasPortfolio ? 0 : 1, scale: hovered ? 1.05 : 1 }}
             transition={{ duration: 0.7, ease }}
           />
 
@@ -125,14 +145,14 @@ export function ArtistCard({
                   src={imagesList[currentIndex]}
                   alt={`${name}'s portfolio work ${currentIndex + 1}`}
                   onError={(e) => {
-  if (e.currentTarget.dataset.hasFailed) return;
-  e.currentTarget.dataset.hasFailed = 'true';
-  e.currentTarget.src = getFallback(name);   // unique per artist
-}}
+                    if (e.currentTarget.dataset.hasFailed) return;
+                    e.currentTarget.dataset.hasFailed = 'true';
+                    e.currentTarget.src = getFallback(name);
+                  }}
                   className="absolute inset-0 h-full w-full object-cover"
                   style={imageStyle}
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1.03 : 1 }}
+                  initial={{ opacity: 0, scale: 1.08 }}
+                  animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1.05 : 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.5, ease }}
                 />
@@ -140,7 +160,7 @@ export function ArtistCard({
 
               {/* Editorial Progress Indicator Dots */}
               {imagesList.length > 1 && hovered && (
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1 z-10 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full">
                   {imagesList.map((_, idx) => (
                     <div
                       key={idx}
@@ -166,31 +186,32 @@ export function ArtistCard({
               aria-hidden
               className="absolute inset-0 h-full w-full object-cover"
               style={imageStyle}
-              animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1.03 : 1 }}
+              animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1.05 : 1 }}
               transition={{ duration: 0.7, ease }}
             />
           )}
         </div>
 
-        <div className="mt-5">
-          <h3 className="serif text-[1.85rem] leading-none tracking-[-0.03em] text-neutral-900">
+        {/* Themed Text Content Below Image */}
+        <div className="flex flex-col w-full">
+          <h3 className={`${theme.headingModal} !text-2xl mb-1`}>
             {name}
           </h3>
           
-          <p className="mt-2 font-sans text-[13px] font-medium tracking-[0.04em] text-neutral-500">
-            {startingPrice}
+          <p className={`${theme.stat} !text-lg mb-4`}>
+            {typeof startingPrice === 'number' ? `₹${startingPrice.toLocaleString('en-IN')}` : startingPrice}
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-1.5">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="tag"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+          <div className="flex flex-wrap gap-1.5">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className={`${theme.formLabel} !text-black/60 !tracking-wider`}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
       </button>
     </article>
