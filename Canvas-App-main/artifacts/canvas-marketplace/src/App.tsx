@@ -189,7 +189,6 @@ async function analyzeLookWithAI(file: File): Promise<string[]> {
 function CanvasVisualEditorial() {
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-visible">
-      {/* Subtle Ambient Glow */}
       <div className="absolute -top-10 right-0 w-[420px] h-[420px] bg-[#C9A463]/25 rounded-full blur-[110px]" />
       <div className="absolute bottom-0 left-0 w-[380px] h-[380px] bg-[#4A2A6B]/30 rounded-full blur-[120px]" />
 
@@ -961,9 +960,44 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
 }
 
 // ==========================================
+// 4-WAY URL QUERY PARAM STYLE SWITCHER COMPONENT
+// ==========================================
+function StyleSwitcher() {
+  const queryParams = new URLSearchParams(window.location.search);
+  const current = queryParams.get('style') || '2';
+
+  const switchStyle = (version: string) => {
+    queryParams.set('style', version);
+    window.location.search = queryParams.toString();
+  };
+
+  const options = [
+    { id: '1', label: 'opt 1' },
+    { id: '2', label: 'opt 2' },
+    { id: '3', label: 'opt 3' },
+    { id: '4', label: 'opt 4' },
+  ];
+
+  return (
+    <div className="fixed bottom-6 right-6 z-[9999] flex items-center gap-1.5 bg-black/85 backdrop-blur-md p-2 rounded-full shadow-2xl border border-white/10 text-white font-['Manrope'] text-xs">
+      <span className="px-2 text-white/50 lowercase">style:</span>
+      {options.map((opt) => (
+        <button 
+          key={opt.id}
+          onClick={() => switchStyle(opt.id)} 
+          className={`px-3 py-1 rounded-full transition-colors ${current === opt.id ? 'bg-[#BA965B] text-white font-semibold' : 'text-white/70 hover:text-white'}`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ==========================================
 // ROUTER
 // ==========================================
-function Router({ session }: { session: Session | null }) {
+function Router({ session, styleVersion }: { session: Session | null; styleVersion: string }) {
   const [authOpen, setAuthOpen] = useState(false);
   const [location] = useLocation();
 
@@ -991,12 +1025,16 @@ function Router({ session }: { session: Session | null }) {
 }
 
 // ==========================================
-// APP ROOT WITH FOOLPROOF INTERCEPTOR
+// APP ROOT WITH 4-WAY STYLE SWITCHER
 // ==========================================
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
   const [updatingRole, setUpdatingRole] = useState(false);
+
+  // Read style query param (?style=1, ?style=2, ?style=3, or ?style=4)
+  const queryParams = new URLSearchParams(window.location.search);
+  const styleVersion = queryParams.get('style') || '2';
 
   useEffect(() => {
     const checkSession = async () => {
@@ -1116,9 +1154,10 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <Router session={session} />
+          <Router session={session} styleVersion={styleVersion} />
         </WouterRouter>
         <Toaster />
+        <StyleSwitcher />
       </TooltipProvider>
     </QueryClientProvider>
   );
