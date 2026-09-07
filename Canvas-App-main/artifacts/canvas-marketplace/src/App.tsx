@@ -531,13 +531,34 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
         </ScrollZoomIn>
 
         <ScrollZoom>
-          <div className="flex flex-col items-center justify-center py-10 md:py-16 relative hidden md:flex animate-float-in delay-2">
-            <img 
-              src="/makeup-hero.png" 
-              alt="Canvas Beauty" 
-              className="w-full max-w-5xl object-cover rounded-[2rem] shadow-2xl" 
-            />
-          </div>
+          <div className="flex flex-col items-center justify-center py-10 md:py-16 relative hidden md:flex">
+  {/* The Luxury Visual Anchor */}
+  <div className="relative group flex items-center justify-center w-full max-w-lg aspect-square">
+    {/* Subtle Ambient Glow */}
+    <div className="absolute inset-0 bg-gradient-to-tr from-[#BA965B]/20 to-[#B66CF2]/20 rounded-full blur-3xl opacity-50 transition-opacity duration-1000 group-hover:opacity-80"></div>
+    
+    {/* Minimalist Glass Panel */}
+    <div className="relative z-10 flex flex-col items-center justify-center w-[85%] h-[85%] rounded-[2rem] border border-black/5 bg-white/40 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-transform duration-700 hover:-translate-y-2">
+      
+      {/* The High-Res Logo */}
+      <img 
+        src="/logo.png" 
+        alt="Canvas Premium Logo" 
+        className="w-32 h-32 md:w-48 md:h-48 object-contain mb-8 drop-shadow-sm" 
+      />
+      
+      {/* The Editorial Badge */}
+      <div className="flex flex-col items-center">
+        <span className="text-[9px] font-bold uppercase tracking-[0.4em] text-black/40 mb-3">The Canvas Standard</span>
+        <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-black/30 to-transparent mb-3"></div>
+        <p className="text-sm font-['Playfair_Display'] italic text-[#BA965B] tracking-widest">Curated Private Roster</p>
+      </div>
+    </div>
+    
+    {/* Rotating Geometric Ring */}
+    <div className="absolute inset-0 rounded-full border border-black/5 border-dashed animate-[spin_60s_linear_infinite]"></div>
+  </div>
+</div>
         </ScrollZoom>
       </section>
 
