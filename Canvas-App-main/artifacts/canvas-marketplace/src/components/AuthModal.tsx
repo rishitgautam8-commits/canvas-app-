@@ -60,11 +60,10 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.3 }}
-          // THE FIX: Added max-h-[90vh], overflow-y-auto, and tightened padding (p-8 instead of p-12/16)
           className="relative w-full max-w-md bg-white p-8 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close Button: Repositioned slightly so it stays visible */}
+          {/* Close Button */}
           <button
             onClick={onClose}
             className="absolute right-5 top-5 text-black/40 hover:text-black transition-colors"
@@ -73,10 +72,10 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
           </button>
 
           <div className="mb-8">
-            <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.3em] text-[#B66CF2]">
+            <p className="mb-2 font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.35em] text-[#B66CF2]">
               {isLogin ? 'Welcome Back' : 'Join the Collective'}
             </p>
-            <h2 className="text-3xl font-bold lowercase tracking-tight text-black">
+            <h2 className="font-['Montserrat'] font-extrabold text-3xl text-black tracking-tight">
               {isLogin ? 'log in.' : 'create account.'}
             </h2>
           </div>
@@ -84,7 +83,7 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
           <button
             onClick={handleGoogleLogin}
             type="button"
-            className="mb-6 flex w-full items-center justify-center gap-3 border border-black/10 py-3.5 text-[10px] font-bold uppercase tracking-[0.15em] text-black transition-colors hover:bg-black/5"
+            className="mb-6 flex w-full items-center justify-center gap-3 border border-black/10 py-3.5 font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.15em] text-black transition-colors hover:bg-black/5"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -97,7 +96,7 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
 
           <div className="mb-6 flex items-center justify-center gap-4">
             <div className="h-[1px] flex-1 bg-black/10"></div>
-            <span className="text-[9px] font-bold uppercase tracking-widest text-black/30">Or</span>
+            <span className="font-['Montserrat'] text-[9px] font-bold uppercase tracking-widest text-black/30">Or</span>
             <div className="h-[1px] flex-1 bg-black/10"></div>
           </div>
 
@@ -105,58 +104,58 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
             {!isLogin && (
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
-                  <span className="mb-2 block text-[9px] font-bold uppercase tracking-[0.2em] text-black/50">First Name</span>
+                  <span className="mb-2 block font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">First Name</span>
                   <input
                     required
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Jane"
-                    className="w-full border-b border-black/20 bg-transparent py-2.5 text-xs font-bold uppercase tracking-widest text-black placeholder-black/20 outline-none transition-colors focus:border-black"
+                    className="w-full font-['Montserrat'] text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]"
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block text-[9px] font-bold uppercase tracking-[0.2em] text-black/50">Last Name</span>
+                  <span className="mb-2 block font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Last Name</span>
                   <input
                     required
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Doe"
-                    className="w-full border-b border-black/20 bg-transparent py-2.5 text-xs font-bold uppercase tracking-widest text-black placeholder-black/20 outline-none transition-colors focus:border-black"
+                    className="w-full font-['Montserrat'] text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]"
                   />
                 </label>
               </div>
             )}
 
             <label className="block">
-              <span className="mb-2 block text-[9px] font-bold uppercase tracking-[0.2em] text-black/50">Email Address</span>
+              <span className="mb-2 block font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Email Address</span>
               <input
                 required
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full border-b border-black/20 bg-transparent py-2.5 text-xs font-bold uppercase tracking-widest text-black placeholder-black/20 outline-none transition-colors focus:border-black"
+                className="w-full font-['Montserrat'] text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]"
               />
             </label>
 
             <label className="block pb-4">
-              <span className="mb-2 block text-[9px] font-bold uppercase tracking-[0.2em] text-black/50">Password</span>
+              <span className="mb-2 block font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Password</span>
               <input
                 required
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full border-b border-black/20 bg-transparent py-2.5 text-xs font-bold tracking-widest text-black placeholder-black/20 outline-none transition-colors focus:border-black"
+                className="w-full font-['Montserrat'] text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]"
               />
             </label>
 
             <button
               disabled={loading}
               type="submit"
-              className="w-full bg-black py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-colors hover:bg-[#B66CF2] disabled:opacity-50"
+              className="w-full bg-black py-4 font-['Montserrat'] text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors hover:bg-[#BA965B] hover:text-black disabled:opacity-50"
             >
               {loading ? 'Processing...' : isLogin ? 'Log In' : 'Create Account'}
             </button>
@@ -166,7 +165,7 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
             <button
               type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="border-b border-black/20 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-black/50 transition-colors hover:border-black hover:text-black"
+              className="font-['Montserrat'] text-xs font-medium uppercase tracking-widest text-black/50 underline underline-offset-4 decoration-black/20 transition-colors hover:text-[#BA965B]"
             >
               {isLogin ? 'Need an account? Sign up' : 'Already have an account? Log in'}
             </button>
