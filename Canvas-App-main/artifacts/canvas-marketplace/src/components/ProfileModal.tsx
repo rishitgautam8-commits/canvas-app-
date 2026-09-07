@@ -23,7 +23,7 @@ export type ProfileModalProps = {
   onOpenChat?: () => void; 
 };
 
-export function ProfileModal({ open, artist, onClose }: ProfileModalProps) {
+export function ProfileModal({ open, artist, onClose, onBookAppointment }: ProfileModalProps) {
   const [, setLocation] = useLocation();
   const displayed = useRef(artist);
   if (open && artist) displayed.current = artist;
@@ -36,9 +36,10 @@ export function ProfileModal({ open, artist, onClose }: ProfileModalProps) {
   const styleVersion = queryParams.get('style') || '2';
   const theme = getTheme(styleVersion);
 
-  const handleBookingRoute = () => {
+  // OPTION B: Opens the booking drawer right on the same page instead of navigating away!
+  const handleBookClick = () => {
     onClose();
-    setLocation(`/artist/${data.id}?style=${styleVersion}`);
+    onBookAppointment();
   };
 
   useEffect(() => {
@@ -112,12 +113,14 @@ export function ProfileModal({ open, artist, onClose }: ProfileModalProps) {
                   <ArrowLeft size={14} /> back
                 </button>
                 <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start relative z-0">
-                  <div className="shrink-0">
+                  <div className="shrink-0 mt-4">
                     <img src={data.image || '/fallback-avatar.jpg'} alt={data.name || 'Artist'} className={`w-24 h-24 md:w-36 md:h-36 ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'} object-cover border border-[#BA965B]/50 shadow-xl`} onError={handleImageError} />
                   </div>
                   <div className="flex-1 w-full pt-2">
-                    <div className="flex items-center gap-4 mb-3">
-                      <h1 className={`${theme.headingHero} !text-3xl md:!text-4xl !text-white !leading-tight !tracking-tight`}>{data.name || 'artist profile'}</h1>
+                    <div className="flex flex-col items-start gap-2 mb-3">
+                      <h1 className={`${theme.premiumTag} !text-5xl md:!text-7xl !leading-none drop-shadow-xl py-2`}>
+                        {data.name || 'artist profile'}
+                      </h1>
                       <span className={`${theme.badge} !bg-[#BA965B] !text-white !border-none flex items-center gap-1 shrink-0`}><CheckCircle2 size={12} strokeWidth={2.5} /> verified</span>
                     </div>
                     <p className={`${theme.formLabel} !text-white/60 mb-5 flex items-center gap-2`}><MapPin size={14} className="text-[#BA965B]" /> {data.location || data.city || 'hyderabad'} <span className="mx-2 text-white/20">•</span> {data.experience_years || 6} yrs experience</p>
@@ -135,7 +138,8 @@ export function ProfileModal({ open, artist, onClose }: ProfileModalProps) {
                       <span className={`${theme.formLabel} !text-white/50`}>bridal package</span>
                     </div>
                     
-                    <button onClick={handleBookingRoute} className={`w-full max-w-[280px] ${theme.btnPrimary} !bg-[#BA965B] !text-white hover:!bg-white hover:!text-black shadow-lg flex items-center justify-center gap-2 cursor-pointer`}>
+                    {/* UPDATED BUTTON LOGIC */}
+                    <button onClick={handleBookClick} className={`w-full max-w-[280px] ${theme.btnPrimary} !bg-[#BA965B] !text-white hover:!bg-white hover:!text-black shadow-lg flex items-center justify-center gap-2 cursor-pointer`}>
                       view availability & book ↗
                     </button>
                   </div>
@@ -165,7 +169,9 @@ export function ProfileModal({ open, artist, onClose }: ProfileModalProps) {
                         <div className="p-6 flex flex-col flex-1 bg-white">
                           <h3 className={`${theme.headingModal} !text-xl !tracking-normal mb-2`}>{firstName} — {MAKEUP_NAMES[i % MAKEUP_NAMES.length]}</h3>
                           <p className={`${theme.bodyText} !text-xs !text-black/50 mb-6 flex-1`}>a verified example of the aesthetic.</p>
-                          <button onClick={handleBookingRoute} className={`w-full ${theme.btnPrimary}`}>enquire look</button>
+                          
+                          {/* UPDATED BUTTON LOGIC */}
+                          <button onClick={handleBookClick} className={`w-full ${theme.btnPrimary}`}>enquire look</button>
                         </div>
                       </div>
                     ))}
@@ -193,7 +199,9 @@ export function ProfileModal({ open, artist, onClose }: ProfileModalProps) {
                               );
                             })}
                           </div>
-                          <button onClick={handleBookingRoute} className={`mt-8 w-full sm:w-auto ${theme.btnOutline}`}>enquire about add-ons</button>
+                          
+                          {/* UPDATED BUTTON LOGIC */}
+                          <button onClick={handleBookClick} className={`mt-8 w-full sm:w-auto ${theme.btnOutline}`}>enquire about add-ons</button>
                         </div>
                       )}
                       {hasAddonImages && (
