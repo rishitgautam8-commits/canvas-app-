@@ -1,48 +1,36 @@
 export const getTheme = (styleVersion: string) => {
-  const isOpt1 = styleVersion === '1'; // Vogue: Ballet + Allura + Bodoni Moda
-  const isOpt3 = styleVersion === '3'; // Tom Ford: DM Serif Display + Allura + Bodoni Moda
-  const isOpt4 = styleVersion === '4'; // Old World: EB Garamond + Playfair + Cormorant
-
-  // ==========================================================
-  // HANSIKA'S AMETHYST CRYSTAL PALETTE
-  // Deep, natural, jewel-toned violets. Neon #6B3C9C is gone.
-  // ==========================================================
-  const AMETHYST = {
-    400: '#9B7CB6', // soft crystal
-    500: '#7B5AA6', // medium
-    600: '#6B3A7D', // primary rich amethyst
-    700: '#5D2F6E', // deep
-    800: '#4A2459', // dark jewel
-    900: '#3D1E4A', // midnight violet
-  };
+  const isOpt1 = styleVersion === '1'; // Vogue / Editorial
+  const isOpt3 = styleVersion === '3'; // Bold High-Fashion
+  const isOpt4 = styleVersion === '4'; // Old-World Boutique
+  // Option 2 (Aesop Minimalist) is the default
 
   return {
-    // Base typography
+    // Base layout font
     fontBase: isOpt4 
       ? "font-['EB_Garamond']" 
       : (isOpt1 || isOpt3) 
       ? "font-['Montserrat']" 
       : "font-['Manrope'] lowercase",
     
-    // Hero headings — Hansika's display / cursive fonts
+    // Hero headings capturing that dramatic, high-end editorial display serif style
     headingHero: isOpt4
-      ? "font-['EB_Garamond'] font-medium text-7xl md:text-8xl text-black tracking-tight leading-[1]"
+      ? "font-['Cormorant_Garamond'] italic font-light text-7xl md:text-8xl text-black tracking-tight leading-[1]"
       : isOpt3
-      ? "font-['DM_Serif_Display'] italic text-7xl md:text-8xl text-black tracking-tighter leading-[0.9]"
+      ? "font-['Bodoni_Moda'] italic font-bold text-7xl md:text-8xl text-black tracking-tighter leading-[0.9]"
       : isOpt1 
-      ? "font-['Ballet'] text-7xl md:text-8xl text-black tracking-tight leading-[0.95] normal-case" 
-      : "font-['Italiana'] text-6xl md:text-7xl text-black tracking-tight lowercase leading-[1]",
+      ? "font-['Playfair_Display'] italic font-medium text-7xl md:text-8xl text-black tracking-tight leading-[0.95]" 
+      : "font-['Italiana'] text-6xl md:text-7xl text-black tracking-widest lowercase leading-[1]",
       
-    // Modal / drawer headings
+    // Modal headings
     headingModal: isOpt4
-      ? "font-['EB_Garamond'] font-medium text-4xl text-black"
+      ? "font-['Cormorant_Garamond'] italic font-medium text-4xl text-black"
       : isOpt3
-      ? "font-['Bodoni_Moda'] italic text-4xl text-black tracking-tight"
+      ? "font-['Bodoni_Moda'] italic font-semibold text-4xl text-black tracking-tight"
       : isOpt1
-      ? "font-['Bodoni_Moda'] italic text-3xl text-black tracking-tight"
-      : "font-['Playfair_Display'] italic text-3xl text-black tracking-tight",
+      ? "font-['Playfair_Display'] italic font-medium text-3xl text-black tracking-tight"
+      : "font-['Cormorant_Garamond'] italic font-normal text-3xl text-black tracking-tight",
       
-    // Eyebrow labels — clean, minimal, now in amethyst
+    // Eyebrow tags
     eyebrow: isOpt4
       ? "font-['EB_Garamond'] text-xs font-semibold tracking-[0.3em] text-[#6B3A7D] uppercase [font-variant:small-caps]"
       : isOpt3
@@ -51,16 +39,16 @@ export const getTheme = (styleVersion: string) => {
       ? "font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.35em] text-[#6B3A7D]"
       : "font-['Manrope'] text-[11px] font-bold lowercase tracking-[0.25em] text-black/40",
       
-    // Section headings — editorial italics
+    // Section headings with gorgeous contrast
     headingSection: isOpt4
-      ? "font-['Cormorant_Garamond'] italic text-4xl text-[#BA965B]"
+      ? "font-['Cormorant_Garamond'] italic font-semibold text-4xl text-[#BA965B]"
       : isOpt3
-      ? "font-['Bodoni_Moda'] italic text-3xl text-black tracking-tight"
+      ? "font-['Bodoni_Moda'] italic font-bold text-3xl text-black tracking-tight"
       : isOpt1
-      ? "font-['Bodoni_Moda'] italic text-4xl sm:text-5xl text-black"
-      : "font-['Playfair_Display'] italic text-3xl sm:text-5xl text-[#BA965B]",
+      ? "font-['Playfair_Display'] italic font-medium text-4xl sm:text-5xl text-black"
+      : "font-['Cormorant_Garamond'] italic font-light text-3xl sm:text-5xl text-[#BA965B]",
       
-    // Body text — clean and readable
+    // Body text
     bodyText: isOpt4
       ? "font-['EB_Garamond'] text-base leading-[1.9] text-black/65"
       : isOpt3
@@ -78,7 +66,7 @@ export const getTheme = (styleVersion: string) => {
       ? "font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-black/50"
       : "font-['Manrope'] text-[11px] font-bold lowercase tracking-[0.15em] text-black/40",
       
-    // Inputs
+    // Input fields
     inputText: isOpt4
       ? "font-['EB_Garamond'] text-base text-black placeholder:text-black/30 border-b border-[#BA965B]/30 focus:border-[#BA965B] outline-none bg-transparent py-2.5"
       : isOpt3
@@ -114,7 +102,7 @@ export const getTheme = (styleVersion: string) => {
       ? "font-['Montserrat'] text-xs font-medium uppercase tracking-widest text-black/50 underline underline-offset-4 decoration-black/20 hover:text-[#BA965B]"
       : "font-['Manrope'] text-xs font-bold lowercase text-black/40 hover:text-[#BA965B] transition-colors",
       
-    // Nav links
+    // Navigation links
     navLink: isOpt4
       ? "font-['EB_Garamond'] text-sm tracking-[0.1em] text-black/55 [font-variant:small-caps] hover:text-[#BA965B]"
       : isOpt3
@@ -132,44 +120,37 @@ export const getTheme = (styleVersion: string) => {
       ? "font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.2em] text-[#BA965B] border border-[#BA965B]/40 rounded-full px-3 py-1"
       : "px-3 py-1 bg-black/5 text-black font-['Manrope'] text-[10px] font-bold uppercase tracking-[0.15em] rounded-full",
       
-    // Stats
+    // Stat numbers
     stat: isOpt4
-      ? "font-['EB_Garamond'] font-medium text-5xl text-black tabular-nums"
+      ? "font-['Cormorant_Garamond'] italic font-light text-5xl text-black tabular-nums"
       : isOpt3
-      ? "font-['Montserrat'] font-black text-5xl text-black tabular-nums"
+      ? "font-['Bodoni_Moda'] italic font-bold text-5xl text-black tabular-nums"
       : isOpt1
-      ? "font-['Montserrat'] font-bold text-4xl text-black tabular-nums"
-      : "font-['Manrope'] font-medium text-4xl text-black tabular-nums",
+      ? "font-['Playfair_Display'] italic font-medium text-4xl text-black tabular-nums"
+      : "font-['Cormorant_Garamond'] italic font-normal text-4xl text-black tabular-nums",
       
-    // Quotes — elegant italics
+    // Quotes
     quote: isOpt4
-      ? "font-['EB_Garamond'] italic text-2xl md:text-3xl text-black/80 leading-relaxed"
+      ? "font-['Cormorant_Garamond'] italic text-2xl md:text-3xl text-black/80 leading-relaxed"
       : isOpt3
-      ? "font-['Cormorant_Garamond'] italic font-semibold text-xl text-black/80 leading-relaxed"
+      ? "font-['Bodoni_Moda'] italic font-semibold text-xl text-black/80 leading-relaxed"
       : isOpt1
-      ? "font-['Cormorant_Garamond'] italic text-xl md:text-2xl text-black/80 leading-relaxed"
+      ? "font-['Playfair_Display'] italic text-xl md:text-2xl text-black/80 leading-relaxed"
       : "font-['Cormorant_Garamond'] italic text-xl text-black/70 leading-relaxed",
 
-    // Radius & borders
     cardRadius: (isOpt1 || isOpt3 || isOpt4) ? "rounded-none" : "rounded-2xl",
     borderBase: isOpt4 ? "border-[#BA965B]/30" : isOpt3 ? "border-black/20" : isOpt1 ? "border-black/20" : "border-black/10",
     
-    // ==========================================================
-    // HANSIKA'S "PREMIUM IN CURSIVE"
-    // Mapped across all 4 options using her requested font list
-    // ==========================================================
+    // The signature high-fashion display serif tags (replaces messy scripts with clean, high-contrast editorial serifs)
     premiumTag: isOpt4
-      ? "font-['Playfair_Display'] italic text-[#BA965B] lowercase tracking-normal leading-normal"
+      ? "font-['Cormorant_Garamond'] italic font-medium text-[#6B3A7D] lowercase tracking-normal"
       : isOpt3
-      ? "font-['Allura'] text-[#BA965B] lowercase tracking-wide leading-normal"
+      ? "font-['Bodoni_Moda'] italic font-bold text-[#6B3A7D] lowercase tracking-normal"
       : isOpt1
-      ? "font-['Allura'] text-[#BA965B] lowercase tracking-wide leading-normal"
-      : "font-['Cormorant_Garamond'] italic text-[#BA965B] lowercase tracking-normal leading-normal",
+      ? "font-['Playfair_Display'] italic font-semibold text-[#6B3A7D] lowercase tracking-wide"
+      : "font-['Cormorant_Garamond'] italic font-medium text-[#6B3A7D] lowercase tracking-normal",
 
-    // ==========================================================
-    // AMETHYST ACCENT UTILITIES (replaces neon #6B3C9C)
-    // Use these in inline styles or Tailwind arbitrary classes
-    // ==========================================================
+    // Amethyst color utilities
     accentColor: '#6B3A7D',
     accentLight: '#9B7CB6',
     accentDeep: '#4A2459',
