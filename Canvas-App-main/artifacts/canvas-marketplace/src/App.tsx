@@ -198,7 +198,7 @@ async function analyzeLookWithAI(file: File): Promise<string[]> {
 // ==========================================
 function CanvasVisualEditorial() {
   return (
-    <div className="relative w-full h-full flex items-center justify-end overflow-visible">
+    <div className="relative w-full h-full flex items-center justify-center overflow-visible">
       <div className="absolute -top-10 right-0 w-[420px] h-[420px] bg-[#C9A463]/25 rounded-full blur-[110px]" />
       <div className="absolute bottom-0 left-0 w-[380px] h-[380px] bg-[#4A2A6B]/30 rounded-full blur-[120px]" />
 
@@ -217,7 +217,7 @@ function CanvasVisualEditorial() {
           x: { duration: 1 },
           y: { duration: 7, repeat: Infinity, ease: 'easeInOut' },
         }}
-        className="relative z-10 -mr-10 md:-mr-16"
+        className="relative z-10"
       >
         <img
           src="/logo.png"
