@@ -231,7 +231,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <h1 className={`${theme.headingHero} !text-3xl sm:!text-5xl !leading-tight !tracking-tight`}>{artist.business_name || 'artist studio'}</h1>
-                <CheckCircle2 className="text-[#B66CF2]" size={22} />
+                <CheckCircle2 className="text-[#6B3A7D]" size={22} />
               </div>
               <p className={`flex items-center gap-4 ${theme.formLabel} !text-black/50 mb-4`}>
                 <span className="flex items-center gap-1"><MapPin size={14} /> {artist.city || 'hyderabad'}</span>

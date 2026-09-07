@@ -53,7 +53,7 @@ const PLACEHOLDER_IMG =
   encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">
        <rect width="400" height="500" fill="#150A26"/>
-       <text x="50%" y="50%" font-family="serif" font-size="26" fill="#B66CF2"
+       <text x="50%" y="50%" font-family="serif" font-size="26" fill="#6B3C9C"
          text-anchor="middle" dominant-baseline="middle" letter-spacing="4">CANVAS</text>
      </svg>`
   );
@@ -518,8 +518,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         </div>
         <div className="flex items-center justify-center cursor-pointer group" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Canvas Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 group-hover:drop-shadow-[0_4px_12px_rgba(182,108,242,0.3)]" />
-            <span className={`${theme.headingSection} !text-2xl md:!text-3xl tracking-tight transition-colors duration-500 group-hover:text-[#B66CF2]`}>canvas</span>
+            <img src="/logo.png" alt="Canvas Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 group-hover:drop-shadow-[0_4px_12px_rgba(107,58,125,0.3)]" />
+<span className={`${theme.headingSection} !text-2xl md:!text-3xl tracking-tight transition-colors duration-500 group-hover:text-[#6B3A7D]`}>canvas</span>
           </div>
         </div>
         <div className="flex items-center gap-6 justify-end">
@@ -551,7 +551,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
             <div className={`flex items-center gap-3 ${theme.eyebrow} mb-7`}>
-              <div className="w-[26px] h-[1px] bg-[#B66CF2]"></div>ai-powered beauty matching
+              <div className="w-[26px] h-[1px] bg-[#6B3C9C]"></div>ai-powered beauty matching
             </div>
             <h1 className={`${theme.headingHero} mb-6`}>
               hyderabad's <br />
@@ -637,7 +637,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 <div className={`mb-12 mt-8 border ${theme.borderBase} bg-white/50 backdrop-blur-sm p-8 lg:p-10 shadow-sm ${theme.cardRadius}`}>
                   <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b ${theme.borderBase} pb-6 mb-6`}>
                     <div className="flex items-center gap-4">
-                      <div className={`flex h-12 w-12 items-center justify-center border border-[#B66CF2]/40 bg-[#B66CF2]/10 text-[#B66CF2] ${theme.cardRadius}`}><Sparkles size={20} /></div>
+                      <div className={`flex h-12 w-12 items-center justify-center border border-[#6B3A7D]/40 bg-[#6B3A7D]/10 text-[#6B3A7D] ${theme.cardRadius}`}><Sparkles size={20} /></div>
                       <div>
                         <span className={theme.eyebrow}>canvas ai vision analysis</span>
                         <h3 className={`${theme.headingModal} mt-1`}>aesthetic profile extracted</h3>
@@ -906,7 +906,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 <h3 className={`${theme.formLabel} !text-white mb-6`}>client service</h3>
                 <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
                   <li><button className="hover:text-white transition-colors text-left">operating hours are from<br/>9am-9pm est mon-fri</button></li>
-                  <li className="pt-2"><button className="hover:text-[#B66CF2] transition-colors text-white">thecanvasbeauty@gmail.com</button></li>
+                  <li className="pt-2"><button className="hover:text-[#6B3C9C] transition-colors text-white">thecanvasbeauty@gmail.com</button></li>
                   <li><button className="hover:text-white transition-colors">1-800-canvas</button></li>
                   <li className="pt-4"><button className="hover:text-white transition-colors">contact us</button></li>
                   <li><button className="hover:text-white transition-colors">help & faqs</button></li>

@@ -114,7 +114,7 @@ export function ArtistCard({
           {/* AI MATCH PERCENTAGE BADGE */}
           {matchPercentage && (
             <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-3 py-1.5 shadow-sm rounded-full">
-              <Sparkles size={12} className="text-[#B66CF2]" />
+              <Sparkles size={12} className="text-[#6B3C9C]" />
               <span className={`text-[10px] font-bold text-black tracking-widest ${styleVersion === '1' || styleVersion === '3' ? "font-['Montserrat'] uppercase" : "font-['Manrope'] lowercase"}`}>
                 {matchPercentage}% match
               </span>

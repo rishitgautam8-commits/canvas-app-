@@ -87,7 +87,7 @@ export function ArtistOnboardingModal({ open, userId, onComplete }: ArtistOnboar
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-xl bg-white border border-black/10 p-8 shadow-2xl overflow-y-auto max-h-[90vh]"
       >
-        <div className="flex items-center gap-2 text-[#B66CF2] mb-2">
+        <div className="flex items-center gap-2 text-[#6B3C9C] mb-2">
           <Sparkles size={18} />
           <span className="text-[10px] font-bold uppercase tracking-[0.35em]">Canvas Artist Induction</span>
         </div>
