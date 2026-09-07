@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { getTheme } from '@/lib/theme';
 
 export function AuthModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [isLogin, setIsLogin] = useState(false);
@@ -10,6 +11,11 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+
+  // Read style query param for the Dynamic Theme Engine
+  const queryParams = new URLSearchParams(window.location.search);
+  const styleVersion = queryParams.get('style') || '2';
+  const theme = getTheme(styleVersion);
 
   if (!open) return null;
 
@@ -54,28 +60,28 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
+      <div className={`fixed inset-0 z-[300] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm ${theme.fontBase}`} onClick={onClose}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.3 }}
-          className="relative w-full max-w-md bg-white p-8 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
+          className={`relative w-full max-w-md bg-white p-8 md:p-10 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar ${theme.cardRadius}`}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute right-5 top-5 text-black/40 hover:text-black transition-colors"
+            className="absolute right-5 top-5 text-black/40 hover:text-[#BA965B] transition-colors"
           >
             <X size={20} strokeWidth={1.5} />
           </button>
 
           <div className="mb-8">
-            <p className="mb-2 font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.35em] text-[#B66CF2]">
-              {isLogin ? 'Welcome Back' : 'Join the Collective'}
+            <p className={`${theme.eyebrow} mb-2`}>
+              {isLogin ? 'welcome back' : 'join the collective'}
             </p>
-            <h2 className="font-['Montserrat'] font-extrabold text-3xl text-black tracking-tight">
+            <h2 className={`${theme.headingModal} !tracking-normal`}>
               {isLogin ? 'log in.' : 'create account.'}
             </h2>
           </div>
@@ -83,7 +89,7 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
           <button
             onClick={handleGoogleLogin}
             type="button"
-            className="mb-6 flex w-full items-center justify-center gap-3 border border-black/10 py-3.5 font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.15em] text-black transition-colors hover:bg-black/5"
+            className={`${theme.btnOutline} mb-6 flex w-full items-center justify-center gap-3 !py-3.5 !px-0 bg-transparent`}
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -91,12 +97,12 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
             </svg>
-            Continue with Google
+            continue with google
           </button>
 
           <div className="mb-6 flex items-center justify-center gap-4">
             <div className="h-[1px] flex-1 bg-black/10"></div>
-            <span className="font-['Montserrat'] text-[9px] font-bold uppercase tracking-widest text-black/30">Or</span>
+            <span className={`${theme.formLabel} !text-black/40`}>or</span>
             <div className="h-[1px] flex-1 bg-black/10"></div>
           </div>
 
@@ -104,70 +110,72 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
             {!isLogin && (
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
-                  <span className="mb-2 block font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">First Name</span>
+                  <span className={`${theme.formLabel} mb-2 block`}>first name</span>
                   <input
                     required
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Jane"
-                    className="w-full font-['Montserrat'] text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]"
+                    className={`w-full ${theme.inputText}`}
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-2 block font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Last Name</span>
+                  <span className={`${theme.formLabel} mb-2 block`}>last name</span>
                   <input
                     required
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Doe"
-                    className="w-full font-['Montserrat'] text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]"
+                    className={`w-full ${theme.inputText}`}
                   />
                 </label>
               </div>
             )}
 
             <label className="block">
-              <span className="mb-2 block font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Email Address</span>
+              <span className={`${theme.formLabel} mb-2 block`}>email address</span>
               <input
                 required
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full font-['Montserrat'] text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]"
+                className={`w-full ${theme.inputText}`}
               />
             </label>
 
             <label className="block pb-4">
-              <span className="mb-2 block font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Password</span>
+              <span className={`${theme.formLabel} mb-2 block`}>password</span>
               <input
                 required
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full font-['Montserrat'] text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]"
+                className={`w-full ${theme.inputText}`}
               />
             </label>
 
-            <button
-              disabled={loading}
-              type="submit"
-              className="w-full bg-black py-4 font-['Montserrat'] text-xs font-bold uppercase tracking-[0.2em] text-white transition-colors hover:bg-[#BA965B] hover:text-black disabled:opacity-50"
-            >
-              {loading ? 'Processing...' : isLogin ? 'Log In' : 'Create Account'}
-            </button>
+            <div className="pt-2">
+              <button
+                disabled={loading}
+                type="submit"
+                className={`w-full ${theme.btnPrimary} disabled:opacity-50`}
+              >
+                {loading ? 'processing...' : isLogin ? 'log in' : 'create account'}
+              </button>
+            </div>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-8 text-center">
             <button
               type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="font-['Montserrat'] text-xs font-medium uppercase tracking-widest text-black/50 underline underline-offset-4 decoration-black/20 transition-colors hover:text-[#BA965B]"
+              className={theme.secondaryLink}
             >
-              {isLogin ? 'Need an account? Sign up' : 'Already have an account? Log in'}
+              {isLogin ? 'need an account? sign up' : 'already have an account? log in'}
             </button>
           </div>
         </motion.div>

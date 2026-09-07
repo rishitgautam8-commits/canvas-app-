@@ -46,6 +46,12 @@ export default function Dashboard({ session }: DashboardProps) {
   const styleVersion = queryParams.get('style') || '2';
   const theme = getTheme(styleVersion);
 
+  // Adapt accents (Use Dusty Plum for Opt 3, Gold for others)
+  const accentColor = styleVersion === '3' ? '#7A4B69' : '#BA965B';
+  const accentBg = styleVersion === '3' ? 'bg-[#7A4B69]' : 'bg-[#BA965B]';
+  const accentBorder = styleVersion === '3' ? 'border-[#7A4B69]' : 'border-[#BA965B]';
+  const accentText = styleVersion === '3' ? 'text-[#7A4B69]' : 'text-[#BA965B]';
+
   const [formData, setFormData] = useState({
     business_name: '',
     category: '', 
@@ -258,7 +264,7 @@ export default function Dashboard({ session }: DashboardProps) {
               <button
                 onClick={() => handleRequestRoleSwitch('client')}
                 className={`px-4 py-2 ${theme.formLabel} rounded-full transition-all ${
-                  role === 'client' ? 'bg-black !text-white shadow-sm' : 'text-black/50 hover:text-black !bg-transparent !border-none'
+                  role === 'client' ? `${accentBg} !text-white shadow-sm` : 'text-black/50 hover:text-black !bg-transparent !border-none'
                 }`}
               >
                 client
@@ -266,7 +272,7 @@ export default function Dashboard({ session }: DashboardProps) {
               <button
                 onClick={() => handleRequestRoleSwitch('artist')}
                 className={`px-4 py-2 ${theme.formLabel} rounded-full transition-all ${
-                  role === 'artist' ? 'bg-black !text-white shadow-sm' : 'text-black/50 hover:text-black !bg-transparent !border-none'
+                  role === 'artist' ? `${accentBg} !text-white shadow-sm` : 'text-black/50 hover:text-black !bg-transparent !border-none'
                 }`}
               >
                 artist
@@ -277,7 +283,7 @@ export default function Dashboard({ session }: DashboardProps) {
               artist studio hub
             </div>
 
-            <div className={`h-8 w-8 bg-black flex items-center justify-center text-white ${theme.formLabel} !border-none ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'}`}>
+            <div className={`h-8 w-8 ${accentBg} flex items-center justify-center text-white ${theme.formLabel} !border-none ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'}`}>
               {displayFirstName.charAt(0)}
             </div>
           </div>
@@ -286,7 +292,7 @@ export default function Dashboard({ session }: DashboardProps) {
 
       <AnimatePresence>
         {showRoleSwitchConfirm && pendingRole && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowRoleSwitchConfirm(false)}>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowRoleSwitchConfirm(false)}>
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className={`bg-white border ${theme.borderBase} p-8 sm:p-12 max-w-md w-full shadow-2xl ${theme.cardRadius}`} onClick={(e) => e.stopPropagation()}>
               <div className="flex items-start justify-between mb-6">
                 <div>
@@ -315,20 +321,20 @@ export default function Dashboard({ session }: DashboardProps) {
         {role === 'artist' ? (
           <>
             <div className={`mt-8 mb-12 flex gap-8 border-b ${theme.borderBase} pb-px overflow-x-auto`}>
-              <button onClick={() => setActiveTab('logistics')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'logistics' ? 'border-b-2 border-black !text-black' : 'text-black/40 hover:!text-black'}`}>profile & logistics</button>
-              <button onClick={() => setActiveTab('overview')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'overview' ? 'border-b-2 border-black !text-black' : 'text-black/40 hover:!text-black'}`}>overview</button>
-              <button onClick={() => setActiveTab('briefs')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'briefs' ? 'border-b-2 border-black !text-black' : 'text-black/40 hover:!text-black'}`}>new bookings {bookings.length > 0 && `(${bookings.length})`}</button>
-              <button onClick={() => setActiveTab('reviews')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'reviews' ? 'border-b-2 border-black !text-black' : 'text-black/40 hover:!text-black'}`}>
+              <button onClick={() => setActiveTab('logistics')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'logistics' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>profile & logistics</button>
+              <button onClick={() => setActiveTab('overview')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'overview' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>overview</button>
+              <button onClick={() => setActiveTab('briefs')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'briefs' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>new bookings {bookings.length > 0 && `(${bookings.length})`}</button>
+              <button onClick={() => setActiveTab('reviews')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'reviews' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>
                 reviews {artistReviews.length > 0 && `(${artistReviews.length})`}
               </button>
-              <button onClick={() => setLocation(`/artist/${session?.user.id}?style=${styleVersion}`)} className={`${theme.navLink} whitespace-nowrap pb-4 !text-[#BA965B] hover:!text-black transition-colors !border-none !bg-transparent`}>preview public page ↗</button>
+              <button onClick={() => setLocation(`/artist/${session?.user.id}?style=${styleVersion}`)} className={`${theme.navLink} whitespace-nowrap pb-4 ${accentText} hover:!text-black transition-colors !border-none !bg-transparent`}>preview public page ↗</button>
             </div>
 
             {activeTab === 'overview' && (
               <div className="grid gap-6 md:grid-cols-3">
                 <div className={`bg-white/60 border ${theme.borderBase} p-8 shadow-sm ${theme.cardRadius}`}>
                   <p className={theme.eyebrow}>new bookings</p>
-                  <p className={`mt-4 ${theme.stat} !text-[#BA965B]`}>{bookings.length}</p>
+                  <p className={`mt-4 ${theme.stat} ${accentText}`}>{bookings.length}</p>
                 </div>
                 <div className={`bg-white/60 border ${theme.borderBase} p-8 shadow-sm ${theme.cardRadius}`}>
                   <p className={theme.eyebrow}>upcoming bookings</p>
@@ -353,7 +359,7 @@ export default function Dashboard({ session }: DashboardProps) {
                           <div className="flex gap-3 items-center">
                             {booking.status === 'pending' && (
                               <>
-                                <button onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')} className={`${theme.btnPrimary} !bg-[#BA965B] !border-none !text-white`}>accept</button>
+                                <button onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')} className={`${theme.btnPrimary} ${accentBg} !border-none !text-white`}>accept</button>
                                 <button onClick={() => handleUpdateBookingStatus(booking.id, 'declined')} className={theme.btnOutline}>decline</button>
                               </>
                             )}
@@ -384,7 +390,7 @@ export default function Dashboard({ session }: DashboardProps) {
                       <div key={review.id} className={`border ${theme.borderBase} bg-white p-6 sm:p-8 space-y-4 ${theme.cardRadius}`}>
                         <div className="flex justify-between items-center">
                           <h4 className={`${theme.headingModal} !text-xl`}>{review.client?.full_name || 'verified client'}</h4>
-                          <div className="flex gap-1 text-[#BA965B]">
+                          <div className={`flex gap-1 ${accentText}`}>
                             {[...Array(review.rating)].map((_, i) => (
                               <span key={i}>★</span>
                             ))}
@@ -438,7 +444,7 @@ export default function Dashboard({ session }: DashboardProps) {
                         type="text" 
                         value={formData.business_name} 
                         onChange={(e) => setFormData({...formData, business_name: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
-                        placeholder="e.g. kaushal makeover" 
+                        placeholder="e.g. your studio name" 
                         className={`w-full ${theme.inputText}`} 
                         required 
                       />
@@ -550,21 +556,21 @@ export default function Dashboard({ session }: DashboardProps) {
                     )}
                   </div>
 
-                  <div className={`bg-white/50 p-6 border-l-2 border-[#BA965B] ${styleVersion === '1' || styleVersion === '3' ? 'rounded-none' : 'rounded-r-xl'}`}>
+                  <div className={`bg-white/50 p-6 border-l-2 ${accentBorder} ${styleVersion === '1' || styleVersion === '3' ? 'rounded-none' : 'rounded-r-xl'}`}>
                     <label className={`mb-2 block ${theme.formLabel}`}>primary portfolio upload *</label>
                     <p className={`mb-4 ${theme.bodyText} !text-black/40`}>must upload a minimum of 2 photos. no maximum limit.</p>
                     
                     <input type="file" multiple accept="image/*" onChange={handleAddPortfolioImage} className={`w-full ${theme.bodyText} file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:${theme.cardRadius} file:${theme.formLabel} file:!text-black hover:file:bg-black/10 transition-all cursor-pointer`} required={portfolio.length < 2} />
                     
                     {portfolio.length > 0 && (
-                      <p className={`mt-4 ${theme.formLabel} !text-[#BA965B]`}>{portfolio.length} photo(s) currently in portfolio</p>
+                      <p className={`mt-4 ${theme.formLabel} ${accentText}`}>{portfolio.length} photo(s) currently in portfolio</p>
                     )}
                   </div>
 
                   <div className={`border-t ${theme.borderBase} pt-8`}>
                     <label className={`mb-4 block ${theme.formLabel}`}>do you offer any add-on skills? (e.g. hairstyling, brow tinting)</label>
                     <div className="flex gap-4 mb-6">
-                      <button type="button" onClick={() => setHasAddonSkill(true)} className={`${theme.btnOutline} !py-2.5 ${hasAddonSkill ? '!bg-black !text-white !border-black' : ''}`}>
+                      <button type="button" onClick={() => setHasAddonSkill(true)} className={`${theme.btnOutline} !py-2.5 ${hasAddonSkill ? `!bg-black !text-white !border-black` : ''}`}>
                         yes, i do
                       </button>
                       <button type="button" onClick={() => { setHasAddonSkill(false); setAddons([{ name: '', price: '', file: null }]); }} className={`${theme.btnOutline} !py-2.5 ${!hasAddonSkill ? '!bg-black !text-white !border-black' : ''}`}>
@@ -575,7 +581,7 @@ export default function Dashboard({ session }: DashboardProps) {
                     {hasAddonSkill && (
                       <div className="space-y-6">
                         {addons.map((addon, index) => (
-                          <div key={index} className={`space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-white/50 p-6 border-l-2 border-[#BA965B] ${styleVersion === '1' || styleVersion === '3' ? 'rounded-none' : 'rounded-r-xl'} relative`}>
+                          <div key={index} className={`space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-white/50 p-6 border-l-2 ${accentBorder} ${styleVersion === '1' || styleVersion === '3' ? 'rounded-none' : 'rounded-r-xl'} relative`}>
                             {addons.length > 1 && (
                               <button 
                                 type="button" 
@@ -589,7 +595,7 @@ export default function Dashboard({ session }: DashboardProps) {
                               </button>
                             )}
 
-                            <p className={`${theme.eyebrow} !text-[#BA965B]`}>add-on skill #{index + 1}</p>
+                            <p className={`${theme.eyebrow} ${accentText}`}>add-on skill #{index + 1}</p>
 
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                               <div>
@@ -679,7 +685,7 @@ export default function Dashboard({ session }: DashboardProps) {
                           setBookingToReview(booking);
                           setReviewModalOpen(true);
                         }}
-                        className={`${theme.navLink} !text-[#BA965B] hover:!text-black !bg-transparent !border-none`}
+                        className={`${theme.navLink} ${accentText} hover:!text-black !bg-transparent !border-none`}
                       >
                         leave a review
                       </button>

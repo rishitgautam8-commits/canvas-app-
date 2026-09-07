@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Search, ArrowRight, Sparkles, Upload, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getTheme } from '@/lib/theme';
 
 export interface HeroSearchValue {
   services: string[];
@@ -30,7 +31,7 @@ const HYDERABAD_LOCATIONS = [
 const analysisSteps = [
   "Isolating color palettes & lighting undertones...",
   "Mapping facial geometry & aesthetic drape...",
-  "Cross-referencing 100 verified studio portfolios...",
+  "Cross-referencing verified studio portfolios...",
   "Curating optimal matches based on style & location..."
 ];
 
@@ -46,6 +47,14 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
   const [activeOccasion, setActiveOccasion] = useState('Wedding');
   
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+
+  // Read style query param for the Dynamic Theme Engine
+  const queryParams = new URLSearchParams(window.location.search);
+  const styleVersion = queryParams.get('style') || '2';
+  const theme = getTheme(styleVersion);
+  
+  // Adapt accents (Use Dusty Plum for Opt 3, Gold for others)
+  const accentColor = styleVersion === '3' ? '#7A4B69' : '#BA965B';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,34 +120,34 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
   };
 
   return (
-    <div className="w-full max-w-[960px] mx-auto relative z-20 font-sans">
+    <div className={`w-full max-w-[960px] mx-auto relative z-20 ${theme.fontBase}`}>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-white/40 backdrop-blur-md rounded-[32px] p-8 md:p-14 shadow-[0_20px_50px_-12px_rgba(21,4,32,0.04)] border border-white/50 relative overflow-visible"
+        className={`bg-white/40 backdrop-blur-md p-8 md:p-14 shadow-sm border ${theme.borderBase} ${theme.cardRadius} relative overflow-visible`}
       >
         <form onSubmit={handleSubmit}>
           
-          {/* Top Search Bar Row (Now Split into Look & Location) */}
+          {/* Top Search Bar Row */}
           <div className="flex flex-col md:flex-row gap-4 mb-10 relative">
             
             {/* 1. Look Description */}
-            <div className="flex-[2] flex items-center bg-white/50 backdrop-blur-sm border border-white/60 rounded-[20px] px-6 py-4 shadow-[0_2px_8px_rgba(21,4,32,0.02)] focus-within:border-[#BA965B] focus-within:bg-white/70 focus-within:ring-4 focus-within:ring-[#BA965B]/10 transition-all duration-300">
-              <Search size={22} className="text-[#5C3D6E] mr-4 opacity-50 shrink-0" />
+            <div className={`flex-[2] flex items-center bg-white/50 backdrop-blur-sm border ${theme.borderBase} ${theme.cardRadius} px-6 py-4 shadow-sm transition-all duration-300 focus-within:bg-white/70`}>
+              <Search size={20} className="mr-4 opacity-40 shrink-0 text-black" />
               <input
                 type="text"
                 value={value?.lookDescription || ''}
                 onChange={(e) => onChange({ ...value, lookDescription: e.target.value })}
-                placeholder="nizami bridal..."
-                className="w-full bg-transparent outline-none text-[#150420] text-[16px] font-medium placeholder:text-[#150420]/40"
+                placeholder="nizami bridal, soft glam..."
+                className={`w-full bg-transparent outline-none text-black placeholder:text-black/40 ${theme.fontBase} text-base`}
               />
             </div>
 
             {/* 2. Hyderabad Location Dropdown */}
-            <div className="flex-[1.5] relative flex items-center bg-white/50 backdrop-blur-sm border border-white/60 rounded-[20px] px-6 py-4 shadow-[0_2px_8px_rgba(21,4,32,0.02)] focus-within:border-[#BA965B] focus-within:bg-white/70 focus-within:ring-4 focus-within:ring-[#BA965B]/10 transition-all duration-300">
-              <MapPin size={22} className="text-[#BA965B] mr-4 opacity-80 shrink-0" />
+            <div className={`flex-[1.5] relative flex items-center bg-white/50 backdrop-blur-sm border ${theme.borderBase} ${theme.cardRadius} px-6 py-4 shadow-sm transition-all duration-300 focus-within:bg-white/70`}>
+              <MapPin size={20} className="mr-4 shrink-0" color={accentColor} />
               <input
                 type="text"
                 value={value?.location || ''}
@@ -147,13 +156,13 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
                   setShowLocationDropdown(true);
                 }}
                 onFocus={() => setShowLocationDropdown(true)}
-                placeholder="Anywhere in Hyd"
-                className="w-full bg-transparent outline-none text-[#150420] text-[16px] font-medium placeholder:text-[#150420]/40"
+                placeholder="anywhere in hyderabad"
+                className={`w-full bg-transparent outline-none text-black placeholder:text-black/40 ${theme.fontBase} text-base`}
               />
               
               {/* Elegant Dropdown Menu */}
               {showLocationDropdown && filteredLocations.length > 0 && (
-                <div className="absolute top-[110%] left-0 w-full bg-white/80 backdrop-blur-lg border border-white/50 rounded-[16px] shadow-[0_10px_40px_rgba(21,4,32,0.06)] z-50 max-h-56 overflow-y-auto py-2">
+                <div className={`absolute top-[110%] left-0 w-full bg-white/90 backdrop-blur-xl border ${theme.borderBase} ${theme.cardRadius} shadow-xl z-50 max-h-56 overflow-y-auto py-2`}>
                   {filteredLocations.map(loc => (
                     <div
                       key={loc}
@@ -161,7 +170,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
                         onChange({ ...value, location: loc });
                         setShowLocationDropdown(false);
                       }}
-                      className="px-6 py-3 text-[14px] font-medium text-[#5C3D6E] hover:bg-white/60 hover:text-[#150420] cursor-pointer transition-colors"
+                      className={`px-6 py-3 cursor-pointer transition-colors hover:bg-black/5 ${theme.fontBase} text-black`}
                     >
                       {loc}
                     </div>
@@ -174,16 +183,16 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
             <button
               type="submit"
               onClick={() => setShowLocationDropdown(false)}
-              className="bg-[#BA965B] hover:bg-[#A67E3D] text-[#150420] px-8 py-4 rounded-[20px] font-bold text-[15px] flex items-center justify-center gap-3 transition-all duration-300 shadow-[0_6px_20px_rgba(186,150,91,0.25)] hover:shadow-[0_8px_25px_rgba(186,150,91,0.35)] shrink-0 active:scale-[0.98]"
+              className={`${theme.btnPrimary} flex items-center justify-center gap-3 shrink-0 py-4`}
             >
-              Find Artist <ArrowRight size={18} strokeWidth={2.5} />
+              find artist <ArrowRight size={18} strokeWidth={2} />
             </button>
           </div>
 
           {/* Elegant Divider */}
           <div className="flex items-center justify-center gap-6 mb-10">
-            <span className="text-[12px] font-medium uppercase tracking-[0.25em] text-[#5C3D6E] opacity-60">
-              Or Upload Inspiration
+            <span className={`${theme.eyebrow} !text-black/50`}>
+              or upload inspiration
             </span>
           </div>
 
@@ -199,10 +208,10 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
                 fileInputRef.current?.click();
               }
             }}
-            className={`relative border-[1.5px] border-dashed rounded-[32px] p-10 md:p-14 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-400 ease-out ${
+            className={`relative border border-dashed p-10 md:p-14 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-500 ease-out ${theme.cardRadius} ${
               isDragging 
-                ? 'bg-white/60 scale-[1.02] border-[#BA965B] shadow-[0_0_30px_rgba(186,150,91,0.15)]' 
-                : 'bg-white/20 border-white/60 hover:border-[#BA965B] hover:bg-white/40'
+                ? 'bg-white/60 scale-[1.01] border-black/40 shadow-sm' 
+                : `bg-white/20 ${theme.borderBase} hover:border-black/30 hover:bg-white/40`
             }`}
           >
             <input
@@ -217,20 +226,20 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
               }}
             />
 
-            <div className="w-16 h-16 rounded-full bg-white/60 backdrop-blur-sm text-[#BA965B] flex items-center justify-center mb-6 border border-white/80 shadow-sm">
-              <Upload size={24} strokeWidth={1.5} />
+            <div className={`w-14 h-14 bg-white/60 backdrop-blur-sm flex items-center justify-center mb-6 border ${theme.borderBase} shadow-sm ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'}`}>
+              <Upload size={20} strokeWidth={1.5} color={accentColor} />
             </div>
 
-            <h3 className="font-serif text-[28px] md:text-[32px] leading-tight text-[#150420] mb-4">
-              Upload a Pinterest screenshot or Instagram save
+            <h3 className={`${theme.headingModal} !text-2xl md:!text-3xl mb-4`}>
+              upload a pinterest screenshot or instagram save
             </h3>
-            <p className="text-[13px] text-[#5C3D6E] opacity-80 tracking-wide mb-10 font-medium">
-              JPG, PNG, WEBP · Max 10MB · Or drag & drop
+            <p className={`${theme.formLabel} !text-black/50 mb-10`}>
+              jpg, png, webp · max 10mb · or drag & drop
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
               {SUGGESTION_PILLS.map((pill) => (
-                <span key={pill} className="bg-white/40 border border-white/60 text-[#7C5916] px-5 py-2.5 rounded-full text-[12px] font-medium tracking-wide shadow-sm">
+                <span key={pill} className={`bg-white/40 border ${theme.borderBase} px-5 py-2.5 ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'} ${theme.formLabel} !text-black/70 shadow-sm`}>
                   {pill}
                 </span>
               ))}
@@ -238,9 +247,9 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
           </div>
 
           {/* Bottom Occasion Row */}
-          <div className="mt-12 flex flex-col sm:flex-row items-center justify-start gap-6">
-            <span className="text-[12px] font-medium uppercase tracking-[0.25em] text-[#5C3D6E] opacity-80">
-              Occasion:
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-start gap-6 border-t border-black/5 pt-8">
+            <span className={`${theme.eyebrow} !text-black/50`}>
+              occasion:
             </span>
             <div className="flex flex-wrap items-center gap-3">
               {OCCASIONS.map((occasion) => (
@@ -248,10 +257,10 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
                   key={occasion}
                   type="button"
                   onClick={() => setActiveOccasion(occasion)}
-                  className={`px-7 py-3 rounded-full text-[14px] font-medium tracking-wide transition-all duration-300 border ${
+                  className={`px-6 py-2.5 transition-all duration-300 border ${theme.cardRadius} ${theme.formLabel} ${
                     activeOccasion === occasion
-                      ? 'bg-[#BA965B] text-[#150420] border-[#BA965B] shadow-md scale-105'
-                      : 'bg-white/30 text-[#33103E] border-white/50 hover:border-[#BA965B] hover:bg-white/50'
+                      ? 'bg-black text-white border-black shadow-md'
+                      : `bg-transparent text-black/60 ${theme.borderBase} hover:bg-white/50 hover:text-black`
                   }`}
                 >
                   {occasion}
@@ -271,33 +280,33 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-[#FDF3F1]/80 backdrop-blur-xl p-6"
+            className={`fixed inset-0 z-[999] flex flex-col items-center justify-center bg-[#FDF3F1]/80 backdrop-blur-xl p-6 ${theme.fontBase}`}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
-              className="relative max-w-md w-full bg-white/60 backdrop-blur-md border border-white/50 rounded-[32px] p-10 text-center shadow-[0_30px_60px_rgba(21,4,32,0.06)] overflow-hidden"
+              className={`relative max-w-md w-full bg-white/80 backdrop-blur-xl border ${theme.borderBase} ${theme.cardRadius} p-10 text-center shadow-2xl overflow-hidden`}
             >
               <motion.div
                 animate={{ y: ['0%', '100%', '0%'] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute inset-x-0 h-1.5 bg-gradient-to-r from-transparent via-[#BA965B] to-transparent shadow-[0_0_20px_rgba(186,150,91,0.6)] z-20"
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-black/20 to-transparent z-20"
               />
 
               {previewUrl && (
-                <div className="relative w-36 h-36 mx-auto mb-8 rounded-[20px] overflow-hidden border-2 border-white/60 shadow-inner">
-                  <img src={previewUrl} alt="Inspiration Preview" className="w-full h-full object-cover filter brightness-95" />
-                  <div className="absolute inset-0 bg-[#BA965B]/10 mix-blend-overlay" />
+                <div className={`relative w-36 h-36 mx-auto mb-8 overflow-hidden border ${theme.borderBase} shadow-inner ${theme.cardRadius}`}>
+                  <img src={previewUrl} alt="Inspiration Preview" className="w-full h-full object-cover filter brightness-95 grayscale-[20%]" />
+                  <div className="absolute inset-0 mix-blend-overlay" style={{ backgroundColor: accentColor, opacity: 0.15 }} />
                 </div>
               )}
 
-              <div className="flex items-center justify-center gap-2.5 text-[#BA965B] mb-4">
-                <Sparkles size={22} className="animate-spin" />
-                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#150420]">Canvas AI Vision</span>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Sparkles size={18} className="animate-spin" color={accentColor} />
+                <span className={theme.eyebrow}>canvas ai vision</span>
               </div>
 
-              <h3 className="text-2xl font-serif text-[#150420] mb-8 leading-tight">
-                Analyzing Aesthetic Match...
+              <h3 className={`${theme.headingModal} !text-3xl mb-8 leading-tight`}>
+                analyzing aesthetic match...
               </h3>
 
               <div className="h-8 flex items-center justify-center mb-2">
@@ -308,19 +317,20 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.3 }}
-                    className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5C3D6E]"
+                    className={theme.formLabel}
                   >
                     {analysisSteps[currentStep]}
                   </motion.p>
                 </AnimatePresence>
               </div>
 
-              <div className="w-full bg-white/50 h-1.5 rounded-full mt-6 overflow-hidden">
+              <div className="w-full bg-black/5 h-[2px] mt-6 overflow-hidden">
                 <motion.div
                   initial={{ width: '0%' }}
                   animate={{ width: '100%' }}
                   transition={{ duration: 2.5, ease: 'easeInOut' }}
-                  className="bg-[#BA965B] h-full"
+                  className="h-full"
+                  style={{ backgroundColor: accentColor }}
                 />
               </div>
             </motion.div>

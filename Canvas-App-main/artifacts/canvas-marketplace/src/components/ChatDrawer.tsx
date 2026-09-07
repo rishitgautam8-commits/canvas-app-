@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Send, Sparkles } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { getTheme } from '@/lib/theme';
 
 type ChatDrawerProps = {
   open: boolean;
@@ -15,6 +16,15 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false); 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Read style query param for the Dynamic Theme Engine
+  const queryParams = new URLSearchParams(window.location.search);
+  const styleVersion = queryParams.get('style') || '2';
+  const theme = getTheme(styleVersion);
+  
+  // Adapt accents (Use Dusty Plum for Opt 3, Gold for others)
+  const accentColor = styleVersion === '3' ? '#7A4B69' : '#BA965B';
+  const accentBg = styleVersion === '3' ? 'bg-[#7A4B69]' : 'bg-[#BA965B]';
 
   useEffect(() => {
     if (!open) return;
@@ -122,33 +132,33 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-[#10002b]/65 backdrop-blur-sm" role="presentation" onClick={onClose}>
+    <div className={`fixed inset-0 z-[200] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={onClose}>
       <aside 
-        className="glass flex h-full w-full max-w-lg flex-col justify-between rounded-l-[2rem] p-6 sm:p-8" 
+        className="bg-white border-l border-black/10 h-full w-full max-w-lg flex flex-col shadow-2xl p-8 md:p-12" 
         role="dialog" 
         aria-modal="true" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/10 pb-5">
+        <div className="flex items-center justify-between border-b border-black/10 pb-6 mb-6">
           <div>
-            <p className="eyebrow text-[#e0aaff]">Secure Canvas Room</p>
-            <h3 className="serif mt-1 text-3xl text-white">{otherPartyName || 'Artist Concierge'}</h3>
+            <p className={`${theme.eyebrow} mb-2`}>private concierge</p>
+            <h3 className={`${theme.headingModal} !tracking-normal !text-3xl`}>{otherPartyName || 'artist concierge'}</h3>
           </div>
           <button 
             type="button" 
             onClick={onClose} 
-            className="rounded-full border border-white/15 p-2 text-white/70 hover:text-white transition-colors"
+            className="text-black/40 hover:text-black transition-colors"
           >
-            <X size={18} />
+            <X size={24} strokeWidth={1.5} />
           </button>
         </div>
 
         {/* Message Feed */}
-        <div className="my-4 flex-1 overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto space-y-6 pr-2 custom-scrollbar mb-4">
           {loading ? (
             <div className="flex h-full items-center justify-center">
-              <p className="eyebrow animate-pulse text-[#e0aaff]">Decrypting secure chat...</p>
+              <p className={`${theme.eyebrow} animate-pulse !text-black/50`}>connecting to secure room...</p>
             </div>
           ) : messages.length > 0 ? (
             messages.map((msg) => {
@@ -156,15 +166,15 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
               return (
                 <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                   <div 
-                    className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                    className={`max-w-[85%] px-5 py-4 text-[15px] leading-relaxed shadow-sm ${theme.cardRadius} ${
                       isMe 
-                        ? 'bg-[#e0aaff] text-[#251037] rounded-br-sm' 
-                        : 'border border-white/10 bg-white/5 text-white rounded-bl-sm'
+                        ? `${accentBg} text-white ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-br-sm'}` 
+                        : `border ${theme.borderBase} bg-black/5 text-black ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-bl-sm'}`
                     }`}
                   >
                     {msg.content}
                   </div>
-                  <span className="mt-1 text-[10px] text-white/30">
+                  <span className={`mt-2 ${theme.formLabel} !text-black/40 !lowercase`}>
                     {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
@@ -172,28 +182,30 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
             })
           ) : (
             <div className="flex h-full flex-col items-center justify-center text-center">
-              <Sparkles className="text-[#e0aaff]/50 mb-2" size={24} />
-              <p className="serif text-2xl text-white/50">Encrypted channel open.</p>
-              <p className="mt-1 text-xs text-white/40 max-w-xs">Discuss looks, timings, and venue details right here. Zero external sharing required.</p>
+              <div className={`w-14 h-14 ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'} bg-black/5 flex items-center justify-center mb-4`}>
+                <Sparkles color={accentColor} size={24} strokeWidth={1.5} />
+              </div>
+              <p className={`${theme.headingModal} !text-2xl mb-3`}>secure channel open.</p>
+              <p className={`${theme.bodyText} !text-black/50 max-w-xs`}>discuss looks, timings, and venue details right here. zero external sharing required.</p>
             </div>
           )}
           <div ref={messagesEndRef} />
         </div>
 
         {/* Input Form */}
-        <form onSubmit={handleSendMessage} className="flex items-center gap-3 border-t border-white/10 pt-4">
+        <form onSubmit={handleSendMessage} className="flex items-end gap-4 border-t border-black/10 pt-6 mt-auto">
           <input 
             type="text" 
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a secure message..."
-            className="flex-1 rounded-full border border-white/15 bg-white/5 px-5 py-3.5 text-sm text-white outline-none transition-colors focus:border-[#e0aaff]"
+            placeholder="type a message..."
+            className={`flex-1 ${theme.inputText}`}
           />
           <button 
             type="submit" 
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e0aaff] text-[#251037] transition-transform hover:scale-105 active:scale-95"
+            className={`flex h-12 w-12 shrink-0 items-center justify-center ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'} ${accentBg} text-white transition-transform hover:scale-105 active:scale-95`}
           >
-            <Send size={18} />
+            <Send size={18} strokeWidth={1.5} />
           </button>
         </form>
       </aside>
