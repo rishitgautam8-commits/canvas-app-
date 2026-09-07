@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Star, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Premium } from '@/components/Premium';
+import { getTheme } from '@/lib/theme';
 
 type ReviewModalProps = {
   isOpen: boolean;
@@ -17,6 +18,11 @@ export function ReviewModal({ isOpen, onClose, bookingId, artistId, clientId, ar
   const [hoveredRating, setHoveredRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Read style query param for the Dynamic Theme Engine
+  const queryParams = new URLSearchParams(window.location.search);
+  const styleVersion = queryParams.get('style') || '2';
+  const theme = getTheme(styleVersion);
 
   if (!isOpen) return null;
 
@@ -49,8 +55,8 @@ export function ReviewModal({ isOpen, onClose, bookingId, artistId, clientId, ar
   };
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-md p-4 font-['Manrope']">
-      <div className="relative w-full max-w-lg bg-white/90 backdrop-blur-xl border border-black/5 rounded-3xl p-10 shadow-2xl">
+    <div className={`fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-md p-4 ${theme.fontBase}`}>
+      <div className={`relative w-full max-w-lg bg-white/90 backdrop-blur-xl border border-black/5 p-10 shadow-2xl ${theme.cardRadius}`}>
         <button 
           onClick={onClose}
           className="absolute top-6 right-6 text-black/30 hover:text-black transition-colors"
@@ -59,14 +65,14 @@ export function ReviewModal({ isOpen, onClose, bookingId, artistId, clientId, ar
         </button>
 
         <div className="text-center mb-8">
-          <p className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40 mb-2">
+          <p className={`${theme.eyebrow} mb-2`}>
             the canvas standard
           </p>
-          <h2 className="font-['Fraunces'] font-normal text-3xl text-black lowercase tracking-tight mb-2">
+          <h2 className={`${theme.headingModal} mb-2`}>
             rate your <Premium>experience.</Premium>
           </h2>
-          <p className="font-['Manrope'] text-xs font-light lowercase text-black/50">
-            how was your booking with {artistName.toLowerCase()}?
+          <p className={`${theme.bodyText} !text-xs !text-black/50`}>
+            how was your booking with {artistName}?
           </p>
         </div>
 
@@ -99,14 +105,14 @@ export function ReviewModal({ isOpen, onClose, bookingId, artistId, clientId, ar
               onChange={(e) => setReviewText(e.target.value)}
               placeholder="tell us about the look, the professionalism, and your overall experience..."
               rows={4}
-              className="w-full bg-black/5 border border-black/10 rounded-2xl p-5 outline-none font-['Manrope'] text-sm font-light text-black placeholder:text-black/30 focus:border-[#BA965B] transition-all resize-none"
+              className={`w-full bg-black/5 border ${theme.borderBase} p-5 outline-none ${theme.bodyText} placeholder:text-black/30 focus:border-[#BA965B] transition-all resize-none ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-2xl'}`}
             />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-[#BA965B] text-white py-4 rounded-full font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] hover:bg-black transition-colors disabled:opacity-50 shadow-sm"
+            className={`w-full ${theme.btnPrimary} disabled:opacity-50`}
           >
             {isSubmitting ? 'publishing...' : 'publish review'}
           </button>

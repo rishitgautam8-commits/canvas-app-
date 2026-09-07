@@ -20,6 +20,7 @@ import BeautyDemo from '@/pages/ArtistProfile';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { Reveal } from '@/components/Reveal';
 import { Premium } from '@/components/Premium';
+import { getTheme } from '@/lib/theme';
 
 // ==========================================
 // PERFORMANCE OPTIMIZED SCROLL WRAPPERS
@@ -32,6 +33,10 @@ function ScrollZoomIn({ children, className }: { children: React.ReactNode; clas
 }
 
 const queryClient = new QueryClient();
+
+// ==========================================
+// DYNAMIC THEME ENGINE (OPTIONS 1, 2, 3, & 4)
+// ==========================================
 
 const discoverCategories = [
   { id: 'all', label: 'all artists' },
@@ -186,7 +191,7 @@ async function analyzeLookWithAI(file: File): Promise<string[]> {
 // ==========================================
 // MAGAZINE BLEED HERO VISUAL
 // ==========================================
-function CanvasVisualEditorial() {
+function CanvasVisualEditorial({ theme }: { theme: any }) {
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-visible">
       <div className="absolute -top-10 right-0 w-[420px] h-[420px] bg-[#C9A463]/25 rounded-full blur-[110px]" />
@@ -208,11 +213,11 @@ function CanvasVisualEditorial() {
         />
         
         <div className="flex flex-col items-center mt-6">
-          <span className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40 mb-3 text-center">
+          <span className={`${theme.eyebrow} mb-3 text-center`}>
             the canvas standard
           </span>
           <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-black/20 to-transparent mb-3" />
-          <p className="text-sm md:text-base font-['Fraunces'] italic font-light text-[#BA965B] tracking-wide text-center">
+          <p className={`${theme.premiumTag} text-sm md:text-base text-center`}>
             curated private roster
           </p>
         </div>
@@ -224,7 +229,8 @@ function CanvasVisualEditorial() {
 // ==========================================
 // HOME COMPONENT
 // ==========================================
-function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: (v: boolean) => void }) {
+function Home({ session, setAuthOpen, styleVersion }: { session: Session | null; setAuthOpen: (v: boolean) => void; styleVersion: string }) {
+  const theme = getTheme(styleVersion);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [aiTags, setAiTags] = useState<string[]>([]);
   const [, setLocation] = useLocation();
@@ -255,7 +261,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
 
   const handleSelectArtist = (artist: Artist) => {
     if ((artist as any).isLiveDb || String(artist.id).includes('-')) {
-      setLocation(`/artist/${artist.id}`);
+      setLocation(`/artist/${artist.id}?style=${styleVersion}`);
     } else {
       setSelectedArtist(artist);
     }
@@ -504,30 +510,30 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
   };
 
   return (
-    <div className="relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[#FDF3F1] font-['Manrope']">
+    <div className={`relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[#FDF3F1] ${theme.fontBase}`}>
       <motion.nav 
         animate={{ y: (isChatOpen || isHeaderHidden) ? -120 : 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[#FDF3F1] border-b border-black/5"
+        className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[#FDF3F1]/90 backdrop-blur-md border-b border-black/5"
       >
         <div className="hidden md:flex items-center gap-8 justify-start">
-          <a onClick={() => scrollTo('discover')} className="font-['Manrope'] text-[13px] font-medium lowercase tracking-wide text-black/50 hover:text-black cursor-pointer transition-colors">directory</a>
-          <a onClick={() => scrollTo('standard')} className="font-['Manrope'] text-[13px] font-medium lowercase tracking-wide text-black/50 hover:text-black cursor-pointer transition-colors">the standard</a>
+          <a onClick={() => scrollTo('discover')} className={`${theme.navLink} cursor-pointer`}>directory</a>
+          <a onClick={() => scrollTo('standard')} className={`${theme.navLink} cursor-pointer`}>the standard</a>
         </div>
         <div className="flex items-center justify-center cursor-pointer group" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Canvas Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 group-hover:drop-shadow-[0_4px_12px_rgba(182,108,242,0.3)]" />
-            <span className="font-['Fraunces'] text-2xl md:text-3xl font-light tracking-tight text-black transition-colors duration-500 group-hover:text-[#B66CF2]">canvas</span>
+            <span className={`${theme.headingSection} !text-2xl md:!text-3xl tracking-tight transition-colors duration-500 group-hover:text-[#B66CF2]`}>canvas</span>
           </div>
         </div>
         <div className="flex items-center gap-6 justify-end">
           {session ? (
             <>
-              <button onClick={() => setLocation('/dashboard')} className="font-['Manrope'] text-xs font-medium lowercase text-black/40 hover:text-[#BA965B] transition-colors hidden sm:block">dashboard</button>
-              <button onClick={handleSignOut} className="font-['Manrope'] text-xs font-medium lowercase text-black/40 hover:text-[#BA965B] transition-colors hidden sm:block">sign out</button>
+              <button onClick={() => setLocation(`/dashboard?style=${styleVersion}`)} className={`${theme.navLink} hidden sm:block`}>dashboard</button>
+              <button onClick={handleSignOut} className={`${theme.navLink} hidden sm:block`}>sign out</button>
             </>
           ) : (
-            <button onClick={() => setAuthOpen(true)} className="hidden sm:block font-['Manrope'] text-xs font-medium lowercase text-black/40 hover:text-[#BA965B] transition-colors">account</button>
+            <button onClick={() => setAuthOpen(true)} className={`hidden sm:block ${theme.navLink}`}>account</button>
           )}
           <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-black md:hidden">{menuOpen ? <X size={24} /> : <Menu size={24} />}</button>
         </div>
@@ -535,12 +541,12 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
 
       <AnimatePresence>
         {menuOpen && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="fixed top-[72px] left-0 right-0 z-[190] bg-[#FDF3F1] border-b border-black/10 p-6 flex flex-col gap-4 shadow-lg md:hidden">
-            {session && <a onClick={() => { setLocation('/dashboard'); setMenuOpen(false); }} className="text-[15px] font-medium lowercase text-black/70 border-b border-black/10 pb-3">dashboard</a>}
-            <a onClick={() => { scrollTo('top'); setMenuOpen(false); }} className="text-[15px] font-medium lowercase text-black/70">home</a>
-            <a onClick={() => { scrollTo('discover'); setMenuOpen(false); }} className="text-[15px] font-medium lowercase text-black/70">browse artists</a>
-            <a onClick={() => { scrollTo('standard'); setMenuOpen(false); }} className="text-[15px] font-medium lowercase text-black/70">for artists</a>
-            {!session && <a onClick={() => { setAuthOpen(true); setMenuOpen(false); }} className="text-[15px] font-medium lowercase text-black/70 border-t border-black/10 pt-3">my account</a>}
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className={`fixed top-[72px] left-0 right-0 z-[190] bg-[#FDF3F1] border-b ${theme.borderBase} p-6 flex flex-col gap-4 shadow-lg md:hidden`}>
+            {session && <a onClick={() => { setLocation(`/dashboard?style=${styleVersion}`); setMenuOpen(false); }} className={`${theme.navLink} border-b ${theme.borderBase} pb-3`}>dashboard</a>}
+            <a onClick={() => { scrollTo('top'); setMenuOpen(false); }} className={theme.navLink}>home</a>
+            <a onClick={() => { scrollTo('discover'); setMenuOpen(false); }} className={theme.navLink}>browse artists</a>
+            <a onClick={() => { scrollTo('standard'); setMenuOpen(false); }} className={theme.navLink}>for artists</a>
+            {!session && <a onClick={() => { setAuthOpen(true); setMenuOpen(false); }} className={`${theme.navLink} border-t ${theme.borderBase} pt-3`}>my account</a>}
           </motion.div>
         )}
       </AnimatePresence>
@@ -548,25 +554,25 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
       <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[100px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
-            <div className="flex items-center gap-3 font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40 mb-7">
-              <div className="w-[26px] h-[1px] bg-gradient-to-r from-[var(--canvas-g)] to-transparent"></div>ai-powered beauty matching
+            <div className={`flex items-center gap-3 ${theme.eyebrow} mb-7`}>
+              <div className="w-[26px] h-[1px] bg-[#B66CF2]"></div>ai-powered beauty matching
             </div>
-            <h1 className="font-['Fraunces'] font-light text-6xl md:text-7xl text-black tracking-tight leading-[0.95] mb-6">
+            <h1 className={`${theme.headingHero} mb-6`}>
               hyderabad's <br />
-              <Premium>premium</Premium> <br />
+              <span className={theme.premiumTag}>premium</span> <br />
               beauty match.
             </h1>
-            <p className="font-['Manrope'] text-[15px] font-light leading-[1.9] text-black/55 max-w-[460px] mb-3">upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
-            <p className="font-['Manrope'] text-[15px] font-light leading-[1.9] text-black/55 max-w-[460px] mb-8">the exclusive ai-powered bridal and beauty booking platform for hyderabad and cyberabad.</p>
+            <p className={`${theme.bodyText} max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
+            <p className={`${theme.bodyText} max-w-[460px] mb-8`}>the exclusive ai-powered bridal and beauty booking platform for hyderabad and cyberabad.</p>
             <div className="flex gap-4 flex-wrap">
-              <button onClick={() => scrollTo('demo-search')} className="bg-[#BA965B] text-white font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] rounded-full px-8 py-4 hover:bg-black transition-colors shadow-sm">try the live demo →</button>
+              <button onClick={() => scrollTo('demo-search')} className={theme.btnPrimary}>try the live demo →</button>
             </div>
           </div>
         </ScrollZoomIn>
 
         <ScrollZoom>
           <div className="flex flex-col items-center justify-center py-10 md:py-16 relative hidden md:flex">
-            <CanvasVisualEditorial />
+            <CanvasVisualEditorial theme={theme} />
           </div>
         </ScrollZoom>
       </section>
@@ -582,23 +588,23 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
       <main className="relative z-20">
         <ScrollZoomIn className="stats-bar">
           <div className="stat">
-            <ScrollZoom><div className="font-['Fraunces'] font-light text-4xl text-black tabular-nums">{sourceArtists.length}</div></ScrollZoom>
-            <ScrollZoomIn delay={100}><div className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">verified artists</div></ScrollZoomIn>
+            <ScrollZoom><div className={theme.stat}>{sourceArtists.length}</div></ScrollZoom>
+            <ScrollZoomIn delay={100}><div className={theme.eyebrow}>verified artists</div></ScrollZoomIn>
           </div>
           <div className="stat-divider"></div>
           <div className="stat">
-            <ScrollZoom><div className="font-['Fraunces'] font-light text-4xl text-black tabular-nums">₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div></ScrollZoom>
-            <ScrollZoomIn delay={100}><div className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">avg booking value</div></ScrollZoomIn>
+            <ScrollZoom><div className={theme.stat}>₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div></ScrollZoom>
+            <ScrollZoomIn delay={100}><div className={theme.eyebrow}>avg booking value</div></ScrollZoomIn>
           </div>
           <div className="stat-divider"></div>
           <div className="stat">
-            <ScrollZoom><div className="font-['Fraunces'] font-light text-4xl text-black tabular-nums">{platformStats.totalBookings.toLocaleString('en-US')}+</div></ScrollZoom>
-            <ScrollZoomIn delay={100}><div className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">successful bookings</div></ScrollZoomIn>
+            <ScrollZoom><div className={theme.stat}>{platformStats.totalBookings.toLocaleString('en-US')}+</div></ScrollZoom>
+            <ScrollZoomIn delay={100}><div className={theme.eyebrow}>successful bookings</div></ScrollZoomIn>
           </div>
           <div className="stat-divider"></div>
           <div className="stat">
-            <ScrollZoom><div className="font-['Fraunces'] font-light text-4xl text-black tabular-nums">{platformStats.avgRating}★</div></ScrollZoom>
-            <ScrollZoomIn delay={100}><div className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">platform avg rating</div></ScrollZoomIn>
+            <ScrollZoom><div className={theme.stat}>{platformStats.avgRating}★</div></ScrollZoom>
+            <ScrollZoomIn delay={100}><div className={theme.eyebrow}>platform avg rating</div></ScrollZoomIn>
           </div>
         </ScrollZoomIn>
 
@@ -607,42 +613,42 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
             <ScrollZoomIn>
               <div className="mb-12 flex flex-col gap-5">
                 <div>
-                  <p className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40 mb-3">the shortlist</p>
-                  <h2 className="font-['Fraunces'] italic font-normal text-3xl sm:text-5xl text-[#BA965B]">meet the <Premium>artists</Premium></h2>
+                  <p className={`${theme.eyebrow} mb-3`}>the shortlist</p>
+                  <h2 className={theme.headingSection}>meet the <span className={theme.premiumTag}>artists</span></h2>
                 </div>
-                <p className="max-w-[500px] font-['Manrope'] text-[15px] font-light leading-[1.9] text-black/55">a private directory of hyderabad&apos;s most sought-after talent, rigorously vetted for their technical execution and distinct aesthetic vision.</p>
+                <p className={`${theme.bodyText} max-w-[500px]`}>a private directory of hyderabad&apos;s most sought-after talent, rigorously vetted for their technical execution and distinct aesthetic vision.</p>
               </div>
             </ScrollZoomIn>
 
             <ScrollZoomIn>
-              <div className="mb-12 flex flex-wrap gap-3 border-b border-black/10 pb-8">
+              <div className={`mb-12 flex flex-wrap gap-3 border-b ${theme.borderBase} pb-8`}>
                 {discoverCategories.map((cat) => (
-                  <button key={cat.id} onClick={() => setSelectedCategoryFilter(cat.id)} className={`px-6 py-3 font-['Manrope'] text-xs font-medium lowercase tracking-[0.1em] rounded-full transition-colors border ${selectedCategoryFilter === cat.id ? 'border-black bg-black text-white' : 'border-black/15 bg-transparent text-black/60 hover:border-black hover:text-black'}`}>{cat.label}</button>
+                  <button key={cat.id} onClick={() => setSelectedCategoryFilter(cat.id)} className={`px-6 py-3 transition-colors border ${theme.cardRadius} ${theme.formLabel} ${selectedCategoryFilter === cat.id ? 'border-black bg-black text-white' : `${theme.borderBase} bg-transparent text-black/60 hover:border-black hover:text-black`}`}>{cat.label}</button>
                 ))}
               </div>
             </ScrollZoomIn>
 
             {hasSearched && search.inspirationFile && (
               <ScrollZoomIn>
-                <div className="mb-12 mt-8 border border-black/10 bg-white/50 backdrop-blur-sm p-8 lg:p-10 shadow-sm">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-black/10 pb-6 mb-6">
+                <div className={`mb-12 mt-8 border ${theme.borderBase} bg-white/50 backdrop-blur-sm p-8 lg:p-10 shadow-sm ${theme.cardRadius}`}>
+                  <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b ${theme.borderBase} pb-6 mb-6`}>
                     <div className="flex items-center gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center border border-[#B66CF2]/40 bg-[#B66CF2]/10 text-[#B66CF2] rounded-full"><Sparkles size={20} /></div>
+                      <div className={`flex h-12 w-12 items-center justify-center border border-[#B66CF2]/40 bg-[#B66CF2]/10 text-[#B66CF2] ${theme.cardRadius}`}><Sparkles size={20} /></div>
                       <div>
-                        <span className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">canvas ai vision analysis</span>
-                        <h3 className="font-['Fraunces'] font-normal text-2xl text-black lowercase tracking-tight mt-1">aesthetic profile extracted</h3>
+                        <span className={theme.eyebrow}>canvas ai vision analysis</span>
+                        <h3 className={`${theme.headingModal} mt-1`}>aesthetic profile extracted</h3>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="px-3 py-1 bg-black/5 text-black font-['Manrope'] text-[10px] font-medium uppercase tracking-[0.15em] rounded-full">{aiTags.length} tags extracted</span>
-                      <span className="px-3 py-1 bg-[#B66CF2]/10 text-[#B66CF2] font-['Manrope'] text-[10px] font-medium uppercase tracking-[0.15em] rounded-full">verified secure</span>
+                      <span className={theme.badge}>{aiTags.length} tags extracted</span>
+                      <span className={theme.badge}>verified secure</span>
                     </div>
                   </div>
                   <div className="space-y-4">
-                    <p className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">detected aesthetic tags from inspiration:</p>
+                    <p className={theme.formLabel}>detected aesthetic tags from inspiration:</p>
                     <div className="flex flex-wrap gap-2">
                       {(aiTags.length > 0 ? aiTags : ['soft glam', 'editorial', 'bridal']).map((tag, i) => (
-                        <span key={i} className="px-4 py-2 bg-white border border-black/10 font-['Manrope'] text-xs font-light lowercase text-black/70 rounded-full">#{tag}</span>
+                        <span key={i} className={`py-2 bg-white border ${theme.borderBase} ${theme.cardRadius} ${theme.formLabel} !text-black`}>#{tag}</span>
                       ))}
                     </div>
                   </div>
@@ -651,30 +657,30 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start mt-10">
-              <ScrollZoomIn className="lg:col-span-1 bg-white/40 backdrop-blur-md border border-black/10 p-6 space-y-8 sticky top-8">
+              <ScrollZoomIn className={`lg:col-span-1 bg-white/40 backdrop-blur-md border ${theme.borderBase} p-6 space-y-8 sticky top-8 ${theme.cardRadius}`}>
                 <div>
-                  <label className="block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/40 mb-3">sort by</label>
-                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full bg-transparent border-b border-black/10 p-3 font-['Manrope'] text-sm lowercase text-black outline-none cursor-pointer">
+                  <label className={`block mb-3 ${theme.formLabel}`}>sort by</label>
+                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={`w-full bg-transparent border-b ${theme.borderBase} p-3 ${theme.inputText} cursor-pointer`}>
                     <option value="Best match">best match</option><option value="Highest rated">highest rated</option><option value="Price: low to high">price: low to high</option><option value="Price: high to low">price: high to low</option>
                   </select>
                 </div>
                 <div>
                   <div className="flex justify-between items-center mb-3">
-                    <label className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">max budget</label>
-                    <span className="font-['Manrope'] text-xs font-medium text-[#BA965B]">₹{maxBudget.toLocaleString('en-IN')}</span>
+                    <label className={theme.formLabel}>max budget</label>
+                    <span className={`${theme.formLabel} !text-[#BA965B]`}>₹{maxBudget.toLocaleString('en-IN')}</span>
                   </div>
                   <input type="range" min="5000" max="65000" step="1000" value={maxBudget} onChange={(e) => setMaxBudget(Number(e.target.value))} className="w-full accent-[#BA965B] cursor-pointer" />
-                  <p className="font-['Manrope'] text-[11px] text-black/40 mt-1 lowercase">up to ₹{maxBudget.toLocaleString('en-IN')}</p>
+                  <p className={`${theme.formLabel} mt-1`}>up to ₹{maxBudget.toLocaleString('en-IN')}</p>
                 </div>
                 <div className="mb-10">
-                  <h3 className="mb-5 font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">city</h3>
+                  <h3 className={`mb-5 ${theme.formLabel}`}>city</h3>
                   <div className="space-y-4">
                     {Object.keys(cityFilters).map((city) => (
                       <label key={city} className="flex cursor-pointer items-center group">
                         <div onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))} className={`mr-4 flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border ${cityFilters[city] ? 'border-[#BA965B] bg-[#BA965B]' : 'border-black/20 group-hover:border-[#BA965B]'} transition-colors`}>
                           {cityFilters[city] && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                         </div>
-                        <span onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))} className={`font-['Manrope'] text-xs lowercase ${cityFilters[city] ? 'text-black font-medium' : 'text-black/50'} transition-colors`}>{city.toLowerCase()}</span>
+                        <span onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))} className={`${theme.formLabel} ${cityFilters[city] ? '!text-black' : '!text-black/50'} transition-colors`}>{city.toLowerCase()}</span>
                       </label>
                     ))}
                   </div>
@@ -683,7 +689,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
 
               <div className="lg:col-span-3">
                 <ScrollZoomIn>
-                  <p className="font-['Manrope'] text-xs font-light lowercase text-black/50 mb-6">showing {uniqueArtists.length} of {sourceArtists.length} artists</p>
+                  <p className={`${theme.formLabel} mb-6`}>showing {uniqueArtists.length} of {sourceArtists.length} artists</p>
                 </ScrollZoomIn>
 
                 <div>
@@ -699,17 +705,17 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
                       {visibleCount < uniqueArtists.length && (
                         <ScrollZoomIn>
                           <div className="mt-16 flex justify-center">
-                            <button type="button" onClick={() => setVisibleCount(prev => prev + 9)} className="bg-[#BA965B] text-white font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] rounded-full px-8 py-4 hover:bg-black transition-colors shadow-sm">load more artists</button>
+                            <button type="button" onClick={() => setVisibleCount(prev => prev + 9)} className={theme.btnOutline}>load more artists</button>
                           </div>
                         </ScrollZoomIn>
                       )}
                     </>
                   ) : (
                     <ScrollZoomIn>
-                      <div className="flex min-h-[300px] flex-col items-center justify-center border border-black/10 bg-white px-6 text-center shadow-sm">
-                        <p className="font-['Fraunces'] font-normal text-3xl text-black lowercase tracking-tight">no artists found</p>
-                        <p className="mt-4 max-w-sm font-['Manrope'] text-sm font-light text-black/50 lowercase">adjust your budget or city filters</p>
-                        <button type="button" onClick={() => { setMaxBudget(65000); setCityFilters({ 'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true, 'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true, 'Begumpet': true, 'Secunderabad': true }); setVisibleCount(9); }} className="mt-8 bg-[#BA965B] text-white font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] rounded-full px-8 py-4 hover:bg-black transition-colors">reset filters</button>
+                      <div className={`flex min-h-[300px] flex-col items-center justify-center border ${theme.borderBase} bg-white px-6 text-center shadow-sm ${theme.cardRadius}`}>
+                        <p className={theme.headingModal}>no artists found</p>
+                        <p className={`mt-4 max-w-sm ${theme.bodyText}`}>adjust your budget or city filters</p>
+                        <button type="button" onClick={() => { setMaxBudget(65000); setCityFilters({ 'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true, 'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true, 'Begumpet': true, 'Secunderabad': true }); setVisibleCount(9); }} className={`mt-8 ${theme.btnPrimary}`}>reset filters</button>
                       </div>
                     </ScrollZoomIn>
                   )}
@@ -723,39 +729,39 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-end mb-24">
               <ScrollZoomIn className="lg:col-span-8">
-                <p className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40 mb-8">the canvas standard</p>
-                <h2 className="font-['Fraunces'] font-light text-5xl sm:text-7xl md:text-8xl text-black tracking-tight leading-[0.95]">beauty is a <Premium>point of view.</Premium></h2>
+                <p className={`${theme.eyebrow} mb-8`}>the canvas standard</p>
+                <h2 className={theme.headingHero}>beauty is a <span className={theme.premiumTag}>point of view.</span></h2>
               </ScrollZoomIn>
               <ScrollZoomIn className="lg:col-span-4 pb-3" delay={150}>
-                <p className="font-['Manrope'] text-[15px] font-light leading-[1.9] text-black/55">canvas is a private directory, not an open marketplace. every artist on this platform has been rigorously vetted for their technical execution, kit hygiene, and distinct aesthetic vision.</p>
+                <p className={theme.bodyText}>canvas is a private directory, not an open marketplace. every artist on this platform has been rigorously vetted for their technical execution, kit hygiene, and distinct aesthetic vision.</p>
               </ScrollZoomIn>
             </div>
-            <div className="grid gap-12 border-t border-black/15 pt-12 sm:grid-cols-3">
+            <div className={`grid gap-12 border-t ${theme.borderBase} pt-12 sm:grid-cols-3`}>
               <ScrollZoomIn delay={0}>
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
-                    <h3 className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">curated talent</h3>
-                    <p className="font-['Fraunces'] text-4xl font-light text-black/20 transition-colors group-hover:text-[#BA965B]">01</p>
+                    <h3 className={theme.eyebrow}>curated talent</h3>
+                    <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#BA965B]`}>01</p>
                   </div>
-                  <p className="font-['Manrope'] text-[15px] font-light leading-[1.9] text-black/55"><strong className="text-black font-medium">distinct hand, not a uniform finish.</strong> we reject cookie-cutter application, selecting artists exclusively for their unique ability to elevate natural features.</p>
+                  <p className={theme.bodyText}><strong className="text-black font-bold">distinct hand, not a uniform finish.</strong> we reject cookie-cutter application, selecting artists exclusively for their unique ability to elevate natural features.</p>
                 </div>
               </ScrollZoomIn>
               <ScrollZoomIn delay={120}>
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
-                    <h3 className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">the experience</h3>
-                    <p className="font-['Fraunces'] text-4xl font-light text-black/20 transition-colors group-hover:text-[#BA965B]">02</p>
+                    <h3 className={theme.eyebrow}>the experience</h3>
+                    <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#BA965B]`}>02</p>
                   </div>
-                  <p className="font-['Manrope'] text-[15px] font-light leading-[1.9] text-black/55"><strong className="text-black font-medium">care in the details and generosity.</strong> from high-end skin prep to impeccable kit hygiene, our standard for client comfort is non-negotiable.</p>
+                  <p className={theme.bodyText}><strong className="text-black font-bold">care in the details and generosity.</strong> from high-end skin prep to impeccable kit hygiene, our standard for client comfort is non-negotiable.</p>
                 </div>
               </ScrollZoomIn>
               <ScrollZoomIn delay={240}>
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
-                    <h3 className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">private network</h3>
-                    <p className="font-['Fraunces'] text-4xl font-light text-black/20 transition-colors group-hover:text-[#BA965B]">03</p>
+                    <h3 className={theme.eyebrow}>private network</h3>
+                    <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#BA965B]`}>03</p>
                   </div>
-                  <p className="font-['Manrope'] text-[15px] font-light leading-[1.9] text-black/55"><strong className="text-black font-medium">the list is small so it means something.</strong> we prioritize strict quality over volume, eliminating the guesswork of endless scrolling.</p>
+                  <p className={theme.bodyText}><strong className="text-black font-bold">the list is small so it means something.</strong> we prioritize strict quality over volume, eliminating the guesswork of endless scrolling.</p>
                 </div>
               </ScrollZoomIn>
             </div>
@@ -765,37 +771,37 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
         <section className="testimonials py-24 bg-[#FDF3F1]">
           <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
             <ScrollZoom>
-              <div className="flex items-center justify-center gap-3 font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40 mb-3"><span className="h-[1px] w-12 bg-black/10"></span>love from our users<span className="h-[1px] w-12 bg-black/10"></span></div>
-              <h2 className="font-['Fraunces'] italic font-normal text-3xl sm:text-4xl text-center text-[#BA965B] mb-16">what people are saying</h2>
+              <div className={`flex items-center justify-center gap-3 ${theme.eyebrow} mb-3`}><span className="h-[1px] w-12 bg-black/10"></span>love from our users<span className="h-[1px] w-12 bg-black/10"></span></div>
+              <h2 className={`${theme.headingSection} text-center mb-16`}>what people are saying</h2>
             </ScrollZoom>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <ScrollZoomIn delay={0}>
-                <div className="bg-white/60 p-8 border border-black/5 rounded-2xl flex flex-col justify-between">
+                <div className={`bg-white/60 p-8 border ${theme.borderBase} ${theme.cardRadius} flex flex-col justify-between`}>
                   <div className="text-[#BA965B] mb-4">★★★★★</div>
-                  <p className="font-['Fraunces'] italic font-light text-lg text-black/70 leading-relaxed mb-6">&quot;I uploaded a picture from Pinterest and Canvas found me an artist who had done almost the exact same look. Honestly shocked at how accurate the match was.&quot;</p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-black/5">
+                  <p className={`${theme.quote} mb-6`}>&quot;I uploaded a picture from Pinterest and Canvas found me an artist who had done almost the exact same look. Honestly shocked at how accurate the match was.&quot;</p>
+                  <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#E8D5F2] text-[#2D1B4E] flex items-center justify-center font-bold text-xs">SR</div>
-                    <div><div className="font-['Manrope'] text-xs font-semibold lowercase">sneha r.</div><div className="font-['Manrope'] text-[10px] text-black/40 lowercase">bridal • jubilee hills</div></div>
+                    <div><div className={theme.formLabel}>sneha r.</div><div className={`${theme.formLabel} !text-black/40`}>bridal • jubilee hills</div></div>
                   </div>
                 </div>
               </ScrollZoomIn>
               <ScrollZoomIn delay={120}>
-                <div className="bg-white/60 p-8 border border-black/5 rounded-2xl flex flex-col justify-between">
+                <div className={`bg-white/60 p-8 border ${theme.borderBase} ${theme.cardRadius} flex flex-col justify-between`}>
                   <div className="text-[#BA965B] mb-4">★★★★★</div>
-                  <p className="font-['Fraunces'] italic font-light text-lg text-black/70 leading-relaxed mb-6">&quot;As a model, finding artists who understand editorial work is hard. Canvas filtered out the noise immediately. The match score is genuinely useful.&quot;</p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-black/5">
+                  <p className={`${theme.quote} mb-6`}>&quot;As a model, finding artists who understand editorial work is hard. Canvas filtered out the noise immediately. The match score is genuinely useful.&quot;</p>
+                  <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#1A0B2E] text-[#C4A35A] flex items-center justify-center font-bold text-xs">KM</div>
-                    <div><div className="font-['Manrope'] text-xs font-semibold lowercase">kavya m.</div><div className="font-['Manrope'] text-[10px] text-black/40 lowercase">editorial • hitec city</div></div>
+                    <div><div className={theme.formLabel}>kavya m.</div><div className={`${theme.formLabel} !text-black/40`}>editorial • hitec city</div></div>
                   </div>
                 </div>
               </ScrollZoomIn>
               <ScrollZoomIn delay={240}>
-                <div className="bg-white/60 p-8 border border-black/5 rounded-2xl flex flex-col justify-between">
+                <div className={`bg-white/60 p-8 border ${theme.borderBase} ${theme.cardRadius} flex flex-col justify-between`}>
                   <div className="text-[#BA965B] mb-4">★★★★★</div>
-                  <p className="font-['Fraunces'] italic font-light text-lg text-black/70 leading-relaxed mb-6">&quot;Described the look in two lines, got artists who could do it sorted by price. Booked in ten minutes. This is exactly how it should work.&quot;</p>
-                  <div className="flex items-center gap-3 pt-4 border-t border-black/5">
+                  <p className={`${theme.quote} mb-6`}>&quot;Described the look in two lines, got artists who could do it sorted by price. Booked in ten minutes. This is exactly how it should work.&quot;</p>
+                  <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#F5E6C8] text-[#2D1B4E] flex items-center justify-center font-bold text-xs">TP</div>
-                    <div><div className="font-['Manrope'] text-xs font-semibold lowercase">tara p.</div><div className="font-['Manrope'] text-[10px] text-black/40 lowercase">glam • gachibowli</div></div>
+                    <div><div className={theme.formLabel}>tara p.</div><div className={`${theme.formLabel} !text-black/40`}>glam • gachibowli</div></div>
                   </div>
                 </div>
               </ScrollZoomIn>
@@ -806,19 +812,19 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
         <ScrollZoomIn>
           <section className="bg-[#150A26] py-24 sm:py-32 px-5 border-t border-white/10 text-center">
             <div className="max-w-[800px] mx-auto">
-              <div className="flex items-center justify-center gap-3 font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-[#B66CF2] mb-3"><span className="h-[1px] w-12 bg-white/20"></span>for makeup artists<span className="h-[1px] w-12 bg-white/20"></span></div>
-              <h2 className="font-['Fraunces'] font-light text-4xl sm:text-5xl md:text-6xl text-white mb-8 lowercase tracking-tight">are you a makeup artist?</h2>
-              <p className="font-['Manrope'] text-[15px] font-light text-white/70 leading-[1.9] mb-12 max-w-[680px] mx-auto">it is completely free to list your verified portfolio on canvas. when our ai matches you with a bride, you will receive a blurred notification. to unlock the client&apos;s whatsapp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. you can also upgrade to canvas pro for a flat monthly subscription to unlock unlimited leads and priority placement in our ai search results.</p>
+              <div className={`flex items-center justify-center gap-3 ${theme.eyebrow} mb-3`}><span className="h-[1px] w-12 bg-white/20"></span>for makeup artists<span className="h-[1px] w-12 bg-white/20"></span></div>
+              <h2 className={`${theme.headingHero} !text-white mb-8`}>are you a makeup artist?</h2>
+              <p className={`${theme.bodyText} !text-white/70 mb-12 max-w-[680px] mx-auto`}>it is completely free to list your verified portfolio on canvas. when our ai matches you with a bride, you will receive a blurred notification. to unlock the client&apos;s whatsapp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. you can also upgrade to canvas pro for a flat monthly subscription to unlock unlimited leads and priority placement in our ai search results.</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button 
                 onClick={() => window.alert('Canvas Pro features are launching soon! Create a free account today to get early access.')} 
-                className="bg-transparent text-[#BA965B] border border-[#BA965B] px-8 py-4 rounded-full font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] hover:bg-[#BA965B] hover:text-white transition-colors"
+                className={`${theme.btnOutline} !border-[#BA965B] !text-[#BA965B] hover:!bg-[#BA965B] hover:!text-white`}
               >
                 explore pro features
               </button>
               <button 
                 onClick={() => setAuthOpen(true)} 
-                className="bg-[#BA965B] text-white border border-[#BA965B] px-8 py-4 rounded-full font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] hover:bg-black transition-colors"
+                className={theme.btnPrimary}
               >
                 apply to join canvas
               </button>
@@ -832,35 +838,35 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
             <ScrollZoomIn>
               <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
                 <div>
-                  <p className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-[#B66CF2] mb-3">from the journal</p>
-                  <h2 className="font-['Fraunces'] font-light text-5xl sm:text-7xl text-white lowercase">from the <Premium>journal.</Premium></h2>
+                  <p className={`${theme.eyebrow} mb-3`}>from the journal</p>
+                  <h2 className={`${theme.headingHero} !text-white`}>from the <span className={theme.premiumTag}>journal.</span></h2>
                 </div>
-                <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className="font-['Manrope'] text-xs font-medium lowercase text-white/60 hover:text-[#B66CF2] transition-colors border-b border-white/30 pb-1">read all stories</button>
+                <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className={`${theme.secondaryLink} border-b border-white/30 pb-1 !text-white`}>read all stories</button>
               </div>
             </ScrollZoomIn>
             <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
               <ScrollZoom>
-                <div className="group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors rounded-2xl">
+                <div className={`group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
                   <ScrollZoomIn delay={150}>
-                    <span className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-[#B66CF2]">perspective · 06 min read</span>
+                    <span className={theme.eyebrow}>perspective · 06 min read</span>
                     <div>
-                      <h3 className="font-['Fraunces'] font-normal text-3xl md:text-4xl lowercase tracking-tight mb-4 text-white">on keeping your own face.</h3>
-                      <p className="font-['Manrope'] text-xs font-light lowercase tracking-wider text-white/60">a conversation about recognition and restraint.</p>
+                      <h3 className={`${theme.headingModal} !text-white mt-4`}>on keeping your own face.</h3>
+                      <p className={`${theme.bodyText} !text-white/60 mt-2`}>a conversation about recognition and restraint.</p>
                     </div>
                   </ScrollZoomIn>
                 </div>
               </ScrollZoom>
               <div className="grid gap-6">
                 <ScrollZoomIn delay={100}>
-                  <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors rounded-2xl">
-                    <span className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-[#B66CF2]">ritual · 03 min read</span>
-                    <h3 className="font-['Fraunces'] font-normal text-2xl lowercase tracking-tight text-white mt-4">a small ritual before the chair.</h3>
+                  <div className={`group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
+                    <span className={theme.eyebrow}>ritual · 03 min read</span>
+                    <h3 className={`${theme.headingModal} !text-white mt-4`}>a small ritual before the chair.</h3>
                   </div>
                 </ScrollZoomIn>
                 <ScrollZoomIn delay={200}>
-                  <div className="group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors rounded-2xl">
-                    <span className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-[#B66CF2]">industry · 05 min read</span>
-                    <h3 className="font-['Fraunces'] font-normal text-2xl lowercase tracking-tight text-white mt-4">the science of skin prep.</h3>
+                  <div className={`group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
+                    <span className={theme.eyebrow}>industry · 05 min read</span>
+                    <h3 className={`${theme.headingModal} !text-white mt-4`}>the science of skin prep.</h3>
                   </div>
                 </ScrollZoomIn>
               </div>
@@ -869,23 +875,23 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
         </section>
 
         <ScrollZoomIn>
-          <footer className="bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10 font-['Manrope']">
+          <footer className={`bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10 ${theme.fontBase}`}>
             <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
               <div className="lg:col-span-1">
-                <h3 className="text-xs font-semibold lowercase tracking-wider text-white mb-4">down for more? we got you!</h3>
-                <p className="text-[12px] font-light lowercase tracking-wider text-white/50 mb-6 leading-relaxed">the latest artists, drops, in-store event info + more—straight to your inbox.</p>
+                <h3 className={`${theme.formLabel} !text-white mb-4`}>down for more? we got you!</h3>
+                <p className={`${theme.bodyText} !text-white/50 mb-6 leading-relaxed`}>the latest artists, drops, in-store event info + more—straight to your inbox.</p>
                 <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
                   <div className="relative border-b border-white/20 pb-2">
-                    <input type="email" placeholder="email address" className="w-full bg-transparent text-xs lowercase tracking-wider text-white placeholder-white/30 outline-none" />
+                    <input type="email" placeholder="email address" className={`w-full bg-transparent ${theme.inputText} !border-none !text-white`} />
                   </div>
                   <div className="relative border-b border-white/20 pb-2 mt-4">
-                    <input type="tel" placeholder="phone number" className="w-full bg-transparent text-xs lowercase tracking-wider text-white placeholder-white/30 outline-none" />
+                    <input type="tel" placeholder="phone number" className={`w-full bg-transparent ${theme.inputText} !border-none !text-white`} />
                   </div>
                 </form>
               </div>
               <div className="lg:col-span-1 lg:pl-10">
-                <h3 className="text-xs font-semibold lowercase tracking-wider text-white mb-6">client service</h3>
-                <ul className="space-y-3 text-[11px] font-light lowercase tracking-wider text-white/50">
+                <h3 className={`${theme.formLabel} !text-white mb-6`}>client service</h3>
+                <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
                   <li><button className="hover:text-white transition-colors text-left">operating hours are from<br/>9am-9pm est mon-fri</button></li>
                   <li className="pt-2"><button className="hover:text-[#B66CF2] transition-colors text-white">thecanvasbeauty@gmail.com</button></li>
                   <li><button className="hover:text-white transition-colors">1-800-canvas</button></li>
@@ -894,8 +900,8 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
                 </ul>
               </div>
               <div className="lg:col-span-1">
-                <h3 className="text-xs font-semibold lowercase tracking-wider text-white mb-6">about</h3>
-                <ul className="space-y-3 text-[11px] font-light lowercase tracking-wider text-white/50">
+                <h3 className={`${theme.formLabel} !text-white mb-6`}>about</h3>
+                <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
                   <li><button className="hover:text-white transition-colors">about the collective</button></li>
                   <li><button className="hover:text-white transition-colors">the standard</button></li>
                   <li><button className="hover:text-white transition-colors">careers</button></li>
@@ -903,7 +909,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
               </div>
               <div className="lg:col-span-1 hidden lg:block">
                 <ScrollZoom>
-                  <div className="h-full w-full bg-[#1A1A1A] border border-white/10 overflow-hidden rounded-xl">
+                  <div className={`h-full w-full bg-[#1A1A1A] border border-white/10 overflow-hidden ${theme.cardRadius}`}>
                     <img src="https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80" alt="Canvas" onError={handleImgError} className="h-full w-full object-cover opacity-80 hover:opacity-100 transition-all duration-700" />
                   </div>
                 </ScrollZoom>
@@ -917,37 +923,37 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
       <ChatDrawer open={isChatOpen} onClose={() => setIsChatOpen(false)} />
 
       {briefOpen && (
-        <div className="fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm font-['Manrope']" role="presentation" onClick={() => setBriefOpen(false)}>
-          <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl" role="dialog" onClick={(e) => e.stopPropagation()}>
+        <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setBriefOpen(false)}>
+          <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between border-b border-black/10 pb-8 mb-8">
-              <div><p className="text-[11px] font-medium lowercase tracking-[0.25em] text-[#BA965B] mb-2">{sent ? 'request secured' : 'private concierge'}</p><h2 className="font-['Fraunces'] font-normal text-3xl lowercase tracking-tight text-black">{sent ? 'appointment locked.' : 'request a booking.'}</h2></div>
+              <div><p className={`${theme.eyebrow} mb-2`}>{sent ? 'request secured' : 'private concierge'}</p><h2 className={theme.headingModal}>{sent ? 'appointment locked.' : 'request a booking.'}</h2></div>
               <button type="button" onClick={() => setBriefOpen(false)} className="text-black/40 hover:text-black transition-colors"><X size={24} strokeWidth={1.5} /></button>
             </div>
             {sent ? (
               <div className="flex-1 flex flex-col justify-center mb-20 text-center">
                 <div className="w-16 h-16 rounded-full bg-[#BA965B]/10 text-[#BA965B] flex items-center justify-center mx-auto mb-6"><Sparkles size={32} /></div>
-                <h3 className="font-['Fraunces'] font-normal text-2xl lowercase mb-4">the artist has been notified.</h3>
-                <p className="font-['Manrope'] text-sm font-light text-black/60 leading-relaxed mb-10 max-w-md mx-auto">your brief is securely in the artist&apos;s queue. you will receive a notification in your canvas dashboard once they review the logistics and confirm the slot.</p>
-                <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className="w-full bg-[#BA965B] text-white rounded-full py-4 font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] hover:bg-black transition-all">return to directory</button>
+                <h3 className={`${theme.headingModal} mb-4`}>the artist has been notified.</h3>
+                <p className={`${theme.bodyText} mb-10 max-w-md mx-auto`}>your brief is securely in the artist&apos;s queue. you will receive a notification in your canvas dashboard once they review the logistics and confirm the slot.</p>
+                <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className={`w-full ${theme.btnPrimary}`}>return to directory</button>
               </div>
             ) : (
               <div className="flex-1 flex flex-col">
                 {selectedArtist && (
-                  <div className="flex items-center gap-4 bg-black/5 border border-black/10 p-4 mb-10 rounded-2xl">
+                  <div className={`flex items-center gap-4 bg-black/5 border border-black/10 p-4 mb-10 ${theme.cardRadius}`}>
                     <img src={selectedArtist.image} alt={selectedArtist.name} onError={handleImgError} className="w-12 h-12 object-cover rounded-full border border-black/10" />
-                    <div><p className="text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">requesting availability for</p><p className="font-['Fraunces'] font-normal text-base text-black mt-0.5">{selectedArtist.name}</p></div>
+                    <div><p className={theme.formLabel}>requesting availability for</p><p className={`${theme.headingModal} !text-base mt-0.5`}>{selectedArtist.name}</p></div>
                   </div>
                 )}
                 <form className="space-y-8 flex-1 flex flex-col" onSubmit={handleBriefSubmit}>
                   <div className="grid grid-cols-2 gap-8">
-                    <label className="block"><span className="text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">date required</span><input required type="date" name="date" className="mt-3 w-full border-b border-black/10 bg-transparent py-3 text-sm font-light text-black outline-none focus:border-[#B66CF2] transition-colors" /></label>
-                    <label className="block"><span className="text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">preferred slot</span><select required name="slot" defaultValue="" className="mt-3 w-full border-b border-black/10 bg-transparent py-3 text-sm font-light text-black outline-none focus:border-[#B66CF2] transition-colors [&>option]:bg-white"><option value="" disabled>select phase...</option><option value="Morning (Before 12 PM)">slot 1: morning prep (before 12pm)</option><option value="Afternoon (12 PM - 4 PM)">slot 2: afternoon glam (12pm-4pm)</option><option value="Evening (After 4 PM)">slot 3: evening glam (after 4pm)</option></select></label>
+                    <label className="block"><span className={theme.formLabel}>date required</span><input required type="date" name="date" className={`mt-3 w-full ${theme.inputText}`} /></label>
+                    <label className="block"><span className={theme.formLabel}>preferred slot</span><select required name="slot" defaultValue="" className={`mt-3 w-full ${theme.inputText} [&>option]:bg-white`}><option value="" disabled>select phase...</option><option value="Morning (Before 12 PM)">slot 1: morning prep (before 12pm)</option><option value="Afternoon (12 PM - 4 PM)">slot 2: afternoon glam (12pm-4pm)</option><option value="Evening (After 4 PM)">slot 3: evening glam (after 4pm)</option></select></label>
                   </div>
-                  <label className="block"><span className="text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">exact venue / area</span><input required name="location" placeholder="e.g. taj falaknuma palace" className="mt-3 w-full border-b border-black/10 bg-transparent py-3 text-sm font-light text-black placeholder-black/25 outline-none focus:border-[#B66CF2] transition-colors" /></label>
-                  <label className="block flex-1"><span className="text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">the vision (look details)</span><textarea required name="message" placeholder="describe the aesthetic, outfit colors, or specific requirements..." rows={4} className="mt-3 w-full resize-none border-b border-black/10 bg-transparent py-3 text-sm font-light text-black placeholder-black/25 outline-none focus:border-[#B66CF2] transition-colors" /></label>
+                  <label className="block"><span className={theme.formLabel}>exact venue / area</span><input required name="location" placeholder="e.g. taj falaknuma palace" className={`mt-3 w-full ${theme.inputText}`} /></label>
+                  <label className="block flex-1"><span className={theme.formLabel}>the vision (look details)</span><textarea required name="message" placeholder="describe the aesthetic, outfit colors, or specific requirements..." rows={4} className={`mt-3 w-full resize-none ${theme.inputText}`} /></label>
                   <div className="pt-6 mt-auto">
-                    <button type="submit" disabled={isSubmitting} className="w-full bg-[#BA965B] text-white rounded-full py-4 font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] hover:bg-black transition-colors disabled:opacity-50">{isSubmitting ? 'processing...' : 'submit concierge brief'}</button>
-                    <p className="text-center text-[11px] font-light text-black/40 lowercase mt-4">your brief is securely transmitted to the artist.</p>
+                    <button type="submit" disabled={isSubmitting} className={`w-full ${theme.btnPrimary} disabled:opacity-50`}>{isSubmitting ? 'processing...' : 'submit concierge brief'}</button>
+                    <p className={`text-center ${theme.formLabel} mt-4`}>your brief is securely transmitted to the artist.</p>
                   </div>
                 </form>
               </div>
@@ -972,10 +978,10 @@ function StyleSwitcher() {
   };
 
   const options = [
-    { id: '1', label: 'opt 1' },
-    { id: '2', label: 'opt 2' },
-    { id: '3', label: 'opt 3' },
-    { id: '4', label: 'opt 4' },
+    { id: '1', label: 'opt 1 (vogue)' },
+    { id: '2', label: 'opt 2 (aesop)' },
+    { id: '3', label: 'opt 3 (tom ford)' },
+    { id: '4', label: 'opt 4 (old-world)' },
   ];
 
   return (
@@ -1005,7 +1011,7 @@ function Router({ session, styleVersion }: { session: Session | null; styleVersi
     <ErrorBoundary resetKey={location}>
       <Switch>
         <Route path="/">
-          <Home session={session} setAuthOpen={setAuthOpen} />
+          <Home session={session} setAuthOpen={setAuthOpen} styleVersion={styleVersion} />
         </Route>
         <Route path="/dashboard">
           {() => <Dashboard session={session} />}
@@ -1035,6 +1041,7 @@ export default function App() {
   // Read style query param (?style=1, ?style=2, ?style=3, or ?style=4)
   const queryParams = new URLSearchParams(window.location.search);
   const styleVersion = queryParams.get('style') || '2';
+  const theme = getTheme(styleVersion);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -1084,7 +1091,7 @@ export default function App() {
         await supabase.from('artist_profiles').upsert({ id: session.user.id });
       }
       
-      window.location.href = '/dashboard';
+      window.location.href = `/dashboard?style=${styleVersion}`;
     } catch (err: any) {
       window.alert(`Failed to switch role: ${err.message}`);
       setUpdatingRole(false);
@@ -1093,8 +1100,8 @@ export default function App() {
 
   if (loadingSession) {
     return (
-      <div className="h-screen w-full bg-[#FDF3F1] flex items-center justify-center fixed inset-0 z-[9999] font-['Manrope']">
-        <p className="text-[11px] font-medium lowercase tracking-[0.25em] text-[#BA965B] animate-pulse">authenticating...</p>
+      <div className={`h-screen w-full bg-[#FDF3F1] flex items-center justify-center fixed inset-0 z-[9999] ${theme.fontBase}`}>
+        <p className={`${theme.eyebrow} animate-pulse`}>authenticating...</p>
       </div>
     );
   }
@@ -1104,7 +1111,7 @@ export default function App() {
 
   if (needsRole) {
     return (
-      <div className="h-screen w-full flex flex-col md:flex-row overflow-hidden bg-[#FDF3F1] fixed inset-0 z-[9999] font-['Manrope']">
+      <div className={`h-screen w-full flex flex-col md:flex-row overflow-hidden bg-[#FDF3F1] fixed inset-0 z-[9999] ${theme.fontBase}`}>
         <motion.div 
           initial={{ opacity: 0, x: -20 }} 
           animate={{ opacity: 1, x: 0 }} 
@@ -1116,11 +1123,11 @@ export default function App() {
             <img src="https://images.unsplash.com/photo-1516975080661-46bfa2c281c7?auto=format&fit=crop&w=1200&q=80" alt="Client" className="w-full h-full object-cover opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" />
           </div>
           <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
-            <p className="text-[11px] font-medium lowercase tracking-[0.25em] text-[#BA965B] mb-6">for clients</p>
-            <h2 className="font-['Fraunces'] font-light text-4xl md:text-6xl text-black tracking-tight lowercase mb-6">
+            <p className={`${theme.eyebrow} mb-6`}>for clients</p>
+            <h2 className={`${theme.headingHero} mb-6`}>
               i am looking<br />for an artist
             </h2>
-            <div className="inline-block bg-[#BA965B] text-white px-8 py-4 font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] rounded-full group-hover:bg-black transition-colors shadow-sm">
+            <div className={theme.btnPrimary}>
               {updatingRole ? 'setting up...' : 'join as client'}
             </div>
           </div>
@@ -1137,11 +1144,11 @@ export default function App() {
             <img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" />
           </div>
           <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
-            <p className="text-[11px] font-medium lowercase tracking-[0.25em] text-[#BA965B] mb-6">for professionals</p>
-            <h2 className="font-['Fraunces'] font-light text-4xl md:text-6xl text-white tracking-tight lowercase mb-6">
+            <p className={`${theme.eyebrow} mb-6`}>for professionals</p>
+            <h2 className={`${theme.headingHero} !text-white mb-6`}>
               i am a<br />makeup artist
             </h2>
-            <div className="inline-block bg-[#BA965B] text-white px-8 py-4 font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] rounded-full group-hover:bg-white group-hover:text-black transition-colors shadow-sm">
+            <div className={theme.btnPrimary}>
               {updatingRole ? 'setting up...' : 'apply to roster'}
             </div>
           </div>
