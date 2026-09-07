@@ -586,27 +586,37 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       </section>
 
       <main className="relative z-20">
-        <ScrollZoomIn className="stats-bar">
-          <div className="stat">
-            <ScrollZoom><div className={theme.stat}>{sourceArtists.length}</div></ScrollZoom>
-            <ScrollZoomIn delay={100}><div className={theme.eyebrow}>verified artists</div></ScrollZoomIn>
-          </div>
-          <div className="stat-divider"></div>
-          <div className="stat">
-            <ScrollZoom><div className={theme.stat}>₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div></ScrollZoom>
-            <ScrollZoomIn delay={100}><div className={theme.eyebrow}>avg booking value</div></ScrollZoomIn>
-          </div>
-          <div className="stat-divider"></div>
-          <div className="stat">
-            <ScrollZoom><div className={theme.stat}>{platformStats.totalBookings.toLocaleString('en-US')}+</div></ScrollZoom>
-            <ScrollZoomIn delay={100}><div className={theme.eyebrow}>successful bookings</div></ScrollZoomIn>
-          </div>
-          <div className="stat-divider"></div>
-          <div className="stat">
-            <ScrollZoom><div className={theme.stat}>{platformStats.avgRating}★</div></ScrollZoom>
-            <ScrollZoomIn delay={100}><div className={theme.eyebrow}>platform avg rating</div></ScrollZoomIn>
-          </div>
-        </ScrollZoomIn>
+  <ScrollZoomIn className="stats-bar">
+    <div className="stat">
+      <ScrollZoom><div className={theme.stat}>{sourceArtists.length}</div></ScrollZoom>
+      <ScrollZoomIn delay={100}>
+        <div className={`${theme.eyebrow} !text-black/80`}>verified artists</div>
+      </ScrollZoomIn>
+    </div>
+    <div className="stat-divider"></div>
+    <div className="stat">
+      <ScrollZoom><div className={theme.stat}>₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div></ScrollZoom>
+      <ScrollZoomIn delay={100}>
+        <div className={`${theme.eyebrow} !text-black/80`}>avg booking value</div>
+      </ScrollZoomIn>
+    </div>
+    <div className="stat-divider"></div>
+    <div className="stat">
+      <ScrollZoom><div className={theme.stat}>{platformStats.totalBookings.toLocaleString('en-US')}+</div></ScrollZoom>
+      <ScrollZoomIn delay={100}>
+        <div className={`${theme.eyebrow} !text-black/80`}>successful bookings</div>
+      </ScrollZoomIn>
+    </div>
+    <div className="stat-divider"></div>
+    <div className="stat">
+      <ScrollZoom><div className={theme.stat}>{platformStats.avgRating}★</div></ScrollZoom>
+      <ScrollZoomIn delay={100}>
+        <div className={`${theme.eyebrow} !text-black/80`}>platform avg rating</div>
+      </ScrollZoomIn>
+    </div>
+  </ScrollZoomIn>
+
+  {/* ... rest of your code (section id="discover") ... */}
 
         <section id="discover" className="bg-[#FDF3F1] text-black py-24 sm:py-32">
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
