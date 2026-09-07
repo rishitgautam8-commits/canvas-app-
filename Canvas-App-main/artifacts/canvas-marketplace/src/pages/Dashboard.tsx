@@ -232,48 +232,48 @@ export default function Dashboard({ session }: DashboardProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center">
-        <p className="font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2] animate-pulse">Loading Studio...</p>
+      <div className="min-h-screen bg-[#FDF3F1] flex items-center justify-center font-['Manrope']">
+        <p className="text-[11px] font-medium lowercase tracking-[0.25em] text-[#BA965B] animate-pulse">loading studio...</p>
       </div>
     );
   }
 
   const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || user?.user_metadata?.name?.split(' ')[0] || 'User';
-  const displayFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+  const displayFirstName = firstName.charAt(0).toLowerCase() + firstName.slice(1);
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] text-black pb-24 font-['Montserrat']">
-      <header className="border-b border-black/10 bg-white px-6 py-6 sm:px-12 sticky top-0 z-50">
+    <div className="min-h-screen bg-[#FDF3F1] text-black pb-24 font-['Manrope']">
+      <header className="border-b border-black/10 bg-white/80 backdrop-blur-md px-6 py-6 sm:px-12 sticky top-0 z-50">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">
-          <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
-            <ArrowLeft size={14} /> Back to Directory
+          <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-xs font-medium lowercase text-black/50 transition-colors hover:text-black">
+            <ArrowLeft size={14} /> back to directory
           </button>
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 bg-black/5 p-1 rounded-full">
               <button
                 onClick={() => handleRequestRoleSwitch('client')}
-                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
+                className={`px-4 py-2 text-xs font-medium lowercase tracking-wide rounded-full transition-all ${
                   role === 'client' ? 'bg-black text-white shadow-sm' : 'text-black/50 hover:text-black'
                 }`}
               >
-                Client
+                client
               </button>
               <button
                 onClick={() => handleRequestRoleSwitch('artist')}
-                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] rounded-full transition-all ${
+                className={`px-4 py-2 text-xs font-medium lowercase tracking-wide rounded-full transition-all ${
                   role === 'artist' ? 'bg-black text-white shadow-sm' : 'text-black/50 hover:text-black'
                 }`}
               >
-                Artist
+                artist
               </button>
             </div>
 
-            <div className="rounded-full bg-black/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/70">
-              Artist Studio Hub
+            <div className="rounded-full bg-black/5 px-4 py-2 text-[11px] font-medium lowercase tracking-wider text-black/60 hidden sm:block">
+              artist studio hub
             </div>
 
-            <div className="h-8 w-8 bg-black flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-widest">
+            <div className="h-8 w-8 bg-black rounded-full flex items-center justify-center text-xs font-medium text-white lowercase">
               {displayFirstName.charAt(0)}
             </div>
           </div>
@@ -282,20 +282,20 @@ export default function Dashboard({ session }: DashboardProps) {
 
       <AnimatePresence>
         {showRoleSwitchConfirm && pendingRole && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowRoleSwitchConfirm(false)}>
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white border border-black/10 p-8 sm:p-12 max-w-md w-full mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-start justify-between mb-8">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={() => setShowRoleSwitchConfirm(false)}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white border border-black/10 p-8 sm:p-12 max-w-md w-full shadow-2xl rounded-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-start justify-between mb-6">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-[#B66CF2] mb-2">Switch Account Type</p>
-                  <h3 className="font-extrabold text-2xl capitalize tracking-tight">Switch to {pendingRole}?</h3>
+                  <p className="text-[11px] font-medium lowercase tracking-[0.25em] text-[#BA965B] mb-2">switch account type</p>
+                  <h3 className="font-['Fraunces'] font-normal text-2xl lowercase tracking-tight">switch to {pendingRole}?</h3>
                 </div>
-                <button onClick={() => setShowRoleSwitchConfirm(false)} className="text-black/30 hover:text-black transition-colors"><X size={20} strokeWidth={1.5} /></button>
+                <button onClick={() => setShowRoleSwitchConfirm(false)} className="text-black/30 hover:text-black transition-colors"><X size={18} strokeWidth={1.5} /></button>
               </div>
-              <p className="text-sm text-black/60 leading-relaxed mb-8">You are about to switch from <strong className="text-black">{role}</strong> to <strong className="text-black">{pendingRole}</strong>. Your dashboard will reload with the new interface.</p>
+              <p className="font-['Manrope'] text-sm font-light text-black/60 leading-relaxed mb-8">you are about to switch from <strong className="text-black font-medium">{role}</strong> to <strong className="text-black font-medium">{pendingRole}</strong>. your dashboard will reload with the new interface.</p>
               <div className="flex gap-4">
-                <button onClick={() => setShowRoleSwitchConfirm(false)} className="flex-1 border border-black/20 bg-transparent px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:border-black hover:text-black transition-colors">Cancel</button>
-                <button onClick={confirmRoleSwitch} disabled={updating} className="flex-1 border border-black bg-black px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#BA965B] hover:border-[#BA965B] hover:text-black transition-colors disabled:opacity-50">
-                  {updating ? 'Switching...' : 'Confirm Switch'}
+                <button onClick={() => setShowRoleSwitchConfirm(false)} className="flex-1 border border-black/15 bg-transparent px-6 py-3.5 text-xs font-medium lowercase rounded-full text-black/60 hover:border-black hover:text-black transition-colors">cancel</button>
+                <button onClick={confirmRoleSwitch} disabled={updating} className="flex-1 bg-[#BA965B] text-white px-6 py-3.5 text-xs font-semibold lowercase tracking-[0.1em] rounded-full hover:bg-black transition-colors disabled:opacity-50">
+                  {updating ? 'switching...' : 'confirm switch'}
                 </button>
               </div>
             </motion.div>
@@ -304,124 +304,124 @@ export default function Dashboard({ session }: DashboardProps) {
       </AnimatePresence>
 
       <main className="mx-auto max-w-[1400px] px-6 py-12 sm:px-12">
-        <h1 className="font-black text-5xl sm:text-7xl tracking-tight text-black">
-          Welcome, <Premium>{displayFirstName}.</Premium>
+        <h1 className="font-['Fraunces'] font-light text-5xl sm:text-7xl tracking-tight text-black lowercase mb-4">
+          welcome, <Premium>{displayFirstName}.</Premium>
         </h1>
 
         {role === 'artist' ? (
           <>
-            <div className="mt-12 mb-8 flex gap-8 border-b border-black/10 pb-px overflow-x-auto">
-              <button onClick={() => setActiveTab('logistics')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Profile & Logistics</button>
-              <button onClick={() => setActiveTab('overview')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Overview</button>
-              <button onClick={() => setActiveTab('briefs')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'briefs' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
-              <button onClick={() => setActiveTab('reviews')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'reviews' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>
-                Reviews {artistReviews.length > 0 && `(${artistReviews.length})`}
+            <div className="mt-8 mb-12 flex gap-8 border-b border-black/10 pb-px overflow-x-auto">
+              <button onClick={() => setActiveTab('logistics')} className={`font-['Manrope'] text-xs font-medium lowercase tracking-wide whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>profile & logistics</button>
+              <button onClick={() => setActiveTab('overview')} className={`font-['Manrope'] text-xs font-medium lowercase tracking-wide whitespace-nowrap pb-4 transition-colors ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>overview</button>
+              <button onClick={() => setActiveTab('briefs')} className={`font-['Manrope'] text-xs font-medium lowercase tracking-wide whitespace-nowrap pb-4 transition-colors ${activeTab === 'briefs' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>new bookings {bookings.length > 0 && `(${bookings.length})`}</button>
+              <button onClick={() => setActiveTab('reviews')} className={`font-['Manrope'] text-xs font-medium lowercase tracking-wide whitespace-nowrap pb-4 transition-colors ${activeTab === 'reviews' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>
+                reviews {artistReviews.length > 0 && `(${artistReviews.length})`}
               </button>
-              <button onClick={() => setLocation(`/artist/${session?.user.id}`)} className="text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 text-[#B66CF2] hover:text-black transition-colors">Preview Public Page ↗</button>
+              <button onClick={() => setLocation(`/artist/${session?.user.id}`)} className="font-['Manrope'] text-xs font-medium lowercase tracking-wide whitespace-nowrap pb-4 text-[#BA965B] hover:text-black transition-colors">preview public page ↗</button>
             </div>
 
             {activeTab === 'overview' && (
               <div className="grid gap-6 md:grid-cols-3">
-                <div className="bg-white border border-black/10 p-8 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-black/50">New Bookings</p>
-                  <p className="mt-4 font-black text-6xl tracking-tight text-[#B66CF2] tabular-nums">{bookings.length}</p>
+                <div className="bg-white/60 border border-black/10 p-8 rounded-2xl shadow-sm">
+                  <p className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">new bookings</p>
+                  <p className="mt-4 font-['Fraunces'] font-light text-6xl tracking-tight text-[#BA965B] tabular-nums">{bookings.length}</p>
                 </div>
-                <div className="bg-white border border-black/10 p-8 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-black/50">Upcoming Bookings</p>
-                  <p className="mt-4 font-black text-6xl tracking-tight text-black tabular-nums">0</p>
+                <div className="bg-white/60 border border-black/10 p-8 rounded-2xl shadow-sm">
+                  <p className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">upcoming bookings</p>
+                  <p className="mt-4 font-['Fraunces'] font-light text-6xl tracking-tight text-black tabular-nums">0</p>
                 </div>
-                <div className="bg-white border border-black/10 p-8 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-black/50">Travel Radius</p>
-                  <p className="mt-4 font-black text-5xl tracking-tight text-black tabular-nums">{artistProfile?.max_travel_km || 0} km</p>
+                <div className="bg-white/60 border border-black/10 p-8 rounded-2xl shadow-sm">
+                  <p className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40">travel radius</p>
+                  <p className="mt-4 font-['Fraunces'] font-light text-5xl tracking-tight text-black tabular-nums">{artistProfile?.max_travel_km || 0} km</p>
                 </div>
               </div>
             )}
 
             {activeTab === 'briefs' && (
-              <div className="max-w-4xl bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
-                <div className="mb-10"><h3 className="font-extrabold text-3xl capitalize tracking-tight">New <Premium>Bookings.</Premium></h3></div>
+              <div className="max-w-4xl bg-white/60 border border-black/10 p-8 sm:p-12 rounded-2xl shadow-sm">
+                <div className="mb-8"><h3 className="font-['Fraunces'] font-normal text-3xl lowercase tracking-tight text-black">new <Premium>bookings.</Premium></h3></div>
                 {bookings.length > 0 ? (
                   <div className="space-y-6">
                     {bookings.map((booking) => (
-                      <div key={booking.id} className="border border-black/10 bg-[#F9F9F9] p-6 sm:p-8">
+                      <div key={booking.id} className="border border-black/10 bg-white p-6 sm:p-8 rounded-xl">
                         <div className="flex flex-col justify-between gap-4 border-b border-black/10 pb-6 sm:flex-row sm:items-center">
-                          <div><h4 className="mt-4 font-bold text-2xl capitalize tracking-tight">{booking.client?.full_name || 'Canvas Client'}</h4></div>
+                          <div><h4 className="font-['Fraunces'] font-normal text-2xl lowercase tracking-tight text-black">{booking.client?.full_name || 'canvas client'}</h4></div>
                           <div className="flex gap-3 items-center">
                             {booking.status === 'pending' && (
                               <>
-                                <button onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')} className="border border-[#B66CF2] bg-[#B66CF2] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white">Accept</button>
-                                <button onClick={() => handleUpdateBookingStatus(booking.id, 'declined')} className="border border-black/20 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em]">Decline</button>
+                                <button onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')} className="bg-[#BA965B] text-white px-4 py-2 font-['Manrope'] text-xs font-semibold lowercase tracking-wider rounded-full hover:bg-black transition-colors">accept</button>
+                                <button onClick={() => handleUpdateBookingStatus(booking.id, 'declined')} className="border border-black/20 px-4 py-2 font-['Manrope'] text-xs font-medium lowercase rounded-full hover:border-black">decline</button>
                               </>
                             )}
-                            <button onClick={() => setActiveChatBooking(booking)} className="border border-black bg-black px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white">Chat</button>
+                            <button onClick={() => setActiveChatBooking(booking)} className="bg-black text-white px-5 py-2 font-['Manrope'] text-xs font-semibold lowercase tracking-wider rounded-full hover:bg-[#BA965B] transition-colors">chat</button>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs font-bold uppercase tracking-widest text-black/40">No new bookings.</p>
+                  <p className="font-['Manrope'] text-xs font-light lowercase text-black/40">no new bookings.</p>
                 )}
               </div>
             )}
             
             {activeTab === 'reviews' && (
-              <div className="max-w-4xl bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
-                <div className="mb-10">
-                  <h3 className="font-extrabold text-3xl capitalize tracking-tight">Client <Premium>Reviews.</Premium></h3>
-                  <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">
-                    Feedback and ratings from your completed bookings.
+              <div className="max-w-4xl bg-white/60 border border-black/10 p-8 sm:p-12 rounded-2xl shadow-sm">
+                <div className="mb-8">
+                  <h3 className="font-['Fraunces'] font-normal text-3xl lowercase tracking-tight text-black">client <Premium>reviews.</Premium></h3>
+                  <p className="mt-2 font-['Manrope'] text-xs font-light lowercase text-black/50">
+                    feedback and ratings from your completed bookings.
                   </p>
                 </div>
 
                 {artistReviews.length > 0 ? (
                   <div className="space-y-6">
                     {artistReviews.map((review) => (
-                      <div key={review.id} className="border border-black/10 bg-[#F9F9F9] p-6 sm:p-8 space-y-4">
+                      <div key={review.id} className="border border-black/10 bg-white p-6 sm:p-8 rounded-xl space-y-4">
                         <div className="flex justify-between items-center">
-                          <h4 className="font-bold text-lg">{review.client?.full_name || 'Verified Client'}</h4>
+                          <h4 className="font-['Fraunces'] font-normal text-xl lowercase text-black">{review.client?.full_name || 'verified client'}</h4>
                           <div className="flex gap-1 text-[#BA965B]">
                             {[...Array(review.rating)].map((_, i) => (
                               <span key={i}>★</span>
                             ))}
                           </div>
                         </div>
-                        <p className="font-['Playfair_Display'] italic text-lg text-black/80 leading-relaxed">"{review.comment}"</p>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-black/40">
+                        <p className="font-['Fraunces'] italic font-light text-xl text-black/80 leading-relaxed">"{review.comment}"</p>
+                        <p className="font-['Manrope'] text-xs font-light lowercase text-black/40">
                           {new Date(review.created_at).toLocaleDateString()}
                         </p>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs font-bold uppercase tracking-widest text-black/40">No reviews yet.</p>
+                  <p className="font-['Manrope'] text-xs font-light lowercase text-black/40">no reviews yet.</p>
                 )}
               </div>
             )}
 
             {activeTab === 'logistics' && (
-              <div className="mx-auto max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
+              <div className="mx-auto max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white/60 border border-black/10 p-8 sm:p-12 rounded-2xl shadow-sm">
                 <div className="mb-10">
-                  <h3 className="font-extrabold text-3xl capitalize tracking-tight">Artist Profile & <Premium>Logistics.</Premium></h3>
-                  <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">
-                    Complete your profile to appear in client searches.
+                  <h3 className="font-['Fraunces'] font-normal text-3xl lowercase tracking-tight text-black">artist profile & <Premium>logistics.</Premium></h3>
+                  <p className="mt-2 font-['Manrope'] text-xs font-light lowercase text-black/50">
+                    complete your profile to appear in client searches.
                   </p>
                 </div>
 
                 <form onSubmit={handleSaveLogistics} className="space-y-8">
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Profile Picture *</label>
-                      <input type="file" accept="image/*" className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-black/5 file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" />
+                      <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">profile picture *</label>
+                      <input type="file" accept="image/*" className="w-full text-xs font-light text-black/70 file:mr-4 file:border-0 file:bg-black/5 file:px-4 file:py-2 file:rounded-full file:text-xs file:font-semibold file:lowercase file:text-black hover:file:bg-black/10 transition-all cursor-pointer" />
                     </div>
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Years of Experience *</label>
+                      <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">years of experience *</label>
                       <input 
                         type="text" 
                         value={formData.years_experience} 
                         onChange={(e) => setFormData({...formData, years_experience: e.target.value.replace(/\D/g, '')})} 
                         placeholder="e.g. 6" 
-                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
+                        className="w-full font-['Manrope'] text-sm font-light text-black placeholder:text-black/25 border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
@@ -429,24 +429,24 @@ export default function Dashboard({ session }: DashboardProps) {
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Artist / Business Name *</label>
+                      <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">artist / business name *</label>
                       <input 
                         type="text" 
                         value={formData.business_name} 
                         onChange={(e) => setFormData({...formData, business_name: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
-                        placeholder="e.g. Kaushal Makeover" 
-                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
+                        placeholder="e.g. kaushal makeover" 
+                        className="w-full font-['Manrope'] text-sm font-light text-black placeholder:text-black/25 border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Base Location in Hyderabad *</label>
+                      <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">base location in hyderabad *</label>
                       <input 
                         type="text" 
                         value={formData.city} 
                         onChange={(e) => setFormData({...formData, city: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
-                        placeholder="e.g. Jubilee Hills" 
-                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
+                        placeholder="e.g. jubilee hills" 
+                        className="w-full font-['Manrope'] text-sm font-light text-black placeholder:text-black/25 border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
@@ -454,24 +454,24 @@ export default function Dashboard({ session }: DashboardProps) {
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Starting Package Price (₹) *</label>
+                      <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">starting package price (₹) *</label>
                       <input 
                         type="text" 
                         value={formData.starting_price} 
                         onChange={(e) => setFormData({...formData, starting_price: e.target.value.replace(/\D/g, '')})} 
                         placeholder="15000" 
-                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
+                        className="w-full font-['Manrope'] text-sm font-light text-black placeholder:text-black/25 border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Comfortable Travel Radius (km) *</label>
+                      <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">comfortable travel radius (km) *</label>
                       <input 
                         type="text" 
                         value={formData.max_travel_km} 
                         onChange={(e) => setFormData({...formData, max_travel_km: e.target.value.replace(/\D/g, '')})} 
                         placeholder="25" 
-                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
+                        className="w-full font-['Manrope'] text-sm font-light text-black placeholder:text-black/25 border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
@@ -479,38 +479,38 @@ export default function Dashboard({ session }: DashboardProps) {
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Makeup Specialisations *</label>
+                      <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">makeup specialisations *</label>
                       <input 
                         type="text" 
                         value={formData.category} 
                         onChange={(e) => setFormData({...formData, category: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
-                        placeholder="e.g. Bridal, Editorial, Party" 
-                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
+                        placeholder="e.g. bridal, editorial, party" 
+                        className="w-full font-['Manrope'] text-sm font-light text-black placeholder:text-black/25 border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Qualifications / Certifications *</label>
+                      <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/40">qualifications / certifications *</label>
                       <input 
                         type="text" 
                         value={formData.qualifications} 
                         onChange={(e) => setFormData({...formData, qualifications: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
-                        placeholder="e.g. Certified by MAC" 
-                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
+                        placeholder="e.g. certified by mac" 
+                        className="w-full font-['Manrope'] text-sm font-light text-black placeholder:text-black/25 border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
                   </div>
 
                   <div className="border-t border-black/10 pt-8 pb-4">
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black">Unavailable / Blocked Dates</label>
-                    <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Select personal days or vacations when you are completely unavailable. (Confirmed client bookings are blocked automatically).</p>
+                    <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/60">unavailable / blocked dates</label>
+                    <p className="mb-4 font-['Manrope'] text-xs font-light lowercase text-black/40">select personal days or vacations when you are completely unavailable. (confirmed client bookings are blocked automatically).</p>
                     
                     <div className="flex gap-4 mb-4">
                       <input 
                         type="date" 
                         id="datePicker" 
-                        className="text-sm text-black border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
+                        className="font-['Manrope'] text-sm font-light text-black border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                       />
                       <button 
                         type="button" 
@@ -522,16 +522,16 @@ export default function Dashboard({ session }: DashboardProps) {
                             dateInput.value = '';
                           }
                         }} 
-                        className="bg-black px-6 py-2 text-[10px] font-bold text-white uppercase tracking-widest hover:bg-[#BA965B] hover:text-black transition-colors"
+                        className="bg-black text-white px-6 py-2 rounded-full font-['Manrope'] text-xs font-semibold lowercase tracking-wider hover:bg-[#BA965B] transition-colors"
                       >
-                        Block Date
+                        block date
                       </button>
                     </div>
 
                     {formData.blocked_dates.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-4">
                         {formData.blocked_dates.map(date => (
-                           <span key={date} className="border border-black/20 bg-black/5 px-4 py-2 text-xs font-bold tracking-widest flex items-center gap-3">
+                           <span key={date} className="border border-black/10 bg-white px-4 py-2 font-['Manrope'] text-xs font-light lowercase flex items-center gap-3 rounded-full">
                              {new Date(date).toLocaleDateString('en-GB')} 
                              <button 
                                type="button" 
@@ -546,32 +546,32 @@ export default function Dashboard({ session }: DashboardProps) {
                     )}
                   </div>
 
-                  <div className="bg-black/5 p-6 border-l-2 border-black">
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black">Primary Portfolio Upload *</label>
-                    <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload a minimum of 2 photos. No maximum limit.</p>
+                  <div className="bg-white/50 p-6 border-l-2 border-[#BA965B] rounded-r-xl">
+                    <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/60">primary portfolio upload *</label>
+                    <p className="mb-4 font-['Manrope'] text-xs font-light lowercase text-black/40">must upload a minimum of 2 photos. no maximum limit.</p>
                     
-                    <input type="file" multiple accept="image/*" onChange={handleAddPortfolioImage} className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" required={portfolio.length < 2} />
+                    <input type="file" multiple accept="image/*" onChange={handleAddPortfolioImage} className="w-full text-xs font-light text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:rounded-full file:text-xs file:font-semibold file:lowercase file:text-black hover:file:bg-black/10 transition-all cursor-pointer" required={portfolio.length < 2} />
                     
                     {portfolio.length > 0 && (
-                      <p className="mt-4 text-[10px] font-bold text-[#B66CF2] uppercase">{portfolio.length} photo(s) currently in portfolio</p>
+                      <p className="mt-4 font-['Manrope'] text-xs font-light lowercase text-[#BA965B]">{portfolio.length} photo(s) currently in portfolio</p>
                     )}
                   </div>
 
                   <div className="border-t border-black/10 pt-8">
-                    <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Do you offer any add-on skills? (e.g. Hairstyling, Brow Tinting)</label>
+                    <label className="mb-4 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/50">do you offer any add-on skills? (e.g. hairstyling, brow tinting)</label>
                     <div className="flex gap-4 mb-6">
-                      <button type="button" onClick={() => setHasAddonSkill(true)} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
-                        Yes, I do
+                      <button type="button" onClick={() => setHasAddonSkill(true)} className={`px-6 py-2.5 font-['Manrope'] text-xs font-medium lowercase tracking-wider rounded-full transition-all ${hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
+                        yes, i do
                       </button>
-                      <button type="button" onClick={() => { setHasAddonSkill(false); setAddons([{ name: '', price: '', file: null }]); }} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${!hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
-                        No
+                      <button type="button" onClick={() => { setHasAddonSkill(false); setAddons([{ name: '', price: '', file: null }]); }} className={`px-6 py-2.5 font-['Manrope'] text-xs font-medium lowercase tracking-wider rounded-full transition-all ${!hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
+                        no
                       </button>
                     </div>
 
                     {hasAddonSkill && (
                       <div className="space-y-6">
                         {addons.map((addon, index) => (
-                          <div key={index} className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-black/5 p-6 border-l-2 border-[#B66CF2] relative">
+                          <div key={index} className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-white/50 p-6 border-l-2 border-[#BA965B] rounded-r-xl relative">
                             {addons.length > 1 && (
                               <button 
                                 type="button" 
@@ -579,17 +579,17 @@ export default function Dashboard({ session }: DashboardProps) {
                                   const updated = addons.filter((_, i) => i !== index);
                                   setAddons(updated);
                                 }} 
-                                className="absolute top-4 right-4 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:underline"
+                                className="absolute top-4 right-4 font-['Manrope'] text-xs font-medium lowercase text-red-600 hover:underline"
                               >
-                                Remove Skill
+                                remove skill
                               </button>
                             )}
 
-                            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#B66CF2]">Add-on Skill #{index + 1}</p>
+                            <p className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-[#BA965B]">add-on skill #{index + 1}</p>
 
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                               <div>
-                                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black">Add-on Skill Name *</label>
+                                <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/60">add-on skill name *</label>
                                 <input 
                                   type="text" 
                                   value={addon.name} 
@@ -598,13 +598,13 @@ export default function Dashboard({ session }: DashboardProps) {
                                     updated[index].name = e.target.value.replace(/[^a-zA-Z\s]/g, '');
                                     setAddons(updated);
                                   }} 
-                                  placeholder="e.g. Brow Tinting" 
-                                  className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
+                                  placeholder="e.g. brow tinting" 
+                                  className="w-full font-['Manrope'] text-sm font-light text-black placeholder:text-black/25 border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                                   required={hasAddonSkill} 
                                 />
                               </div>
                               <div>
-                                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black">Add-on Price (₹) *</label>
+                                <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/60">add-on price (₹) *</label>
                                 <input 
                                   type="text" 
                                   value={addon.price} 
@@ -614,14 +614,14 @@ export default function Dashboard({ session }: DashboardProps) {
                                     setAddons(updated);
                                   }} 
                                   placeholder="e.g. 1200" 
-                                  className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
+                                  className="w-full font-['Manrope'] text-sm font-light text-black placeholder:text-black/25 border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                                   required={hasAddonSkill} 
                                 />
                               </div>
                             </div>
                             <div>
-                              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black">Add-on Portfolio Upload *</label>
-                              <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload at least 1 photo showcasing this specific skill.</p>
+                              <label className="mb-2 block font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.15em] text-black/60">add-on portfolio upload *</label>
+                              <p className="mb-4 font-['Manrope'] text-xs font-light lowercase text-black/40">must upload at least 1 photo showcasing this specific skill.</p>
                               <input 
                                 type="file" 
                                 accept="image/*" 
@@ -631,7 +631,7 @@ export default function Dashboard({ session }: DashboardProps) {
                                   updated[index].file = file;
                                   setAddons(updated);
                                 }}
-                                className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" 
+                                className="w-full text-xs font-light text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:rounded-full file:text-xs file:font-semibold file:lowercase file:text-black hover:file:bg-black/10 transition-all cursor-pointer" 
                                 required={hasAddonSkill && !addon.file} 
                               />
                             </div>
@@ -641,17 +641,17 @@ export default function Dashboard({ session }: DashboardProps) {
                         <button
                           type="button"
                           onClick={() => setAddons([...addons, { name: '', price: '', file: null }])}
-                          className="w-full border border-dashed border-black/30 bg-white py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-black hover:border-black transition-colors"
+                          className="w-full border border-dashed border-black/20 bg-white/40 py-4 font-['Manrope'] text-xs font-medium lowercase tracking-wider rounded-xl text-black hover:border-black transition-colors"
                         >
-                          + Add Another Add-on Skill
+                          + add another add-on skill
                         </button>
                       </div>
                     )}
                   </div>
 
                   <div className="pt-4 flex justify-end">
-                    <button type="submit" disabled={saving || uploadingPortfolio} className="bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] hover:bg-[#BA965B] hover:text-black disabled:opacity-50">
-                      {saving ? 'SAVING...' : 'SAVE CHANGES'}
+                    <button type="submit" disabled={saving || uploadingPortfolio} className="bg-[#BA965B] text-white px-8 py-4 font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] rounded-full hover:bg-black transition-colors disabled:opacity-50 shadow-sm">
+                      {saving ? 'saving...' : 'save changes'}
                     </button>
                   </div>
                 </form>
@@ -663,10 +663,10 @@ export default function Dashboard({ session }: DashboardProps) {
             {clientBookings.length > 0 ? (
               <div className="space-y-6">
                 {clientBookings.map((booking) => (
-                  <div key={booking.id} className="bg-white border border-black/10 p-8 shadow-sm flex justify-between items-center">
+                  <div key={booking.id} className="bg-white/60 border border-black/10 p-8 rounded-2xl shadow-sm flex justify-between items-center">
                     <div>
-                      <h4 className="font-bold text-2xl capitalize tracking-tight">{booking.artist?.business_name || 'Canvas Artist'}</h4>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-black/40">{booking.artist?.city}</p>
+                      <h4 className="font-['Fraunces'] font-normal text-2xl lowercase text-black">{booking.artist?.business_name || 'canvas artist'}</h4>
+                      <p className="font-['Manrope'] text-xs font-light lowercase text-black/40">{booking.artist?.city}</p>
                     </div>
                     
                     <div className="flex gap-4 items-center">
@@ -675,21 +675,21 @@ export default function Dashboard({ session }: DashboardProps) {
                           setBookingToReview(booking);
                           setReviewModalOpen(true);
                         }}
-                        className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#B66CF2] hover:text-black transition-colors"
+                        className="font-['Manrope'] text-xs font-medium lowercase text-[#BA965B] hover:text-black transition-colors"
                       >
-                        Leave a Review
+                        leave a review
                       </button>
-                      <button onClick={() => setActiveChatBooking(booking)} className="border border-black bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#BA965B] hover:border-[#BA965B] hover:text-black transition-colors">
-                        Open Chat
+                      <button onClick={() => setActiveChatBooking(booking)} className="bg-[#BA965B] text-white px-6 py-3 font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] rounded-full hover:bg-black transition-colors">
+                        open chat
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex min-h-[300px] flex-col items-center justify-center border border-dashed border-black/20 bg-white p-8 text-center shadow-sm">
-                <p className="font-bold text-3xl tracking-tight text-black/30">No bookings yet.</p>
-                <button onClick={() => setLocation('/')} className="mt-8 border border-black bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#BA965B] hover:text-black transition-colors">Browse Artists</button>
+              <div className="flex min-h-[300px] flex-col items-center justify-center border border-dashed border-black/15 bg-white/40 p-8 rounded-2xl text-center shadow-sm">
+                <p className="font-['Fraunces'] font-normal text-3xl lowercase text-black/30">no bookings yet.</p>
+                <button onClick={() => setLocation('/')} className="mt-8 bg-[#BA965B] text-white px-8 py-4 font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] rounded-full hover:bg-black transition-colors">browse artists</button>
               </div>
             )}
           </div>
@@ -707,9 +707,9 @@ export default function Dashboard({ session }: DashboardProps) {
               await supabase.from('profiles').update({ role: 'client' }).eq('id', user.id);
               window.location.reload();
             }}
-            className="flex items-center gap-2 border border-black bg-black px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-2xl transition-colors hover:bg-[#BA965B] hover:text-black"
+            className="flex items-center gap-2 bg-black text-white px-6 py-4 font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] rounded-full shadow-2xl transition-colors hover:bg-[#BA965B]"
           >
-            <ArrowLeft size={14} /> Wait, I'm a Client
+            <ArrowLeft size={14} /> wait, i'm a client
           </button>
         </div>
       )}

@@ -22,7 +22,7 @@ export function ReviewModal({ isOpen, onClose, bookingId, artistId, clientId, ar
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reviewText.trim()) return window.alert("Please write a short review!");
+    if (!reviewText.trim()) return window.alert("please write a short review!");
     setIsSubmitting(true);
 
     try {
@@ -38,44 +38,39 @@ export function ReviewModal({ isOpen, onClose, bookingId, artistId, clientId, ar
 
       if (error) throw error;
 
-      window.alert("Thank you! Your review has been published.");
+      window.alert("thank you! your review has been published.");
       onClose();
       setReviewText('');
     } catch (err: any) {
-      console.error("Error submitting review:", err);
-      window.alert(`Error: ${err.message}`);
+      window.alert(`error: ${err.message}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-['Montserrat']">
-      <div 
-        className="relative w-full max-w-lg bg-white border border-black/10 p-8 shadow-2xl"
-      >
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-md p-4 font-['Manrope']">
+      <div className="relative w-full max-w-lg bg-white/90 backdrop-blur-xl border border-black/5 rounded-3xl p-10 shadow-2xl">
         <button 
           onClick={onClose}
-          className="absolute top-6 right-6 text-black/40 hover:text-black transition-colors"
+          className="absolute top-6 right-6 text-black/30 hover:text-black transition-colors"
         >
-          <X size={20} strokeWidth={1.5} />
+          <X size={18} strokeWidth={1.5} />
         </button>
 
         <div className="text-center mb-8">
-          <p className="font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.35em] text-[#B66CF2] mb-2">
-            The Canvas Standard
+          <p className="font-['Manrope'] text-[11px] font-medium lowercase tracking-[0.25em] text-black/40 mb-2">
+            the canvas standard
           </p>
-          <h2 className="font-['Montserrat'] font-extrabold text-3xl text-black tracking-tight mb-2">
-            Rate your <Premium>experience.</Premium>
+          <h2 className="font-['Fraunces'] font-normal text-3xl text-black lowercase tracking-tight mb-2">
+            rate your <Premium>experience.</Premium>
           </h2>
-          <p className="font-['Montserrat'] text-xs font-bold uppercase tracking-wider text-black/50">
-            How was your booking with {artistName}?
+          <p className="font-['Manrope'] text-xs font-light lowercase text-black/50">
+            how was your booking with {artistName.toLowerCase()}?
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          
-          {/* Interactive Star Rating */}
           <div className="flex justify-center gap-2">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -98,24 +93,22 @@ export function ReviewModal({ isOpen, onClose, bookingId, artistId, clientId, ar
             ))}
           </div>
 
-          {/* Review Text Input */}
           <div className="relative">
             <textarea
               value={reviewText}
               onChange={(e) => setReviewText(e.target.value)}
-              placeholder="Describe the look, professionalism, and overall experience..."
+              placeholder="tell us about the look, the professionalism, and your overall experience..."
               rows={4}
-              className="w-full font-['Montserrat'] text-sm text-black placeholder:text-black/30 border border-black/15 bg-transparent p-4 outline-none transition-colors focus:border-[#BA965B] resize-none"
+              className="w-full bg-black/5 border border-black/10 rounded-2xl p-5 outline-none font-['Manrope'] text-sm font-light text-black placeholder:text-black/30 focus:border-[#BA965B] transition-all resize-none"
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-black py-4 font-['Montserrat'] text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-[#BA965B] hover:text-black transition-colors disabled:opacity-50"
+            className="w-full bg-[#BA965B] text-white py-4 rounded-full font-['Manrope'] text-xs font-semibold lowercase tracking-[0.1em] hover:bg-black transition-colors disabled:opacity-50 shadow-sm"
           >
-            {isSubmitting ? 'Publishing...' : 'Publish Review'}
+            {isSubmitting ? 'publishing...' : 'publish review'}
           </button>
         </form>
       </div>
