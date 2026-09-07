@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { ArrowLeft, CheckCircle2, MapPin, Clock, X, Calendar } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { artistsData } from '@/Data/artistsData';
+import Autocomplete from "react-google-autocomplete";
 
 export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boolean) => void }) {
   const [, params] = useRoute('/artist/:id');
@@ -435,15 +436,27 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                     </div>
 
                     <div className="mt-6">
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Venue Address</label>
-                      <input
-                        type="text"
-                        value={venueAddress}
-                        onChange={(e) => setVenueAddress(e.target.value)}
-                        placeholder="Where should the artist come to?"
-                        className="w-full border border-black/20 px-4 py-3 text-sm outline-none focus:border-black transition-colors"
-                      />
-                    </div>
+  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Venue Address</label>
+  <Autocomplete
+    apiKey="YOUR_GOOGLE_MAPS_API_KEY"
+    onPlaceSelected={(place) => {
+      // Grabs the verified address from Google Maps
+      if (place?.formatted_address) {
+        setVenueAddress(place.formatted_address);
+      } else if (place?.name) {
+        setVenueAddress(place.name);
+      }
+    }}
+    defaultValue={venueAddress}
+    onChange={(e) => setVenueAddress((e.target as HTMLInputElement).value)}
+    placeholder="Search exact venue on Google Maps..."
+    className="w-full border border-black/20 px-4 py-3 text-sm outline-none focus:border-black transition-colors"
+    options={{
+      types: ["establishment", "geocode"],
+      componentRestrictions: { country: "in" }, // Restricts searches to India
+    }}
+  />
+</div>
 
                     <div className="mt-6">
                       <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Look Details</label>

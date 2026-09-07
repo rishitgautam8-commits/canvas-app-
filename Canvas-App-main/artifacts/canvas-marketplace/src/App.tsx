@@ -477,7 +477,6 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
       >
         <div className="hidden md:flex items-center gap-8 justify-start">
           <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Directory</a>
-          <a onClick={() => scrollTo('how-it-works')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">How it Works</a>
           <a onClick={() => scrollTo('standard')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">The Standard</a>
         </div>
         <div className="flex items-center justify-center cursor-pointer group" onClick={() => scrollTo('top')}>
@@ -518,12 +517,15 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
             <div className="flex items-center gap-3 text-[11px] font-medium tracking-[0.16em] uppercase text-[var(--canvas-gd)] mb-7">
               <div className="w-[26px] h-[1px] bg-gradient-to-r from-[var(--canvas-g)] to-transparent"></div>AI-powered beauty matching
             </div>
-            <h1 className="text-[56px] md:text-[68px] lg:text-[80px] font-bold leading-[0.9] capitalize tracking-[-0.04em] text-[#1A1A1A] mb-6">Hyderabad&apos;s Premium<br /><span className="text-[var(--canvas-gd)]">Beauty Match.</span></h1>
+            <h1 className="font-['Montserrat'] text-5xl md:text-7xl font-bold text-black tracking-tight leading-tight">
+  Hyderabad's <br />
+  <span className="font-['Playfair_Display'] italic text-[#BA965B] font-semibold tracking-wide">Premium</span> <br />
+  Beauty Match.
+</h1>
             <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-3">Upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
             <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-8">The exclusive AI-powered bridal and beauty booking platform for Hyderabad and Cyberabad.</p>
             <div className="flex gap-4 flex-wrap">
               <button onClick={() => scrollTo('demo-search')} className="bg-[var(--canvas-g)] hover:bg-[#D9B86E] text-[var(--canvas-dp)] px-8 py-3.5 rounded-lg text-[14px] font-medium transition-all shadow-[0_10px_30px_-8px_rgba(201,164,99,0.4)] hover:-translate-y-0.5">Try the Live Demo →</button>
-              <button onClick={() => scrollTo('how-it-works')} className="bg-transparent hover:bg-[rgba(201,164,99,0.12)] border border-[var(--canvas-g)] text-[var(--canvas-gd)] px-7 py-3 rounded-lg text-[14px] transition-all hover:-translate-y-0.5">How it works</button>
             </div>
           </div>
         </ScrollZoomIn>
