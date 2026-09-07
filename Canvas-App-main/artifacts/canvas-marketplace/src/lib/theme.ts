@@ -1,7 +1,7 @@
 export const getTheme = (styleVersion: string) => {
-  const isOpt1 = styleVersion === '1'; // Classic Editorial
-  const isOpt3 = styleVersion === '3'; // Bold Fashion
-  const isOpt4 = styleVersion === '4'; // Quiet Old-World Luxury
+  const isOpt1 = styleVersion === '1'; // Classic Editorial (Vogue)
+  const isOpt3 = styleVersion === '3'; // Bold Fashion (Tom Ford)
+  const isOpt4 = styleVersion === '4'; // Quiet Old-World Luxury (The Row)
   // Option 2 (Aesop Minimalist) is the fallback/default
 
   return {
@@ -12,20 +12,20 @@ export const getTheme = (styleVersion: string) => {
       : "font-['Manrope'] lowercase",
     
     headingHero: isOpt4
-      ? "font-['Cormorant_Garamond'] font-semibold text-7xl md:text-8xl text-black tracking-tight leading-[0.9]"
+      ? "font-['Cormorant_Garamond'] font-semibold text-7xl md:text-8xl text-black tracking-tight leading-[1]"
       : isOpt3
-      ? "font-['Montserrat'] font-black text-7xl md:text-8xl text-black uppercase tracking-tighter leading-[0.85]"
+      ? "font-['Montserrat'] font-black text-7xl md:text-8xl text-black uppercase tracking-tighter leading-[0.9]"
       : isOpt1 
-      ? "font-['Montserrat'] font-black text-6xl md:text-7xl text-black tracking-tight leading-[0.95] uppercase" 
-      : "font-['Fraunces'] font-light text-6xl md:text-7xl text-black tracking-tight lowercase leading-[0.95]",
+      ? "font-['Montserrat'] font-black text-6xl md:text-7xl text-black tracking-tight leading-[1] uppercase" 
+      : "font-['Manrope'] font-light text-6xl md:text-7xl text-black tracking-tight lowercase leading-[1]",
       
     headingModal: isOpt4
-      ? "font-['Cormorant_Garamond'] italic font-medium text-4xl text-black"
+      ? "font-['Cormorant_Garamond'] font-medium text-4xl text-black"
       : isOpt3
       ? "font-['Montserrat'] font-black text-4xl text-black uppercase tracking-tight"
       : isOpt1
       ? "font-['Montserrat'] font-extrabold text-3xl text-black tracking-tight uppercase"
-      : "font-['Fraunces'] font-normal text-3xl text-black lowercase tracking-tight",
+      : "font-['Manrope'] font-normal text-3xl text-black lowercase tracking-tight",
       
     eyebrow: isOpt4
       ? "font-['EB_Garamond'] text-xs font-medium tracking-[0.3em] text-[#7A4B69] uppercase [font-variant:small-caps]"
@@ -41,7 +41,7 @@ export const getTheme = (styleVersion: string) => {
       ? "font-['Montserrat'] font-black text-3xl text-black uppercase tracking-tight"
       : isOpt1
       ? "font-['Playfair_Display'] font-bold text-4xl sm:text-5xl text-black capitalize"
-      : "font-['Fraunces'] italic font-normal text-3xl sm:text-5xl text-[#BA965B] lowercase",
+      : "font-['Manrope'] font-light text-3xl sm:text-5xl text-[#BA965B] lowercase",
       
     bodyText: isOpt4
       ? "font-['EB_Garamond'] text-base leading-[1.9] text-black/65"
@@ -113,7 +113,7 @@ export const getTheme = (styleVersion: string) => {
       ? "font-['Montserrat'] font-black text-5xl text-black tabular-nums"
       : isOpt1
       ? "font-['Montserrat'] font-black text-4xl text-black tabular-nums"
-      : "font-['Fraunces'] font-light text-4xl text-black tabular-nums",
+      : "font-['Manrope'] font-light text-4xl text-black tabular-nums",
       
     quote: isOpt4
       ? "font-['Cormorant_Garamond'] italic text-2xl md:text-3xl text-black/80 leading-relaxed"
@@ -121,18 +121,20 @@ export const getTheme = (styleVersion: string) => {
       ? "font-['Montserrat'] italic font-bold text-xl text-black/80 leading-relaxed"
       : isOpt1
       ? "font-['Playfair_Display'] italic text-xl md:text-2xl text-black/80 leading-relaxed"
-      : "font-['Fraunces'] italic font-light text-lg text-black/70 leading-relaxed",
+      : "font-['Bodoni_Moda'] italic font-light text-xl text-black/70 leading-relaxed",
 
     cardRadius: (isOpt1 || isOpt3 || isOpt4) ? "rounded-none" : "rounded-2xl",
     borderBase: isOpt4 ? "border-[#BA965B]/30" : isOpt3 ? "border-black/20" : isOpt1 ? "border-black/20" : "border-black/10",
     
-    // THE NEW CURSIVE/DISPLAY FONTS MAP
+    // THE REFINED LUXURY DISPLAY TYPOGRAPHY
+    // Removed literal handwriting scripts that break baseline rendering.
+    // Replaced with ultra-clean, perfectly proportioned italic serifs for that true editorial feel.
     premiumTag: isOpt4
-      ? "font-['Ballet'] font-normal text-[#BA965B] text-[1.4em] tracking-normal normal-case align-baseline"
+      ? "font-['Cormorant_Garamond'] italic font-medium text-[#BA965B] lowercase tracking-normal"
       : isOpt3
-      ? "font-['DM_Serif_Display'] italic font-normal text-[#7A4B69] tracking-normal normal-case"
+      ? "font-['Bodoni_Moda'] italic font-medium text-[#7A4B69] lowercase tracking-normal"
       : isOpt1
-      ? "font-['Italiana'] font-normal text-[#BA965B] tracking-wider capitalize"
-      : "font-['Allura'] font-normal text-[#BA965B] text-[1.5em] tracking-normal lowercase align-baseline",
+      ? "font-['Playfair_Display'] italic font-medium text-[#BA965B] lowercase tracking-wide"
+      : "font-['Bodoni_Moda'] italic font-normal text-[#BA965B] lowercase tracking-normal",
   };
 };
