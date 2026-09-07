@@ -541,32 +541,6 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
         </ScrollZoom>
       </section>
 
-      <section id="how-it-works" className="canvas-way border-y border-[var(--gold)]/20">
-        <div className="max-w-[1400px] mx-auto">
-          <ScrollZoomIn>
-            <div className="section-label"><span className="line"></span><span>THE CANVAS WAY</span><span className="line"></span></div>
-            <h2 className="canvas-way-title !capitalize">Stop Guessing. Start Matching.</h2>
-          </ScrollZoomIn>
-          <div className="steps-grid">
-            <div className="step">
-              <ScrollZoom delay={0}><div className="step-icon">I</div></ScrollZoom>
-              <ScrollZoomIn delay={100}><h3>Upload your vision</h3></ScrollZoomIn>
-              <ScrollZoomIn delay={180}><p>Drop a screenshot or photo of the exact makeup look you want.</p></ScrollZoomIn>
-            </div>
-            <div className="step">
-              <ScrollZoom delay={150}><div className="step-icon">II</div></ScrollZoom>
-              <ScrollZoomIn delay={250}><h3>AI matches the style</h3></ScrollZoomIn>
-              <ScrollZoomIn delay={330}><p>Our engine analyzes the techniques and finds artists who specialize in it.</p></ScrollZoomIn>
-            </div>
-            <div className="step">
-              <ScrollZoom delay={300}><div className="step-icon">III</div></ScrollZoom>
-              <ScrollZoomIn delay={400}><h3>Book with confidence</h3></ScrollZoomIn>
-              <ScrollZoomIn delay={480}><p>Compare portfolios, pricing, and message your chosen artist directly.</p></ScrollZoomIn>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section id="demo-search" className="relative z-20 bg-[#FDF3F1] py-24 border-b border-[var(--border-light)]">
         <ScrollZoomIn>
           <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12">
