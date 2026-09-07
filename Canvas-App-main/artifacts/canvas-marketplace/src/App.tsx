@@ -199,34 +199,36 @@ async function analyzeLookWithAI(file: File): Promise<string[]> {
 function CanvasVisualEditorial() {
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-visible">
+      {/* Subtle Ambient Glow */}
       <div className="absolute -top-10 right-0 w-[420px] h-[420px] bg-[#C9A463]/25 rounded-full blur-[110px]" />
       <div className="absolute bottom-0 left-0 w-[380px] h-[380px] bg-[#4A2A6B]/30 rounded-full blur-[120px]" />
 
-      <div className="hidden lg:flex flex-col items-center gap-4 mr-6 z-10">
-        <div className="h-16 w-px bg-black/15" />
-        <span className="[writing-mode:vertical-rl] text-[10px] font-bold uppercase tracking-[0.4em] text-black/40">
-          The Canvas Standard
-        </span>
-      </div>
-
       <motion.div
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0, y: [0, -14, 0] }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: [0, -12, 0] }}
         transition={{
           opacity: { duration: 1 },
-          x: { duration: 1 },
           y: { duration: 7, repeat: Infinity, ease: 'easeInOut' },
         }}
-        className="relative z-10"
+        className="relative z-10 flex flex-col items-center"
       >
+        {/* The Graphic */}
         <img
           src="/logo.png"
           alt="Canvas"
           className="w-[280px] md:w-[380px] lg:w-[440px] object-contain drop-shadow-[0_30px_60px_rgba(74,42,107,0.25)]"
         />
-        <p className="mt-4 text-right pr-4 text-sm font-['Playfair_Display'] italic text-[#BA965B] tracking-widest">
-          Curated Private Roster
-        </p>
+        
+        {/* Centered Typography Lockup */}
+        <div className="flex flex-col items-center mt-6">
+          <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-black/40 mb-3 text-center">
+            The Canvas Standard
+          </span>
+          <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-black/20 to-transparent mb-3" />
+          <p className="text-sm md:text-base font-['Playfair_Display'] italic text-[#BA965B] tracking-widest text-center">
+            Curated Private Roster
+          </p>
+        </div>
       </motion.div>
     </div>
   );
