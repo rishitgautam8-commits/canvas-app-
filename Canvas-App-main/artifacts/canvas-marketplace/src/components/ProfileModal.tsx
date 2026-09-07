@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Star, CheckCircle2, MapPin, ArrowLeft, X } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { Premium } from '@/components/Premium';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -92,7 +93,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-[200] w-full h-[100dvh] overflow-y-auto bg-[var(--bg-cream)]"
+            className="fixed inset-0 z-[200] w-full h-[100dvh] overflow-y-auto bg-[var(--bg-cream)] font-['Montserrat']"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -103,7 +104,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
             
             <div className="bg-[var(--bg-dark)] w-full pt-8 pb-12 px-6 md:px-12 relative border-b border-[var(--gold)]/20">
               <div className="max-w-5xl mx-auto">
-                <button onClick={onClose} className="flex items-center gap-2 text-white/70 hover:text-[var(--gold)] transition-colors mb-8 border border-white/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-widest backdrop-blur-md w-fit">
+                <button onClick={onClose} className="flex items-center gap-2 text-white/70 hover:text-[var(--gold)] transition-colors mb-8 border border-white/20 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-md w-fit">
                   <ArrowLeft size={14} /> Back
                 </button>
                 <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start relative z-0">
@@ -112,20 +113,20 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                   </div>
                   <div className="flex-1 w-full pt-2">
                     <div className="flex items-center gap-4 mb-3">
-                      <h1 className="font-serif text-3xl md:text-4xl text-white tracking-wide">{data.name || 'Artist Profile'}</h1>
-                      <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest flex items-center gap-1 shrink-0"><CheckCircle2 size={12} strokeWidth={3} /> Verified</span>
+                      <h1 className="font-black text-3xl md:text-4xl text-white tracking-tight">{data.name || 'Artist Profile'}</h1>
+                      <span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded font-['Montserrat'] text-[9px] font-bold uppercase tracking-[0.2em] flex items-center gap-1 shrink-0"><CheckCircle2 size={12} strokeWidth={3} /> Verified</span>
                     </div>
-                    <p className="text-[var(--text-light)] text-[14px] mb-5 font-sans flex items-center gap-2"><MapPin size={14} className="text-[var(--gold)]" /> {data.location || data.city || 'Hyderabad'} <span className="mx-2 text-white/20">•</span> {data.experience_years || 6} yrs experience</p>
+                    <p className="text-[var(--text-light)] text-xs font-bold uppercase tracking-widest mb-5 flex items-center gap-2"><MapPin size={14} className="text-[var(--gold)]" /> {data.location || data.city || 'Hyderabad'} <span className="mx-2 text-white/20">•</span> {data.experience_years || 6} yrs experience</p>
                     <div className="flex flex-wrap gap-2 mb-6">
                       {(data.tags || ["Bridal Glam", "Editorial", "Skin Work"]).map((tag: string) => (
-                        <span key={tag} className="px-3 py-1 rounded border border-white/20 text-white/80 text-[10px] font-medium tracking-wider bg-white/5">{tag}</span>
+                        <span key={tag} className="px-3 py-1 rounded border border-white/20 text-white/80 font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.2em] bg-white/5">{tag}</span>
                       ))}
                     </div>
                     <div className="flex items-center gap-3 text-white mb-6">
-                      <Star size={16} className="text-[var(--gold)]" fill="currentColor" /><span className="font-medium text-base">{data.rating || '4.8'}</span><span className="text-white/50 text-xs">({data.reviewsCount || 178} reviews)</span><span className="mx-3 text-white/20">—</span><span className="font-serif text-xl tracking-wide">{data.startingPrice || '₹22,000'}</span><span className="text-white/50 text-xs">Bridal Package</span>
+                      <Star size={16} className="text-[var(--gold)]" fill="currentColor" /><span className="font-bold text-base tabular-nums">{data.rating || '4.8'}</span><span className="text-white/50 text-xs font-medium">({data.reviewsCount || 178} reviews)</span><span className="mx-3 text-white/25">—</span><span className="font-black text-xl tracking-tight text-[var(--gold)] tabular-nums">{data.startingPrice || '₹22,000'}</span><span className="text-white/50 text-xs uppercase tracking-wider font-bold">Bridal Package</span>
                     </div>
                     
-                    <button onClick={handleBookingRoute} className="w-full max-w-[280px] bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-[#B08D45] transition-colors py-3.5 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                    <button onClick={handleBookingRoute} className="w-full max-w-[280px] bg-[var(--gold)] text-[var(--bg-dark)] hover:bg-[#B08D45] transition-colors py-3.5 rounded-lg font-['Montserrat'] text-[11px] font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-lg cursor-pointer">
                       View Availability & Book ↗
                     </button>
                   </div>
@@ -136,9 +137,12 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
             <div className="w-full bg-[var(--bg-cream)] px-6 py-12 md:px-12">
               <div className="max-w-5xl mx-auto">
                 <div className="max-w-3xl mb-16">
-                  <p className="font-serif italic text-xl md:text-2xl text-[var(--text-primary)] leading-relaxed">"{data.bio || data.signature || `Brings a cinematic, editorial eye to every face she works on. Based in ${data.city || 'Hyderabad'}.`}"</p>
+                  <p className="font-['Playfair_Display'] italic text-xl md:text-2xl text-[var(--text-primary)] leading-relaxed">"{data.bio || data.signature || `Brings a cinematic, editorial eye to every face she works on. Based in ${data.city || 'Hyderabad'}.`}"</p>
                 </div>
-                <div className="mb-8 text-left"><h2 className="font-serif text-3xl text-[var(--text-primary)] mb-2">Verified Portfolio</h2><p className="text-[var(--text-secondary)] text-[14px]">Real client work showcasing {firstName}'s signature aesthetic.</p></div>
+                <div className="mb-8 text-left">
+                  <h2 className="font-extrabold text-3xl text-[var(--text-primary)] mb-2 tracking-tight">Verified <Premium>Portfolio</Premium></h2>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--text-secondary)]">Real client work showcasing {firstName}'s signature aesthetic.</p>
+                </div>
 
                 {makeupImages.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-4">
@@ -147,12 +151,12 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                         <div className="cursor-pointer overflow-hidden relative group" onClick={() => setExpandedImage(img)}>
                           <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700" onError={handleImageError} />
                           <div className="absolute inset-0 bg-[var(--bg-dark)]/0 group-hover:bg-[var(--bg-dark)]/10 transition-colors"></div>
-                          <div className="absolute top-3 left-3"><span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-[0.1em]">Look 0{i + 1}</span></div>
+                          <div className="absolute top-3 left-3"><span className="bg-[var(--gold)] text-[var(--bg-dark)] px-2.5 py-1 rounded font-['Montserrat'] text-[9px] font-bold uppercase tracking-[0.2em]">Look 0{i + 1}</span></div>
                         </div>
                         <div className="p-6 flex flex-col flex-1 bg-[var(--bg-cream)]">
-                          <h3 className="font-serif text-lg text-[var(--text-primary)] leading-tight mb-2">{firstName} - {MAKEUP_NAMES[i % MAKEUP_NAMES.length]}</h3>
-                          <p className="text-[12px] text-[var(--text-secondary)] mb-6 flex-1">A verified example of the aesthetic.</p>
-                          <button onClick={handleBookingRoute} className="w-full bg-[#D1B88A] hover:bg-[var(--gold)] text-[var(--bg-dark)] transition-colors py-2.5 rounded text-[11px] font-bold tracking-[0.1em] uppercase">Enquire Look</button>
+                          <h3 className="font-bold text-lg text-[var(--text-primary)] leading-tight mb-2">{firstName} - {MAKEUP_NAMES[i % MAKEUP_NAMES.length]}</h3>
+                          <p className="text-[11px] text-[var(--text-secondary)] mb-6 flex-1">A verified example of the aesthetic.</p>
+                          <button onClick={handleBookingRoute} className="w-full bg-black hover:bg-[var(--gold)] text-white hover:text-[var(--bg-dark)] transition-colors py-2.5 rounded font-['Montserrat'] text-[11px] font-bold tracking-[0.2em] uppercase">Enquire Look</button>
                         </div>
                       </div>
                     ))}
@@ -166,21 +170,21 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                     <div className="flex flex-col lg:flex-row gap-12 lg:items-start">
                       {hasAddonText && (
                         <div className={`flex-1 ${!hasAddonImages ? 'max-w-3xl' : ''}`}>
-                          <h2 className="font-serif text-3xl text-[var(--text-primary)] mb-3">Add-ons & Upgrades</h2>
-                          <p className="text-[var(--text-secondary)] text-[14px] mb-8 leading-relaxed">Enhance your booking with these specialized services.</p>
+                          <h2 className="font-extrabold text-3xl text-[var(--text-primary)] mb-3 tracking-tight">Add-ons & <Premium>Upgrades</Premium></h2>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--text-secondary)] mb-8 leading-relaxed">Enhance your booking with these specialized services.</p>
                           <div className="space-y-0">
                             {data.addons.map((addon: string, idx: number) => {
                               if (typeof addon !== 'string') return null;
                               const parts = addon.split('(');
                               return (
                                 <div key={idx} className="flex items-center justify-between py-4 border-b border-[var(--border-light)] last:border-0">
-                                  <span className="text-[14px] font-medium text-[var(--text-primary)]">{parts[0].trim()}</span>
-                                  {parts.length > 1 && <span className="text-[11px] font-bold text-[var(--bg-dark)] tracking-widest bg-[var(--gold)] px-3 py-1 rounded-full">{parts[1].replace(')', '').trim()}</span>}
+                                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--text-primary)]">{parts[0].trim()}</span>
+                                  {parts.length > 1 && <span className="text-[10px] font-bold text-[var(--bg-dark)] tracking-widest bg-[var(--gold)] px-3 py-1 rounded-full">{parts[1].replace(')', '').trim()}</span>}
                                 </div>
                               );
                             })}
                           </div>
-                          <button onClick={handleBookingRoute} className="mt-8 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] transition-colors px-6 py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest w-full sm:w-auto">Enquire About Add-ons</button>
+                          <button onClick={handleBookingRoute} className="mt-8 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-[var(--bg-dark)] transition-colors px-6 py-3 rounded-lg font-['Montserrat'] text-[11px] font-bold uppercase tracking-[0.2em] w-full sm:w-auto">Enquire About Add-ons</button>
                         </div>
                       )}
                       {hasAddonImages && (

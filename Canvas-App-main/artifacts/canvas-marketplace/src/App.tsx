@@ -19,17 +19,7 @@ import { artistsData as artists } from './Data/artistsData';
 import BeautyDemo from '@/pages/ArtistProfile';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { Reveal } from '@/components/Reveal';
-
-// ==========================================
-// PREMIUM TYPOGRAPHY COMPONENT
-// ==========================================
-function Premium({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="font-['Playfair_Display'] italic font-normal text-[#BA965B] tracking-wider px-1 drop-shadow-sm">
-      {children}
-    </span>
-  );
-}
+import { Premium } from '@/components/Premium';
 
 // ==========================================
 // PERFORMANCE OPTIMIZED SCROLL WRAPPERS
@@ -524,9 +514,9 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
         className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[#FDF3F1] border-b border-black/5"
       >
         <div className="hidden md:flex items-center gap-8 justify-start">
-          <a onClick={() => scrollTo('discover')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">Directory</a>
-          <a onClick={() => scrollTo('standard')} className="text-sm font-bold uppercase tracking-widest text-black/60 hover:text-black cursor-pointer transition-colors">The Standard</a>
-        </div>
+  <a onClick={() => scrollTo('discover')} className="font-['Montserrat'] text-xs font-bold uppercase tracking-[0.15em] text-black/60 hover:text-black cursor-pointer transition-colors">Directory</a>
+  <a onClick={() => scrollTo('standard')} className="font-['Montserrat'] text-xs font-bold uppercase tracking-[0.15em] text-black/60 hover:text-black cursor-pointer transition-colors">The Standard</a>
+</div>
         <div className="flex items-center justify-center cursor-pointer group" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Canvas Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 group-hover:drop-shadow-[0_4px_12px_rgba(182,108,242,0.3)]" />
@@ -596,9 +586,9 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
       <main className="relative z-20">
         <ScrollZoomIn className="stats-bar">
           <div className="stat">
-            <ScrollZoom><div className="stat-number">{sourceArtists.length}</div></ScrollZoom>
-            <ScrollZoomIn delay={100}><div className="stat-label">Verified Artists</div></ScrollZoomIn>
-          </div>
+  <ScrollZoom><div className="font-['Montserrat'] font-black text-4xl text-black tabular-nums">{sourceArtists.length}</div></ScrollZoom>
+  <ScrollZoomIn delay={100}><div className="font-['Montserrat'] text-xs font-bold uppercase tracking-wider text-black/50">Verified Artists</div></ScrollZoomIn>
+</div>
           <div className="stat-divider"></div>
           <div className="stat">
             <ScrollZoom><div className="stat-number">₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div></ScrollZoom>
@@ -621,9 +611,11 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
             <ScrollZoomIn>
               <div className="mb-12 flex flex-col gap-5">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">The Shortlist</p>
-                  <h2 className="text-5xl sm:text-6xl font-bold capitalize tracking-tight">Meet The Artists</h2>
-                </div>
+  <p className="font-['Montserrat'] text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">The Shortlist</p>
+  <h2 className="font-['Montserrat'] font-black text-5xl sm:text-6xl text-black tracking-tight capitalize">
+    Meet The <Premium>Artists</Premium>
+  </h2>
+</div>
                 <p className="max-w-[500px] text-[15px] font-medium leading-relaxed text-black/60">A private directory of Hyderabad&apos;s most sought-after talent, rigorously vetted for their technical execution and distinct aesthetic vision.</p>
               </div>
             </ScrollZoomIn>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRoute, useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
+import { Premium } from '@/components/Premium';
 import { ArrowLeft, CheckCircle2, MapPin, Clock, X, Calendar } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { artistsData } from '@/Data/artistsData';
@@ -107,11 +108,9 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         return;
       }
 
-      // 1. CHECK FOR DUMMY ARTIST
       const isMockId = !String(artistId).includes('-');
       
       if (isMockId) {
-        // SIMULATE SUCCESS FOR DEMO PROFILES (Bypass Database)
         window.alert("Booking request sent successfully! The artist will confirm shortly.");
         setShowBookingModal(false);
         
@@ -125,12 +124,9 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         setVenueAddress('');
         setLookDetails('');
         setBookingLoading(false);
-        return; // Stop here so it doesn't crash the database!
+        return;
       }
 
-      // 2. REAL ARTIST LOGIC (Hits Database)
-      
-      // BULLETPROOF FIX: Ensure the client's profile exists in the database first
       await supabase.from('profiles').upsert({
         id: user.id,
         email: user.email,
@@ -145,7 +141,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         time_slot: selectedTime,
         venue_address: venueAddress.trim(),
         look_details: lookDetails.trim(),
-        status: 'pending' // <--- Changed back to require artist confirmation!
+        status: 'pending'
       };
 
       const { error } = await supabase.from('bookings').insert(payload);
@@ -180,7 +176,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center font-['Montserrat']">
         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/40 animate-pulse">Loading Artist Profile...</p>
       </div>
     );
@@ -188,9 +184,9 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
   if (!artist) {
     return (
-      <div className="min-h-screen bg-[#F9F9F9] flex flex-col items-center justify-center p-6 text-center">
-        <h2 className="text-3xl font-bold capitalize tracking-tight mb-4">Artist Not Found.</h2>
-        <button onClick={() => setLocation('/')} className="border border-black bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+      <div className="min-h-screen bg-[#F9F9F9] flex flex-col items-center justify-center p-6 text-center font-['Montserrat']">
+        <h2 className="font-extrabold text-3xl capitalize tracking-tight mb-4">Artist Not Found.</h2>
+        <button onClick={() => setLocation('/')} className="border border-black bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#BA965B] hover:text-black transition-colors">
           Back to Directory
         </button>
       </div>
@@ -223,14 +219,14 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   }, {} as Record<string, Date[]>);
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] text-black pb-24">
+    <div className="min-h-screen bg-[#F9F9F9] text-black pb-24 font-['Montserrat']">
       <header className="border-b border-black/10 bg-white px-6 py-6 sm:px-12 sticky top-0 z-50">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">
           <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
             <ArrowLeft size={14} /> Back to Directory
           </button>
           <div className="flex items-center gap-3">
-            <span className="rounded-full bg-black/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/70">Verified Studio</span>
+            <span className="font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.2em] text-[#BA965B] border border-[#BA965B]/40 rounded-full px-3 py-1">Verified Studio</span>
           </div>
         </div>
       </header>
@@ -247,7 +243,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
             </div>
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <h1 className="text-3xl sm:text-5xl font-bold capitalize tracking-tight">{artist.business_name || 'Artist Studio'}</h1>
+                <h1 className="font-black text-3xl sm:text-5xl capitalize tracking-tight text-black">{artist.business_name || 'Artist Studio'}</h1>
                 <CheckCircle2 className="text-[#B66CF2]" size={24} />
               </div>
               <p className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-black/50 mb-4">
@@ -256,7 +252,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               </p>
               <div className="flex flex-wrap gap-2">
                 {artist.category && artist.category.split(',').map((spec: string, i: number) => (
-                  <span key={i} className="border border-black/20 bg-black/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-black/70">
+                  <span key={i} className="font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.2em] text-[#BA965B] border border-[#BA965B]/40 rounded-full px-3 py-1">
                     {spec.trim()}
                   </span>
                 ))}
@@ -266,12 +262,12 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
           <div className="flex flex-col sm:flex-row md:flex-col gap-4 w-full md:w-auto">
             <div className="text-left md:text-right">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">Starting Package</p>
-              <p className="text-3xl font-bold tracking-tight">₹{artist.starting_price?.toLocaleString() || '15,000'}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-black/40">Starting Package</p>
+              <p className="font-black text-3xl tracking-tight tabular-nums">₹{artist.starting_price?.toLocaleString() || '15,000'}</p>
             </div>
             <button 
               onClick={() => setShowBookingModal(true)} 
-              className="flex items-center justify-center gap-2 border border-black bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#B66CF2] hover:border-[#B66CF2] transition-colors"
+              className="flex items-center justify-center gap-2 border border-black bg-black px-8 py-4 font-['Montserrat'] text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-[#BA965B] hover:text-black hover:border-[#BA965B] transition-colors"
             >
               <Calendar size={14} /> View Availability & Book
             </button>
@@ -281,8 +277,8 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
       <main className="mx-auto max-w-[1400px] px-6 py-16 sm:px-12">
         <div className="mb-12">
-          <h2 className="text-3xl font-bold capitalize tracking-tight mb-2">Verified Portfolio.</h2>
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Real client work showcasing signature aesthetic and technical execution.</p>
+          <h2 className="font-['Playfair_Display'] font-bold text-4xl text-black capitalize tracking-tight mb-2">Verified <Premium>Portfolio.</Premium></h2>
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Real client work showcasing signature aesthetic and technical execution.</p>
         </div>
 
         {makeupImages.length > 0 ? (
@@ -293,8 +289,8 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                   <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/5] object-cover group-hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-black/50">Look 0{i + 1}</span>
-                  <button onClick={() => setShowBookingModal(true)} className="text-[10px] font-bold uppercase tracking-widest text-black hover:text-[#B66CF2] transition-colors">Enquire Look ↗</button>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Look N°{String(i + 1).padStart(2, '0')}</span>
+                  <button onClick={() => setShowBookingModal(true)} className="text-[10px] font-bold uppercase tracking-[0.2em] text-black hover:text-[#BA965B] transition-colors">Enquire Look ↗</button>
                 </div>
               </div>
             ))}
@@ -310,8 +306,8 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
             <div className="flex flex-col lg:flex-row gap-16 lg:items-start">
               {hasAddonText && (
                 <div className={`flex-1 ${!hasAddonImages ? 'max-w-3xl' : ''}`}>
-                  <h2 className="text-3xl font-bold capitalize tracking-tight mb-4">Add-ons & Upgrades.</h2>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-black/50 mb-10 leading-relaxed">Enhance your booking with specialized services.</p>
+                  <h2 className="font-['Playfair_Display'] font-bold text-4xl text-black capitalize tracking-tight mb-4">Add-ons & <Premium>Upgrades.</Premium></h2>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-black/50 mb-10 leading-relaxed">Enhance your booking with specialized services.</p>
                   
                   <div className="space-y-0">
                     {artist.addons.map((addon: string, idx: number) => {
@@ -354,7 +350,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
             >
               <div className="p-8 border-b border-black/10 flex justify-between items-center bg-white sticky top-0">
                 <div>
-                  <h3 className="text-2xl font-bold capitalize tracking-tight">Select Date & Time Phase.</h3>
+                  <h3 className="font-extrabold text-2xl capitalize tracking-tight">Select Date & Time <Premium>Phase.</Premium></h3>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-black/40 mt-1">Gray dates are unavailable or already booked.</p>
                 </div>
                 <button onClick={() => setShowBookingModal(false)} className="text-black/30 hover:text-black transition-colors"><X size={24} strokeWidth={1.5} /></button>
@@ -364,7 +360,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                 <div className="max-h-[50vh] overflow-y-auto pr-4 mb-6 custom-scrollbar">
                   {Object.entries(groupedDates).map(([monthYear, dates]) => (
                     <div key={monthYear} className="mb-8">
-                      <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-black mb-4 pb-2 border-b border-black/10">
+                      <h3 className="text-[10px] font-bold uppercase tracking-[0.35em] text-[#B66CF2] mb-4 pb-2 border-b border-black/10">
                         {monthYear}
                       </h3>
                       <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
@@ -408,7 +404,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
                 {selectedDate && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="border-t border-black/10 pt-6">
-                    <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Select Phase of Day</label>
+                    <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Select Phase of Day</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
                         { display: 'First Half (Morning)', value: 'Morning (Before 12 PM)', keyword: 'Morning' },
@@ -436,36 +432,35 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                     </div>
 
                     <div className="mt-6">
-  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Venue Address</label>
-  <Autocomplete
-    apiKey="YOUR_GOOGLE_MAPS_API_KEY"
-    onPlaceSelected={(place) => {
-      // Grabs the verified address from Google Maps
-      if (place?.formatted_address) {
-        setVenueAddress(place.formatted_address);
-      } else if (place?.name) {
-        setVenueAddress(place.name);
-      }
-    }}
-    defaultValue={venueAddress}
-    onChange={(e) => setVenueAddress((e.target as HTMLInputElement).value)}
-    placeholder="Search exact venue on Google Maps..."
-    className="w-full border border-black/20 px-4 py-3 text-sm outline-none focus:border-black transition-colors"
-    options={{
-      types: ["establishment", "geocode"],
-      componentRestrictions: { country: "in" }, // Restricts searches to India
-    }}
-  />
-</div>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Venue Address</label>
+                      <Autocomplete
+                        apiKey="YOUR_GOOGLE_MAPS_API_KEY"
+                        onPlaceSelected={(place) => {
+                          if (place?.formatted_address) {
+                            setVenueAddress(place.formatted_address);
+                          } else if (place?.name) {
+                            setVenueAddress(place.name);
+                          }
+                        }}
+                        defaultValue={venueAddress}
+                        onChange={(e) => setVenueAddress((e.target as HTMLInputElement).value)}
+                        placeholder="Search exact venue on Google Maps..."
+                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]"
+                        options={{
+                          types: ["establishment", "geocode"],
+                          componentRestrictions: { country: "in" },
+                        }}
+                      />
+                    </div>
 
                     <div className="mt-6">
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Look Details</label>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Look Details</label>
                       <textarea
                         value={lookDetails}
                         onChange={(e) => setLookDetails(e.target.value)}
                         placeholder="Describe the look you'd like (occasion, style, references, etc.)"
                         rows={3}
-                        className="w-full border border-black/20 px-4 py-3 text-sm outline-none focus:border-black transition-colors resize-none"
+                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B] resize-none"
                       />
                     </div>
                   </motion.div>
@@ -476,7 +471,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                 <button 
                   onClick={handleConfirmBooking}
                   disabled={bookingLoading || !selectedDate || !selectedTime || !venueAddress.trim() || !lookDetails.trim()}
-                  className="w-full bg-black py-5 text-[10px] font-bold uppercase tracking-[0.3em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100"
+                  className="w-full bg-black py-5 font-['Montserrat'] text-xs font-bold uppercase tracking-[0.2em] text-white hover:bg-[#BA965B] hover:text-black transition-colors disabled:opacity-50"
                 >
                   {bookingLoading 
                     ? 'SENDING REQUEST...' 

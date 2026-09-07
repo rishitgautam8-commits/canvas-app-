@@ -3,7 +3,8 @@ import { useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { ArtistOnboardingModal } from '@/components/ArtistOnboardingModal';
-import { ReviewModal } from '@/components/ReviewModal'; // Added Import
+import { ReviewModal } from '@/components/ReviewModal';
+import { Premium } from '@/components/Premium';
 import { ArrowLeft, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Session } from '@supabase/supabase-js';
@@ -36,7 +37,6 @@ export default function Dashboard({ session }: DashboardProps) {
   const [showRoleSwitchConfirm, setShowRoleSwitchConfirm] = useState(false);
   const [pendingRole, setPendingRole] = useState<'client' | 'artist' | null>(null);
 
-  // Review Modal State added correctly inside the component
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [bookingToReview, setBookingToReview] = useState<any>(null);
 
@@ -73,14 +73,13 @@ export default function Dashboard({ session }: DashboardProps) {
 
         if (metaRole === 'artist') {
           const { data: artistData } = await supabase.from('artist_profiles').select('*').eq('id', session.user.id).single();
-          // Fetch reviews for this artist
-const { data: reviewsData } = await supabase
-  .from('reviews')
-  .select('*, client:profiles(full_name)')
-  .eq('artist_id', session.user.id)
-  .order('created_at', { ascending: false });
+          const { data: reviewsData } = await supabase
+            .from('reviews')
+            .select('*, client:profiles(full_name)')
+            .eq('artist_id', session.user.id)
+            .order('created_at', { ascending: false });
 
-setArtistReviews(reviewsData || []);
+          setArtistReviews(reviewsData || []);
           if (!artistData || !artistData.business_name) {
             setShowOnboarding(true);
           } else {
@@ -234,7 +233,7 @@ setArtistReviews(reviewsData || []);
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center">
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2] animate-pulse">Loading Studio...</p>
+        <p className="font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2] animate-pulse">Loading Studio...</p>
       </div>
     );
   }
@@ -243,7 +242,7 @@ setArtistReviews(reviewsData || []);
   const displayFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] text-black pb-24">
+    <div className="min-h-screen bg-[#F9F9F9] text-black pb-24 font-['Montserrat']">
       <header className="border-b border-black/10 bg-white px-6 py-6 sm:px-12 sticky top-0 z-50">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">
           <button onClick={() => setLocation('/')} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-black/50 transition-colors hover:text-black">
@@ -287,15 +286,15 @@ setArtistReviews(reviewsData || []);
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white border border-black/10 p-8 sm:p-12 max-w-md w-full mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-start justify-between mb-8">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#B66CF2] mb-2">Switch Account Type</p>
-                  <h3 className="text-2xl font-bold capitalize tracking-tight">Switch to {pendingRole}?</h3>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-[#B66CF2] mb-2">Switch Account Type</p>
+                  <h3 className="font-extrabold text-2xl capitalize tracking-tight">Switch to {pendingRole}?</h3>
                 </div>
                 <button onClick={() => setShowRoleSwitchConfirm(false)} className="text-black/30 hover:text-black transition-colors"><X size={20} strokeWidth={1.5} /></button>
               </div>
               <p className="text-sm text-black/60 leading-relaxed mb-8">You are about to switch from <strong className="text-black">{role}</strong> to <strong className="text-black">{pendingRole}</strong>. Your dashboard will reload with the new interface.</p>
               <div className="flex gap-4">
                 <button onClick={() => setShowRoleSwitchConfirm(false)} className="flex-1 border border-black/20 bg-transparent px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-black/60 hover:border-black hover:text-black transition-colors">Cancel</button>
-                <button onClick={confirmRoleSwitch} disabled={updating} className="flex-1 border border-black bg-black px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#B66CF2] hover:border-[#B66CF2] transition-colors disabled:opacity-50">
+                <button onClick={confirmRoleSwitch} disabled={updating} className="flex-1 border border-black bg-black px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#BA965B] hover:border-[#BA965B] hover:text-black transition-colors disabled:opacity-50">
                   {updating ? 'Switching...' : 'Confirm Switch'}
                 </button>
               </div>
@@ -305,49 +304,48 @@ setArtistReviews(reviewsData || []);
       </AnimatePresence>
 
       <main className="mx-auto max-w-[1400px] px-6 py-12 sm:px-12">
-        <h1 className="text-5xl sm:text-7xl font-bold tracking-tight">Welcome, {displayFirstName}.</h1>
+        <h1 className="font-black text-5xl sm:text-7xl tracking-tight text-black">
+          Welcome, <Premium>{displayFirstName}.</Premium>
+        </h1>
 
         {role === 'artist' ? (
           <>
             <div className="mt-12 mb-8 flex gap-8 border-b border-black/10 pb-px overflow-x-auto">
-  <button onClick={() => setActiveTab('logistics')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Profile & Logistics</button>
-  <button onClick={() => setActiveTab('overview')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Overview</button>
-  <button onClick={() => setActiveTab('briefs')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'briefs' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
-  
-  {/* ADD THIS REVIEWS TAB BUTTON HERE */}
-  <button onClick={() => setActiveTab('reviews')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'reviews' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>
-    Reviews {artistReviews.length > 0 && `(${artistReviews.length})`}
-  </button>
-
-  <button onClick={() => setLocation(`/artist/${session?.user.id}`)} className="text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 text-[#B66CF2] hover:text-black transition-colors">Preview Public Page ↗</button>
-</div>
+              <button onClick={() => setActiveTab('logistics')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'logistics' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Profile & Logistics</button>
+              <button onClick={() => setActiveTab('overview')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'overview' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>Overview</button>
+              <button onClick={() => setActiveTab('briefs')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'briefs' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
+              <button onClick={() => setActiveTab('reviews')} className={`text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 transition-colors ${activeTab === 'reviews' ? 'border-b-2 border-black text-black' : 'text-black/40 hover:text-black'}`}>
+                Reviews {artistReviews.length > 0 && `(${artistReviews.length})`}
+              </button>
+              <button onClick={() => setLocation(`/artist/${session?.user.id}`)} className="text-[10px] font-bold uppercase tracking-[0.2em] whitespace-nowrap pb-4 text-[#B66CF2] hover:text-black transition-colors">Preview Public Page ↗</button>
+            </div>
 
             {activeTab === 'overview' && (
               <div className="grid gap-6 md:grid-cols-3">
                 <div className="bg-white border border-black/10 p-8 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/50">New Bookings</p>
-                  <p className="mt-4 text-6xl font-bold tracking-tight text-[#B66CF2]">{bookings.length}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-black/50">New Bookings</p>
+                  <p className="mt-4 font-black text-6xl tracking-tight text-[#B66CF2] tabular-nums">{bookings.length}</p>
                 </div>
                 <div className="bg-white border border-black/10 p-8 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/50">Upcoming Bookings</p>
-                  <p className="mt-4 text-6xl font-bold tracking-tight text-black">0</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-black/50">Upcoming Bookings</p>
+                  <p className="mt-4 font-black text-6xl tracking-tight text-black tabular-nums">0</p>
                 </div>
                 <div className="bg-white border border-black/10 p-8 shadow-sm">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/50">Travel Radius</p>
-                  <p className="mt-4 text-5xl font-bold tracking-tight text-black">{artistProfile?.max_travel_km || 0} km</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.35em] text-black/50">Travel Radius</p>
+                  <p className="mt-4 font-black text-5xl tracking-tight text-black tabular-nums">{artistProfile?.max_travel_km || 0} km</p>
                 </div>
               </div>
             )}
 
             {activeTab === 'briefs' && (
               <div className="max-w-4xl bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
-                <div className="mb-10"><h3 className="text-3xl font-bold capitalize tracking-tight">New Bookings.</h3></div>
+                <div className="mb-10"><h3 className="font-extrabold text-3xl capitalize tracking-tight">New <Premium>Bookings.</Premium></h3></div>
                 {bookings.length > 0 ? (
                   <div className="space-y-6">
                     {bookings.map((booking) => (
                       <div key={booking.id} className="border border-black/10 bg-[#F9F9F9] p-6 sm:p-8">
                         <div className="flex flex-col justify-between gap-4 border-b border-black/10 pb-6 sm:flex-row sm:items-center">
-                          <div><h4 className="mt-4 text-2xl font-bold capitalize tracking-tight">{booking.client?.full_name || 'Canvas Client'}</h4></div>
+                          <div><h4 className="mt-4 font-bold text-2xl capitalize tracking-tight">{booking.client?.full_name || 'Canvas Client'}</h4></div>
                           <div className="flex gap-3 items-center">
                             {booking.status === 'pending' && (
                               <>
@@ -366,64 +364,64 @@ setArtistReviews(reviewsData || []);
                 )}
               </div>
             )}
+            
             {activeTab === 'reviews' && (
-  <div className="max-w-4xl bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
-    <div className="mb-10">
-      <h3 className="text-3xl font-bold capitalize tracking-tight">Client Reviews.</h3>
-      <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">
-        Feedback and ratings from your completed bookings.
-      </p>
-    </div>
+              <div className="max-w-4xl bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
+                <div className="mb-10">
+                  <h3 className="font-extrabold text-3xl capitalize tracking-tight">Client <Premium>Reviews.</Premium></h3>
+                  <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">
+                    Feedback and ratings from your completed bookings.
+                  </p>
+                </div>
 
-    {artistReviews.length > 0 ? (
-      <div className="space-y-6">
-        {artistReviews.map((review) => (
-          <div key={review.id} className="border border-black/10 bg-[#F9F9F9] p-6 sm:p-8 space-y-4">
-            <div className="flex justify-between items-center">
-              <h4 className="text-lg font-bold">{review.client?.full_name || 'Verified Client'}</h4>
-              <div className="flex gap-1 text-[#BA965B]">
-                {[...Array(review.rating)].map((_, i) => (
-                  <span key={i}>★</span>
-                ))}
+                {artistReviews.length > 0 ? (
+                  <div className="space-y-6">
+                    {artistReviews.map((review) => (
+                      <div key={review.id} className="border border-black/10 bg-[#F9F9F9] p-6 sm:p-8 space-y-4">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-bold text-lg">{review.client?.full_name || 'Verified Client'}</h4>
+                          <div className="flex gap-1 text-[#BA965B]">
+                            {[...Array(review.rating)].map((_, i) => (
+                              <span key={i}>★</span>
+                            ))}
+                          </div>
+                        </div>
+                        <p className="font-['Playfair_Display'] italic text-lg text-black/80 leading-relaxed">"{review.comment}"</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-black/40">
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs font-bold uppercase tracking-widest text-black/40">No reviews yet.</p>
+                )}
               </div>
-            </div>
-            <p className="text-sm text-black/70 leading-relaxed">"{review.comment}"</p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-black/40">
-              {new Date(review.created_at).toLocaleDateString()}
-            </p>
-          </div>
-        ))}
-      </div>
-    ) : (
-      <p className="text-xs font-bold uppercase tracking-widest text-black/40">No reviews yet.</p>
-    )}
-  </div>
-)}
+            )}
 
             {activeTab === 'logistics' && (
               <div className="mx-auto max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-500 bg-white border border-black/10 p-8 sm:p-12 shadow-sm">
                 <div className="mb-10">
-                  <h3 className="text-3xl font-bold capitalize tracking-tight">Artist Profile & Logistics.</h3>
+                  <h3 className="font-extrabold text-3xl capitalize tracking-tight">Artist Profile & <Premium>Logistics.</Premium></h3>
                   <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-black/40">
                     Complete your profile to appear in client searches.
                   </p>
                 </div>
 
                 <form onSubmit={handleSaveLogistics} className="space-y-8">
-                  
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Profile Picture *</label>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Profile Picture *</label>
                       <input type="file" accept="image/*" className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-black/5 file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" />
                     </div>
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Years of Experience *</label>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Years of Experience *</label>
                       <input 
                         type="text" 
                         value={formData.years_experience} 
                         onChange={(e) => setFormData({...formData, years_experience: e.target.value.replace(/\D/g, '')})} 
                         placeholder="e.g. 6" 
-                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
@@ -431,24 +429,24 @@ setArtistReviews(reviewsData || []);
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Artist / Business Name *</label>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Artist / Business Name *</label>
                       <input 
                         type="text" 
                         value={formData.business_name} 
                         onChange={(e) => setFormData({...formData, business_name: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
                         placeholder="e.g. Kaushal Makeover" 
-                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Base Location in Hyderabad *</label>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Base Location in Hyderabad *</label>
                       <input 
                         type="text" 
                         value={formData.city} 
                         onChange={(e) => setFormData({...formData, city: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
                         placeholder="e.g. Jubilee Hills" 
-                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
@@ -456,24 +454,24 @@ setArtistReviews(reviewsData || []);
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Starting Package Price (₹) *</label>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Starting Package Price (₹) *</label>
                       <input 
                         type="text" 
                         value={formData.starting_price} 
                         onChange={(e) => setFormData({...formData, starting_price: e.target.value.replace(/\D/g, '')})} 
                         placeholder="15000" 
-                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Comfortable Travel Radius (km) *</label>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Comfortable Travel Radius (km) *</label>
                       <input 
                         type="text" 
                         value={formData.max_travel_km} 
                         onChange={(e) => setFormData({...formData, max_travel_km: e.target.value.replace(/\D/g, '')})} 
                         placeholder="25" 
-                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
@@ -481,38 +479,38 @@ setArtistReviews(reviewsData || []);
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Makeup Specialisations *</label>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Makeup Specialisations *</label>
                       <input 
                         type="text" 
                         value={formData.category} 
                         onChange={(e) => setFormData({...formData, category: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
                         placeholder="e.g. Bridal, Editorial, Party" 
-                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Qualifications / Certifications *</label>
+                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Qualifications / Certifications *</label>
                       <input 
                         type="text" 
                         value={formData.qualifications} 
                         onChange={(e) => setFormData({...formData, qualifications: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
                         placeholder="e.g. Certified by MAC" 
-                        className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                         required 
                       />
                     </div>
                   </div>
 
                   <div className="border-t border-black/10 pt-8 pb-4">
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Unavailable / Blocked Dates</label>
+                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black">Unavailable / Blocked Dates</label>
                     <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Select personal days or vacations when you are completely unavailable. (Confirmed client bookings are blocked automatically).</p>
                     
                     <div className="flex gap-4 mb-4">
                       <input 
                         type="date" 
                         id="datePicker" 
-                        className="border-b border-black/20 bg-transparent py-2 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                        className="text-sm text-black border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                       />
                       <button 
                         type="button" 
@@ -524,7 +522,7 @@ setArtistReviews(reviewsData || []);
                             dateInput.value = '';
                           }
                         }} 
-                        className="bg-black px-6 py-2 text-[10px] font-bold text-white uppercase tracking-widest hover:bg-[#B66CF2] transition-colors"
+                        className="bg-black px-6 py-2 text-[10px] font-bold text-white uppercase tracking-widest hover:bg-[#BA965B] hover:text-black transition-colors"
                       >
                         Block Date
                       </button>
@@ -549,7 +547,7 @@ setArtistReviews(reviewsData || []);
                   </div>
 
                   <div className="bg-black/5 p-6 border-l-2 border-black">
-                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Primary Portfolio Upload *</label>
+                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black">Primary Portfolio Upload *</label>
                     <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload a minimum of 2 photos. No maximum limit.</p>
                     
                     <input type="file" multiple accept="image/*" onChange={handleAddPortfolioImage} className="w-full text-sm text-black/70 file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:text-[10px] file:font-bold file:uppercase file:tracking-widest file:text-black hover:file:bg-black/10 transition-all cursor-pointer" required={portfolio.length < 2} />
@@ -560,7 +558,7 @@ setArtistReviews(reviewsData || []);
                   </div>
 
                   <div className="border-t border-black/10 pt-8">
-                    <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-black/50">Do you offer any add-on skills? (e.g. Hairstyling, Brow Tinting)</label>
+                    <label className="mb-4 block text-[10px] font-bold uppercase tracking-[0.25em] text-black/50">Do you offer any add-on skills? (e.g. Hairstyling, Brow Tinting)</label>
                     <div className="flex gap-4 mb-6">
                       <button type="button" onClick={() => setHasAddonSkill(true)} className={`px-6 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${hasAddonSkill ? 'bg-black text-white shadow-sm' : 'bg-black/5 text-black/50 hover:text-black'}`}>
                         Yes, I do
@@ -574,7 +572,6 @@ setArtistReviews(reviewsData || []);
                       <div className="space-y-6">
                         {addons.map((addon, index) => (
                           <div key={index} className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-black/5 p-6 border-l-2 border-[#B66CF2] relative">
-                            
                             {addons.length > 1 && (
                               <button 
                                 type="button" 
@@ -588,11 +585,11 @@ setArtistReviews(reviewsData || []);
                               </button>
                             )}
 
-                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#B66CF2]">Add-on Skill #{index + 1}</p>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#B66CF2]">Add-on Skill #{index + 1}</p>
 
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                               <div>
-                                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Skill Name *</label>
+                                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black">Add-on Skill Name *</label>
                                 <input 
                                   type="text" 
                                   value={addon.name} 
@@ -602,12 +599,12 @@ setArtistReviews(reviewsData || []);
                                     setAddons(updated);
                                   }} 
                                   placeholder="e.g. Brow Tinting" 
-                                  className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                                  className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                                   required={hasAddonSkill} 
                                 />
                               </div>
                               <div>
-                                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Price (₹) *</label>
+                                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black">Add-on Price (₹) *</label>
                                 <input 
                                   type="text" 
                                   value={addon.price} 
@@ -617,13 +614,13 @@ setArtistReviews(reviewsData || []);
                                     setAddons(updated);
                                   }} 
                                   placeholder="e.g. 1200" 
-                                  className="w-full border-b border-black/20 bg-transparent py-3 text-sm font-bold tracking-widest outline-none transition-colors focus:border-black" 
+                                  className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]" 
                                   required={hasAddonSkill} 
                                 />
                               </div>
                             </div>
                             <div>
-                              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-black">Add-on Portfolio Upload *</label>
+                              <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.25em] text-black">Add-on Portfolio Upload *</label>
                               <p className="mb-4 text-[10px] font-bold tracking-widest text-black/50 uppercase">Must upload at least 1 photo showcasing this specific skill.</p>
                               <input 
                                 type="file" 
@@ -653,7 +650,7 @@ setArtistReviews(reviewsData || []);
                   </div>
 
                   <div className="pt-4 flex justify-end">
-                    <button type="submit" disabled={saving || uploadingPortfolio} className="bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50">
+                    <button type="submit" disabled={saving || uploadingPortfolio} className="bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-transform hover:scale-[1.01] active:scale-[0.99] hover:bg-[#BA965B] hover:text-black disabled:opacity-50">
                       {saving ? 'SAVING...' : 'SAVE CHANGES'}
                     </button>
                   </div>
@@ -668,11 +665,10 @@ setArtistReviews(reviewsData || []);
                 {clientBookings.map((booking) => (
                   <div key={booking.id} className="bg-white border border-black/10 p-8 shadow-sm flex justify-between items-center">
                     <div>
-                      <h4 className="text-2xl font-bold capitalize tracking-tight">{booking.artist?.business_name || 'Canvas Artist'}</h4>
+                      <h4 className="font-bold text-2xl capitalize tracking-tight">{booking.artist?.business_name || 'Canvas Artist'}</h4>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-black/40">{booking.artist?.city}</p>
                     </div>
                     
-                    {/* The new button section for the Client side! */}
                     <div className="flex gap-4 items-center">
                       <button 
                         onClick={() => {
@@ -683,18 +679,17 @@ setArtistReviews(reviewsData || []);
                       >
                         Leave a Review
                       </button>
-                      <button onClick={() => setActiveChatBooking(booking)} className="border border-black bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#B66CF2] hover:border-[#B66CF2] transition-colors">
+                      <button onClick={() => setActiveChatBooking(booking)} className="border border-black bg-black px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#BA965B] hover:border-[#BA965B] hover:text-black transition-colors">
                         Open Chat
                       </button>
                     </div>
-
                   </div>
                 ))}
               </div>
             ) : (
               <div className="flex min-h-[300px] flex-col items-center justify-center border border-dashed border-black/20 bg-white p-8 text-center shadow-sm">
-                <p className="text-3xl font-bold tracking-tight text-black/30">No bookings yet.</p>
-                <button onClick={() => setLocation('/')} className="mt-8 border border-black bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white">Browse Artists</button>
+                <p className="font-bold text-3xl tracking-tight text-black/30">No bookings yet.</p>
+                <button onClick={() => setLocation('/')} className="mt-8 border border-black bg-black px-8 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-[#BA965B] hover:text-black transition-colors">Browse Artists</button>
               </div>
             )}
           </div>
@@ -712,7 +707,7 @@ setArtistReviews(reviewsData || []);
               await supabase.from('profiles').update({ role: 'client' }).eq('id', user.id);
               window.location.reload();
             }}
-            className="flex items-center gap-2 border border-black bg-black px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-2xl transition-colors hover:bg-[#B66CF2] hover:border-[#B66CF2]"
+            className="flex items-center gap-2 border border-black bg-black px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-2xl transition-colors hover:bg-[#BA965B] hover:text-black"
           >
             <ArrowLeft size={14} /> Wait, I'm a Client
           </button>
@@ -723,7 +718,6 @@ setArtistReviews(reviewsData || []);
         <ChatDrawer open={Boolean(activeChatBooking)} bookingId={activeChatBooking.id} currentUserId={user?.id || ''} otherPartyName={role === 'artist' ? (activeChatBooking.client?.full_name || 'Client') : 'Artist Studio'} onClose={() => setActiveChatBooking(null)} />
       )}
 
-      {/* The Review Modal renders here safely at the bottom! */}
       {reviewModalOpen && bookingToReview && (
         <ReviewModal 
           isOpen={reviewModalOpen}
