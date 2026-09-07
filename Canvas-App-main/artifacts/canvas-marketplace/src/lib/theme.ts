@@ -1,164 +1,160 @@
 export const getTheme = (styleVersion: string) => {
-  const isOpt1 = styleVersion === '1'; // Vogue / Editorial
-  const isOpt3 = styleVersion === '3'; // Bold High-Fashion
-  const isOpt4 = styleVersion === '4'; // Old-World Boutique
-  // Option 2 (Aesop Minimalist) is the default
+  const isOpt1 = styleVersion === '1'; // Boracay / Kuroga Style
+  const isOpt3 = styleVersion === '3'; // St. Croix / Restaglick Style
+  const isOpt4 = styleVersion === '4'; // Sinethar / Jost Van Dyke Style
+  // Option 2 (Santorini / Kefalonia Minimalist) is the default
 
   return {
-    // Base layout font
+    // Base layout font using her custom options
     fontBase: isOpt4 
-      ? "font-['EB_Garamond']" 
+      ? "font-['Jost_Van_Dyke']" 
       : (isOpt1 || isOpt3) 
-      ? "font-['Montserrat']" 
-      : "font-['Manrope'] lowercase",
+      ? "font-['Boracay']" 
+      : "font-['Santorini']",
     
-    // Hero headings capturing that dramatic, high-end editorial display serif style
+    // Hero headings using her screenshot fonts
     headingHero: isOpt4
-      ? "font-['Cormorant_Garamond'] italic font-light text-7xl md:text-8xl text-black tracking-tight leading-[1]"
+      ? "font-['Sinethar'] text-6xl md:text-8xl text-black tracking-tight leading-[1]"
       : isOpt3
-      ? "font-['Bodoni_Moda'] italic font-bold text-7xl md:text-8xl text-black tracking-tighter leading-[0.9]"
+      ? "font-['Restaglick'] text-7xl md:text-8xl text-black tracking-tighter leading-[0.9]"
       : isOpt1 
-      ? "font-['Playfair_Display'] italic font-medium text-7xl md:text-8xl text-black tracking-tight leading-[0.95]" 
-      : "font-['Italiana'] text-6xl md:text-7xl text-black tracking-widest lowercase leading-[1]",
+      ? "font-['Boracay'] text-7xl md:text-8xl text-black tracking-tight leading-[0.95]" 
+      : "font-['Kefalonia'] text-6xl md:text-7xl text-black tracking-widest leading-[1]",
       
     // Modal headings
     headingModal: isOpt4
-      ? "font-['Cormorant_Garamond'] italic font-medium text-4xl text-black"
+      ? "font-['Jost_Van_Dyke'] text-4xl text-black"
       : isOpt3
-      ? "font-['Bodoni_Moda'] italic font-semibold text-4xl text-black tracking-tight"
+      ? "font-['St_Croix'] text-4xl text-black tracking-tight"
       : isOpt1
-      ? "font-['Playfair_Display'] italic font-medium text-3xl text-black tracking-tight"
-      : "font-['Cormorant_Garamond'] italic font-normal text-3xl text-black tracking-tight",
+      ? "font-['Boracay'] text-3xl text-black tracking-tight"
+      : "font-['Santorini'] text-3xl text-black tracking-tight",
       
-    // Eyebrow tags
+    // Eyebrow tags in Amethyst Crystal (#6B3C9C)
     eyebrow: isOpt4
-      ? "font-['EB_Garamond'] text-xs font-semibold tracking-[0.3em] text-[#6B3A7D] uppercase [font-variant:small-caps]"
+      ? "font-['Jost_Van_Dyke'] text-xs tracking-[0.3em] text-[#6B3C9C] uppercase"
       : isOpt3
-      ? "font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.4em] text-[#6B3A7D]"
+      ? "font-['St_Croix'] text-[10px] uppercase tracking-[0.4em] text-[#6B3C9C]"
       : isOpt1
-      ? "font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.35em] text-[#6B3A7D]"
-      : "font-['Manrope'] text-[11px] font-bold lowercase tracking-[0.25em] text-black/40",
+      ? "font-['Boracay'] text-[10px] uppercase tracking-[0.35em] text-[#6B3C9C]"
+      : "font-['Kefalonia'] text-[11px] tracking-[0.25em] text-black/40",
       
-    // Section headings with gorgeous contrast
+    // Section headings
     headingSection: isOpt4
-      ? "font-['Cormorant_Garamond'] italic font-semibold text-4xl text-[#BA965B]"
+      ? "font-['Sinethar'] text-4xl text-[#6B3C9C]"
       : isOpt3
-      ? "font-['Bodoni_Moda'] italic font-bold text-3xl text-black tracking-tight"
+      ? "font-['Restaglick'] text-3xl text-black tracking-tight"
       : isOpt1
-      ? "font-['Playfair_Display'] italic font-medium text-4xl sm:text-5xl text-black"
-      : "font-['Cormorant_Garamond'] italic font-light text-3xl sm:text-5xl text-[#BA965B]",
+      ? "font-['Boracay'] text-4xl sm:text-5xl text-black"
+      : "font-['Santorini'] text-3xl sm:text-5xl text-[#6B3C9C]",
       
     // Body text
     bodyText: isOpt4
-      ? "font-['EB_Garamond'] text-base leading-[1.9] text-black/65"
+      ? "font-['Jost_Van_Dyke'] text-base leading-[1.9] text-black/65"
       : isOpt3
-      ? "font-['Montserrat'] text-sm font-medium leading-[1.7] text-black/65"
+      ? "font-['St_Croix'] text-sm leading-[1.7] text-black/65"
       : isOpt1
-      ? "font-['Montserrat'] text-[15px] leading-[1.85] text-black/60"
-      : "font-['Manrope'] text-[15px] font-medium leading-[1.9] text-black/55 lowercase",
+      ? "font-['Boracay'] text-[15px] leading-[1.85] text-black/60"
+      : "font-['Santorini'] text-[15px] leading-[1.9] text-black/55",
       
     // Form labels
     formLabel: isOpt4
-      ? "font-['EB_Garamond'] text-xs tracking-[0.15em] text-black/45 [font-variant:small-caps]"
+      ? "font-['Jost_Van_Dyke'] text-xs tracking-[0.15em] text-black/45 uppercase"
       : isOpt3
-      ? "font-['Montserrat'] text-[10px] font-black uppercase tracking-[0.2em] text-black"
+      ? "font-['St_Croix'] text-[10px] uppercase tracking-[0.2em] text-black"
       : isOpt1
-      ? "font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-black/50"
-      : "font-['Manrope'] text-[11px] font-bold lowercase tracking-[0.15em] text-black/40",
+      ? "font-['Boracay'] text-[10px] uppercase tracking-[0.25em] text-black/50"
+      : "font-['Santorini'] text-[11px] tracking-[0.15em] text-black/40",
       
-    // Input fields
+    // Inputs
     inputText: isOpt4
-      ? "font-['EB_Garamond'] text-base text-black placeholder:text-black/30 border-b border-[#BA965B]/30 focus:border-[#BA965B] outline-none bg-transparent py-2.5"
+      ? "font-['Jost_Van_Dyke'] text-base text-black placeholder:text-black/30 border-b border-[#6B3C9C]/30 focus:border-[#6B3C9C] outline-none bg-transparent py-2.5"
       : isOpt3
-      ? "font-['Montserrat'] text-sm font-semibold text-black placeholder:text-black/30 border-b-2 border-black focus:border-[#6B3A7D] outline-none bg-transparent py-2.5"
+      ? "font-['St_Croix'] text-sm text-black placeholder:text-black/30 border-b-2 border-black focus:border-[#6B3C9C] outline-none bg-transparent py-2.5"
       : isOpt1
-      ? "font-['Montserrat'] text-sm font-medium text-black placeholder:text-black/30 border-b border-black/15 focus:border-[#BA965B] outline-none bg-transparent py-2.5"
-      : "font-['Manrope'] text-sm font-medium text-black placeholder:text-black/25 border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]",
+      ? "font-['Boracay'] text-sm text-black placeholder:text-black/30 border-b border-black/15 focus:border-[#6B3C9C] outline-none bg-transparent py-2.5"
+      : "font-['Santorini'] text-sm text-black placeholder:text-black/25 border-b border-black/10 bg-transparent py-2.5 outline-none transition-colors focus:border-[#6B3C9C]",
       
     // Primary buttons
     btnPrimary: isOpt4
-      ? "bg-[#2D1B4E] text-[#BA965B] font-['EB_Garamond'] text-sm tracking-[0.2em] [font-variant:small-caps] px-8 py-4 hover:bg-black transition-colors rounded-none"
+      ? "bg-[#3D1E4A] text-[#6B3C9C] font-['Jost_Van_Dyke'] text-sm tracking-[0.2em] uppercase px-8 py-4 hover:bg-black transition-colors rounded-none"
       : isOpt3
-      ? "bg-black text-white font-['Montserrat'] text-xs font-black uppercase tracking-[0.15em] hover:bg-[#6B3A7D] transition-colors rounded-none px-8 py-4"
+      ? "bg-black text-white font-['St_Croix'] text-xs uppercase tracking-[0.15em] hover:bg-[#6B3C9C] transition-colors rounded-none px-8 py-4"
       : isOpt1
-      ? "bg-black text-white font-['Montserrat'] text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#BA965B] hover:text-black transition-colors rounded-none px-8 py-4"
-      : "bg-[#BA965B] text-white px-8 py-4 font-['Manrope'] text-xs font-bold lowercase tracking-[0.1em] rounded-full hover:bg-black transition-colors shadow-sm",
+      ? "bg-black text-white font-['Boracay'] text-xs uppercase tracking-[0.2em] hover:bg-[#6B3C9C] hover:text-white transition-colors rounded-none px-8 py-4"
+      : "bg-[#6B3C9C] text-white px-8 py-4 font-['Santorini'] text-xs lowercase tracking-[0.1em] rounded-full hover:bg-black transition-colors shadow-sm",
 
     // Outline buttons
     btnOutline: isOpt4
-      ? "border border-[#BA965B]/50 bg-transparent text-[#BA965B] font-['EB_Garamond'] text-sm tracking-[0.2em] [font-variant:small-caps] px-8 py-4 hover:bg-[#2D1B4E] transition-colors rounded-none"
+      ? "border border-[#6B3C9C]/50 bg-transparent text-[#6B3C9C] font-['Jost_Van_Dyke'] text-sm tracking-[0.2em] uppercase px-8 py-4 hover:bg-[#3D1E4A] transition-colors rounded-none"
       : isOpt3
-      ? "border-2 border-black px-8 py-4 font-['Montserrat'] text-xs font-black uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-colors rounded-none text-black"
+      ? "border-2 border-black px-8 py-4 font-['St_Croix'] text-xs uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-colors rounded-none text-black"
       : isOpt1
-      ? "border border-black px-8 py-4 font-['Montserrat'] text-xs font-bold uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-colors rounded-none text-black"
-      : "border border-black/15 bg-transparent px-8 py-4 font-['Manrope'] text-xs font-bold lowercase rounded-full text-black hover:border-black transition-colors",
+      ? "border border-black px-8 py-4 font-['Boracay'] text-xs uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-colors rounded-none text-black"
+      : "border border-black/15 bg-transparent px-8 py-4 font-['Santorini'] text-xs lowercase rounded-full text-black hover:border-black transition-colors",
       
     // Secondary links
     secondaryLink: isOpt4
-      ? "font-['EB_Garamond'] italic text-sm text-black/50 hover:text-[#BA965B]"
+      ? "font-['Jost_Van_Dyke'] text-sm text-black/50 hover:text-[#6B3C9C]"
       : isOpt3
-      ? "font-['Montserrat'] text-xs font-bold uppercase tracking-widest text-black underline decoration-2 underline-offset-4 hover:text-[#6B3A7D]"
+      ? "font-['St_Croix'] text-xs uppercase tracking-widest text-black underline decoration-2 underline-offset-4 hover:text-[#6B3C9C]"
       : isOpt1
-      ? "font-['Montserrat'] text-xs font-medium uppercase tracking-widest text-black/50 underline underline-offset-4 decoration-black/20 hover:text-[#BA965B]"
-      : "font-['Manrope'] text-xs font-bold lowercase text-black/40 hover:text-[#BA965B] transition-colors",
+      ? "font-['Boracay'] text-xs uppercase tracking-widest text-black/50 underline underline-offset-4 decoration-black/20 hover:text-[#6B3C9C]"
+      : "font-['Santorini'] text-xs lowercase text-black/40 hover:text-[#6B3C9C] transition-colors",
       
-    // Navigation links
+    // Nav links
     navLink: isOpt4
-      ? "font-['EB_Garamond'] text-sm tracking-[0.1em] text-black/55 [font-variant:small-caps] hover:text-[#BA965B]"
+      ? "font-['Jost_Van_Dyke'] text-sm tracking-[0.1em] text-black/55 uppercase hover:text-[#6B3C9C]"
       : isOpt3
-      ? "font-['Montserrat'] text-xs font-black uppercase tracking-[0.1em] text-black hover:text-[#6B3A7D] transition-colors"
+      ? "font-['St_Croix'] text-xs uppercase tracking-[0.1em] text-black hover:text-[#6B3C9C] transition-colors"
       : isOpt1
-      ? "font-['Montserrat'] text-xs font-bold uppercase tracking-[0.15em] text-black/60 hover:text-black transition-colors"
-      : "font-['Manrope'] text-[13px] font-bold lowercase tracking-wide text-black/50 hover:text-black transition-colors",
+      ? "font-['Boracay'] text-xs uppercase tracking-[0.15em] text-black/60 hover:text-black transition-colors"
+      : "font-['Santorini'] text-[13px] lowercase tracking-wide text-black/50 hover:text-black transition-colors",
       
     // Badges
     badge: isOpt4
-      ? "font-['EB_Garamond'] text-xs tracking-[0.15em] text-[#BA965B] border border-[#BA965B]/50 rounded-none px-3 py-1 [font-variant:small-caps]"
+      ? "font-['Jost_Van_Dyke'] text-xs tracking-[0.15em] text-[#6B3C9C] border border-[#6B3C9C]/50 rounded-none px-3 py-1 uppercase"
       : isOpt3
-      ? "font-['Montserrat'] text-[10px] font-black uppercase tracking-[0.15em] text-white bg-black px-3 py-1 rounded-none"
+      ? "font-['St_Croix'] text-[10px] uppercase tracking-[0.15em] text-white bg-black px-3 py-1 rounded-none"
       : isOpt1
-      ? "font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.2em] text-[#BA965B] border border-[#BA965B]/40 rounded-full px-3 py-1"
-      : "px-3 py-1 bg-black/5 text-black font-['Manrope'] text-[10px] font-bold uppercase tracking-[0.15em] rounded-full",
+      ? "font-['Boracay'] text-[10px] uppercase tracking-[0.2em] text-[#6B3C9C] border border-[#6B3C9C]/40 rounded-full px-3 py-1"
+      : "px-3 py-1 bg-black/5 text-black font-['Santorini'] text-[10px] uppercase tracking-[0.15em] rounded-full",
       
-    // Stat numbers
+    // Stats
     stat: isOpt4
-      ? "font-['Cormorant_Garamond'] italic font-light text-5xl text-black tabular-nums"
+      ? "font-['Sinethar'] text-5xl text-black tabular-nums"
       : isOpt3
-      ? "font-['Bodoni_Moda'] italic font-bold text-5xl text-black tabular-nums"
+      ? "font-['Restaglick'] text-5xl text-black tabular-nums"
       : isOpt1
-      ? "font-['Playfair_Display'] italic font-medium text-4xl text-black tabular-nums"
-      : "font-['Cormorant_Garamond'] italic font-normal text-4xl text-black tabular-nums",
+      ? "font-['Boracay'] text-4xl text-black tabular-nums"
+      : "font-['Kefalonia'] text-4xl text-black tabular-nums",
       
     // Quotes
     quote: isOpt4
-      ? "font-['Cormorant_Garamond'] italic text-2xl md:text-3xl text-black/80 leading-relaxed"
+      ? "font-['Sinethar'] text-2xl md:text-3xl text-black/80 leading-relaxed"
       : isOpt3
-      ? "font-['Bodoni_Moda'] italic font-semibold text-xl text-black/80 leading-relaxed"
+      ? "font-['Restaglick'] text-xl text-black/80 leading-relaxed"
       : isOpt1
-      ? "font-['Playfair_Display'] italic text-xl md:text-2xl text-black/80 leading-relaxed"
-      : "font-['Cormorant_Garamond'] italic text-xl text-black/70 leading-relaxed",
+      ? "font-['Boracay'] text-xl md:text-2xl text-black/80 leading-relaxed"
+      : "font-['Kefalonia'] text-xl text-black/70 leading-relaxed",
 
     cardRadius: (isOpt1 || isOpt3 || isOpt4) ? "rounded-none" : "rounded-2xl",
-    borderBase: isOpt4 ? "border-[#BA965B]/30" : isOpt3 ? "border-black/20" : isOpt1 ? "border-black/20" : "border-black/10",
+    borderBase: isOpt4 ? "border-[#6B3C9C]/30" : isOpt3 ? "border-black/20" : isOpt1 ? "border-black/20" : "border-black/10",
     
-    // The signature high-fashion display serif tags (replaces messy scripts with clean, high-contrast editorial serifs)
+    // Premium cursive tags mapped precisely to her requested handwriting/display styles
     premiumTag: isOpt4
-      ? "font-['Cormorant_Garamond'] italic font-medium text-[#6B3A7D] lowercase tracking-normal"
+      ? "font-['Sinethar'] text-[#6B3C9C]"
       : isOpt3
-      ? "font-['Bodoni_Moda'] italic font-bold text-[#6B3A7D] lowercase tracking-normal"
+      ? "font-['Restaglick'] text-[#6B3C9C]"
       : isOpt1
-      ? "font-['Playfair_Display'] italic font-semibold text-[#6B3A7D] lowercase tracking-wide"
-      : "font-['Cormorant_Garamond'] italic font-medium text-[#6B3A7D] lowercase tracking-normal",
+      ? "font-['Kuroga'] text-[#6B3C9C]"
+      : "font-['Kefalonia'] text-[#6B3C9C]",
 
-    // Amethyst color utilities
-    accentColor: '#6B3A7D',
+    accentColor: '#6B3C9C',
     accentLight: '#9B7CB6',
-    accentDeep: '#4A2459',
-    accentText: 'text-[#6B3A7D]',
-    accentBg: 'bg-[#6B3A7D]',
-    accentBorder: 'border-[#6B3A7D]',
-    accentTextLight: 'text-[#9B7CB6]',
-    accentBgLight: 'bg-[#6B3A7D]/10',
-    accentBorderLight: 'border-[#6B3A7D]/40',
+    accentDeep: '#3D1E4A',
+    accentText: 'text-[#6B3C9C]',
+    accentBg: 'bg-[#6B3C9C]',
+    accentBorder: 'border-[#6B3C9C]',
   };
 };
