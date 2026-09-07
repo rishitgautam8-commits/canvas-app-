@@ -709,7 +709,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                               portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)} 
                               startingPrice={artist.startingPrice} 
                               tags={artist.tags} 
-                              matchPercentage={artist.match}
+                              matchPercentage={aiTags.length > 0 ? artist.match : undefined} 
                               onClick={() => handleSelectArtist(artist)} 
                             />
                           </ScrollZoom>
@@ -831,13 +831,13 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button 
                 onClick={() => window.alert('Canvas Pro features are launching soon! Create a free account today to get early access.')} 
-                className={`${theme.btnOutline} !border-white !text-white hover:!bg-white hover:!text-black`}
+                className={`${theme.btnOutline} !border-[#BA965B] !text-[#BA965B] hover:!bg-[#BA965B] hover:!text-white`}
               >
                 explore pro features
               </button>
               <button 
                 onClick={() => setAuthOpen(true)} 
-                className={`${theme.btnPrimary} !bg-white !text-black hover:!bg-[#B66CF2] hover:!text-white`}
+                className={theme.btnPrimary}
               >
                 apply to join canvas
               </button>
