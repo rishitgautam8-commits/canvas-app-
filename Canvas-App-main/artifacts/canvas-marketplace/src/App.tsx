@@ -20,6 +20,20 @@ import BeautyDemo from '@/pages/ArtistProfile';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { Reveal } from '@/components/Reveal';
 
+// ==========================================
+// PREMIUM TYPOGRAPHY COMPONENT
+// ==========================================
+function Premium({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="font-['Playfair_Display'] italic font-normal text-[#BA965B] tracking-wider px-1 drop-shadow-sm">
+      {children}
+    </span>
+  );
+}
+
+// ==========================================
+// PERFORMANCE OPTIMIZED SCROLL WRAPPERS
+// ==========================================
 function ScrollZoom({ children, className }: { children: React.ReactNode; className?: string; delay?: number }) {
   return <div className={className}>{children}</div>;
 }
@@ -116,7 +130,6 @@ const local100Artists: Artist[] = artists.slice(0, 100).map((a: any, index: numb
 function getEstimatedDistance(clientLoc: string, artistCity: string, artistId: string): number {
   const locLower = clientLoc.toLowerCase();
   const cityLower = artistCity.toLowerCase();
-  // Bidirectional substring match handles "Jubilee Hills" vs "Jubilee"
   if (locLower === '' || cityLower.includes(locLower) || locLower.includes(cityLower)) return 5;
   const stableNum = parseInt(artistId.replace(/\D/g, '')) || 0;
   return (stableNum % 21) + 5;
@@ -138,7 +151,6 @@ function runCanvasMatch(
     if (services.length > 0 && !artist.services.some(s => services.includes(s))) return false;
     
     const estDistance = getEstimatedDistance(location, artist.city, artist.id);
-    // Bypass distance check for live registered database artists
     if (!(artist as any).isLiveDb && estDistance > artist.maxTravelKm) return false;
     
     return true;
@@ -182,6 +194,45 @@ async function analyzeLookWithAI(file: File): Promise<string[]> {
 }
 
 // ==========================================
+// MAGAZINE BLEED HERO VISUAL
+// ==========================================
+function CanvasVisualEditorial() {
+  return (
+    <div className="relative w-full h-full flex items-center justify-end overflow-visible">
+      <div className="absolute -top-10 right-0 w-[420px] h-[420px] bg-[#C9A463]/25 rounded-full blur-[110px]" />
+      <div className="absolute bottom-0 left-0 w-[380px] h-[380px] bg-[#4A2A6B]/30 rounded-full blur-[120px]" />
+
+      <div className="hidden lg:flex flex-col items-center gap-4 mr-6 z-10">
+        <div className="h-16 w-px bg-black/15" />
+        <span className="[writing-mode:vertical-rl] text-[10px] font-bold uppercase tracking-[0.4em] text-black/40">
+          The Canvas Standard
+        </span>
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0, y: [0, -14, 0] }}
+        transition={{
+          opacity: { duration: 1 },
+          x: { duration: 1 },
+          y: { duration: 7, repeat: Infinity, ease: 'easeInOut' },
+        }}
+        className="relative z-10 -mr-10 md:-mr-16"
+      >
+        <img
+          src="/logo.png"
+          alt="Canvas"
+          className="w-[280px] md:w-[380px] lg:w-[440px] object-contain drop-shadow-[0_30px_60px_rgba(74,42,107,0.25)]"
+        />
+        <p className="mt-4 text-right pr-4 text-sm font-['Playfair_Display'] italic text-[#BA965B] tracking-widest">
+          Curated Private Roster
+        </p>
+      </motion.div>
+    </div>
+  );
+}
+
+// ==========================================
 // HOME COMPONENT
 // ==========================================
 function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: (v: boolean) => void }) {
@@ -214,8 +265,6 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
   });
 
   const handleSelectArtist = (artist: Artist) => {
-    console.log("Artist card clicked:", artist.name);
-    // If it's a live database artist with a UUID, route directly to their page
     if ((artist as any).isLiveDb || String(artist.id).includes('-')) {
       setLocation(`/artist/${artist.id}`);
     } else {
@@ -228,7 +277,6 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
     '1509967419530-da38b4704bc6', '1542452255199-3172cb8cbce8', '1518049362265-d5b2a6467637'
   ];
 
-  // 1. THIS IS THE FIX: useQuery caches the live artists so the grid NEVER flashes!
   const { data: liveArtists = [] } = useQuery({
     queryKey: ['liveArtists'],
     queryFn: async () => {
@@ -275,7 +323,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
       }
       return [];
     },
-    staleTime: 1000 * 60 * 5, // Keeps data fresh in memory cache for 5 minutes
+    staleTime: 1000 * 60 * 5, 
   });
 
   const [sortBy, setSortBy] = useState('Best match');
@@ -355,14 +403,12 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
     const seenIds = new Set<string>();
     const merged: Artist[] = [];
     
-    // Always put live database artists first so they are never filtered out
     for (const artist of liveArtists) {
       if (seenIds.has(artist.id)) continue;
       seenIds.add(artist.id);
       merged.push(artist);
     }
     
-    // Then add the mock template artists
     for (const artist of local100Artists) {
       if (seenIds.has(artist.id)) continue;
       seenIds.add(artist.id);
@@ -518,10 +564,10 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
               <div className="w-[26px] h-[1px] bg-gradient-to-r from-[var(--canvas-g)] to-transparent"></div>AI-powered beauty matching
             </div>
             <h1 className="font-['Montserrat'] text-5xl md:text-7xl font-bold text-black tracking-tight leading-tight">
-  Hyderabad's <br />
-  <span className="font-['Playfair_Display'] italic text-[#BA965B] font-semibold tracking-wide">Premium</span> <br />
-  Beauty Match.
-</h1>
+              Hyderabad's <br />
+              <Premium>Premium</Premium> <br />
+              Beauty Match.
+            </h1>
             <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-3">Upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
             <p className="text-[15.5px] leading-[1.85] text-[var(--canvas-mut)] max-w-[460px] mb-8">The exclusive AI-powered bridal and beauty booking platform for Hyderabad and Cyberabad.</p>
             <div className="flex gap-4 flex-wrap">
@@ -532,33 +578,8 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
 
         <ScrollZoom>
           <div className="flex flex-col items-center justify-center py-10 md:py-16 relative hidden md:flex">
-  {/* The Luxury Visual Anchor */}
-  <div className="relative group flex items-center justify-center w-full max-w-lg aspect-square">
-    {/* Subtle Ambient Glow */}
-    <div className="absolute inset-0 bg-gradient-to-tr from-[#BA965B]/20 to-[#B66CF2]/20 rounded-full blur-3xl opacity-50 transition-opacity duration-1000 group-hover:opacity-80"></div>
-    
-    {/* Minimalist Glass Panel */}
-    <div className="relative z-10 flex flex-col items-center justify-center w-[85%] h-[85%] rounded-[2rem] border border-black/5 bg-white/40 backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-transform duration-700 hover:-translate-y-2">
-      
-      {/* The High-Res Logo */}
-      <img 
-        src="/logo.png" 
-        alt="Canvas Premium Logo" 
-        className="w-32 h-32 md:w-48 md:h-48 object-contain mb-8 drop-shadow-sm" 
-      />
-      
-      {/* The Editorial Badge */}
-      <div className="flex flex-col items-center">
-        <span className="text-[9px] font-bold uppercase tracking-[0.4em] text-black/40 mb-3">The Canvas Standard</span>
-        <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-black/30 to-transparent mb-3"></div>
-        <p className="text-sm font-['Playfair_Display'] italic text-[#BA965B] tracking-widest">Curated Private Roster</p>
-      </div>
-    </div>
-    
-    {/* Rotating Geometric Ring */}
-    <div className="absolute inset-0 rounded-full border border-black/5 border-dashed animate-[spin_60s_linear_infinite]"></div>
-  </div>
-</div>
+            <CanvasVisualEditorial />
+          </div>
         </ScrollZoom>
       </section>
 
@@ -642,16 +663,13 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start mt-10">
-              {/* 👇 Updated sidebar background */}
               <ScrollZoomIn className="lg:col-span-1 bg-white/40 backdrop-blur-md border border-black/10 p-6 space-y-8 sticky top-8">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-black/70 mb-3">Sort by</label>
-                  {/* 👇 Updated dropdown background */}
                   <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full bg-transparent border border-black/20 p-3 text-xs font-bold uppercase tracking-wider text-black outline-none cursor-pointer">
                     <option value="Best match">Best match</option><option value="Highest rated">Highest rated</option><option value="Price: low to high">Price: low to high</option><option value="Price: high to low">Price: high to low</option>
                   </select>
                 </div>
-                {/* ... rest of the sidebar ... */}
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-black/70">Max Budget</label>
@@ -718,7 +736,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-end mb-24">
               <ScrollZoomIn className="lg:col-span-8">
                 <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#B66CF2] mb-8">The Canvas Standard</p>
-                <h2 className="text-5xl sm:text-7xl md:text-8xl font-bold capitalize text-black leading-[1.1] tracking-tight">Beauty Is A Point Of View.</h2>
+                <h2 className="text-5xl sm:text-7xl md:text-8xl font-bold capitalize text-black leading-[1.1] tracking-tight">Beauty Is A <Premium>Point Of View.</Premium></h2>
               </ScrollZoomIn>
               <ScrollZoomIn className="lg:col-span-4 pb-3" delay={150}>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] leading-[2] text-black/50">Canvas is a private directory, not an open marketplace. Every artist on this platform has been rigorously vetted for their technical execution, kit hygiene, and distinct aesthetic vision.</p>
@@ -839,7 +857,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
               <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#B66CF2] mb-3">From the journal</p>
-                  <h2 className="text-5xl sm:text-7xl font-bold text-white capitalize">From The Journal.</h2>
+                  <h2 className="text-5xl sm:text-7xl font-bold text-white capitalize">From The <Premium>Journal.</Premium></h2>
                 </div>
                 <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className="text-xs font-bold uppercase tracking-[0.2em] hover:text-[#B66CF2] transition-colors border-b border-white/30 pb-1">Read all stories</button>
               </div>
@@ -990,7 +1008,6 @@ function Router({ session }: { session: Session | null }) {
         <Route component={NotFound} />
       </Switch>
 
-      {/* PASTE THIS EXACT LINE HERE! */}
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
 
     </ErrorBoundary>
@@ -1006,14 +1023,12 @@ export default function App() {
   const [updatingRole, setUpdatingRole] = useState(false);
 
   useEffect(() => {
-    // 1. Check if we're currently processing a Google OAuth redirect
     const checkSession = async () => {
       const isOAuth = window.location.hash.includes('access_token=') || window.location.search.includes('code=');
       const { data: { session } } = await supabase.auth.getSession();
       
       setSession(session);
       
-      // If it's not an OAuth redirect, drop the freeze screen
       if (!isOAuth) {
         setLoadingSession(false);
       }
@@ -1025,7 +1040,6 @@ export default function App() {
       setSession(currentSession);
       const isOAuth = window.location.hash.includes('access_token=') || window.location.search.includes('code=');
       
-      // Prevent the "flash" by waiting for SIGNED_IN during OAuth
       if (isOAuth) {
         if (event === 'SIGNED_IN') setLoadingSession(false);
       } else {
@@ -1077,7 +1091,6 @@ export default function App() {
   if (needsRole) {
     return (
       <div className="h-screen w-full flex flex-col md:flex-row overflow-hidden bg-[#F9F9F9] fixed inset-0 z-[9999]">
-        {/* CLIENT SELECTION */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }} 
           animate={{ opacity: 1, x: 0 }} 
@@ -1099,7 +1112,6 @@ export default function App() {
           </div>
         </motion.div>
 
-        {/* ARTIST SELECTION */}
         <motion.div 
           initial={{ opacity: 0, x: 20 }} 
           animate={{ opacity: 1, x: 0 }} 
