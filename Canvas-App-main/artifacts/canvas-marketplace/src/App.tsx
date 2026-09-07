@@ -20,11 +20,11 @@ import BeautyDemo from '@/pages/ArtistProfile';
 import { ChatDrawer } from '@/components/ChatDrawer';
 import { Reveal } from '@/components/Reveal';
 
-function ScrollZoom({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  return <Reveal variant="zoom" delay={delay} className={className}>{children}</Reveal>;
+function ScrollZoom({ children, className }: { children: React.ReactNode; className?: string; delay?: number }) {
+  return <div className={className}>{children}</div>;
 }
-function ScrollZoomIn({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  return <Reveal variant="fade" delay={delay} className={className}>{children}</Reveal>;
+function ScrollZoomIn({ children, className }: { children: React.ReactNode; className?: string; delay?: number }) {
+  return <div className={className}>{children}</div>;
 }
 
 const queryClient = new QueryClient();
@@ -659,7 +659,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
                   <p className="text-xs font-bold uppercase tracking-widest text-black/50 mb-6">Showing {uniqueArtists.length} of {sourceArtists.length} artists</p>
                 </ScrollZoomIn>
 
-                <motion.div style={{ y: gridY, willChange: 'transform' }}>
+                <div>
                   {uniqueArtists.length > 0 ? (
                     <>
                       <div className="grid gap-x-6 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
@@ -686,7 +686,7 @@ function Home({ session, setAuthOpen }: { session: Session | null; setAuthOpen: 
                       </div>
                     </ScrollZoomIn>
                   )}
-                </motion.div>
+                </div>
               </div>
             </div>
           </div>
