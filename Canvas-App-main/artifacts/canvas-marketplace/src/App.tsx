@@ -550,14 +550,39 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[100px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
-            <div className={`flex items-center gap-3 ${theme.eyebrow} mb-7`}>
-              <div className="w-[26px] h-[1px] bg-[#6B3C9C]"></div>ai-powered beauty matching
+            <div className="flex flex-col items-start pt-4 mb-8">
+              {/* 1. EYEBROW TAG */}
+              <div className="flex items-center gap-3 font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.35em] text-[#6B3C9C] mb-8">
+                <div className="w-[26px] h-[1px] bg-[#6B3C9C]"></div>
+                ai-powered beauty matching
+              </div>
+
+              {/* 2. THE EDITORIAL LOCKUP USING XAVIERA & SEMESTHA */}
+              <h1 className="flex flex-col items-start text-black select-none mb-6">
+                
+                {/* Line 1: Xaviera */}
+                <span className="font-['Xaviera'] text-[4.5rem] md:text-[6.5rem] tracking-tighter leading-[0.75]">
+                  hyderabad's
+                </span>
+                
+                {/* Line 2: Semestha (The Script)
+                    leading-[0.4] shrinks its massive bounding box. 
+                    -my-3 forces it to overlap the black words above and below it. 
+                    ml-12 indents it so it flows naturally. */}
+                <span className="font-['Semestha'] text-[#6B3C9C] text-[5.5rem] md:text-[7.5rem] leading-[0.4] -my-2 md:-my-4 ml-8 md:ml-16 relative z-10 -rotate-3 drop-shadow-sm">
+                  premium
+                </span>
+                
+                {/* Lines 3 & 4: Xaviera */}
+                <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tighter leading-[0.75]">
+                  beauty
+                </span>
+                <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tighter leading-[0.75]">
+                  match.
+                </span>
+                
+              </h1>
             </div>
-            <h1 className={`${theme.headingHero} mb-6`}>
-              hyderabad's <br />
-              <span className={theme.premiumTag}>premium</span> <br />
-              beauty match.
-            </h1>
             <p className={`${theme.bodyText} max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
             <p className={`${theme.bodyText} max-w-[460px] mb-8`}>the exclusive ai-powered bridal and beauty booking platform for hyderabad and cyberabad.</p>
             <div className="flex gap-4 flex-wrap">
