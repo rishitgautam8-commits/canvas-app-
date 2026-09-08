@@ -5,7 +5,12 @@
 
 /* --- YOUR CUSTOM DOWNLOADED FONTS --- */
 /* Ensure these exact filenames exist in your public/fonts/ folder */
-@font-face { font-family: 'Sirelia'; src: url('/fonts/Sirelia.otf') format('opentype'); }
+@font-face {
+  font-family: 'Sirelia';
+  src: url('/fonts/Sirelia.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
 @font-face { font-family: 'Mirabelle'; src: url('/fonts/Mirabelle.otf') format('opentype'); }
 @font-face { font-family: 'Semestha'; src: url('/fonts/Semestha.ttf') format('truetype'); }
 @font-face { font-family: 'Moura'; src: url('/fonts/Moura.otf') format('opentype'); }
