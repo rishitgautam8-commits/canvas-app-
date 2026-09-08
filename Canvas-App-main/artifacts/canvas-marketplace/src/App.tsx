@@ -564,11 +564,11 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     hyderabad's
   </span>
   
-  <span className="font-['Semestha'] text-[#6B3C9C] text-[3.8rem] md:text-[6rem] leading-none absolute top-[30%] left-[-2%] md:left-[-1%] z-20 pointer-events-none drop-shadow-sm lowercase transform -rotate-2">
+  <span className="font-['Semestha'] text-[#6B3C9C] text-[3.8rem] md:text-[6rem] leading-none z-20 pointer-events-none drop-shadow-sm lowercase transform -rotate-2 -mt-4 md:-mt-8 -mb-4 md:-mb-8 relative">
     premium
   </span>
   
-  <span className="font-['Xaviera'] text-[3.5rem] md:text-[5.5rem] tracking-tight leading-[0.85] z-0 mt-2 whitespace-nowrap">
+  <span className="font-['Xaviera'] text-[3.5rem] md:text-[5.5rem] tracking-tight leading-[0.85] z-0 whitespace-nowrap">
     beauty match.
   </span>
   
