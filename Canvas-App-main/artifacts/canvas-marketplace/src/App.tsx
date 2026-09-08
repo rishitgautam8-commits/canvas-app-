@@ -552,7 +552,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
             <div className="flex flex-col items-start pt-4 mb-8">
               {/* 1. EYEBROW TAG */}
-              <div className="flex items-center gap-3 font-['Montserrat'] text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B3C9C] mb-8">
+              <div className={`flex items-center gap-3 ${theme.eyebrow} mb-6`}>
                 <div className="w-[26px] h-[1px] bg-[#6B3C9C]"></div>
                 ai-powered beauty matching
               </div>
@@ -560,20 +560,16 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               {/* 2. THE EDITORIAL LOCKUP */}
               <h1 className="flex flex-col items-start text-black select-none mb-6">
                 
-                {/* Loosened the tracking and leading to stop letter collision */}
-                <span className="font-['Xaviera'] text-[4.5rem] md:text-[6.5rem] tracking-tight leading-[0.85]">
+                <span className={`${theme.headingHero} leading-[1.1] tracking-normal`}>
                   hyderabad's
                 </span>
                 
-                <span className="font-['Sirelia'] text-[#6B3C9C] text-[4.5rem] md:text-[6.5rem] leading-[0.5] -my-1 md:-my-3 ml-8 md:ml-16 relative z-10 -rotate-2 drop-shadow-sm">
+                <span className={`${theme.premiumTag} text-[4.5rem] md:text-[6.5rem] leading-[0.8] my-2 ml-4 md:ml-12 -rotate-3 relative z-10`}>
                   premium
                 </span>
                 
-                <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tight leading-[0.85]">
-                  beauty
-                </span>
-                <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tight leading-[0.85]">
-                  match.
+                <span className={`${theme.headingHero} leading-[1.1] tracking-normal`}>
+                  beauty match.
                 </span>
                 
               </h1>
