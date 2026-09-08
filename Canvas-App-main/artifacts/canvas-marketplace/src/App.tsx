@@ -557,28 +557,25 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     ai-powered beauty matching
   </div>
 
-  {/* 2. PIXEL-PERFECT EDITORIAL LOCKUP */}
-  <h1 className="flex flex-col items-start text-black select-none relative w-full">
-    
-    {/* Top Line */}
-    <span className="font-['Xaviera'] text-[4.5rem] md:text-[6.5rem] tracking-tight leading-[0.8] z-0">
-      hyderabad's
-    </span>
-    
-    {/* Middle Script Overlay: Positioned absolutely so it floats right across the center */}
-    <span className="font-['Semestha'] text-[#6B3C9C] text-[5.5rem] md:text-[8rem] leading-none absolute top-[28%] left-[2%] md:left-[4%] z-20 pointer-events-none drop-shadow-sm lowercase">
-      premium
-    </span>
-    
-    {/* Bottom Lines */}
-    <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tight leading-[0.8] z-0">
-      beauty
-    </span>
-    <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tight leading-[0.8] z-0">
-      match.
-    </span>
-    
-  </h1>
+  {/* THE EXACT EDITORIAL LOCKUP */}
+              <h1 className="flex flex-col items-start text-black select-none mb-10 mt-2 relative w-full">
+                
+                {/* Line 1: High-Contrast Modern Serif */}
+                <span className="font-['Xaviera'] text-[4.5rem] md:text-[7rem] tracking-tight leading-[0.8] z-0">
+                  hyderabad's
+                </span>
+                
+                {/* Middle Script: Absolute centered overlay with a dynamic forward slant */}
+                <span className="font-['Sirelia'] text-[#6B3C9C] text-[5.5rem] md:text-[8.5rem] leading-none absolute top-[22%] left-[-2%] md:left-[-1%] z-20 pointer-events-none drop-shadow-sm lowercase transform -rotate-2">
+                  premium
+                </span>
+                
+                {/* Lines 2 & 3: High-Contrast Modern Serif */}
+                <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tight leading-[0.8] z-0 mt-2">
+                  beauty match.
+                </span>
+                
+              </h1>
 </div>
             <p className={`${theme.bodyText} max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
             <p className={`${theme.bodyText} max-w-[460px] mb-8`}>the exclusive ai-powered bridal and beauty booking platform for hyderabad and cyberabad.</p>
