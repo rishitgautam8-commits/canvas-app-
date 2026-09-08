@@ -1,39 +1,42 @@
-export const getTheme = (styleVersion?: string) => {
+// src/lib/theme.ts
+
+export function getTheme(styleVersion: string) {
   return {
-    fontBase: "font-['Manrope']",
+    fontBase: "font-['Manrope',sans-serif]",
     
-    // Primary Headers set to Moura
-    headingHero: "font-['Moura'] font-normal text-6xl md:text-7xl text-black leading-[1.1] tracking-normal lowercase",
-    headingModal: "font-['Moura'] text-3xl text-black tracking-tight lowercase",
+    // Eyebrows / Subheadings
     eyebrow: "font-['Montserrat'] text-[11px] font-bold tracking-[0.2em] text-[#6B3C9C] uppercase",
-    headingSection: "font-['Moura'] text-4xl sm:text-5xl text-[#6B3C9C] tracking-normal lowercase",
     
-    bodyText: "font-['Manrope'] text-[15px] font-light leading-[1.9] text-black/60",
-    formLabel: "font-['Manrope'] text-[11px] font-medium tracking-[0.15em] text-black/45 uppercase",
-    inputText: "font-['Manrope'] font-light text-base text-black placeholder:text-black/30 border-b border-[#6B3C9C]/30 focus:border-[#6B3C9C] outline-none bg-transparent py-2.5 transition-colors",
+    // Section Headers
+    headingHero: "font-['Moura'] font-normal text-4xl sm:text-6xl tracking-tight text-black",
+    headingSection: "font-['Moura'] font-normal text-3xl sm:text-4xl tracking-tight text-black",
+    headingModal: "font-['Moura'] font-normal text-2xl tracking-tight text-black",
     
-    // Inside your theme.ts return object:
-    btnPrimary: "bg-[#3D1E4A] text-white font-['Manrope'] text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 hover:bg-black transition-colors rounded-none",
-    btnOutline: "border border-[#6B3C9C]/50 bg-transparent text-[#6B3C9C] font-['Manrope'] text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 hover:bg-[#3D1E4A] transition-colors rounded-none",
+    // Navigation & Links
+    navLink: "font-['Manrope'] text-xs font-semibold tracking-[0.15em] uppercase text-black hover:text-[#6B3C9C] transition-colors cursor-pointer capitalize",
+    secondaryLink: "font-['Manrope'] text-xs font-semibold tracking-[0.15em] uppercase text-black/70 hover:text-black transition-colors cursor-pointer capitalize",
     
-    secondaryLink: "font-['Manrope'] italic text-sm text-black/50 hover:text-[#6B3C9C]",
-    navLink: "font-['Manrope'] text-sm tracking-[0.1em] text-black/55 uppercase hover:text-[#6B3C9C] transition-colors",
-    badge: "font-['Manrope'] text-xs tracking-[0.15em] text-[#6B3C9C] border border-[#6B3C9C]/50 rounded-none px-3 py-1 uppercase",
+    // Body Text
+    bodyText: "font-['Manrope'] text-sm md:text-base text-black/70 font-light leading-relaxed",
     
-    stat: "font-['Moura'] text-5xl text-black tabular-nums",
-    quote: "font-['Beau_Rivage'] text-3xl text-black/80 leading-relaxed",
+    // Buttons (Explicit white text for proper contrast)
+    btnPrimary: "bg-[#3D1E4A] text-white font-['Manrope'] text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 hover:bg-black transition-colors rounded-none cursor-pointer",
+    btnOutline: "border border-black text-black font-['Manrope'] text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 hover:bg-black hover:text-white transition-colors rounded-none cursor-pointer",
     
+    // Form Elements & Labels
+    formLabel: "font-['Manrope'] text-xs font-semibold tracking-[0.15em] uppercase text-black/80 capitalize",
+    inputText: "font-['Manrope'] text-sm text-black placeholder:text-black/30 bg-transparent border-b border-black/20 focus:border-black outline-none pb-2",
+    
+    // UI Elements
+    badge: "inline-flex items-center px-3 py-1 bg-black/5 text-black font-['Manrope'] text-[10px] tracking-widest uppercase rounded-full",
     cardRadius: "rounded-none",
-    borderBase: "border-[#6B3C9C]/30",
+    borderBase: "border-black/10",
     
-    // The Script Accent: Beau Rivage (or change to 'WindSong' if preferred)
-    premiumTag: "font-['Beau_Rivage'] text-[#6B3C9C] text-[1.8em] tracking-normal lowercase",
+    // Stats & Quotes
+    stat: "font-['Moura'] font-normal text-4xl sm:text-5xl text-black tracking-tight",
+    quote: "font-['Moura'] font-normal text-xl sm:text-2xl text-black leading-snug",
     
-    accentColor: '#6B3C9C',
-    accentLight: '#9B7CB6',
-    accentDeep: '#3D1E4A',
-    accentText: 'text-[#6B3C9C]',
-    accentBg: 'bg-[#6B3C9C]',
-    accentBorder: 'border-[#6B3C9C]',
+    // Premium Accent Text
+    premiumTag: "font-['PinyonScript',cursive] text-[#6B3C9C] text-2xl sm:text-3xl font-normal lowercase"
   };
-};
+}
