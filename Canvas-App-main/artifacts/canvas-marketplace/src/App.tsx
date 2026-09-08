@@ -557,7 +557,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 ai-powered beauty matching
               </div>
 
-              {/* 2. CLEAN, STACKED EDITORIAL LOCKUP */}
+              {/* 2. CLEAN, 3-LINE EDITORIAL LOCKUP */}
 <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
   
   {/* Line 1: Moura */}
@@ -570,14 +570,9 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     Premium
   </span>
   
-  {/* Line 3: Moura */}
+  {/* Line 3: Moura (Combined) */}
   <span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0">
-    Beauty
-  </span>
-
-  {/* Line 4: Moura */}
-  <span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0">
-    Match
+    Beauty Match.
   </span>
   
 </h1>
