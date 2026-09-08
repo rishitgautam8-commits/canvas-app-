@@ -560,15 +560,13 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   {/* 2. EXACT REFERENCE MATCH */}
   <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
     
-    {/* Top Line: Outfit (Clean, Thin Sans-Serif) */}
+    {/* Top Line: Outfit */}
     <span className="font-['Outfit',sans-serif] font-light text-[4.5rem] md:text-[6rem] tracking-tight leading-[0.8] lowercase relative z-0">
       hyderabad's
     </span>
     
-    {/* Middle Script: Beau Rivage. 
-        Cranked up to 12rem so it matches the scale of the reference image. 
-        leading-[0.3] and negative margins force it to overlap the text safely. */}
-    <span className="font-['Beau_Rivage',cursive] text-[#6B3C9C] text-[7.5rem] md:text-[12rem] leading-[0.3] -my-4 md:-my-10 ml-4 md:ml-12 relative z-10 drop-shadow-sm lowercase">
+    {/* Middle Script: Testing PinyonScript first */}
+    <span className="font-['PinyonScript',cursive] text-[#6B3C9C] text-[7.5rem] md:text-[12rem] leading-[0.3] -my-4 md:-my-10 ml-4 md:ml-12 relative z-10 drop-shadow-sm lowercase">
       premium
     </span>
     

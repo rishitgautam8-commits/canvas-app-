@@ -14,6 +14,22 @@
 @font-face { font-family: 'Acthirey'; src: url('/fonts/ActhireyDemo.ttf') format('truetype'); }
 @font-face { font-family: 'Effyra'; src: url('/fonts/Effyra.otf') format('opentype'); }
 @font-face { font-family: 'Faven Brill'; src: url('/fonts/Faven%20Brill%20Demo.otf') format('opentype'); }
+/* --- YOUR 3 NEW LUXURY SCRIPTS --- */
+
+@font-face { 
+  font-family: 'PinyonScript'; 
+  src: url('/fonts/PinyonScript.ttf') format('truetype'); 
+}
+
+@font-face { 
+  font-family: 'StyleScript'; 
+  src: url('/fonts/StyleScript.ttf') format('truetype'); 
+}
+
+@font-face { 
+  font-family: 'Symphonie'; 
+  src: url('/fonts/Symphonie.ttf') format('truetype'); /* Change to .otf if yours is OpenType */
+}
 
 :root {
   /* Updated the default app font to Outfit */
