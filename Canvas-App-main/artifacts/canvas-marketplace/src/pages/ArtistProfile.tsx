@@ -240,7 +240,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               <div className="flex flex-wrap gap-2">
                 {artist.category && artist.category.split(',').map((spec: string, i: number) => (
                   <span key={i} className={`${theme.formLabel} !text-black/60 bg-black/5 px-3 py-1 ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'}`}>
-                    {spec.trim().toLowerCase()}
+                    {spec.trim()}
                   </span>
                 ))}
               </div>
@@ -265,7 +265,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       <main className="mx-auto max-w-[1400px] px-6 py-16 sm:px-12">
         <div className="mb-12">
           <h2 className={`${theme.headingSection} mb-2`}>verified <span className={theme.premiumTag}>portfolio.</span></h2>
-          <p className={theme.formLabel}>real client work showcasing signature aesthetic and technical execution.</p>
+          <p className={theme.formLabel}>Real Client Work Showcasing Signature Aesthetic And Technical Execution.</p>
         </div>
 
         {makeupImages.length > 0 ? (
@@ -276,15 +276,15 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                   <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/5] object-cover group-hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className={theme.formLabel}>look n°{String(i + 1).padStart(2, '0')}</span>
-                  <button onClick={() => setShowBookingModal(true)} className={theme.secondaryLink}>enquire look ↗</button>
+                  <span className={theme.formLabel}>Look N°{String(i + 1).padStart(2, '0')}</span>
+                  <button onClick={() => setShowBookingModal(true)} className={theme.secondaryLink}>Enquire Look ↗</button>
                 </div>
               </div>
             ))}
           </div>
         ) : (
           <div className={`border border-dashed ${theme.borderBase} bg-white/40 p-12 text-center ${theme.cardRadius}`}>
-            <p className={theme.bodyText}>no portfolio photos uploaded yet.</p>
+            <p className={theme.bodyText}>No Portfolio Photos Uploaded Yet.</p>
           </div>
         )}
 
@@ -294,7 +294,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               {hasAddonText && (
                 <div className={`flex-1 ${!hasAddonImages ? 'max-w-3xl' : ''}`}>
                   <h2 className={`${theme.headingSection} mb-3`}>add-ons & <span className={theme.premiumTag}>upgrades.</span></h2>
-                  <p className={`${theme.formLabel} mb-10`}>enhance your booking with specialized services.</p>
+                  <p className={`${theme.formLabel} mb-10`}>Enhance Your Booking With Specialized Services.</p>
                   
                   <div className="space-y-0">
                     {artist.addons.map((addon: string, idx: number) => {
@@ -302,8 +302,8 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                       const parts = addon.split('(');
                       return (
                         <div key={idx} className={`flex items-center justify-between py-5 border-b ${theme.borderBase} last:border-0`}>
-                          <span className={theme.bodyText}>{parts[0].trim().toLowerCase()}</span>
-                          {parts.length > 1 && <span className={theme.badge}>{parts[1].replace(')', '').trim().toLowerCase()}</span>}
+                          <span className={theme.bodyText}>{parts[0].trim()}</span>
+                          {parts.length > 1 && <span className={theme.badge}>{parts[1].replace(')', '').trim()}</span>}
                         </div>
                       );
                     })}
@@ -338,7 +338,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               <div className={`p-8 border-b ${theme.borderBase} flex justify-between items-center bg-white sticky top-0 ${theme.cardRadius === 'rounded-none' ? '' : 'rounded-t-2xl'}`}>
                 <div>
                   <h3 className={theme.headingModal}>select date & time <span className={theme.premiumTag}>phase.</span></h3>
-                  <p className={`${theme.bodyText} !text-xs mt-1`}>gray dates are unavailable or already booked.</p>
+                  <p className={`${theme.bodyText} !text-xs mt-1`}>Gray Dates Are Unavailable Or Already Booked.</p>
                 </div>
                 <button onClick={() => setShowBookingModal(false)} className="text-black/30 hover:text-black transition-colors"><X size={20} strokeWidth={1.5} /></button>
               </div>
@@ -348,7 +348,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                   {Object.entries(groupedDates).map(([monthYear, dates]) => (
                     <div key={monthYear} className="mb-8">
                       <h3 className={`${theme.eyebrow} mb-4 pb-2 border-b ${theme.borderBase}`}>
-                        {monthYear.toLowerCase()}
+                        {monthYear}
                       </h3>
                       <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
                         {dates.map((d, i) => {
@@ -376,7 +376,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                               `}
                             >
                               <span className={`${theme.formLabel} !tracking-wider ${isSelected ? '!text-white/70' : '!text-black/50'}`}>
-                                {d.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()}
+                                {d.toLocaleDateString('en-US', { weekday: 'short' })}
                               </span>
                               <span className={`${theme.stat} !text-xl sm:!text-2xl mt-1 ${isSelected ? '!text-white' : ''}`}>
                                 {d.getDate()}
@@ -391,11 +391,11 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
                 {selectedDate && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className={`border-t ${theme.borderBase} pt-6`}>
-                    <label className={`mb-4 block ${theme.formLabel}`}>select phase of day</label>
+                    <label className={`mb-4 block ${theme.formLabel}`}>Select Phase Of Day</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
-                        { display: 'first half (morning)', value: 'Morning (Before 12 PM)', keyword: 'Morning' },
-                        { display: 'second half (evening)', value: 'Evening (After 4 PM)', keyword: 'Evening' }
+                        { display: 'First Half (Morning)', value: 'Morning (Before 12 PM)', keyword: 'Morning' },
+                        { display: 'Second Half (Evening)', value: 'Evening (After 4 PM)', keyword: 'Evening' }
                       ].map(slot => {
                         const isTimeBooked = bookedTimeSlots[selectedDate]?.some(t => t?.includes(slot.keyword));
                         
@@ -419,7 +419,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                     </div>
 
                     <div className="mt-6">
-                      <label className={`mb-2 block ${theme.formLabel}`}>venue address</label>
+                      <label className={`mb-2 block ${theme.formLabel}`}>Venue Address</label>
                       <Autocomplete
                         apiKey="YOUR_GOOGLE_MAPS_API_KEY"
                         onPlaceSelected={(place) => {
@@ -431,7 +431,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                         }}
                         defaultValue={venueAddress}
                         onChange={(e) => setVenueAddress((e.target as HTMLInputElement).value)}
-                        placeholder="search exact venue on google maps..."
+                        placeholder="Search Exact Venue On Google Maps..."
                         className={`w-full ${theme.inputText}`}
                         options={{
                           types: ["establishment", "geocode"],
@@ -441,11 +441,11 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                     </div>
 
                     <div className="mt-6">
-                      <label className={`mb-2 block ${theme.formLabel}`}>look details</label>
+                      <label className={`mb-2 block ${theme.formLabel}`}>Look Details</label>
                       <textarea
                         value={lookDetails}
                         onChange={(e) => setLookDetails(e.target.value)}
-                        placeholder="describe the look you'd like (occasion, style, references, etc.)"
+                        placeholder="Describe The Look You'd Like (Occasion, Style, References, Etc.)"
                         rows={3}
                         className={`w-full resize-none ${theme.inputText}`}
                       />
@@ -461,14 +461,14 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                   className={`w-full ${theme.btnPrimary} disabled:opacity-50`}
                 >
                   {bookingLoading 
-                    ? 'sending request...' 
+                    ? 'Sending Request...' 
                     : (selectedDate && selectedTime && venueAddress.trim() && lookDetails.trim()) 
-                      ? `request booking for ${new Date(selectedDate).toLocaleDateString()} — ${selectedTime.includes('Morning') ? 'first half' : 'second half'}` 
+                      ? `Request Booking For ${new Date(selectedDate).toLocaleDateString()} — ${selectedTime.includes('Morning') ? 'First Half' : 'Second Half'}` 
                       : (selectedDate && selectedTime && venueAddress.trim())
-                        ? 'describe the look to continue'
+                        ? 'Describe The Look To Continue'
                         : (selectedDate && selectedTime)
-                          ? 'enter a venue address to continue'
-                          : 'select a date & phase to continue'}
+                          ? 'Enter A Venue Address To Continue'
+                          : 'Select A Date & Phase To Continue'}
                 </button>
               </div>
             </motion.div>

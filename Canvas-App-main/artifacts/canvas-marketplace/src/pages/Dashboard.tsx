@@ -249,14 +249,15 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
   }
 
   const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || user?.user_metadata?.name?.split(' ')[0] || 'User';
-  const displayFirstName = firstName.charAt(0).toLowerCase() + firstName.slice(1);
+  // CHANGED: removed lowercasing — displayFirstName = firstName as-is
+  const displayFirstName = firstName;
 
   return (
     <div className={`min-h-screen bg-[#FDF3F1] text-black pb-24 ${theme.fontBase}`}>
       <header className={`border-b ${theme.borderBase} bg-white/80 backdrop-blur-md px-6 py-6 sm:px-12 sticky top-0 z-50`}>
         <div className="mx-auto flex max-w-[1400px] items-center justify-between">
           <button onClick={() => setLocation(`/?style=${styleVersion}`)} className={`flex items-center gap-2 ${theme.navLink} !border-none !bg-transparent`}>
-            <ArrowLeft size={14} /> back to directory
+            <ArrowLeft size={14} /> Back To Directory
           </button>
 
           <div className="flex items-center gap-4">
@@ -267,7 +268,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                   role === 'client' ? `${accentBg} !text-white shadow-sm` : 'text-black/50 hover:text-black !bg-transparent !border-none'
                 }`}
               >
-                client
+                Client
               </button>
               <button
                 onClick={() => handleRequestRoleSwitch('artist')}
@@ -275,12 +276,12 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                   role === 'artist' ? `${accentBg} !text-white shadow-sm` : 'text-black/50 hover:text-black !bg-transparent !border-none'
                 }`}
               >
-                artist
+                Artist
               </button>
             </div>
 
             <div className={`rounded-full bg-black/5 px-4 py-2 ${theme.formLabel} hidden sm:block !border-none`}>
-              artist studio hub
+              Artist Studio Hub
             </div>
 
             <div className={`h-8 w-8 ${accentBg} flex items-center justify-center text-white ${theme.formLabel} !border-none ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'}`}>
@@ -301,11 +302,11 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                 </div>
                 <button onClick={() => setShowRoleSwitchConfirm(false)} className="text-black/30 hover:text-black transition-colors"><X size={18} strokeWidth={1.5} /></button>
               </div>
-              <p className={`${theme.bodyText} mb-8`}>you are about to switch from <strong className="text-black font-bold">{role}</strong> to <strong className="text-black font-bold">{pendingRole}</strong>. your dashboard will reload with the new interface.</p>
+              <p className={`${theme.bodyText} mb-8`}>You Are About To Switch From <strong className="text-black font-bold">{role}</strong> to <strong className="text-black font-bold">{pendingRole}</strong>. Your Dashboard Will Reload With The New Interface.</p>
               <div className="flex gap-4">
                 <button onClick={() => setShowRoleSwitchConfirm(false)} className={`flex-1 ${theme.btnOutline}`}>cancel</button>
                 <button onClick={confirmRoleSwitch} disabled={updating} className={`flex-1 ${theme.btnPrimary} disabled:opacity-50`}>
-                  {updating ? 'switching...' : 'confirm switch'}
+                  {updating ? 'Switching...' : 'confirm switch'}
                 </button>
               </div>
             </motion.div>
@@ -321,13 +322,13 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
         {role === 'artist' ? (
           <>
             <div className={`mt-8 mb-12 flex gap-8 border-b ${theme.borderBase} pb-px overflow-x-auto`}>
-              <button onClick={() => setActiveTab('logistics')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'logistics' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>profile & logistics</button>
-              <button onClick={() => setActiveTab('overview')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'overview' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>overview</button>
-              <button onClick={() => setActiveTab('briefs')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'briefs' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>new bookings {bookings.length > 0 && `(${bookings.length})`}</button>
+              <button onClick={() => setActiveTab('logistics')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'logistics' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>Profile & Logistics</button>
+              <button onClick={() => setActiveTab('overview')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'overview' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>Overview</button>
+              <button onClick={() => setActiveTab('briefs')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'briefs' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
               <button onClick={() => setActiveTab('reviews')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'reviews' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>
-                reviews {artistReviews.length > 0 && `(${artistReviews.length})`}
+                Reviews {artistReviews.length > 0 && `(${artistReviews.length})`}
               </button>
-              <button onClick={() => setLocation(`/artist/${session?.user.id}?style=${styleVersion}`)} className={`${theme.navLink} whitespace-nowrap pb-4 ${accentText} hover:!text-black transition-colors !border-none !bg-transparent`}>preview public page ↗</button>
+              <button onClick={() => setLocation(`/artist/${session?.user.id}?style=${styleVersion}`)} className={`${theme.navLink} whitespace-nowrap pb-4 ${accentText} hover:!text-black transition-colors !border-none !bg-transparent`}>Preview Public Page ↗</button>
             </div>
 
             {activeTab === 'overview' && (
@@ -370,7 +371,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                     ))}
                   </div>
                 ) : (
-                  <p className={`${theme.bodyText} !text-black/40`}>no new bookings.</p>
+                  <p className={`${theme.bodyText} !text-black/40`}>No New Bookings.</p>
                 )}
               </div>
             )}
@@ -380,7 +381,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                 <div className="mb-8">
                   <h3 className={theme.headingModal}>client <Premium>reviews.</Premium></h3>
                   <p className={`mt-2 ${theme.bodyText} !text-black/50`}>
-                    feedback and ratings from your completed bookings.
+                    Feedback And Ratings From Your Completed Bookings.
                   </p>
                 </div>
 
@@ -404,7 +405,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                     ))}
                   </div>
                 ) : (
-                  <p className={`${theme.bodyText} !text-black/40`}>no reviews yet.</p>
+                  <p className={`${theme.bodyText} !text-black/40`}>No Reviews Yet.</p>
                 )}
               </div>
             )}
@@ -414,18 +415,18 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                 <div className="mb-10">
                   <h3 className={theme.headingModal}>artist profile & <Premium>logistics.</Premium></h3>
                   <p className={`mt-2 ${theme.bodyText} !text-black/50`}>
-                    complete your profile to appear in client searches.
+                    Complete Your Profile To Appear In Client Searches.
                   </p>
                 </div>
 
                 <form onSubmit={handleSaveLogistics} className="space-y-8">
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className={`mb-2 block ${theme.formLabel}`}>profile picture *</label>
+                      <label className={`mb-2 block ${theme.formLabel}`}>Profile Picture *</label>
                       <input type="file" accept="image/*" className={`w-full ${theme.bodyText} file:mr-4 file:border-0 file:bg-black/5 file:px-4 file:py-2 file:${theme.cardRadius} file:${theme.formLabel} file:!text-black hover:file:bg-black/10 transition-all cursor-pointer`} />
                     </div>
                     <div>
-                      <label className={`mb-2 block ${theme.formLabel}`}>years of experience *</label>
+                      <label className={`mb-2 block ${theme.formLabel}`}>Years Of Experience *</label>
                       <input 
                         type="text" 
                         value={formData.years_experience} 
@@ -439,23 +440,23 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className={`mb-2 block ${theme.formLabel}`}>artist / business name *</label>
+                      <label className={`mb-2 block ${theme.formLabel}`}>Artist / Business Name *</label>
                       <input 
                         type="text" 
                         value={formData.business_name} 
                         onChange={(e) => setFormData({...formData, business_name: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
-                        placeholder="e.g. your studio name" 
+                        placeholder="E.g. Your Studio Name" 
                         className={`w-full ${theme.inputText}`} 
                         required 
                       />
                     </div>
                     <div>
-                      <label className={`mb-2 block ${theme.formLabel}`}>base location in hyderabad *</label>
+                      <label className={`mb-2 block ${theme.formLabel}`}>Base Location In Hyderabad *</label>
                       <input 
                         type="text" 
                         value={formData.city} 
                         onChange={(e) => setFormData({...formData, city: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
-                        placeholder="e.g. jubilee hills" 
+                        placeholder="E.g. Jubilee Hills" 
                         className={`w-full ${theme.inputText}`} 
                         required 
                       />
@@ -464,7 +465,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className={`mb-2 block ${theme.formLabel}`}>starting package price (₹) *</label>
+                      <label className={`mb-2 block ${theme.formLabel}`}>Starting Package Price (₹) *</label>
                       <input 
                         type="text" 
                         value={formData.starting_price} 
@@ -475,7 +476,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                       />
                     </div>
                     <div>
-                      <label className={`mb-2 block ${theme.formLabel}`}>comfortable travel radius (km) *</label>
+                      <label className={`mb-2 block ${theme.formLabel}`}>Comfortable Travel Radius (km) *</label>
                       <input 
                         type="text" 
                         value={formData.max_travel_km} 
@@ -489,23 +490,23 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                      <label className={`mb-2 block ${theme.formLabel}`}>makeup specialisations *</label>
+                      <label className={`mb-2 block ${theme.formLabel}`}>Makeup Specialisations *</label>
                       <input 
                         type="text" 
                         value={formData.category} 
                         onChange={(e) => setFormData({...formData, category: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
-                        placeholder="e.g. bridal, editorial, party" 
+                        placeholder="E.g. Bridal, Editorial, Party" 
                         className={`w-full ${theme.inputText}`} 
                         required 
                       />
                     </div>
                     <div>
-                      <label className={`mb-2 block ${theme.formLabel}`}>qualifications / certifications *</label>
+                      <label className={`mb-2 block ${theme.formLabel}`}>Qualifications / Certifications *</label>
                       <input 
                         type="text" 
                         value={formData.qualifications} 
                         onChange={(e) => setFormData({...formData, qualifications: e.target.value.replace(/[^a-zA-Z\s,]/g, '')})} 
-                        placeholder="e.g. certified by mac" 
+                        placeholder="E.g. Certified By Mac" 
                         className={`w-full ${theme.inputText}`} 
                         required 
                       />
@@ -513,8 +514,8 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                   </div>
 
                   <div className={`border-t ${theme.borderBase} pt-8 pb-4`}>
-                    <label className={`mb-2 block ${theme.formLabel}`}>unavailable / blocked dates</label>
-                    <p className={`mb-4 ${theme.bodyText} !text-black/40`}>select personal days or vacations when you are completely unavailable. (confirmed client bookings are blocked automatically).</p>
+                    <label className={`mb-2 block ${theme.formLabel}`}>Unavailable / Blocked Dates</label>
+                    <p className={`mb-4 ${theme.bodyText} !text-black/40`}>Select Personal Days Or Vacations When You Are Completely Unavailable. (Confirmed Client Bookings Are Blocked Automatically).</p>
                     
                     <div className="flex gap-4 mb-4">
                       <input 
@@ -557,24 +558,24 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                   </div>
 
                   <div className={`bg-white/50 p-6 border-l-2 ${accentBorder} ${styleVersion === '1' || styleVersion === '3' ? 'rounded-none' : 'rounded-r-xl'}`}>
-                    <label className={`mb-2 block ${theme.formLabel}`}>primary portfolio upload *</label>
-                    <p className={`mb-4 ${theme.bodyText} !text-black/40`}>must upload a minimum of 2 photos. no maximum limit.</p>
+                    <label className={`mb-2 block ${theme.formLabel}`}>Primary Portfolio Upload *</label>
+                    <p className={`mb-4 ${theme.bodyText} !text-black/40`}>Must Upload A Minimum Of 2 Photos. No Maximum Limit.</p>
                     
                     <input type="file" multiple accept="image/*" onChange={handleAddPortfolioImage} className={`w-full ${theme.bodyText} file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:${theme.cardRadius} file:${theme.formLabel} file:!text-black hover:file:bg-black/10 transition-all cursor-pointer`} required={portfolio.length < 2} />
                     
                     {portfolio.length > 0 && (
-                      <p className={`mt-4 ${theme.formLabel} ${accentText}`}>{portfolio.length} photo(s) currently in portfolio</p>
+                      <p className={`mt-4 ${theme.formLabel} ${accentText}`}>{portfolio.length} Photo(s) Currently In Portfolio</p>
                     )}
                   </div>
 
                   <div className={`border-t ${theme.borderBase} pt-8`}>
-                    <label className={`mb-4 block ${theme.formLabel}`}>do you offer any add-on skills? (e.g. hairstyling, brow tinting)</label>
+                    <label className={`mb-4 block ${theme.formLabel}`}>Do You Offer Any Add-On Skills? (E.g. Hairstyling, Brow Tinting)</label>
                     <div className="flex gap-4 mb-6">
                       <button type="button" onClick={() => setHasAddonSkill(true)} className={`${theme.btnOutline} !py-2.5 ${hasAddonSkill ? `!bg-black !text-white !border-black` : ''}`}>
-                        yes, i do
+                        Yes, I Do
                       </button>
                       <button type="button" onClick={() => { setHasAddonSkill(false); setAddons([{ name: '', price: '', file: null }]); }} className={`${theme.btnOutline} !py-2.5 ${!hasAddonSkill ? '!bg-black !text-white !border-black' : ''}`}>
-                        no
+                        No
                       </button>
                     </div>
 
@@ -591,7 +592,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                                 }} 
                                 className={`absolute top-4 right-4 ${theme.navLink} !text-red-600 hover:underline !border-none !bg-transparent`}
                               >
-                                remove skill
+                                Remove Skill
                               </button>
                             )}
 
@@ -599,7 +600,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
 
                             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                               <div>
-                                <label className={`mb-2 block ${theme.formLabel}`}>add-on skill name *</label>
+                                <label className={`mb-2 block ${theme.formLabel}`}>Add-On Skill Name *</label>
                                 <input 
                                   type="text" 
                                   value={addon.name} 
@@ -608,13 +609,13 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                                     updated[index].name = e.target.value.replace(/[^a-zA-Z\s]/g, '');
                                     setAddons(updated);
                                   }} 
-                                  placeholder="e.g. brow tinting" 
+                                  placeholder="E.g. Brow Tinting" 
                                   className={`w-full ${theme.inputText}`} 
                                   required={hasAddonSkill} 
                                 />
                               </div>
                               <div>
-                                <label className={`mb-2 block ${theme.formLabel}`}>add-on price (₹) *</label>
+                                <label className={`mb-2 block ${theme.formLabel}`}>Add-On Price (₹) *</label>
                                 <input 
                                   type="text" 
                                   value={addon.price} 
@@ -630,8 +631,8 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                               </div>
                             </div>
                             <div>
-                              <label className={`mb-2 block ${theme.formLabel}`}>add-on portfolio upload *</label>
-                              <p className={`mb-4 ${theme.bodyText} !text-black/40`}>must upload at least 1 photo showcasing this specific skill.</p>
+                              <label className={`mb-2 block ${theme.formLabel}`}>Add-On Portfolio Upload *</label>
+                              <p className={`mb-4 ${theme.bodyText} !text-black/40`}>Must Upload At Least 1 Photo Showcasing This Specific Skill.</p>
                               <input 
                                 type="file" 
                                 accept="image/*" 
@@ -653,7 +654,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                           onClick={() => setAddons([...addons, { name: '', price: '', file: null }])}
                           className={`w-full border border-dashed ${theme.borderBase} bg-white/40 py-4 ${theme.formLabel} ${theme.cardRadius} hover:border-black transition-colors`}
                         >
-                          + add another add-on skill
+                          + Add Another Add-On Skill
                         </button>
                       </div>
                     )}
@@ -661,7 +662,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
 
                   <div className="pt-4 flex justify-end">
                     <button type="submit" disabled={saving || uploadingPortfolio} className={`${theme.btnPrimary} disabled:opacity-50`}>
-                      {saving ? 'saving...' : 'save changes'}
+                      {saving ? 'Saving...' : 'save changes'}
                     </button>
                   </div>
                 </form>
@@ -687,7 +688,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
                         }}
                         className={`${theme.navLink} ${accentText} hover:!text-black !bg-transparent !border-none`}
                       >
-                        leave a review
+                        Leave A Review
                       </button>
                       <button onClick={() => setActiveChatBooking(booking)} className={theme.btnPrimary}>
                         open chat
@@ -719,7 +720,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
             }}
             className={`flex items-center gap-2 ${theme.btnPrimary} shadow-2xl`}
           >
-            <ArrowLeft size={14} /> wait, i'm a client
+            <ArrowLeft size={14} /> Wait, I'm A Client
           </button>
         </div>
       )}
