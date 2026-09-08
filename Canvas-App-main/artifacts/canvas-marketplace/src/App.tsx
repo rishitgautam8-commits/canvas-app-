@@ -550,35 +550,36 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[100px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
-            <div className="flex flex-col items-start pt-4 mb-8">
-              {/* 1. EYEBROW TAG */}
-              <div className="flex items-center gap-3 font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-[#6B3C9C] mb-6">
-                <div className="w-[26px] h-[1px] bg-[#6B3C9C]"></div>
-                ai-powered beauty matching
-              </div>
+            <div className="flex flex-col items-start pt-4 mb-8 relative">
+  {/* 1. EYEBROW TAG */}
+  <div className="flex items-center gap-3 font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.35em] text-[#6B3C9C] mb-8">
+    <div className="w-[26px] h-[1px] bg-[#6B3C9C]"></div>
+    ai-powered beauty matching
+  </div>
 
-              {/* 2. THE FLAWLESS EDITORIAL LOCKUP */}
-              <h1 className="flex flex-col items-start text-black select-none mb-8 mt-2">
-                
-                {/* Top Line: Thin, clean Outfit Sans-Serif */}
-                <span className="font-['Outfit',sans-serif] font-light text-[4.5rem] md:text-[6.5rem] tracking-tight leading-[0.75] lowercase">
-                  hyderabad's
-                </span>
-                
-                {/* Middle Line: Sirelia Script. 
-                    Perfectly horizontal (no rotation). 
-                    Negative margins pull it tight to the black text. */}
-                <span className="font-['Sirelia',cursive] text-[#6B3C9C] text-[6rem] md:text-[9.5rem] leading-[0.4] -my-2 md:-my-4 ml-6 md:ml-12 relative z-10 drop-shadow-sm lowercase">
-                  premium
-                </span>
-                
-                {/* Bottom Line: Thin, clean Outfit Sans-Serif */}
-                <span className="font-['Outfit',sans-serif] font-light text-[4.5rem] md:text-[6.5rem] tracking-tight leading-[0.75] lowercase">
-                  beauty match.
-                </span>
-                
-              </h1>
-            </div>
+  {/* 2. PIXEL-PERFECT EDITORIAL LOCKUP */}
+  <h1 className="flex flex-col items-start text-black select-none relative w-full">
+    
+    {/* Top Line */}
+    <span className="font-['Xaviera'] text-[4.5rem] md:text-[6.5rem] tracking-tight leading-[0.8] z-0">
+      hyderabad's
+    </span>
+    
+    {/* Middle Script Overlay: Positioned absolutely so it floats right across the center */}
+    <span className="font-['Semestha'] text-[#6B3C9C] text-[5.5rem] md:text-[8rem] leading-none absolute top-[28%] left-[2%] md:left-[4%] z-20 pointer-events-none drop-shadow-sm lowercase">
+      premium
+    </span>
+    
+    {/* Bottom Lines */}
+    <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tight leading-[0.8] z-0">
+      beauty
+    </span>
+    <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tight leading-[0.8] z-0">
+      match.
+    </span>
+    
+  </h1>
+</div>
             <p className={`${theme.bodyText} max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
             <p className={`${theme.bodyText} max-w-[460px] mb-8`}>the exclusive ai-powered bridal and beauty booking platform for hyderabad and cyberabad.</p>
             <div className="flex gap-4 flex-wrap">
