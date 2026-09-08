@@ -558,31 +558,29 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               </div>
 
               {/* 2. CLEAN, STACKED EDITORIAL LOCKUP */}
-              <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
-                
-                {/* Line 1: Clean, geometric font */}
-                <span className="font-['Outfit',sans-serif] font-light text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0">
-                  Hyderabad's
-                </span>
-                
-                {/* Line 2: The Script Accent 
-                    No negative margins, no left nudging. Just a clean, stacked line. 
-                    (Change 'Symphonie' to 'StyleScript' if you prefer that one!) */}
-                <span className="font-['Symphonie',cursive] text-[#6B3C9C] text-[4.5rem] sm:text-[6rem] md:text-[7.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
-                  Premium
-                </span>
-                
-                {/* Line 3: Clean, geometric font */}
-                <span className="font-['Outfit',sans-serif] font-light text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0">
-                  Beauty
-                </span>
+<h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
+  
+  {/* Line 1: Moura */}
+  <span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0">
+    Hyderabad's
+  </span>
+  
+  {/* Line 2: Pinyon Script */}
+  <span className="font-['PinyonScript',cursive] text-[#6B3C9C] text-[5.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
+    Premium
+  </span>
+  
+  {/* Line 3: Moura */}
+  <span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0">
+    Beauty
+  </span>
 
-                {/* Line 4: Clean, geometric font */}
-                <span className="font-['Outfit',sans-serif] font-light text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0">
-                  Match
-                </span>
-                
-              </h1>
+  {/* Line 4: Moura */}
+  <span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0">
+    Match
+  </span>
+  
+</h1>
             </div>
 
             <p className={`${theme.bodyText} max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
