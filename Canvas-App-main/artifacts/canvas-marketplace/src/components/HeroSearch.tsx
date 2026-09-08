@@ -230,7 +230,8 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
               <Upload size={20} strokeWidth={1.5} color={accentColor} />
             </div>
 
-            <h3 className={`${theme.headingModal} !text-2xl md:!text-3xl mb-4`}>
+            {/* Added leading-snug to prevent multi-line text collision */}
+            <h3 className={`${theme.headingModal} !text-2xl md:!text-3xl mb-4 leading-snug`}>
               Upload A Pinterest Screenshot Or Instagram Save
             </h3>
             <p className={`${theme.formLabel} !text-black/50 mb-10`}>
