@@ -12,7 +12,8 @@ export const getTheme = (styleVersion?: string) => {
     formLabel: "font-['Manrope'] text-[11px] font-medium tracking-[0.15em] text-black/45 uppercase",
     inputText: "font-['Manrope'] font-light text-base text-black placeholder:text-black/30 border-b border-[#6B3C9C]/30 focus:border-[#6B3C9C] outline-none bg-transparent py-2.5 transition-colors",
     
-    btnPrimary: "bg-[#3D1E4A] text-[#6B3C9C] font-['Manrope'] text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 hover:bg-black transition-colors rounded-none",
+    // Inside your theme.ts return object:
+    btnPrimary: "bg-[#3D1E4A] text-white font-['Manrope'] text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 hover:bg-black transition-colors rounded-none",
     btnOutline: "border border-[#6B3C9C]/50 bg-transparent text-[#6B3C9C] font-['Manrope'] text-xs font-semibold tracking-[0.2em] uppercase px-8 py-4 hover:bg-[#3D1E4A] transition-colors rounded-none",
     
     secondaryLink: "font-['Manrope'] italic text-sm text-black/50 hover:text-[#6B3C9C]",
