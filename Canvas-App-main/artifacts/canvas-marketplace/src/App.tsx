@@ -552,23 +552,26 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
             <div className="flex flex-col items-start pt-4 mb-8">
               {/* 1. EYEBROW TAG */}
-              <div className={`flex items-center gap-3 ${theme.eyebrow} mb-6`}>
+              <div className="flex items-center gap-3 font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.25em] text-[#6B3C9C] mb-6">
                 <div className="w-[26px] h-[1px] bg-[#6B3C9C]"></div>
                 ai-powered beauty matching
               </div>
 
               {/* 2. THE EDITORIAL LOCKUP */}
-              <h1 className="flex flex-col items-start text-black select-none mb-6">
+              <h1 className="flex flex-col items-start text-black select-none mb-8 mt-2">
                 
-                <span className={`${theme.headingHero} leading-[1.1] tracking-normal`}>
+                {/* Thin, clean Sans-Serif, lowercase, flush spacing */}
+                <span className="font-['Outfit'] font-light text-[4rem] md:text-[5.5rem] tracking-tight leading-[0.8] lowercase">
                   hyderabad's
                 </span>
                 
-                <span className={`${theme.premiumTag} text-[4.5rem] md:text-[6.5rem] leading-[0.8] my-2 ml-4 md:ml-12 -rotate-3 relative z-10`}>
+                {/* The Script: Massive, perfectly horizontal (no rotation), overlapping the lines */}
+                <span className="font-['Sirelia'] text-[#6B3C9C] text-[6rem] md:text-[9.5rem] leading-[0.35] -my-3 md:-my-6 ml-2 md:ml-6 relative z-10 drop-shadow-sm lowercase">
                   premium
                 </span>
                 
-                <span className={`${theme.headingHero} leading-[1.1] tracking-normal`}>
+                {/* Thin, clean Sans-Serif, lowercase, flush spacing */}
+                <span className="font-['Outfit'] font-light text-[4rem] md:text-[5.5rem] tracking-tight leading-[0.8] lowercase">
                   beauty match.
                 </span>
                 
@@ -962,7 +965,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <div className="flex-1 flex flex-col justify-center mb-20 text-center">
                 <div className="w-16 h-16 rounded-full bg-[#BA965B]/10 text-[#BA965B] flex items-center justify-center mx-auto mb-6"><Sparkles size={32} /></div>
                 <h3 className={`${theme.headingModal} mb-4`}>the artist has been notified.</h3>
-                <p className={`${theme.bodyText} mb-10 max-w-md mx-auto`}>your brief is securely in the artist&apos;s queue. you will receive a notification in your canvas dashboard once they review the logistics and confirm the slot.</p>
+                <p className={`${theme.bodyText} mb-10 max-w-md mx-auto`}>your brief is securely in the artist&apos;s queue. you will receive a notification in your dashboard once they review the logistics and confirm the slot.</p>
                 <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className={`w-full ${theme.btnPrimary}`}>return to directory</button>
               </div>
             ) : (
