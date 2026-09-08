@@ -570,7 +570,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     Premium
   </span>
   
-  {/* Line 3: Moura (Combined) */}
+  {/* Line 3: Moura */}
   <span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0">
     Beauty Match.
   </span>
