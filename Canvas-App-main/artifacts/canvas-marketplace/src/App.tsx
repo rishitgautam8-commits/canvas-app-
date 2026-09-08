@@ -557,21 +557,21 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     ai-powered beauty matching
   </div>
 
-  {/* 2. CLEAN EDITORIAL STACK (Zero messy text collision) */}
-  <h1 className="flex flex-col items-start text-black select-none mb-6 relative w-full">
+  {/* 2. THE CLEAN EDITORIAL LOCKUP WITH A DEDICATED MIDDLE WINDOW */}
+  <h1 className="flex flex-col items-start text-black select-none mb-12 relative w-full pt-4 pb-4">
     
     {/* Line 1: Moura Font */}
-    <span className="font-['Moura'] text-[4.5rem] md:text-[6.5rem] tracking-normal leading-[1.1] lowercase">
+    <span className="font-['Moura'] text-[4.5rem] md:text-[6.5rem] tracking-normal leading-[1] z-10 lowercase">
       hyderabad's
     </span>
     
-    {/* Line 2: Beau Rivage Script (Cleanly centered with its own breathing room) */}
-    <span className="font-['Beau_Rivage'] text-[#6B3C9C] text-[5.5rem] md:text-[8rem] leading-[1.1] my-2 ml-6 md:ml-14 lowercase">
+    {/* Middle Script: Beau Rivage floating cleanly in the middle gap */}
+    <span className="font-['Beau_Rivage'] text-[#6B3C9C] text-[6rem] md:text-[9rem] absolute top-[28px] md:top-[38px] left-[2%] md:left-[6%] z-30 pointer-events-none drop-shadow-sm lowercase">
       premium
     </span>
     
-    {/* Line 3: Moura Font */}
-    <span className="font-['Moura'] text-[4.5rem] md:text-[6.5rem] tracking-normal leading-[1.1] lowercase">
+    {/* Line 2: Moura Font (Pushed down with spacing so it never crashes) */}
+    <span className="font-['Moura'] text-[4.5rem] md:text-[6.5rem] tracking-normal leading-[1] z-10 mt-6 md:mt-8 lowercase">
       beauty match.
     </span>
     
