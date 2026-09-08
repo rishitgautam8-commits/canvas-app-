@@ -566,7 +566,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     </span>
     
     {/* Middle Script: Testing PinyonScript first */}
-    <span className="font-['StyleScript',cursive] text-[#6B3C9C] text-[7.5rem] md:text-[12rem] leading-[0.3] -my-4 md:-my-10 ml-4 md:ml-12 relative z-10 drop-shadow-sm lowercase">
+    <span className="font-['Symphonie',cursive] text-[#6B3C9C] text-[7.5rem] md:text-[12rem] leading-[0.3] -my-4 md:-my-10 ml-4 md:ml-12 relative z-10 drop-shadow-sm lowercase">
       premium
     </span>
     
