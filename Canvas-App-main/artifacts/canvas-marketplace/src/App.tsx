@@ -566,11 +566,11 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 </span>
                 
                 {/* Middle Script: P 
-                    Nudged to the right (ml-8 md:ml-16) to compensate for the sweeping tail, 
-                    forcing the leftmost tip of the 'p' to optically align with the straight letters. */}
-                <span className="font-['PinyonScript',cursive] text-[#6B3C9C] text-[5.2rem] sm:text-[6.8rem] md:text-[8.5rem] leading-[0.6] -my-2 md:-my-5 ml-8 md:ml-16 relative z-10 drop-shadow-sm lowercase select-none pointer-events-none">
-                  premium
-                </span>
+        Precision-nudged using exact pixels (90px) to force the far-left tip of the 'p' 
+        to align perfectly with the straight letters. */}
+    <span className="font-['PinyonScript',cursive] text-[#6B3C9C] text-[5.2rem] sm:text-[6.8rem] md:text-[8.5rem] leading-[0.6] -my-2 md:-my-5 ml-[40px] sm:ml-[65px] md:ml-[90px] relative z-10 drop-shadow-sm lowercase select-none pointer-events-none">
+      premium
+    </span>
                 
                 {/* Bottom Lines: B & M 
                     Allowed to wrap naturally based on screen size, maintaining the hard left edge. */}
