@@ -519,7 +519,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         <div className="flex items-center justify-center cursor-pointer group" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Canvas Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 group-hover:drop-shadow-[0_4px_12px_rgba(107,58,125,0.3)]" />
-<span className={`${theme.headingSection} !text-2xl md:!text-3xl tracking-tight transition-colors duration-500 group-hover:text-[#6B3A7D]`}>canvas</span>
+            <span className={`${theme.headingSection} !text-2xl md:!text-3xl tracking-tight transition-colors duration-500 group-hover:text-[#6B3A7D]`}>canvas</span>
           </div>
         </div>
         <div className="flex items-center gap-6 justify-end">
@@ -551,32 +551,33 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
             <div className="flex flex-col items-start pt-4 mb-8">
-  {/* 1. EYEBROW TAG */}
-  <div className="flex items-center gap-3 font-['Montserrat'] text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B3C9C] mb-6">
-    <div className="w-[26px] h-[1px] bg-[#6B3C9C]"></div>
-    ai-powered beauty matching
-  </div>
+              {/* 1. EYEBROW TAG */}
+              <div className="flex items-center gap-3 font-['Montserrat'] text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B3C9C] mb-6">
+                <div className="w-[26px] h-[1px] bg-[#6B3C9C]"></div>
+                ai-powered beauty matching
+              </div>
 
-  {/* 2. EXACT REFERENCE MATCH */}
-  <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
-    
-    {/* Top Line: Outfit */}
-    <span className="font-['Outfit',sans-serif] font-light text-[4.5rem] md:text-[6rem] tracking-tight leading-[0.8] lowercase relative z-0">
-      hyderabad's
-    </span>
-    
-    {/* Middle Script: Testing PinyonScript first */}
-    <span className="font-['Symphonie',cursive] text-[#6B3C9C] text-[7.5rem] md:text-[12rem] leading-[0.3] -my-4 md:-my-10 ml-4 md:ml-12 relative z-10 drop-shadow-sm lowercase">
-      premium
-    </span>
-    
-    {/* Bottom Line: Outfit */}
-    <span className="font-['Outfit',sans-serif] font-light text-[4.5rem] md:text-[6rem] tracking-tight leading-[0.8] lowercase relative z-0">
-      beauty match.
-    </span>
-    
-  </h1>
-</div>
+              {/* 2. PRECISE EDITORIAL LOCKUP */}
+              <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
+                
+                {/* Top Line: Outfit (Clean, Geometric Sans-Serif) */}
+                <span className="font-['Outfit',sans-serif] font-light text-[3.8rem] sm:text-[4.8rem] md:text-[6rem] tracking-tight leading-[0.9] lowercase relative z-0">
+                  hyderabad's
+                </span>
+                
+                {/* Middle Script: PinyonScript with balanced line-height and soft overlap */}
+                <span className="font-['PinyonScript',cursive] text-[#6B3C9C] text-[5.2rem] sm:text-[6.8rem] md:text-[8.5rem] leading-[0.6] -my-2 md:-my-5 ml-4 md:ml-10 relative z-10 drop-shadow-sm lowercase select-none pointer-events-none">
+                  premium
+                </span>
+                
+                {/* Bottom Line: Outfit */}
+                <span className="font-['Outfit',sans-serif] font-light text-[3.8rem] sm:text-[4.8rem] md:text-[6rem] tracking-tight leading-[0.9] lowercase relative z-0">
+                  beauty match.
+                </span>
+                
+              </h1>
+            </div>
+
             <p className={`${theme.bodyText} max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
             <p className={`${theme.bodyText} max-w-[460px] mb-8`}>the exclusive ai-powered bridal and beauty booking platform for hyderabad and cyberabad.</p>
             <div className="flex gap-4 flex-wrap">
@@ -1035,8 +1036,6 @@ export default function App() {
   const [loadingSession, setLoadingSession] = useState(true);
   const [updatingRole, setUpdatingRole] = useState(false);
 
-  // Still parsing for backwards compatibility with any remaining style queries,
-  // but theme is now locked strictly to Option 4
   const queryParams = new URLSearchParams(window.location.search);
   const styleVersion = queryParams.get('style') || '2';
   const theme = getTheme(styleVersion);
