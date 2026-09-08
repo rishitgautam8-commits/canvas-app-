@@ -557,21 +557,23 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 ai-powered beauty matching
               </div>
 
-              {/* 2. THE EDITORIAL LOCKUP */}
+              {/* 2. THE FLAWLESS EDITORIAL LOCKUP */}
               <h1 className="flex flex-col items-start text-black select-none mb-8 mt-2">
                 
-                {/* Thin, clean Sans-Serif, lowercase, flush spacing */}
-                <span className="font-['Outfit'] font-light text-[4rem] md:text-[5.5rem] tracking-tight leading-[0.8] lowercase">
+                {/* Top Line: Thin, clean Outfit Sans-Serif */}
+                <span className="font-['Outfit',sans-serif] font-light text-[4.5rem] md:text-[6.5rem] tracking-tight leading-[0.75] lowercase">
                   hyderabad's
                 </span>
                 
-                {/* The Script: Massive, perfectly horizontal (no rotation), overlapping the lines */}
-                <span className="font-['Sirelia'] text-[#6B3C9C] text-[6rem] md:text-[9.5rem] leading-[0.35] -my-3 md:-my-6 ml-2 md:ml-6 relative z-10 drop-shadow-sm lowercase">
+                {/* Middle Line: Sirelia Script. 
+                    Perfectly horizontal (no rotation). 
+                    Negative margins pull it tight to the black text. */}
+                <span className="font-['Sirelia',cursive] text-[#6B3C9C] text-[6rem] md:text-[9.5rem] leading-[0.4] -my-2 md:-my-4 ml-6 md:ml-12 relative z-10 drop-shadow-sm lowercase">
                   premium
                 </span>
                 
-                {/* Thin, clean Sans-Serif, lowercase, flush spacing */}
-                <span className="font-['Outfit'] font-light text-[4rem] md:text-[5.5rem] tracking-tight leading-[0.8] lowercase">
+                {/* Bottom Line: Thin, clean Outfit Sans-Serif */}
+                <span className="font-['Outfit',sans-serif] font-light text-[4.5rem] md:text-[6.5rem] tracking-tight leading-[0.75] lowercase">
                   beauty match.
                 </span>
                 
