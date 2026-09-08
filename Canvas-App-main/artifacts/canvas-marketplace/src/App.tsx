@@ -557,21 +557,21 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     ai-powered beauty matching
   </div>
 
-  {/* 2. THE EDITORIAL LOCKUP */}
+  {/* 2. CLEAN EDITORIAL STACK (Zero messy text collision) */}
   <h1 className="flex flex-col items-start text-black select-none mb-6 relative w-full">
     
     {/* Line 1: Moura Font */}
-    <span className="font-['Moura'] text-[4.5rem] md:text-[6.5rem] tracking-normal leading-[0.85] lowercase">
+    <span className="font-['Moura'] text-[4.5rem] md:text-[6.5rem] tracking-normal leading-[1.1] lowercase">
       hyderabad's
     </span>
     
-    {/* Middle Script: Beau Rivage (or WindSong) */}
-    <span className="font-['Beau_Rivage'] text-[#6B3C9C] text-[5.5rem] md:text-[8rem] leading-[0.4] -my-2 md:-my-5 ml-6 md:ml-14 relative z-10 drop-shadow-sm lowercase">
+    {/* Line 2: Beau Rivage Script (Cleanly centered with its own breathing room) */}
+    <span className="font-['Beau_Rivage'] text-[#6B3C9C] text-[5.5rem] md:text-[8rem] leading-[1.1] my-2 ml-6 md:ml-14 lowercase">
       premium
     </span>
     
-    {/* Line 2: Moura Font */}
-    <span className="font-['Moura'] text-[4.5rem] md:text-[6.5rem] tracking-normal leading-[0.85] lowercase">
+    {/* Line 3: Moura Font */}
+    <span className="font-['Moura'] text-[4.5rem] md:text-[6.5rem] tracking-normal leading-[1.1] lowercase">
       beauty match.
     </span>
     
