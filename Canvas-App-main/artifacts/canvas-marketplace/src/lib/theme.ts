@@ -21,7 +21,8 @@ export const getTheme = (styleVersion?: string) => {
     headingSection: "font-['Moura'] text-4xl sm:text-5xl text-[#6B3C9C] tracking-normal",
     
     stat: "font-['Moura'] text-5xl text-black tabular-nums tracking-normal",
-    quote: "font-['Sirelia'] text-2xl md:text-3xl text-black/80 leading-relaxed",
+    // Inside your theme.ts return object:
+quote: "font-['Manrope'] text-base md:text-lg font-light text-black/80 leading-relaxed",
     premiumTag: "font-['Sirelia'] text-[#6B3C9C] lowercase tracking-normal text-[1.2em]",
     
     cardRadius: "rounded-none",
