@@ -557,21 +557,23 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     ai-powered beauty matching
   </div>
 
-  {/* 2. NATURAL FLOW EDITORIAL LOCKUP (Zero absolute positioning) */}
+  {/* 2. EXACT REFERENCE MATCH */}
   <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
     
-    {/* Line 1: Moura Font */}
-    <span className="font-['Moura'] text-[4.5rem] md:text-[6.5rem] tracking-normal leading-[1.1] lowercase">
+    {/* Top Line: Outfit (Clean, Thin Sans-Serif) */}
+    <span className="font-['Outfit',sans-serif] font-light text-[4.5rem] md:text-[6rem] tracking-tight leading-[0.8] lowercase relative z-0">
       hyderabad's
     </span>
     
-    {/* Middle Script: Flows naturally with clean vertical spacing */}
-    <span className="font-['Beau_Rivage'] text-[#6B3C9C] text-[5.5rem] md:text-[8rem] leading-[1] -my-3 md:-my-6 ml-6 md:ml-12 relative z-20 lowercase">
+    {/* Middle Script: Beau Rivage. 
+        Cranked up to 12rem so it matches the scale of the reference image. 
+        leading-[0.3] and negative margins force it to overlap the text safely. */}
+    <span className="font-['Beau_Rivage',cursive] text-[#6B3C9C] text-[7.5rem] md:text-[12rem] leading-[0.3] -my-4 md:-my-10 ml-4 md:ml-12 relative z-10 drop-shadow-sm lowercase">
       premium
     </span>
     
-    {/* Line 2: Moura Font */}
-    <span className="font-['Moura'] text-[4.5rem] md:text-[6.5rem] tracking-normal leading-[1.1] lowercase">
+    {/* Bottom Line: Outfit */}
+    <span className="font-['Outfit',sans-serif] font-light text-[4.5rem] md:text-[6rem] tracking-tight leading-[0.8] lowercase relative z-0">
       beauty match.
     </span>
     
