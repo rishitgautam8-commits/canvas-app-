@@ -5,14 +5,14 @@
 
 /* --- YOUR CUSTOM DOWNLOADED FONTS --- */
 /* Ensure these exact filenames exist in your public/fonts/ folder */
-@font-face { font-family: 'Sirelia'; src: url('/fonts/Sirelia.ttf') format('truetype'); }
+@font-face { font-family: 'Sirelia'; src: url('/fonts/Sirelia.otf') format('opentype'); }
 @font-face { font-family: 'Mirabelle'; src: url('/fonts/Mirabelle.otf') format('opentype'); }
 @font-face { font-family: 'Semestha'; src: url('/fonts/Semestha.ttf') format('truetype'); }
 @font-face { font-family: 'Moura'; src: url('/fonts/Moura.otf') format('opentype'); }
 @font-face { font-family: 'Xaviera'; src: url('/fonts/XavieraDEMO-Regular.ttf') format('truetype'); }
 @font-face { font-family: 'Acthirey'; src: url('/fonts/ActhireyDemo.ttf') format('truetype'); }
 @font-face { font-family: 'Effyra'; src: url('/fonts/Effyra.otf') format('opentype'); }
-@font-face { font-family: 'Faven Brill'; src: url('/fonts/FavenBrill.otf') format('opentype'); }
+@font-face { font-family: 'Faven Brill'; src: url('/fonts/Faven%20Brill%20Demo.otf') format('opentype'); }
 
 :root {
   /* Updated the default app font to Outfit */
