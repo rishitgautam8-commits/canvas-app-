@@ -231,7 +231,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
             </div>
 
             <h3 className={`${theme.headingModal} !text-2xl md:!text-3xl mb-4`}>
-              upload a pinterest screenshot or instagram save
+              Upload A Pinterest Screenshot Or Instagram Save
             </h3>
             <p className={`${theme.formLabel} !text-black/50 mb-10`}>
               jpg, png, webp · max 10mb · or drag & drop
