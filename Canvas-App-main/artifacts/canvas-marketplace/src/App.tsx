@@ -564,10 +564,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     hyderabad's
   </span>
   
-  <span 
-  className="font-['Ballet'] text-[#6B3C9C] text-[3.8rem] md:text-[6rem] leading-none z-20 pointer-events-none drop-shadow-sm lowercase transform -rotate-2 -mt-4 md:-mt-8 -mb-1 md:-mb-3 relative"
-  style={{ fontVariationSettings: "'opsz' 72, 'wght' 700" }}
->
+  <span className="font-['Beau_Rivage'] text-[#6B3C9C] text-[3.8rem] md:text-[6rem] leading-none z-20 pointer-events-none drop-shadow-sm lowercase transform -rotate-2 -mt-4 md:-mt-8 -mb-1 md:-mb-3 relative">
   premium
 </span>
   
