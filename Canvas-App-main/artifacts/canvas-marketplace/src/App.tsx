@@ -566,7 +566,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 </span>
                 
                 {/* Middle Script: Absolute centered overlay with a dynamic forward slant */}
-                <span className="font-['Mirabelle'] text-[#6B3C9C] text-[5.5rem] md:text-[8.5rem] leading-none absolute top-[22%] left-[-2%] md:left-[-1%] z-20 pointer-events-none drop-shadow-sm lowercase transform -rotate-2">
+                <span className="font-['Semestha'] text-[#6B3C9C] text-[5.5rem] md:text-[8.5rem] leading-none absolute top-[22%] left-[-2%] md:left-[-1%] z-20 pointer-events-none drop-shadow-sm lowercase transform -rotate-2">
   premium
 </span>
                 
