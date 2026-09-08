@@ -3,6 +3,16 @@
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
 
+/* --- YOUR CUSTOM DOWNLOADED FONTS --- */
+@font-face { font-family: 'Sirelia'; src: url('/fonts/Sirelia.otf') format('opentype'); }
+@font-face { font-family: 'Mirabelle'; src: url('/fonts/Mirabelle.otf') format('opentype'); }
+@font-face { font-family: 'Semestha'; src: url('/fonts/Semestha.ttf') format('truetype'); }
+@font-face { font-family: 'Moura'; src: url('/fonts/Moura.otf') format('opentype'); }
+@font-face { font-family: 'Xaviera'; src: url('/fonts/XavieraDEMO-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Acthirey'; src: url('/fonts/ActhireyDemo.ttf') format('truetype'); }
+@font-face { font-family: 'Effyra'; src: url('/fonts/Effyra.otf') format('opentype'); }
+@font-face { font-family: 'Faven Brill'; src: url('/fonts/FavenBrill.otf') format('opentype'); }
+
 :root {
   --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   
