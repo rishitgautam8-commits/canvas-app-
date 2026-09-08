@@ -552,32 +552,27 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
             <div className="flex flex-col items-start pt-4 mb-8">
               {/* 1. EYEBROW TAG */}
-              <div className="flex items-center gap-3 font-['Montserrat'] text-[10px] font-bold uppercase tracking-[0.35em] text-[#6B3C9C] mb-8">
+              <div className="flex items-center gap-3 font-['Montserrat'] text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B3C9C] mb-8">
                 <div className="w-[26px] h-[1px] bg-[#6B3C9C]"></div>
                 ai-powered beauty matching
               </div>
 
-              {/* 2. THE EDITORIAL LOCKUP USING XAVIERA & SEMESTHA */}
+              {/* 2. THE EDITORIAL LOCKUP */}
               <h1 className="flex flex-col items-start text-black select-none mb-6">
                 
-                {/* Line 1: Xaviera */}
-                <span className="font-['Xaviera'] text-[4.5rem] md:text-[6.5rem] tracking-tighter leading-[0.75]">
+                {/* Loosened the tracking and leading to stop letter collision */}
+                <span className="font-['Xaviera'] text-[4.5rem] md:text-[6.5rem] tracking-tight leading-[0.85]">
                   hyderabad's
                 </span>
                 
-                {/* Line 2: Semestha (The Script)
-                    leading-[0.4] shrinks its massive bounding box. 
-                    -my-3 forces it to overlap the black words above and below it. 
-                    ml-12 indents it so it flows naturally. */}
-                <span className="font-['Semestha'] text-[#6B3C9C] text-[5.5rem] md:text-[7.5rem] leading-[0.4] -my-2 md:-my-4 ml-8 md:ml-16 relative z-10 -rotate-3 drop-shadow-sm">
+                <span className="font-['Sirelia'] text-[#6B3C9C] text-[4.5rem] md:text-[6.5rem] leading-[0.5] -my-1 md:-my-3 ml-8 md:ml-16 relative z-10 -rotate-2 drop-shadow-sm">
                   premium
                 </span>
                 
-                {/* Lines 3 & 4: Xaviera */}
-                <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tighter leading-[0.75]">
+                <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tight leading-[0.85]">
                   beauty
                 </span>
-                <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tighter leading-[0.75]">
+                <span className="font-['Xaviera'] text-[5rem] md:text-[7.5rem] tracking-tight leading-[0.85]">
                   match.
                 </span>
                 
@@ -1004,41 +999,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 }
 
 // ==========================================
-// 4-WAY URL QUERY PARAM STYLE SWITCHER COMPONENT
-// ==========================================
-function StyleSwitcher() {
-  const queryParams = new URLSearchParams(window.location.search);
-  const current = queryParams.get('style') || '2';
-
-  const switchStyle = (version: string) => {
-    queryParams.set('style', version);
-    window.location.search = queryParams.toString();
-  };
-
-  const options = [
-    { id: '1', label: 'opt 1 (vogue)' },
-    { id: '2', label: 'opt 2 (aesop)' },
-    { id: '3', label: 'opt 3 (tom ford)' },
-    { id: '4', label: 'opt 4 (old-world)' },
-  ];
-
-  return (
-    <div className="fixed bottom-6 right-6 z-[9999] flex items-center gap-1.5 bg-black/85 backdrop-blur-md p-2 rounded-full shadow-2xl border border-white/10 text-white font-['Manrope'] text-xs">
-      <span className="px-2 text-white/50 lowercase">style:</span>
-      {options.map((opt) => (
-        <button 
-          key={opt.id}
-          onClick={() => switchStyle(opt.id)} 
-          className={`px-3 py-1 rounded-full transition-colors ${current === opt.id ? 'bg-[#BA965B] text-white font-semibold' : 'text-white/70 hover:text-white'}`}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-// ==========================================
 // ROUTER
 // ==========================================
 function Router({ session, styleVersion }: { session: Session | null; styleVersion: string }) {
@@ -1069,14 +1029,15 @@ function Router({ session, styleVersion }: { session: Session | null; styleVersi
 }
 
 // ==========================================
-// APP ROOT WITH 4-WAY STYLE SWITCHER
+// APP ROOT
 // ==========================================
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
   const [updatingRole, setUpdatingRole] = useState(false);
 
-  // Read style query param (?style=1, ?style=2, ?style=3, or ?style=4)
+  // Still parsing for backwards compatibility with any remaining style queries,
+  // but theme is now locked strictly to Option 4
   const queryParams = new URLSearchParams(window.location.search);
   const styleVersion = queryParams.get('style') || '2';
   const theme = getTheme(styleVersion);
@@ -1202,7 +1163,6 @@ export default function App() {
           <Router session={session} styleVersion={styleVersion} />
         </WouterRouter>
         <Toaster />
-        <StyleSwitcher />
       </TooltipProvider>
     </QueryClientProvider>
   );
