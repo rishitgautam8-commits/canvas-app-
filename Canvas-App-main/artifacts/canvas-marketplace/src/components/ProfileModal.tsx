@@ -134,7 +134,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                       <span className={`${theme.stat} !text-base !text-white`}>{data.rating || '4.8'}</span>
                       <span className={`${theme.formLabel} !text-white/50`}>({data.reviewsCount || 178} reviews)</span>
                       <span className="mx-3 text-white/25">—</span>
-                      <span className={`${theme.stat} !text-xl !text-[#9D7C3A]`}>{data.startingPrice || '₹22,000'}</span>
+                      <span className={`${theme.stat} !text-xl bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block`}>{data.startingPrice || '₹22,000'}</span>
                       <span className={`${theme.formLabel} !text-white/50`}>bridal package</span>
                     </div>
                     

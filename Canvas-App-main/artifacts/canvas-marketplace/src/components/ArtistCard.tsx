@@ -198,7 +198,7 @@ export function ArtistCard({
             {name}
           </h3>
           
-          <p className={`${theme.stat} !text-lg mb-4`}>
+          <p className={`${theme.stat} !text-lg mb-4 bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block`}>
             {typeof startingPrice === 'number' ? `₹${startingPrice.toLocaleString('en-IN')}` : startingPrice}
           </p>
 

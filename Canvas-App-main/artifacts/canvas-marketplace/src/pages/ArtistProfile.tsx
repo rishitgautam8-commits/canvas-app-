@@ -250,7 +250,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
           <div className="flex flex-col sm:flex-row md:flex-col gap-4 w-full md:w-auto">
             <div className="text-left md:text-right">
               <p className={`${theme.formLabel} mb-2`}>starting package</p>
-              <p className={`${theme.stat} !text-3xl`}>₹{artist.starting_price?.toLocaleString() || '15,000'}</p>
+              <p className={`${theme.stat} !text-3xl bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block`}>₹{artist.starting_price?.toLocaleString() || '15,000'}</p>
             </div>
             <button 
               onClick={() => setShowBookingModal(true)} 

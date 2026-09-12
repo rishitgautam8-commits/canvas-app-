@@ -691,7 +691,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <label className={theme.formLabel}>max budget</label>
-                    <span className={`${theme.formLabel} !text-[#9D7C3A]`}>₹{maxBudget.toLocaleString('en-IN')}</span>
+                    <span className={`${theme.formLabel} bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block`}>₹{maxBudget.toLocaleString('en-IN')}</span>
                   </div>
                   <input type="range" min="5000" max="65000" step="1000" value={maxBudget} onChange={(e) => setMaxBudget(Number(e.target.value))} className="w-full accent-[#9D7C3A] cursor-pointer" />
                   <p className={`${theme.formLabel} mt-1`}>up to ₹{maxBudget.toLocaleString('en-IN')}</p>
@@ -810,7 +810,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <ScrollZoomIn delay={0}>
                 <div className={`bg-white/60 p-8 border ${theme.borderBase} ${theme.cardRadius} flex flex-col justify-between`}>
-                  <div className="text-[#9D7C3A] mb-4">★★★★★</div>
+                  <div className="mb-4 bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block">★★★★★</div>
                   <p className={`${theme.quote} mb-6`}>&quot;I uploaded a picture from Pinterest and Canvas found me an artist who had done almost the exact same look. Honestly shocked at how accurate the match was.&quot;</p>
                   <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#E8D5F2] text-[#2D1B4E] flex items-center justify-center font-bold text-xs">SR</div>
@@ -820,7 +820,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               </ScrollZoomIn>
               <ScrollZoomIn delay={120}>
                 <div className={`bg-white/60 p-8 border ${theme.borderBase} ${theme.cardRadius} flex flex-col justify-between`}>
-                  <div className="text-[#9D7C3A] mb-4">★★★★★</div>
+                  <div className="mb-4 bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block">★★★★★</div>
                   <p className={`${theme.quote} mb-6`}>&quot;As a model, finding artists who understand editorial work is hard. Canvas filtered out the noise immediately. The match score is genuinely useful.&quot;</p>
                   <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#1A0B2E] text-[#C4A35A] flex items-center justify-center font-bold text-xs">KM</div>
@@ -830,7 +830,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               </ScrollZoomIn>
               <ScrollZoomIn delay={240}>
                 <div className={`bg-white/60 p-8 border ${theme.borderBase} ${theme.cardRadius} flex flex-col justify-between`}>
-                  <div className="text-[#9D7C3A] mb-4">★★★★★</div>
+                  <div className="mb-4 bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block">★★★★★</div>
                   <p className={`${theme.quote} mb-6`}>&quot;Described the look in two lines, got artists who could do it sorted by price. Booked in ten minutes. This is exactly how it should work.&quot;</p>
                   <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#F5E6C8] text-[#2D1B4E] flex items-center justify-center font-bold text-xs">TP</div>

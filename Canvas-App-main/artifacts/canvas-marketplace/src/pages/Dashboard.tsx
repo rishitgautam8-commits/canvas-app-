@@ -335,7 +335,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]';
               <div className="grid gap-6 md:grid-cols-3">
                 <div className={`bg-white/60 border ${theme.borderBase} p-8 shadow-sm ${theme.cardRadius}`}>
                   <p className={theme.eyebrow}>new bookings</p>
-                  <p className={`mt-4 ${theme.stat} ${accentText}`}>{bookings.length}</p>
+                  <p className={`mt-4 ${theme.stat} ${styleVersion === '3' ? 'text-[#6B3A7D]' : 'bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block'}`}>{bookings.length}</p>
                 </div>
                 <div className={`bg-white/60 border ${theme.borderBase} p-8 shadow-sm ${theme.cardRadius}`}>
                   <p className={theme.eyebrow}>upcoming bookings</p>
@@ -391,7 +391,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]';
                       <div key={review.id} className={`border ${theme.borderBase} bg-white p-6 sm:p-8 space-y-4 ${theme.cardRadius}`}>
                         <div className="flex justify-between items-center">
                           <h4 className={`${theme.headingModal} !text-xl`}>{review.client?.full_name || 'verified client'}</h4>
-                          <div className={`flex gap-1 ${accentText}`}>
+                          <div className={`flex gap-1 ${styleVersion === '3' ? 'text-[#6B3A7D]' : 'bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text'}`}>
                             {[...Array(review.rating)].map((_, i) => (
                               <span key={i}>★</span>
                             ))}
@@ -564,7 +564,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]';
                     <input type="file" multiple accept="image/*" onChange={handleAddPortfolioImage} className={`w-full ${theme.bodyText} file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:${theme.cardRadius} file:${theme.formLabel} file:!text-black hover:file:bg-black/10 transition-all cursor-pointer`} required={portfolio.length < 2} />
                     
                     {portfolio.length > 0 && (
-                      <p className={`mt-4 ${theme.formLabel} ${accentText}`}>{portfolio.length} Photo(s) Currently In Portfolio</p>
+                      <p className={`mt-4 ${theme.formLabel} ${styleVersion === '3' ? 'text-[#6B3A7D]' : 'bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block'}`}>{portfolio.length} Photo(s) Currently In Portfolio</p>
                     )}
                   </div>
 
