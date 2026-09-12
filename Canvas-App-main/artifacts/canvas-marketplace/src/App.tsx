@@ -561,7 +561,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
   
   {/* Line 1: Moura */}
-<span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#6B3C9C]">
+<span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
   Hyderabad's
 </span>
   
@@ -571,7 +571,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 </span>
   
   {/* Line 3: Moura */}
-<span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#6B3C9C]">
+<span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
   Beauty Match.
 </span>
   

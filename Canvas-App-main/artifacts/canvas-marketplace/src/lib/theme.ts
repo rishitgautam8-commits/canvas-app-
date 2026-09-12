@@ -27,7 +27,7 @@ export const getTheme = (styleVersion?: string) => {
     borderBase: "border-[#6B3C9C]/30",
     
     // The Script Accent: Beau Rivage (or change to 'WindSong' if preferred)
-    premiumTag: "font-['Beau_Rivage'] text-[#6B3C9C] text-[1.8em] tracking-normal lowercase",
+    premiumTag: "font-['Beau_Rivage'] text-[#461D64] text-[1.8em] tracking-normal lowercase",
     
     accentColor: '#6B3C9C',
     accentLight: '#9B7CB6',
