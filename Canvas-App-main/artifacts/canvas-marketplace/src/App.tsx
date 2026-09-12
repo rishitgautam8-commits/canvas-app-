@@ -872,7 +872,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
                 <div>
                   <p className={`${theme.eyebrow} !text-[#9D7C3A] mb-3`}>from the journal</p>
-                  <h2 className={`${theme.headingHero} !text-white`}>from the <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text text-2xl sm:text-3xl font-normal lowercase">journal.</span></h2>
+                  <h2 className={`${theme.headingHero} !text-white`}>from the <span className={theme.premiumTag}>journal.</span></h2>
                 </div>
                 <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className={`${theme.secondaryLink} border-b border-white/30 pb-1 !text-white`}>read all stories</button>
               </div>
