@@ -519,7 +519,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         <div className="flex items-center justify-center cursor-pointer group" onClick={() => scrollTo('top')}>
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Canvas Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 group-hover:-rotate-3 group-hover:drop-shadow-[0_4px_12px_rgba(107,58,125,0.3)]" />
-            <span className={`${theme.headingSection} !text-2xl md:!text-3xl tracking-tight transition-colors duration-500 group-hover:text-[#6B3A7D]`}>canvas</span>
+            <span className={`${theme.headingSection} !text-2xl md:!text-3xl tracking-tight transition-colors duration-500 uppercase font-bold !text-[#9D7C3A]`}>CANVAS</span>
           </div>
         </div>
         <div className="flex items-center gap-6 justify-end">
@@ -552,18 +552,18 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
             <div className="flex flex-col items-start pt-4 mb-8">
               {/* 1. EYEBROW TAG */}
-              <div className="flex items-center gap-3 font-['Montserrat'] text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B3C9C] mb-6">
-                <div className="w-[26px] h-[1px] bg-[#6B3C9C]"></div>
-                ai-powered beauty matching
-              </div>
+              <div className="flex items-center gap-3 font-['Montserrat'] text-[11px] font-bold uppercase tracking-[0.2em] text-[#9D7C3A] mb-6">
+  <div className="w-[26px] h-[1px] bg-[#9D7C3A]"></div>
+  ai-powered beauty matching
+</div>
 
               {/* 2. CLEAN, 3-LINE EDITORIAL LOCKUP */}
 <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
   
   {/* Line 1: Moura */}
-  <span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0">
-    Hyderabad's
-  </span>
+<span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#6B3C9C]">
+  Hyderabad's
+</span>
   
   {/* Line 2: Pinyon Script */}
   <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[5.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
@@ -571,9 +571,9 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 </span>
   
   {/* Line 3: Moura */}
-  <span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0">
-    Beauty Match.
-  </span>
+<span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#6B3C9C]">
+  Beauty Match.
+</span>
   
 </h1>
             </div>
