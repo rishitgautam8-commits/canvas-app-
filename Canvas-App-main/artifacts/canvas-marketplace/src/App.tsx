@@ -845,7 +845,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         <ScrollZoomIn>
           <section className="bg-[#150A26] py-24 sm:py-32 px-5 border-t border-white/10 text-center">
             <div className="max-w-[800px] mx-auto">
-              <div className={`flex items-center justify-center gap-3 ${theme.eyebrow} mb-3`}><span className="h-[1px] w-12 bg-white/20"></span>for makeup artists<span className="h-[1px] w-12 bg-white/20"></span></div>
+              <div className={`flex items-center justify-center gap-3 ${theme.eyebrow} !text-[#9D7C3A] mb-3`}><span className="h-[1px] w-12 bg-[#9D7C3A]"></span>for makeup artists<span className="h-[1px] w-12 bg-[#9D7C3A]"></span></div>
               <h2 className={`${theme.headingHero} !text-white mb-8`}>are you a makeup artist?</h2>
               <p className={`${theme.bodyText} !text-white/70 mb-12 max-w-[680px] mx-auto`}>it is completely free to list your verified portfolio on canvas. when our ai matches you with a bride, you will receive a blurred notification. to unlock the client&apos;s whatsapp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. you can also upgrade to canvas pro for a flat monthly subscription to unlock unlimited leads and priority placement in our ai search results.</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
