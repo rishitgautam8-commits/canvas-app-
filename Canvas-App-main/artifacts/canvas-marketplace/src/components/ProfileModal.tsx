@@ -109,37 +109,37 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
             
             <div className={`bg-[#150A26] w-full pt-8 pb-12 px-6 md:px-12 relative border-b ${theme.borderBase} text-white`}>
               <div className="max-w-5xl mx-auto">
-                <button onClick={onClose} className={`flex items-center gap-2 text-white/70 hover:text-[#BA965B] transition-colors mb-8 border border-white/20 px-4 py-2 ${theme.cardRadius} ${theme.formLabel} !text-white !bg-transparent backdrop-blur-md w-fit`}>
+                <button onClick={onClose} className={`flex items-center gap-2 text-white/70 hover:text-[#9D7C3A] transition-colors mb-8 border border-white/20 px-4 py-2 ${theme.cardRadius} ${theme.formLabel} !text-white !bg-transparent backdrop-blur-md w-fit`}>
                   <ArrowLeft size={14} /> back
                 </button>
                 <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start relative z-0">
                   <div className="shrink-0 mt-4">
-                    <img src={data.image || '/fallback-avatar.jpg'} alt={data.name || 'Artist'} className={`w-24 h-24 md:w-36 md:h-36 ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'} object-cover border border-[#BA965B]/50 shadow-xl`} onError={handleImageError} />
+                    <img src={data.image || '/fallback-avatar.jpg'} alt={data.name || 'Artist'} className={`w-24 h-24 md:w-36 md:h-36 ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'} object-cover border border-[#9D7C3A]/50 shadow-xl`} onError={handleImageError} />
                   </div>
                   <div className="flex-1 w-full pt-2">
                     <div className="flex flex-col items-start gap-2 mb-3">
                       <h1 className={`${theme.premiumTag} !text-5xl md:!text-7xl !leading-none drop-shadow-xl py-2`}>
                         {data.name || 'artist profile'}
                       </h1>
-                      <span className={`${theme.badge} !bg-[#BA965B] !text-white !border-none flex items-center gap-1 shrink-0`}><CheckCircle2 size={12} strokeWidth={2.5} /> verified</span>
+                      <span className={`${theme.badge} !bg-[#9D7C3A] !text-white !border-none flex items-center gap-1 shrink-0`}><CheckCircle2 size={12} strokeWidth={2.5} /> verified</span>
                     </div>
-                    <p className={`${theme.formLabel} !text-white/60 mb-5 flex items-center gap-2`}><MapPin size={14} className="text-[#BA965B]" /> {data.location || data.city || 'hyderabad'} <span className="mx-2 text-white/20">•</span> {data.experience_years || 6} yrs experience</p>
+                    <p className={`${theme.formLabel} !text-white/60 mb-5 flex items-center gap-2`}><MapPin size={14} className="text-[#9D7C3A]" /> {data.location || data.city || 'hyderabad'} <span className="mx-2 text-white/20">•</span> {data.experience_years || 6} yrs experience</p>
                     <div className="flex flex-wrap gap-2 mb-6">
                       {(data.tags || ["bridal glam", "editorial", "skin work"]).map((tag: string) => (
                         <span key={tag} className={`px-3 py-1 border border-white/15 !text-white/80 ${theme.formLabel} bg-white/5 ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'}`}>{tag}</span>
                       ))}
                     </div>
                     <div className="flex items-center gap-3 text-white mb-6">
-                      <Star size={16} className="text-[#BA965B]" fill="currentColor" />
+                      <Star size={16} className="text-[#9D7C3A]" fill="currentColor" />
                       <span className={`${theme.stat} !text-base !text-white`}>{data.rating || '4.8'}</span>
                       <span className={`${theme.formLabel} !text-white/50`}>({data.reviewsCount || 178} reviews)</span>
                       <span className="mx-3 text-white/25">—</span>
-                      <span className={`${theme.stat} !text-xl !text-[#BA965B]`}>{data.startingPrice || '₹22,000'}</span>
+                      <span className={`${theme.stat} !text-xl !text-[#9D7C3A]`}>{data.startingPrice || '₹22,000'}</span>
                       <span className={`${theme.formLabel} !text-white/50`}>bridal package</span>
                     </div>
                     
                     {/* UPDATED BUTTON LOGIC */}
-                    <button onClick={handleBookClick} className={`w-full max-w-[280px] ${theme.btnPrimary} !bg-[#BA965B] !text-white hover:!bg-white hover:!text-black shadow-lg flex items-center justify-center gap-2 cursor-pointer`}>
+                    <button onClick={handleBookClick} className={`w-full max-w-[280px] ${theme.btnPrimary} !bg-[#9D7C3A] !text-white hover:!bg-white hover:!text-black shadow-lg flex items-center justify-center gap-2 cursor-pointer`}>
                       view availability & book ↗
                     </button>
                   </div>
@@ -164,7 +164,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                         <div className="cursor-pointer overflow-hidden relative group" onClick={() => setExpandedImage(img)}>
                           <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-700" onError={handleImageError} />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                          <div className="absolute top-3 left-3"><span className={`${theme.badge} !bg-[#BA965B] !text-white !border-none`}>look 0{i + 1}</span></div>
+                          <div className="absolute top-3 left-3"><span className={`${theme.badge} !bg-[#9D7C3A] !text-white !border-none`}>look 0{i + 1}</span></div>
                         </div>
                         <div className="p-6 flex flex-col flex-1 bg-white">
                           <h3 className={`${theme.headingModal} !text-xl !tracking-normal mb-2`}>{firstName} — {MAKEUP_NAMES[i % MAKEUP_NAMES.length]}</h3>
@@ -194,7 +194,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
                               return (
                                 <div key={idx} className={`flex items-center justify-between py-4 border-b ${theme.borderBase} last:border-0`}>
                                   <span className={theme.bodyText}>{parts[0].trim()}</span>
-                                  {parts.length > 1 && <span className={`${theme.badge} !bg-[#BA965B] !text-white !border-none`}>{parts[1].replace(')', '').trim()}</span>}
+                                  {parts.length > 1 && <span className={`${theme.badge} !bg-[#9D7C3A] !text-white !border-none`}>{parts[1].replace(')', '').trim()}</span>}
                                 </div>
                               );
                             })}
@@ -225,7 +225,7 @@ export function ProfileModal({ open, artist, onClose, onBookAppointment }: Profi
       <AnimatePresence>
         {expandedImage && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} onClick={() => setExpandedImage(null)} className={`fixed inset-0 z-[300] flex items-center justify-center bg-black/95 p-4 md:p-12 backdrop-blur-xl ${theme.fontBase}`} role="dialog">
-            <button className="absolute right-6 top-6 md:right-12 md:top-12 text-white transition-colors hover:text-[#BA965B] bg-white/10 p-2.5 rounded-full" onClick={() => setExpandedImage(null)}><X size={24} strokeWidth={1.5} /></button>
+            <button className="absolute right-6 top-6 md:right-12 md:top-12 text-white transition-colors hover:text-[#9D7C3A] bg-white/10 p-2.5 rounded-full" onClick={() => setExpandedImage(null)}><X size={24} strokeWidth={1.5} /></button>
             <motion.img initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} transition={{ duration: 0.4, ease }} src={expandedImage} className={`max-h-[90vh] max-w-full object-contain border border-white/10 shadow-2xl ${theme.cardRadius}`} onClick={(e) => e.stopPropagation()} onError={handleImageError} />
           </motion.div>
         )}

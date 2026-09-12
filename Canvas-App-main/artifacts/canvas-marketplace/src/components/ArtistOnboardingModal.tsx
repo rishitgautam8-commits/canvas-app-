@@ -112,7 +112,7 @@ export function ArtistOnboardingModal({ open, userId, onComplete }: ArtistOnboar
                   placeholder="e.g. Kaushal Makeover Studio"
                   value={formData.business_name}
                   onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                  className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]"
+                  className="w-full text-sm text-black placeholder:text-black/30 border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#9D7C3A]"
                 />
               </div>
 
@@ -123,7 +123,7 @@ export function ArtistOnboardingModal({ open, userId, onComplete }: ArtistOnboar
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full text-sm text-black border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B] cursor-pointer"
+                  className="w-full text-sm text-black border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#9D7C3A] cursor-pointer"
                 >
                   {CATEGORIES.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -141,7 +141,7 @@ export function ArtistOnboardingModal({ open, userId, onComplete }: ArtistOnboar
                     required
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full text-sm text-black border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B]"
+                    className="w-full text-sm text-black border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#9D7C3A]"
                   />
                 </div>
                 <div>
@@ -153,7 +153,7 @@ export function ArtistOnboardingModal({ open, userId, onComplete }: ArtistOnboar
                     required
                     value={formData.starting_price}
                     onChange={(e) => setFormData({ ...formData, starting_price: Number(e.target.value) })}
-                    className="w-full text-sm text-black border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#BA965B] tabular-nums"
+                    className="w-full text-sm text-black border-b border-black/15 bg-transparent py-2.5 outline-none transition-colors focus:border-[#9D7C3A] tabular-nums"
                   />
                 </div>
               </div>
@@ -161,7 +161,7 @@ export function ArtistOnboardingModal({ open, userId, onComplete }: ArtistOnboar
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="w-full bg-black text-white py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#BA965B] hover:text-black transition-colors mt-4"
+                className="w-full bg-black text-white py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#9D7C3A] hover:text-black transition-colors mt-4"
               >
                 Next: Portfolio & Logistics &rarr;
               </button>
@@ -214,7 +214,7 @@ export function ArtistOnboardingModal({ open, userId, onComplete }: ArtistOnboar
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-2/3 bg-black text-white py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#BA965B] hover:text-black transition-colors disabled:opacity-50"
+                  className="w-2/3 bg-black text-white py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#9D7C3A] hover:text-black transition-colors disabled:opacity-50"
                 >
                   {loading ? 'Publishing Studio...' : 'Complete & Launch Studio'}
                 </button>

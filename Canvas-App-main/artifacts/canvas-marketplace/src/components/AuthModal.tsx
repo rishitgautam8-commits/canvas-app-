@@ -72,7 +72,7 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute right-5 top-5 text-black/40 hover:text-[#BA965B] transition-colors"
+            className="absolute right-5 top-5 text-black/40 hover:text-[#9D7C3A] transition-colors"
           >
             <X size={20} strokeWidth={1.5} />
           </button>

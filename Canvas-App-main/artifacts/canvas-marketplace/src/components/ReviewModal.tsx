@@ -91,7 +91,7 @@ export function ReviewModal({ isOpen, onClose, bookingId, artistId, clientId, ar
                   size={32} 
                   className={`transition-colors duration-200 ${
                     (hoveredRating || rating) >= star 
-                      ? 'fill-[#BA965B] text-[#BA965B]' 
+                      ? 'fill-[#9D7C3A] text-[#9D7C3A]' 
                       : 'fill-transparent text-black/20'
                   }`} 
                 />
@@ -105,7 +105,7 @@ export function ReviewModal({ isOpen, onClose, bookingId, artistId, clientId, ar
               onChange={(e) => setReviewText(e.target.value)}
               placeholder="tell us about the look, the professionalism, and your overall experience..."
               rows={4}
-              className={`w-full bg-black/5 border ${theme.borderBase} p-5 outline-none ${theme.bodyText} placeholder:text-black/30 focus:border-[#BA965B] transition-all resize-none ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-2xl'}`}
+              className={`w-full bg-black/5 border ${theme.borderBase} p-5 outline-none ${theme.bodyText} placeholder:text-black/30 focus:border-[#9D7C3A] transition-all resize-none ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-2xl'}`}
             />
           </div>
 

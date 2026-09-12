@@ -47,10 +47,10 @@ export default function Dashboard({ session }: DashboardProps) {
   const theme = getTheme(styleVersion);
 
   // Adapt accents (Use Dusty Plum for Opt 3, Gold for others)
-  const accentColor = styleVersion === '3' ? '#6B3A7D' : '#BA965B';
-const accentBg = styleVersion === '3' ? 'bg-[#6B3A7D]' : 'bg-[#BA965B]';
-const accentBorder = styleVersion === '3' ? 'border-[#6B3A7D]' : 'border-[#BA965B]';
-const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#BA965B]';
+  const accentColor = styleVersion === '3' ? '#6B3A7D' : '#9D7C3A';
+const accentBg = styleVersion === '3' ? 'bg-[#6B3A7D]' : 'bg-[#9D7C3A]';
+const accentBorder = styleVersion === '3' ? 'border-[#6B3A7D]' : 'border-[#9D7C3A]';
+const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]';
 
   const [formData, setFormData] = useState({
     business_name: '',

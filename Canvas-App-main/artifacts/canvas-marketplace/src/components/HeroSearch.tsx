@@ -54,7 +54,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
   const theme = getTheme(styleVersion);
   
   // Adapt accents (Use Dusty Plum for Opt 3, Gold for others)
-  const accentColor = styleVersion === '3' ? '#7A4B69' : '#BA965B';
+  const accentColor = styleVersion === '3' ? '#7A4B69' : '#9D7C3A';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

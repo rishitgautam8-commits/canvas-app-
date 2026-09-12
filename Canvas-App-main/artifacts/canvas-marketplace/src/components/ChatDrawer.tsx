@@ -23,8 +23,8 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
   const theme = getTheme(styleVersion);
   
   // Adapt accents (Use Dusty Plum for Opt 3, Gold for others)
-  const accentColor = styleVersion === '3' ? '#7A4B69' : '#BA965B';
-  const accentBg = styleVersion === '3' ? 'bg-[#7A4B69]' : 'bg-[#BA965B]';
+  const accentColor = styleVersion === '3' ? '#7A4B69' : '#9D7C3A';
+  const accentBg = styleVersion === '3' ? 'bg-[#7A4B69]' : 'bg-[#9D7C3A]';
 
   useEffect(() => {
     if (!open) return;

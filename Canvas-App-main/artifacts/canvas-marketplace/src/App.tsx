@@ -566,7 +566,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   </span>
   
   {/* Line 2: Pinyon Script */}
-  <span className="font-['PinyonScript',cursive] text-[#6B3C9C] text-[5.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
+  <span className="font-['PinyonScript',cursive] text-[#9D7C3A] text-[5.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
     Premium
   </span>
   
@@ -691,9 +691,9 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <label className={theme.formLabel}>max budget</label>
-                    <span className={`${theme.formLabel} !text-[#BA965B]`}>₹{maxBudget.toLocaleString('en-IN')}</span>
+                    <span className={`${theme.formLabel} !text-[#9D7C3A]`}>₹{maxBudget.toLocaleString('en-IN')}</span>
                   </div>
-                  <input type="range" min="5000" max="65000" step="1000" value={maxBudget} onChange={(e) => setMaxBudget(Number(e.target.value))} className="w-full accent-[#BA965B] cursor-pointer" />
+                  <input type="range" min="5000" max="65000" step="1000" value={maxBudget} onChange={(e) => setMaxBudget(Number(e.target.value))} className="w-full accent-[#9D7C3A] cursor-pointer" />
                   <p className={`${theme.formLabel} mt-1`}>up to ₹{maxBudget.toLocaleString('en-IN')}</p>
                 </div>
                 <div className="mb-10">
@@ -701,7 +701,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                   <div className="space-y-4">
                     {Object.keys(cityFilters).map((city) => (
                       <label key={city} className="flex cursor-pointer items-center group">
-                        <div onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))} className={`mr-4 flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border ${cityFilters[city] ? 'border-[#BA965B] bg-[#BA965B]' : 'border-black/20 group-hover:border-[#BA965B]'} transition-colors`}>
+                        <div onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))} className={`mr-4 flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border ${cityFilters[city] ? 'border-[#9D7C3A] bg-[#9D7C3A]' : 'border-black/20 group-hover:border-[#9D7C3A]'} transition-colors`}>
                           {cityFilters[city] && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                         </div>
                         <span onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))} className={`${theme.formLabel} ${cityFilters[city] ? '!text-black' : '!text-black/50'} transition-colors`}>{city.toLowerCase()}</span>
@@ -774,7 +774,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className={theme.eyebrow}>curated talent</h3>
-                    <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#BA965B]`}>01</p>
+                    <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#9D7C3A]`}>01</p>
                   </div>
                   <p className={theme.bodyText}><strong className="text-black font-bold">distinct hand, not a uniform finish.</strong> we reject cookie-cutter application, selecting artists exclusively for their unique ability to elevate natural features.</p>
                 </div>
@@ -783,7 +783,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className={theme.eyebrow}>the experience</h3>
-                    <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#BA965B]`}>02</p>
+                    <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#9D7C3A]`}>02</p>
                   </div>
                   <p className={theme.bodyText}><strong className="text-black font-bold">care in the details and generosity.</strong> from high-end skin prep to impeccable kit hygiene, our standard for client comfort is non-negotiable.</p>
                 </div>
@@ -792,7 +792,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className={theme.eyebrow}>private network</h3>
-                    <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#BA965B]`}>03</p>
+                    <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#9D7C3A]`}>03</p>
                   </div>
                   <p className={theme.bodyText}><strong className="text-black font-bold">the list is small so it means something.</strong> we prioritize strict quality over volume, eliminating the guesswork of endless scrolling.</p>
                 </div>
@@ -810,7 +810,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <ScrollZoomIn delay={0}>
                 <div className={`bg-white/60 p-8 border ${theme.borderBase} ${theme.cardRadius} flex flex-col justify-between`}>
-                  <div className="text-[#BA965B] mb-4">★★★★★</div>
+                  <div className="text-[#9D7C3A] mb-4">★★★★★</div>
                   <p className={`${theme.quote} mb-6`}>&quot;I uploaded a picture from Pinterest and Canvas found me an artist who had done almost the exact same look. Honestly shocked at how accurate the match was.&quot;</p>
                   <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#E8D5F2] text-[#2D1B4E] flex items-center justify-center font-bold text-xs">SR</div>
@@ -820,7 +820,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               </ScrollZoomIn>
               <ScrollZoomIn delay={120}>
                 <div className={`bg-white/60 p-8 border ${theme.borderBase} ${theme.cardRadius} flex flex-col justify-between`}>
-                  <div className="text-[#BA965B] mb-4">★★★★★</div>
+                  <div className="text-[#9D7C3A] mb-4">★★★★★</div>
                   <p className={`${theme.quote} mb-6`}>&quot;As a model, finding artists who understand editorial work is hard. Canvas filtered out the noise immediately. The match score is genuinely useful.&quot;</p>
                   <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#1A0B2E] text-[#C4A35A] flex items-center justify-center font-bold text-xs">KM</div>
@@ -830,7 +830,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               </ScrollZoomIn>
               <ScrollZoomIn delay={240}>
                 <div className={`bg-white/60 p-8 border ${theme.borderBase} ${theme.cardRadius} flex flex-col justify-between`}>
-                  <div className="text-[#BA965B] mb-4">★★★★★</div>
+                  <div className="text-[#9D7C3A] mb-4">★★★★★</div>
                   <p className={`${theme.quote} mb-6`}>&quot;Described the look in two lines, got artists who could do it sorted by price. Booked in ten minutes. This is exactly how it should work.&quot;</p>
                   <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#F5E6C8] text-[#2D1B4E] flex items-center justify-center font-bold text-xs">TP</div>
@@ -851,7 +851,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button 
                 onClick={() => window.alert('Canvas Pro features are launching soon! Create a free account today to get early access.')} 
-                className={`${theme.btnOutline} !border-[#BA965B] !text-[#BA965B] hover:!bg-[#BA965B] hover:!text-white`}
+                className={`${theme.btnOutline} !border-[#9D7C3A] !text-[#9D7C3A] hover:!bg-[#9D7C3A] hover:!text-white`}
               >
                 explore pro features
               </button>
@@ -964,7 +964,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             </div>
             {sent ? (
               <div className="flex-1 flex flex-col justify-center mb-20 text-center">
-                <div className="w-16 h-16 rounded-full bg-[#BA965B]/10 text-[#BA965B] flex items-center justify-center mx-auto mb-6"><Sparkles size={32} /></div>
+                <div className="w-16 h-16 rounded-full bg-[#9D7C3A]/10 text-[#9D7C3A] flex items-center justify-center mx-auto mb-6"><Sparkles size={32} /></div>
                 <h3 className={`${theme.headingModal} mb-4`}>the artist has been notified.</h3>
                 <p className={`${theme.bodyText} mb-10 max-w-md mx-auto`}>your brief is securely in the artist&apos;s queue. you will receive a notification in your dashboard once they review the logistics and confirm the slot.</p>
                 <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className={`w-full ${theme.btnPrimary}`}>return to directory</button>
