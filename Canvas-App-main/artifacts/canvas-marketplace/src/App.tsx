@@ -871,8 +871,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             <ScrollZoomIn>
               <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
                 <div>
-                  <p className={`${theme.eyebrow} mb-3`}>from the journal</p>
-                  <h2 className={`${theme.headingHero} !text-white`}>from the <span className={theme.premiumTag}>journal.</span></h2>
+                  <p className={`${theme.eyebrow} !text-[#9D7C3A] mb-3`}>from the journal</p>
+                  <h2 className={`${theme.headingHero} !text-white`}>from the <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text text-2xl sm:text-3xl font-normal lowercase">journal.</span></h2>
                 </div>
                 <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className={`${theme.secondaryLink} border-b border-white/30 pb-1 !text-white`}>read all stories</button>
               </div>
@@ -881,7 +881,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <ScrollZoom>
                 <div className={`group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
                   <ScrollZoomIn delay={150}>
-                    <span className={theme.eyebrow}>perspective · 06 min read</span>
+                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>perspective · 06 min read</span>
                     <div>
                       <h3 className={`${theme.headingModal} !text-white mt-4`}>on keeping your own face.</h3>
                       <p className={`${theme.bodyText} !text-white/60 mt-2`}>a conversation about recognition and restraint.</p>
@@ -892,13 +892,13 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <div className="grid gap-6">
                 <ScrollZoomIn delay={100}>
                   <div className={`group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
-                    <span className={theme.eyebrow}>ritual · 03 min read</span>
+                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>ritual · 03 min read</span>
                     <h3 className={`${theme.headingModal} !text-white mt-4`}>a small ritual before the chair.</h3>
                   </div>
                 </ScrollZoomIn>
                 <ScrollZoomIn delay={200}>
                   <div className={`group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
-                    <span className={theme.eyebrow}>industry · 05 min read</span>
+                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>industry · 05 min read</span>
                     <h3 className={`${theme.headingModal} !text-white mt-4`}>the science of skin prep.</h3>
                   </div>
                 </ScrollZoomIn>
