@@ -354,10 +354,10 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                     <label className={`mb-4 block ${theme.formLabel}`}>Select Phase Of Day</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
-  { display: 'Early Morning (Pre-8 AM)', value: 'Early Morning (Before 8 AM)', keyword: 'Early' },
-  { display: 'Morning (8 AM - 12 PM)', value: 'Morning (8 AM - 12 PM)', keyword: 'Morning' },
-  { display: 'Afternoon & Evening', value: 'Afternoon/Evening (12 PM - 8 PM)', keyword: 'Afternoon' },
-  { display: 'Late Night (Post-8 PM)', value: 'Late Night (After 8 PM)', keyword: 'Late' }
+  { display: 'Early Morning (Pre-8 AM)', value: 'EARLY_MORNING', keyword: 'Early' },
+{ display: 'Morning (8 AM - 12 PM)', value: 'MORNING', keyword: 'Morning' },
+{ display: 'Afternoon & Evening', value: 'AFTERNOON_EVENING', keyword: 'Afternoon' },
+{ display: 'Late Night (Post-8 PM)', value: 'LATE_NIGHT', keyword: 'Late' }
 ].map(slot => {
                         const isTimeBooked = bookedTimeSlots[selectedDate]?.some(t => t?.includes(slot.keyword));
                         
