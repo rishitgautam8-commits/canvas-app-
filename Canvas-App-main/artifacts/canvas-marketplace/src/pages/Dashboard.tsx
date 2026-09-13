@@ -92,22 +92,20 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]';
             .order('created_at', { ascending: false });
 
           setArtistReviews(reviewsData || []);
-          if (!artistData || !artistData.business_name) {
-            setShowOnboarding(true);
-          } else {
-            setArtistProfile(artistData);
-            setPortfolio(artistData.portfolio || []);
-            setFormData({
-              business_name: artistData.business_name || '',
-              category: artistData.category || '',
-              qualifications: artistData.qualifications || '',
-              city: artistData.city || '',
-              max_travel_km: artistData.max_travel_km?.toString() || '',
-              starting_price: artistData.starting_price?.toString() || '',
-              years_experience: artistData.years_experience?.toString() || '',
-              blocked_dates: artistData.blocked_dates || [],
-            });
-          }
+          if (artistData) {
+      setArtistProfile(artistData);
+      setPortfolio(artistData.portfolio || []);
+      setFormData({
+        business_name: artistData.business_name || '',
+        category: artistData.category || '',
+        qualifications: artistData.qualifications || '',
+        city: artistData.city || '',
+        max_travel_km: artistData.max_travel_km?.toString() || '',
+        starting_price: artistData.starting_price?.toString() || '',
+        years_experience: artistData.years_experience?.toString() || '',
+        blocked_dates: artistData.blocked_dates || [],
+      });
+    }
 
           const { data: bookingsData } = await supabase.from('bookings').select('*').eq('artist_id', session.user.id).order('created_at', { ascending: false });
 
