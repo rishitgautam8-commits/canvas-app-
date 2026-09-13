@@ -179,7 +179,7 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]';
             session.user.user_metadata?.first_name ||
             'Artist',
         },
-        { onConflict: 'email' }
+        { onConflict: 'id' }
       );
 
       if (profileError) throw new Error(`Failed to save base profile: ${profileError.message}`);
