@@ -34,6 +34,7 @@ export type ArtistCardProps = {
   tags?: string[];
   tint?: ArtistTint;
   matchPercentage?: number; // <--- The AI Percentage Prop!
+  matchReasons?: string[];
   onClick?: () => void;
   testId?: string;
 };
@@ -48,6 +49,7 @@ export function ArtistCard({
   tags = [...DEFAULT_TAGS],
   tint,
   matchPercentage,
+  matchReasons = [],
   onClick,
   testId,
 }: ArtistCardProps) {
@@ -112,7 +114,7 @@ export function ArtistCard({
         <div className={`relative aspect-[4/5] w-full overflow-hidden bg-black/5 ${theme.cardRadius}`}>
           
           {/* AI MATCH PERCENTAGE BADGE */}
-          {matchPercentage && (
+          {typeof matchPercentage === 'number' && (
             <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-3 py-1.5 shadow-sm rounded-full">
               <Sparkles size={12} className="text-[#6B3C9C]" />
               <span className={`text-[10px] font-bold text-black tracking-widest ${styleVersion === '1' || styleVersion === '3' ? "font-['Montserrat'] uppercase" : "font-['Manrope'] lowercase"}`}>
@@ -212,6 +214,12 @@ export function ArtistCard({
               </span>
             ))}
           </div>
+
+          {matchReasons.length > 0 && (
+            <p className={`${theme.formLabel} !text-black/40 !tracking-wider mt-2`}>
+              matched for {matchReasons.join(', ').toLowerCase()}
+            </p>
+          )}
         </div>
       </button>
     </article>

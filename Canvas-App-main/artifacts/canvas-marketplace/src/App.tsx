@@ -23,6 +23,45 @@ import { Premium } from '@/components/Premium';
 import { getTheme } from '@/lib/theme';
 
 // ==========================================
+// TEXT FORMATTING: TITLE CASE
+// ==========================================
+// Words that stay lowercase in the middle of a title (articles,
+// short conjunctions, short prepositions) unless they open or close it.
+const TITLE_CASE_MINOR_WORDS = new Set([
+  'a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'if', 'in',
+  'nor', 'of', 'on', 'or', 'so', 'the', 'to', 'up', 'yet', 'with',
+]);
+
+// Known acronyms/initialisms that should render fully capitalized
+// even when the source string is lowercase (e.g. "ai" -> "AI").
+const TITLE_CASE_ACRONYMS: Record<string, string> = {
+  ai: 'AI',
+  faq: 'FAQ',
+  faqs: 'FAQs',
+  hd: 'HD',
+};
+
+// Converts a string to Title Case for use in headings, subheadings,
+// and category names. Preserves already-stylized words (e.g. "iPhone",
+// "FAQs") and keeps minor words lowercase unless they're first/last.
+function toTitleCase(input: string): string {
+  if (!input) return input;
+  return input
+    .split(' ')
+    .map((word, index, words) => {
+      if (!word) return word;
+      // Leave words with internal capitals untouched (acronyms, stylized casing)
+      if (/[A-Z]/.test(word.slice(1))) return word;
+      const lower = word.toLowerCase();
+      if (TITLE_CASE_ACRONYMS[lower]) return TITLE_CASE_ACRONYMS[lower];
+      const isEdge = index === 0 || index === words.length - 1;
+      if (!isEdge && TITLE_CASE_MINOR_WORDS.has(lower)) return lower;
+      return lower.charAt(0).toUpperCase() + lower.slice(1).replace(/-([a-z])/g, (_, c) => `-${c.toUpperCase()}`);
+    })
+    .join(' ');
+}
+
+// ==========================================
 // PERFORMANCE OPTIMIZED SCROLL WRAPPERS
 // ==========================================
 function ScrollZoom({ children, className }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -156,7 +195,7 @@ function runCanvasMatch(
     return {
       ...artist,
       match: finalScore,
-      matchReasons: aiTags.length > 0 ? aiTags : ['Based on location & style']
+      matchReasons: aiTags.length > 0 ? aiTags : ['location', 'style']
     };
   });
 }
@@ -244,11 +283,11 @@ function CanvasVisualEditorial({ theme }: { theme: any }) {
         
         <div className="flex flex-col items-center mt-6">
           <span className={`${theme.eyebrow} mb-3 text-center`}>
-            the canvas standard
+            {toTitleCase('the canvas standard')}
           </span>
           <div className="h-[1px] w-12 bg-gradient-to-r from-transparent via-black/20 to-transparent mb-3" />
           <p className={`${theme.premiumTag} text-sm md:text-base text-center`}>
-            curated private roster
+            {toTitleCase('curated private roster')}
           </p>
         </div>
       </motion.div>
@@ -261,6 +300,8 @@ function CanvasVisualEditorial({ theme }: { theme: any }) {
 // ==========================================
 function Home({ session, setAuthOpen, styleVersion }: { session: Session | null; setAuthOpen: (v: boolean) => void; styleVersion: string }) {
   const theme = getTheme(styleVersion);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [faqOpen, setFaqOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [aiTags, setAiTags] = useState<string[]>([]);
   const [, setLocation] = useLocation();
@@ -626,28 +667,28 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           <div className="stat">
             <ScrollZoom><div className={theme.stat}>{sourceArtists.length}</div></ScrollZoom>
             <ScrollZoomIn delay={100}>
-              <div className={`${theme.eyebrow} !text-black/80`}>verified artists</div>
+              <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('verified artists')}</div>
             </ScrollZoomIn>
           </div>
           <div className="stat-divider"></div>
           <div className="stat">
             <ScrollZoom><div className={theme.stat}>₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div></ScrollZoom>
             <ScrollZoomIn delay={100}>
-              <div className={`${theme.eyebrow} !text-black/80`}>avg booking value</div>
+              <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('avg booking value')}</div>
             </ScrollZoomIn>
           </div>
           <div className="stat-divider"></div>
           <div className="stat">
             <ScrollZoom><div className={theme.stat}>{platformStats.totalBookings.toLocaleString('en-US')}+</div></ScrollZoom>
             <ScrollZoomIn delay={100}>
-              <div className={`${theme.eyebrow} !text-black/80`}>successful bookings</div>
+              <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('successful bookings')}</div>
             </ScrollZoomIn>
           </div>
           <div className="stat-divider"></div>
           <div className="stat">
             <ScrollZoom><div className={theme.stat}>{platformStats.avgRating}★</div></ScrollZoom>
             <ScrollZoomIn delay={100}>
-              <div className={`${theme.eyebrow} !text-black/80`}>platform avg rating</div>
+              <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('platform avg rating')}</div>
             </ScrollZoomIn>
           </div>
         </ScrollZoomIn>
@@ -657,8 +698,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             <ScrollZoomIn>
               <div className="mb-12 flex flex-col gap-5">
                 <div>
-                  <p className={`${theme.eyebrow} mb-3`}>the shortlist</p>
-                  <h2 className={theme.headingSection}>meet the <span className={theme.premiumTag}>artists</span></h2>
+                  <p className={`${theme.eyebrow} mb-3`}>{toTitleCase('the shortlist')}</p>
+                  <h2 className={theme.headingSection}>{toTitleCase('meet the')} <span className={theme.premiumTag}>{toTitleCase('artists')}</span></h2>
                 </div>
                 <p className={`${theme.bodyText} max-w-[500px]`}>a private directory of hyderabad&apos;s most sought-after talent, rigorously vetted for their technical execution and distinct aesthetic vision.</p>
               </div>
@@ -667,7 +708,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             <ScrollZoomIn>
               <div className={`mb-12 flex flex-wrap gap-3 border-b ${theme.borderBase} pb-8`}>
                 {discoverCategories.map((cat) => (
-                  <button key={cat.id} onClick={() => setSelectedCategoryFilter(cat.id)} className={`px-6 py-3 transition-colors border ${theme.cardRadius} ${theme.formLabel} ${selectedCategoryFilter === cat.id ? 'border-black bg-black text-white' : `${theme.borderBase} bg-transparent text-black/60 hover:border-black hover:text-black`}`}>{cat.label}</button>
+                  <button key={cat.id} onClick={() => setSelectedCategoryFilter(cat.id)} className={`px-6 py-3 transition-colors border ${theme.cardRadius} ${theme.formLabel} ${selectedCategoryFilter === cat.id ? 'border-black bg-black text-white' : `${theme.borderBase} bg-transparent text-black/60 hover:border-black hover:text-black`}`}>{toTitleCase(cat.label)}</button>
                 ))}
               </div>
             </ScrollZoomIn>
@@ -679,8 +720,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                     <div className="flex items-center gap-4">
                       <div className={`flex h-12 w-12 items-center justify-center border border-[#6B3A7D]/40 bg-[#6B3A7D]/10 text-[#6B3A7D] ${theme.cardRadius}`}><Sparkles size={20} /></div>
                       <div>
-                        <span className={theme.eyebrow}>canvas ai vision analysis</span>
-                        <h3 className={`${theme.headingModal} mt-1`}>aesthetic profile extracted</h3>
+                        <span className={theme.eyebrow}>{toTitleCase('canvas ai vision analysis')}</span>
+                        <h3 className={`${theme.headingModal} mt-1`}>{toTitleCase('aesthetic profile extracted')}</h3>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -717,7 +758,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                   <p className={`${theme.formLabel} mt-1`}>up to ₹{maxBudget.toLocaleString('en-IN')}</p>
                 </div>
                 <div className="mb-10">
-                  <h3 className={`mb-5 ${theme.formLabel}`}>city</h3>
+                  <h3 className={`mb-5 ${theme.formLabel}`}>{toTitleCase('city')}</h3>
                   <div className="space-y-4">
                     {Object.keys(cityFilters).map((city) => (
                       <label key={city} className="flex cursor-pointer items-center group">
@@ -749,7 +790,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                               portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)} 
                               startingPrice={artist.startingPrice} 
                               tags={artist.tags} 
-                              matchPercentage={aiTags.length > 0 ? artist.match : undefined} 
+                              matchPercentage={artist.match} 
+                              matchReasons={artist.matchReasons}
                               onClick={() => handleSelectArtist(artist)} 
                             />
                           </ScrollZoom>
@@ -766,7 +808,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                   ) : (
                     <ScrollZoomIn>
                       <div className={`flex min-h-[300px] flex-col items-center justify-center border ${theme.borderBase} bg-white px-6 text-center shadow-sm ${theme.cardRadius}`}>
-                        <p className={theme.headingModal}>no artists found</p>
+                        <p className={theme.headingModal}>{toTitleCase('no artists found')}</p>
                         <p className={`mt-4 max-w-sm ${theme.bodyText}`}>adjust your budget or city filters</p>
                         <button type="button" onClick={() => { setMaxBudget(65000); setCityFilters({ 'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true, 'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true, 'Begumpet': true, 'Secunderabad': true }); setVisibleCount(9); }} className={`mt-8 ${theme.btnPrimary}`}>reset filters</button>
                       </div>
@@ -782,8 +824,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-end mb-24">
               <ScrollZoomIn className="lg:col-span-8">
-                <p className={`${theme.eyebrow} mb-8`}>the canvas standard</p>
-                <h2 className={theme.headingHero}>beauty is a <span className={theme.premiumTag}>point of view.</span></h2>
+                <p className={`${theme.eyebrow} mb-8`}>{toTitleCase('the canvas standard')}</p>
+                <h2 className={theme.headingHero}>{toTitleCase('beauty is a')} <span className={theme.premiumTag}>{toTitleCase('point of view.')}</span></h2>
               </ScrollZoomIn>
               <ScrollZoomIn className="lg:col-span-4 pb-3" delay={150}>
                 <p className={theme.bodyText}>canvas is a private directory, not an open marketplace. every artist on this platform has been rigorously vetted for their technical execution, kit hygiene, and distinct aesthetic vision.</p>
@@ -793,7 +835,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <ScrollZoomIn delay={0}>
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
-                    <h3 className={theme.eyebrow}>curated talent</h3>
+                    <h3 className={theme.eyebrow}>{toTitleCase('curated talent')}</h3>
                     <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#9D7C3A]`}>01</p>
                   </div>
                   <p className={theme.bodyText}><strong className="text-black font-bold">distinct hand, not a uniform finish.</strong> we reject cookie-cutter application, selecting artists exclusively for their unique ability to elevate natural features.</p>
@@ -802,7 +844,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <ScrollZoomIn delay={120}>
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
-                    <h3 className={theme.eyebrow}>the experience</h3>
+                    <h3 className={theme.eyebrow}>{toTitleCase('the experience')}</h3>
                     <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#9D7C3A]`}>02</p>
                   </div>
                   <p className={theme.bodyText}><strong className="text-black font-bold">care in the details and generosity.</strong> from high-end skin prep to impeccable kit hygiene, our standard for client comfort is non-negotiable.</p>
@@ -811,7 +853,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <ScrollZoomIn delay={240}>
                 <div className="group cursor-default">
                   <div className="flex items-center justify-between mb-8">
-                    <h3 className={theme.eyebrow}>private network</h3>
+                    <h3 className={theme.eyebrow}>{toTitleCase('private network')}</h3>
                     <p className={`${theme.stat} !text-black/20 transition-colors group-hover:!text-[#9D7C3A]`}>03</p>
                   </div>
                   <p className={theme.bodyText}><strong className="text-black font-bold">the list is small so it means something.</strong> we prioritize strict quality over volume, eliminating the guesswork of endless scrolling.</p>
@@ -824,8 +866,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         <section className="testimonials py-24 bg-[#FDF3F1]">
           <div className="max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12">
             <ScrollZoom>
-              <div className={`flex items-center justify-center gap-3 ${theme.eyebrow} mb-3`}><span className="h-[1px] w-12 bg-black/10"></span>love from our users<span className="h-[1px] w-12 bg-black/10"></span></div>
-              <h2 className={`${theme.headingSection} text-center mb-16`}>what people are saying</h2>
+              <div className={`flex items-center justify-center gap-3 ${theme.eyebrow} mb-3`}><span className="h-[1px] w-12 bg-black/10"></span>{toTitleCase('love from our users')}<span className="h-[1px] w-12 bg-black/10"></span></div>
+              <h2 className={`${theme.headingSection} text-center mb-16`}>{toTitleCase('what people are saying')}</h2>
             </ScrollZoom>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <ScrollZoomIn delay={0}>
@@ -865,8 +907,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         <ScrollZoomIn>
           <section className="bg-[#150A26] py-24 sm:py-32 px-5 border-t border-white/10 text-center">
             <div className="max-w-[800px] mx-auto">
-              <div className={`flex items-center justify-center gap-3 ${theme.eyebrow} !text-[#9D7C3A] mb-3`}><span className="h-[1px] w-12 bg-[#9D7C3A]"></span>for makeup artists<span className="h-[1px] w-12 bg-[#9D7C3A]"></span></div>
-              <h2 className={`${theme.headingHero} !text-white mb-8`}>are you a makeup artist?</h2>
+              <div className={`flex items-center justify-center gap-3 ${theme.eyebrow} !text-[#9D7C3A] mb-3`}><span className="h-[1px] w-12 bg-[#9D7C3A]"></span>{toTitleCase('for makeup artists')}<span className="h-[1px] w-12 bg-[#9D7C3A]"></span></div>
+              <h2 className={`${theme.headingHero} !text-white mb-8`}>{toTitleCase('are you a makeup artist?')}</h2>
               <p className={`${theme.bodyText} !text-white/70 mb-12 max-w-[680px] mx-auto`}>it is completely free to list your verified portfolio on canvas. when our ai matches you with a bride, you will receive a blurred notification. to unlock the client&apos;s whatsapp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. you can also upgrade to canvas pro for a flat monthly subscription to unlock unlimited leads and priority placement in our ai search results.</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button 
@@ -891,8 +933,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             <ScrollZoomIn>
               <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
                 <div>
-                  <p className={`${theme.eyebrow} !text-[#9D7C3A] mb-3`}>from the journal</p>
-                  <h2 className={`${theme.headingHero} !text-white`}>from the <span className={`${theme.premiumTag} !text-[#9D7C3A]`}>journal.</span></h2>
+                  <p className={`${theme.eyebrow} !text-[#9D7C3A] mb-3`}>{toTitleCase('from the journal')}</p>
+                  <h2 className={`${theme.headingHero} !text-white`}>{toTitleCase('from the')} <span className={`${theme.premiumTag} !text-[#9D7C3A]`}>{toTitleCase('journal.')}</span></h2>
                 </div>
                 <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className={`${theme.secondaryLink} border-b border-white/30 pb-1 !text-white`}>read all stories</button>
               </div>
@@ -901,9 +943,9 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <ScrollZoom>
                 <div className={`group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
                   <ScrollZoomIn delay={150}>
-                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>perspective · 06 min read</span>
+                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>{toTitleCase('perspective · 06 min read')}</span>
                     <div>
-                      <h3 className={`${theme.headingModal} !text-white mt-4`}>on keeping your own face.</h3>
+                      <h3 className={`${theme.headingModal} !text-white mt-4`}>{toTitleCase('on keeping your own face.')}</h3>
                       <p className={`${theme.bodyText} !text-white/60 mt-2`}>a conversation about recognition and restraint.</p>
                     </div>
                   </ScrollZoomIn>
@@ -912,14 +954,14 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <div className="grid gap-6">
                 <ScrollZoomIn delay={100}>
                   <div className={`group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
-                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>ritual · 03 min read</span>
-                    <h3 className={`${theme.headingModal} !text-white mt-4`}>a small ritual before the chair.</h3>
+                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>{toTitleCase('ritual · 03 min read')}</span>
+                    <h3 className={`${theme.headingModal} !text-white mt-4`}>{toTitleCase('a small ritual before the chair.')}</h3>
                   </div>
                 </ScrollZoomIn>
                 <ScrollZoomIn delay={200}>
                   <div className={`group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
-                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>industry · 05 min read</span>
-                    <h3 className={`${theme.headingModal} !text-white mt-4`}>the science of skin prep.</h3>
+                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>{toTitleCase('industry · 05 min read')}</span>
+                    <h3 className={`${theme.headingModal} !text-white mt-4`}>{toTitleCase('the science of skin prep.')}</h3>
                   </div>
                 </ScrollZoomIn>
               </div>
@@ -931,7 +973,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   <footer className={`bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10 ${theme.fontBase}`}>
     <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
       <div className="lg:col-span-1">
-        <h3 className={`${theme.formLabel} !text-white mb-4`}>down for more? we got you!</h3>
+        <h3 className={`${theme.formLabel} !text-white mb-4`}>{toTitleCase('down for more? we got you!')}</h3>
         <p className={`${theme.bodyText} !text-white/50 mb-6 leading-relaxed`}>the latest artists, drops, in-store event info + more—straight to your inbox.</p>
         <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
           <div className="relative border-b border-white/20 pb-2">
@@ -944,36 +986,36 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       </div>
       
       <div className="lg:col-span-1 lg:pl-10">
-        <h3 className={`${theme.formLabel} !text-white mb-6`}>client service</h3>
-        <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
-          <li>
-            <span className="block text-left text-white/50">operating hours are from<br/>9am-9pm est mon-fri</span>
-          </li>
-          <li className="pt-2">
-            <a href="mailto:thecanvasbeauty@gmail.com" className="hover:text-[#6B3C9C] transition-colors text-white block">
-              thecanvasbeauty@gmail.com
-            </a>
-          </li>
-          <li>
-            <a href="tel:1800226287" className="hover:text-white transition-colors block">
-              1-800-canvas
-            </a>
-          </li>
-          <li className="pt-4">
-            <a href="#contact" className="hover:text-white transition-colors block">
-              contact us
-            </a>
-          </li>
-          <li>
-            <a href="#faq" className="hover:text-white transition-colors block">
-              help & faqs
-            </a>
-          </li>
-        </ul>
-      </div>
+  <h3 className={`${theme.formLabel} !text-white mb-6`}>{toTitleCase('Client Service')}</h3>
+  <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
+    <li>
+      <span className="block text-left text-white/50">Operating Hours Are From<br/>9 AM - 9 PM EST Mon-Fri</span>
+    </li>
+    <li className="pt-2">
+      <a href="mailto:thecanvasbeauty@gmail.com" className="hover:text-[#6B3C9C] transition-colors text-white block">
+        thecanvasbeauty@gmail.com
+      </a>
+    </li>
+    <li>
+      <a href="tel:+919848285649" className="hover:text-white transition-colors block">
+        +91 98482 85649
+      </a>
+    </li>
+    <li className="pt-4">
+  <button type="button" onClick={() => setContactOpen(true)} className="hover:text-white transition-colors block text-left cursor-pointer">
+    Contact Us
+  </button>
+</li>
+<li>
+  <button type="button" onClick={() => setFaqOpen(true)} className="hover:text-white transition-colors block text-left cursor-pointer">
+    Help & FAQs
+  </button>
+</li>
+  </ul>
+</div>
       
       <div className="lg:col-span-1">
-        <h3 className={`${theme.formLabel} !text-white mb-6`}>about</h3>
+        <h3 className={`${theme.formLabel} !text-white mb-6`}>{toTitleCase('about')}</h3>
         <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
           <li>
             <a href="#about" className="hover:text-white transition-colors block">
@@ -1012,13 +1054,13 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setBriefOpen(false)}>
     <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-start justify-between border-b border-black/10 pb-8 mb-8">
-        <div><p className={`${theme.eyebrow} mb-2`}>{sent ? 'request secured' : 'private concierge'}</p><h2 className={theme.headingModal}>{sent ? 'appointment locked.' : 'request a booking.'}</h2></div>
+        <div><p className={`${theme.eyebrow} mb-2`}>{toTitleCase(sent ? 'request secured' : 'private concierge')}</p><h2 className={theme.headingModal}>{toTitleCase(sent ? 'appointment locked.' : 'request a booking.')}</h2></div>
         <button type="button" onClick={() => setBriefOpen(false)} className="text-black/40 hover:text-black transition-colors"><X size={24} strokeWidth={1.5} /></button>
       </div>
       {sent ? (
         <div className="flex-1 flex flex-col justify-center mb-20 text-center">
           <div className="w-16 h-16 rounded-full bg-[#9D7C3A]/10 text-[#9D7C3A] flex items-center justify-center mx-auto mb-6"><Sparkles size={32} /></div>
-          <h3 className={`${theme.headingModal} mb-4`}>the artist has been notified.</h3>
+          <h3 className={`${theme.headingModal} mb-4`}>{toTitleCase('the artist has been notified.')}</h3>
           <p className={`${theme.bodyText} mb-10 max-w-md mx-auto`}>your brief is securely in the artist&apos;s queue. you will receive a notification in your dashboard once they review the logistics and confirm the slot.</p>
           <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className={`w-full ${theme.btnPrimary}`}>return to directory</button>
         </div>
@@ -1047,6 +1089,77 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         </motion.aside>
       </div>
     )}
+
+      {/* CONTACT US MODAL */}
+      {contactOpen && (
+        <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setContactOpen(false)}>
+          <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between border-b border-black/10 pb-8 mb-8">
+              <div>
+                <p className={`${theme.eyebrow} mb-2`}>{toTitleCase('Direct Support')}</p>
+                <h2 className={theme.headingModal}>{toTitleCase('Contact Us.')}</h2>
+              </div>
+              <button type="button" onClick={() => setContactOpen(false)} className="text-black/40 hover:text-black transition-colors">
+                <X size={24} strokeWidth={1.5} />
+              </button>
+            </div>
+            <div className="space-y-6 text-black/80 flex-1">
+              <p className={theme.bodyText}>We are here to assist with bookings, artist coordination, or custom requirements. Reach out directly through any channel below:</p>
+              <div className="p-6 bg-black/5 rounded-lg border border-black/10 space-y-5">
+                <div>
+                  <p className={theme.formLabel}>Direct Phone / WhatsApp</p>
+                  <a href="tel:+919848285649" className="text-lg font-medium text-black hover:text-[#6B3C9C] transition-colors mt-1 block">+91 98482 85649</a>
+                </div>
+                <div>
+                  <p className={theme.formLabel}>Email Support</p>
+                  <a href="mailto:thecanvasbeauty@gmail.com" className="text-lg font-medium text-black hover:text-[#6B3C9C] transition-colors mt-1 block">thecanvasbeauty@gmail.com</a>
+                </div>
+                <div>
+                  <p className={theme.formLabel}>Operating Hours</p>
+                  <p className="text-sm mt-1 text-black/70">9 AM - 9 PM EST (Mon - Fri)</p>
+                </div>
+              </div>
+            </div>
+          </motion.aside>
+        </div>
+      )}
+
+      {/* HELP & FAQS MODAL */}
+      {faqOpen && (
+        <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setFaqOpen(false)}>
+          <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between border-b border-black/10 pb-8 mb-8">
+              <div>
+                <p className={`${theme.eyebrow} mb-2`}>{toTitleCase('Client Assistance')}</p>
+                <h2 className={theme.headingModal}>{toTitleCase('Help & FAQs.')}</h2>
+              </div>
+              <button type="button" onClick={() => setFaqOpen(false)} className="text-black/40 hover:text-black transition-colors">
+                <X size={24} strokeWidth={1.5} />
+              </button>
+            </div>
+            <div className="space-y-6 text-black/80 flex-1">
+              <div className="space-y-5">
+                <div className="border-b border-black/10 pb-4">
+                  <h4 className="font-medium text-black mb-1">{toTitleCase('How do I book a makeup artist?')}</h4>
+                  <p className="text-sm text-black/70 leading-relaxed">Browse the directory, select your preferred artist, click &quot;Request Booking&quot;, fill in your event details, and submit your brief directly to their queue.</p>
+                </div>
+                <div className="border-b border-black/10 pb-4">
+                  <h4 className="font-medium text-black mb-1">{toTitleCase('Can I chat with the artist before confirming?')}</h4>
+                  <p className="text-sm text-black/70 leading-relaxed">Yes! Use the secure chat drawer available on artist profiles to discuss look details, timing, and specific venue requirements before locking in your date.</p>
+                </div>
+                <div className="border-b border-black/10 pb-4">
+                  <h4 className="font-medium text-black mb-1">{toTitleCase('What is the AI Vision feature?')}</h4>
+                  <p className="text-sm text-black/70 leading-relaxed">Upload a Pinterest or Instagram makeup screenshot. Our AI analyzes aesthetic tags and color palettes to instantly match you with the best-suited artists.</p>
+                </div>
+                <div className="border-b border-black/10 pb-4">
+                  <h4 className="font-medium text-black mb-1">{toTitleCase('What is the cancellation and rescheduling policy?')}</h4>
+                  <p className="text-sm text-black/70 leading-relaxed">You can modify or reschedule bookings through your dashboard up to 48 hours before the event start time by coordinating directly with your artist.</p>
+                </div>
+              </div>
+            </div>
+          </motion.aside>
+        </div>
+      )}
   </div>
   );
 }
@@ -1151,7 +1264,7 @@ export default function App() {
   if (loadingSession) {
     return (
       <div className={`h-screen w-full bg-[#FDF3F1] flex items-center justify-center fixed inset-0 z-[9999] ${theme.fontBase}`}>
-        <p className={`${theme.eyebrow} animate-pulse`}>authenticating...</p>
+        <p className={`${theme.eyebrow} animate-pulse`}>{toTitleCase('authenticating...')}</p>
       </div>
     );
   }
@@ -1173,9 +1286,9 @@ export default function App() {
             <img src="https://images.unsplash.com/photo-1516975080661-46bfa2c281c7?auto=format&fit=crop&w=1200&q=80" alt="Client" className="w-full h-full object-cover opacity-0 group-hover:opacity-[0.03] transition-opacity duration-700" />
           </div>
           <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
-            <p className={`${theme.eyebrow} mb-6`}>for clients</p>
+            <p className={`${theme.eyebrow} mb-6`}>{toTitleCase('for clients')}</p>
             <h2 className={`${theme.headingHero} mb-6`}>
-              i am looking<br />for an artist
+              {toTitleCase('i am looking')}<br />{toTitleCase('for an artist')}
             </h2>
             <div className={theme.btnPrimary}>
               {updatingRole ? 'setting up...' : 'join as client'}
@@ -1194,9 +1307,9 @@ export default function App() {
             <img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" />
           </div>
           <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
-            <p className={`${theme.eyebrow} mb-6`}>for professionals</p>
+            <p className={`${theme.eyebrow} mb-6`}>{toTitleCase('for professionals')}</p>
             <h2 className={`${theme.headingHero} !text-white mb-6`}>
-              i am a<br />makeup artist
+              {toTitleCase('i am a')}<br />{toTitleCase('makeup artist')}
             </h2>
             <div className={theme.btnPrimary}>
               {updatingRole ? 'setting up...' : 'apply to roster'}
