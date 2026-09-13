@@ -190,8 +190,12 @@ function runCanvasMatch(
     if (aiTags.length > 0) {
       const matchCount = aiTags.filter(tag => artistDataString.includes(tag.toLowerCase())).length;
       matchScore = Math.min(99, 75 + (matchCount * 6));
+    } else if ((artist as any).isIncompleteProfile) {
+      matchScore = 60;
     }
-    const finalScore = (artist as any).isLiveDb ? Math.min(matchScore + 4, 99) : matchScore;
+    const finalScore = (artist as any).isLiveDb && !(artist as any).isIncompleteProfile
+      ? Math.min(matchScore + 4, 99)
+      : matchScore;
     return {
       ...artist,
       match: finalScore,
@@ -384,7 +388,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             addons: [],
             isVerified: true,
             isLiveDb: true,
-          } as Artist & { isLiveDb?: boolean };
+            isIncompleteProfile: !item.business_name || rawPortfolio.length === 0,
+          } as Artist & { isLiveDb?: boolean; isIncompleteProfile?: boolean };
         });
       }
       return [];
