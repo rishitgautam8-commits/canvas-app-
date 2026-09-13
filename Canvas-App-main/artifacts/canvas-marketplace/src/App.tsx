@@ -684,19 +684,11 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           </div>
           <div className="stat-divider"></div>
           <div className="stat">
-            <ScrollZoom>
-              <div className={`${theme.stat} flex items-center justify-center gap-2`}>
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#9D7C3A] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#9D7C3A]"></span>
-                </span>
-                5 Elite
-              </div>
-            </ScrollZoom>
-            <ScrollZoomIn delay={100}>
-              <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('hand-selected artists')}</div>
-            </ScrollZoomIn>
-          </div>
+  <ScrollZoom><div className={theme.stat}>100%</div></ScrollZoom>
+  <ScrollZoomIn delay={100}>
+    <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('client satisfaction')}</div>
+  </ScrollZoomIn>
+</div>
           <div className="stat-divider"></div>
           <div className="stat">
             <ScrollZoom><div className={theme.stat}>{platformStats.avgRating}★</div></ScrollZoom>
