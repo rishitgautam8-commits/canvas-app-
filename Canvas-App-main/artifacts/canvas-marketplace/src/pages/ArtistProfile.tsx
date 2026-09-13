@@ -32,30 +32,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   useEffect(() => {
     async function fetchArtistData() {
       if (!artistId) return;
-      const isMockId = !String(artistId).includes('-');
-
-      if (isMockId) {
-        const foundMock = artistsData.find((a: any) => String(a.id) === String(artistId));
-        if (foundMock) {
-          setArtist({
-            business_name: foundMock.name,
-            city: foundMock.location || foundMock.city || 'Hyderabad',
-            years_experience: (foundMock as any).experience_years || 6,
-            starting_price: parseInt(String(foundMock.startingPrice).replace(/[^0-9]/g, '')) || 25000,
-            category: (foundMock.tags && foundMock.tags.join(', ')) || foundMock.category || 'Bridal & Wedding',
-            image: foundMock.image,
-            rating: foundMock.rating || 4.9,
-            reviewsCount: foundMock.reviewsCount || foundMock.reviewCount || 125,
-            bio: foundMock.bio || foundMock.signature || `Expert in Bridal styling. Available for bookings in ${foundMock.location || 'Hyderabad'}.`,
-            portfolio: foundMock.portfolio || [foundMock.image],
-            addons: foundMock.addons || [],
-            blocked_dates: []
-          });
-          setBookedTimeSlots({});
-          setLoading(false);
-          return;
-        }
-      }
 
       const { data: artistData, error: artistError } = await supabase
         .from('artist_profiles')
@@ -105,22 +81,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         setShowBookingModal(false);
         setBookingLoading(false);
         if (setAuthOpen) setAuthOpen(true);
-        return;
-      }
-
-      const isMockId = !String(artistId).includes('-');
-      if (isMockId) {
-        window.alert("Booking request sent successfully! The artist will confirm shortly.");
-        setShowBookingModal(false);
-        setBookedTimeSlots(prev => ({
-          ...prev,
-          [selectedDate]: [...(prev[selectedDate] || []), selectedTime]
-        }));
-        setSelectedDate('');
-        setSelectedTime('');
-        setVenueAddress('');
-        setLookDetails('');
-        setBookingLoading(false);
         return;
       }
 
@@ -394,9 +354,11 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                     <label className={`mb-4 block ${theme.formLabel}`}>Select Phase Of Day</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {[
-                        { display: 'First Half (Morning)', value: 'Morning (Before 12 PM)', keyword: 'Morning' },
-                        { display: 'Second Half (Evening)', value: 'Evening (After 4 PM)', keyword: 'Evening' }
-                      ].map(slot => {
+  { display: 'Early Morning (Pre-8 AM)', value: 'Early Morning (Before 8 AM)', keyword: 'Early' },
+  { display: 'Morning (8 AM - 12 PM)', value: 'Morning (8 AM - 12 PM)', keyword: 'Morning' },
+  { display: 'Afternoon & Evening', value: 'Afternoon/Evening (12 PM - 8 PM)', keyword: 'Afternoon' },
+  { display: 'Late Night (Post-8 PM)', value: 'Late Night (After 8 PM)', keyword: 'Late' }
+].map(slot => {
                         const isTimeBooked = bookedTimeSlots[selectedDate]?.some(t => t?.includes(slot.keyword));
                         
                         return (
@@ -463,7 +425,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                   {bookingLoading 
                     ? 'Sending Request...' 
                     : (selectedDate && selectedTime && venueAddress.trim() && lookDetails.trim()) 
-                      ? `Request Booking For ${new Date(selectedDate).toLocaleDateString()} — ${selectedTime.includes('Morning') ? 'First Half' : 'Second Half'}` 
+                      ? `Request Booking For ${new Date(selectedDate).toLocaleDateString()} — ${selectedTime.split(' (')[0]}`
                       : (selectedDate && selectedTime && venueAddress.trim())
                         ? 'Describe The Look To Continue'
                         : (selectedDate && selectedTime)

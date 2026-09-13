@@ -172,14 +172,48 @@ const fileToBase64 = (file: File): Promise<string> => {
 
 async function analyzeLookWithAI(file: File): Promise<string[]> {
   try {
-    const base64Image = await fileToBase64(file);
-    const { data, error } = await supabase.functions.invoke('vision-match', {
-      body: { imageBase64: base64Image }
+    // 1. Convert the file for the AI
+    const base64DataUrl = await fileToBase64(file);
+    const base64Image = base64DataUrl.split(',')[1]; // Strip the data prefix
+    const mimeType = file.type;
+
+    // 2. PASTE YOUR API KEY HERE
+    const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
+    // 3. Call the Real Vision AI Model
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: "Analyze this makeup look. Return exactly 3 to 5 comma-separated tags describing the makeup aesthetic (e.g., soft glam, dewy skin, bold lip, bridal, smokey eye). Do not include any other text." },
+            {
+              inline_data: {
+                mime_type: mimeType,
+                data: base64Image
+              }
+            }
+          ]
+        }]
+      })
     });
-    if (error) throw error;
-    return data.tags || ['soft glam', 'natural', 'bridal'];
+
+    if (!response.ok) throw new Error('AI API failed to respond');
+
+    const result = await response.json();
+    const textResponse = result.candidates[0].content.parts[0].text;
+
+    // 4. Format the AI's response into clean tags
+    const tags = textResponse.split(',').map((tag: string) => 
+      tag.trim().toLowerCase().replace(/[^a-z0-9 ]/g, '')
+    );
+
+    return tags.filter((tag: string) => tag.length > 0);
+
   } catch (error) {
-    console.error("Secure Vision API Error:", error);
+    console.error("Real AI Vision Error:", error);
+    // A failsafe just in case your internet drops during the live demo!
     return ['soft glam', 'natural', 'bridal'];
   }
 }
@@ -390,23 +424,9 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
 
+  // Pure Live Database Mode
   const sourceArtists: Artist[] = useMemo(() => {
-    const seenIds = new Set<string>();
-    const merged: Artist[] = [];
-    
-    for (const artist of liveArtists) {
-      if (seenIds.has(artist.id)) continue;
-      seenIds.add(artist.id);
-      merged.push(artist);
-    }
-    
-    for (const artist of local100Artists) {
-      if (seenIds.has(artist.id)) continue;
-      seenIds.add(artist.id);
-      merged.push(artist);
-    }
-    
-    return merged;
+    return liveArtists;
   }, [liveArtists]);
 
   const matchedArtists = runCanvasMatch(
@@ -980,7 +1000,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 <form className="space-y-8 flex-1 flex flex-col" onSubmit={handleBriefSubmit}>
                   <div className="grid grid-cols-2 gap-8">
                     <label className="block"><span className={theme.formLabel}>date required</span><input required type="date" name="date" className={`mt-3 w-full ${theme.inputText}`} /></label>
-                    <label className="block"><span className={theme.formLabel}>preferred slot</span><select required name="slot" defaultValue="" className={`mt-3 w-full ${theme.inputText} [&>option]:bg-white`}><option value="" disabled>select phase...</option><option value="Morning (Before 12 PM)">slot 1: morning prep (before 12pm)</option><option value="Afternoon (12 PM - 4 PM)">slot 2: afternoon glam (12pm-4pm)</option><option value="Evening (After 4 PM)">slot 3: evening glam (after 4pm)</option></select></label>
+                    <label className="block"><span className={theme.formLabel}>preferred slot</span><select required name="slot" defaultValue="" className={`mt-3 w-full ${theme.inputText} [&>option]:bg-white`}><option value="" disabled>select phase...</option><option value="Early Morning (Before 8 AM)">slot 1: early morning (pre-8am)</option><option value="Morning (8 AM - 12 PM)">slot 2: morning prep (8am-12pm)</option><option value="Afternoon/Evening (12 PM - 8 PM)">slot 3: afternoon & evening</option><option value="Late Night (After 8 PM)">slot 4: late night (post-8pm)</option></select></label>
                   </div>
                   <label className="block"><span className={theme.formLabel}>exact venue / area</span><input required name="location" placeholder="e.g. taj falaknuma palace" className={`mt-3 w-full ${theme.inputText}`} /></label>
                   <label className="block flex-1"><span className={theme.formLabel}>the vision (look details)</span><textarea required name="message" placeholder="describe the aesthetic, outfit colors, or specific requirements..." rows={4} className={`mt-3 w-full resize-none ${theme.inputText}`} /></label>
