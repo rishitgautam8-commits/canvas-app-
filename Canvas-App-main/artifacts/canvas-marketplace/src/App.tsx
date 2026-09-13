@@ -928,93 +928,126 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         </section>
 
         <ScrollZoomIn>
-          <footer className={`bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10 ${theme.fontBase}`}>
-            <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
-              <div className="lg:col-span-1">
-                <h3 className={`${theme.formLabel} !text-white mb-4`}>down for more? we got you!</h3>
-                <p className={`${theme.bodyText} !text-white/50 mb-6 leading-relaxed`}>the latest artists, drops, in-store event info + more—straight to your inbox.</p>
-                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                  <div className="relative border-b border-white/20 pb-2">
-                    <input type="email" placeholder="email address" className={`w-full bg-transparent ${theme.inputText} !border-none !text-white`} />
-                  </div>
-                  <div className="relative border-b border-white/20 pb-2 mt-4">
-                    <input type="tel" placeholder="phone number" className={`w-full bg-transparent ${theme.inputText} !border-none !text-white`} />
-                  </div>
-                </form>
-              </div>
-              <div className="lg:col-span-1 lg:pl-10">
-                <h3 className={`${theme.formLabel} !text-white mb-6`}>client service</h3>
-                <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
-                  <li><button className="hover:text-white transition-colors text-left">operating hours are from<br/>9am-9pm est mon-fri</button></li>
-                  <li className="pt-2"><button className="hover:text-[#6B3C9C] transition-colors text-white">thecanvasbeauty@gmail.com</button></li>
-                  <li><button className="hover:text-white transition-colors">1-800-canvas</button></li>
-                  <li className="pt-4"><button className="hover:text-white transition-colors">contact us</button></li>
-                  <li><button className="hover:text-white transition-colors">help & faqs</button></li>
-                </ul>
-              </div>
-              <div className="lg:col-span-1">
-                <h3 className={`${theme.formLabel} !text-white mb-6`}>about</h3>
-                <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
-                  <li><button className="hover:text-white transition-colors">about the collective</button></li>
-                  <li><button className="hover:text-white transition-colors">the standard</button></li>
-                  <li><button className="hover:text-white transition-colors">careers</button></li>
-                </ul>
-              </div>
-              <div className="lg:col-span-1 hidden lg:block">
-                <ScrollZoom>
-                  <div className={`h-full w-full bg-[#1A1A1A] border border-white/10 overflow-hidden ${theme.cardRadius}`}>
-                    <img src="https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80" alt="Canvas" onError={handleImgError} className="h-full w-full object-cover opacity-80 hover:opacity-100 transition-all duration-700" />
-                  </div>
-                </ScrollZoom>
-              </div>
-            </div>
-          </footer>
-        </ScrollZoomIn>
-      </main>
-
-      <ProfileModal open={Boolean(selectedArtist)} artist={selectedArtist} onClose={() => setSelectedArtist(null)} onBookAppointment={openBrief} onOpenChat={() => { setSelectedArtist(null); setIsChatOpen(true); }} />
-      <ChatDrawer open={isChatOpen} onClose={() => setIsChatOpen(false)} />
-
-      {briefOpen && (
-        <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setBriefOpen(false)}>
-          <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-start justify-between border-b border-black/10 pb-8 mb-8">
-              <div><p className={`${theme.eyebrow} mb-2`}>{sent ? 'request secured' : 'private concierge'}</p><h2 className={theme.headingModal}>{sent ? 'appointment locked.' : 'request a booking.'}</h2></div>
-              <button type="button" onClick={() => setBriefOpen(false)} className="text-black/40 hover:text-black transition-colors"><X size={24} strokeWidth={1.5} /></button>
-            </div>
-            {sent ? (
-              <div className="flex-1 flex flex-col justify-center mb-20 text-center">
-                <div className="w-16 h-16 rounded-full bg-[#9D7C3A]/10 text-[#9D7C3A] flex items-center justify-center mx-auto mb-6"><Sparkles size={32} /></div>
-                <h3 className={`${theme.headingModal} mb-4`}>the artist has been notified.</h3>
-                <p className={`${theme.bodyText} mb-10 max-w-md mx-auto`}>your brief is securely in the artist&apos;s queue. you will receive a notification in your dashboard once they review the logistics and confirm the slot.</p>
-                <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className={`w-full ${theme.btnPrimary}`}>return to directory</button>
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col">
-                {selectedArtist && (
-                  <div className={`flex items-center gap-4 bg-black/5 border border-black/10 p-4 mb-10 ${theme.cardRadius}`}>
-                    <img src={selectedArtist.image} alt={selectedArtist.name} onError={handleImgError} className="w-12 h-12 object-cover rounded-full border border-black/10" />
-                    <div><p className={theme.formLabel}>requesting availability for</p><p className={`${theme.headingModal} !text-base mt-0.5`}>{selectedArtist.name}</p></div>
-                  </div>
-                )}
-                <form className="space-y-8 flex-1 flex flex-col" onSubmit={handleBriefSubmit}>
-                  <div className="grid grid-cols-2 gap-8">
-                    <label className="block"><span className={theme.formLabel}>date required</span><input required type="date" name="date" className={`mt-3 w-full ${theme.inputText}`} /></label>
-                    <label className="block"><span className={theme.formLabel}>preferred slot</span><select required name="slot" defaultValue="" className={`mt-3 w-full ${theme.inputText} [&>option]:bg-white`}><option value="" disabled>select phase...</option><option value="Early Morning (Before 8 AM)">slot 1: early morning (pre-8am)</option><option value="Morning (8 AM - 12 PM)">slot 2: morning prep (8am-12pm)</option><option value="Afternoon/Evening (12 PM - 8 PM)">slot 3: afternoon & evening</option><option value="Late Night (After 8 PM)">slot 4: late night (post-8pm)</option></select></label>
-                  </div>
-                  <label className="block"><span className={theme.formLabel}>exact venue / area</span><input required name="location" placeholder="e.g. taj falaknuma palace" className={`mt-3 w-full ${theme.inputText}`} /></label>
-                  <label className="block flex-1"><span className={theme.formLabel}>the vision (look details)</span><textarea required name="message" placeholder="describe the aesthetic, outfit colors, or specific requirements..." rows={4} className={`mt-3 w-full resize-none ${theme.inputText}`} /></label>
-                  <div className="pt-6 mt-auto">
-                    <button type="submit" disabled={isSubmitting} className={`w-full ${theme.btnPrimary} disabled:opacity-50`}>{isSubmitting ? 'processing...' : 'submit concierge brief'}</button>
-                    <p className={`text-center ${theme.formLabel} mt-4`}>your brief is securely transmitted to the artist.</p>
-                  </div>
-                </form>
-              </div>
-            )}
-          </motion.aside>
-        </div>
-      )}
+  <footer className={`bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10 ${theme.fontBase}`}>
+    <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
+      <div className="lg:col-span-1">
+        <h3 className={`${theme.formLabel} !text-white mb-4`}>down for more? we got you!</h3>
+        <p className={`${theme.bodyText} !text-white/50 mb-6 leading-relaxed`}>the latest artists, drops, in-store event info + more—straight to your inbox.</p>
+        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <div className="relative border-b border-white/20 pb-2">
+            <input type="email" placeholder="email address" className={`w-full bg-transparent ${theme.inputText} !border-none !text-white`} />
+          </div>
+          <div className="relative border-b border-white/20 pb-2 mt-4">
+            <input type="tel" placeholder="phone number" className={`w-full bg-transparent ${theme.inputText} !border-none !text-white`} />
+          </div>
+        </form>
+      </div>
+      
+      <div className="lg:col-span-1 lg:pl-10">
+        <h3 className={`${theme.formLabel} !text-white mb-6`}>client service</h3>
+        <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
+          <li>
+            <span className="block text-left text-white/50">operating hours are from<br/>9am-9pm est mon-fri</span>
+          </li>
+          <li className="pt-2">
+            <a href="mailto:thecanvasbeauty@gmail.com" className="hover:text-[#6B3C9C] transition-colors text-white block">
+              thecanvasbeauty@gmail.com
+            </a>
+          </li>
+          <li>
+            <a href="tel:1800226287" className="hover:text-white transition-colors block">
+              1-800-canvas
+            </a>
+          </li>
+          <li className="pt-4">
+            <a href="#contact" className="hover:text-white transition-colors block">
+              contact us
+            </a>
+          </li>
+          <li>
+            <a href="#faq" className="hover:text-white transition-colors block">
+              help & faqs
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <div className="lg:col-span-1">
+        <h3 className={`${theme.formLabel} !text-white mb-6`}>about</h3>
+        <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
+          <li>
+            <a href="#about" className="hover:text-white transition-colors block">
+              about the collective
+            </a>
+          </li>
+          <li>
+            <a href="#standard" className="hover:text-white transition-colors block">
+              the standard
+            </a>
+          </li>
+          <li>
+            <a href="#careers" className="hover:text-white transition-colors block">
+              careers
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <div className="lg:col-span-1 hidden lg:block">
+        <ScrollZoom>
+          <div className={`h-full w-full bg-[#1A1A1A] border border-white/10 overflow-hidden ${theme.cardRadius}`}>
+            <img src="https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80" alt="Canvas" onError={handleImgError} className="h-full w-full object-cover opacity-80 hover:opacity-100 transition-all duration-700" />
+          </div>
+        </ScrollZoom>
+      </div>
     </div>
+  </footer>
+</ScrollZoomIn>
+</main>
+
+<ProfileModal open={Boolean(selectedArtist)} artist={selectedArtist} onClose={() => setSelectedArtist(null)} onBookAppointment={openBrief} onOpenChat={() => { setSelectedArtist(null); setIsChatOpen(true); }} />
+<ChatDrawer open={isChatOpen} onClose={() => setIsChatOpen(false)} />
+
+{briefOpen && (
+  <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setBriefOpen(false)}>
+    <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
+      <div className="flex items-start justify-between border-b border-black/10 pb-8 mb-8">
+        <div><p className={`${theme.eyebrow} mb-2`}>{sent ? 'request secured' : 'private concierge'}</p><h2 className={theme.headingModal}>{sent ? 'appointment locked.' : 'request a booking.'}</h2></div>
+        <button type="button" onClick={() => setBriefOpen(false)} className="text-black/40 hover:text-black transition-colors"><X size={24} strokeWidth={1.5} /></button>
+      </div>
+      {sent ? (
+        <div className="flex-1 flex flex-col justify-center mb-20 text-center">
+          <div className="w-16 h-16 rounded-full bg-[#9D7C3A]/10 text-[#9D7C3A] flex items-center justify-center mx-auto mb-6"><Sparkles size={32} /></div>
+          <h3 className={`${theme.headingModal} mb-4`}>the artist has been notified.</h3>
+          <p className={`${theme.bodyText} mb-10 max-w-md mx-auto`}>your brief is securely in the artist&apos;s queue. you will receive a notification in your dashboard once they review the logistics and confirm the slot.</p>
+          <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className={`w-full ${theme.btnPrimary}`}>return to directory</button>
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col">
+          {selectedArtist && (
+            <div className={`flex items-center gap-4 bg-black/5 border border-black/10 p-4 mb-10 ${theme.cardRadius}`}>
+              <img src={selectedArtist.image} alt={selectedArtist.name} onError={handleImgError} className="w-12 h-12 object-cover rounded-full border border-black/10" />
+              <div><p className={theme.formLabel}>requesting availability for</p><p className={`${theme.headingModal} !text-base mt-0.5`}>{selectedArtist.name}</p></div>
+            </div>
+          )}
+          <form className="space-y-8 flex-1 flex flex-col" onSubmit={handleBriefSubmit}>
+            <div className="grid grid-cols-2 gap-8">
+              <label className="block"><span className={theme.formLabel}>date required</span><input required type="date" name="date" className={`mt-3 w-full ${theme.inputText}`} /></label>
+              <label className="block"><span className={theme.formLabel}>preferred slot</span><select required name="slot" defaultValue="" className={`mt-3 w-full ${theme.inputText} [&>option]:bg-white`}><option value="" disabled>select phase...</option><option value="Early Morning (Before 8 AM)">slot 1: early morning (pre-8am)</option><option value="Morning (8 AM - 12 PM)">slot 2: morning prep (8am-12pm)</option><option value="Afternoon/Evening (12 PM - 8 PM)">slot 3: afternoon & evening</option><option value="Late Night (After 8 PM)">slot 4: late night (post-8pm)</option></select></label>
+            </div>
+            <label className="block"><span className={theme.formLabel}>exact venue / area</span><input required name="location" placeholder="e.g. taj falaknuma palace" className={`mt-3 w-full ${theme.inputText}`} /></label>
+            <label className="block flex-1"><span className={theme.formLabel}>the vision (look details)</span><textarea required name="message" placeholder="describe the aesthetic, outfit colors, or specific requirements..." rows={4} className={`mt-3 w-full resize-none ${theme.inputText}`} /></label>
+            <div className="pt-6 mt-auto">
+                  <button type="submit" disabled={isSubmitting} className={`w-full ${theme.btnPrimary} disabled:opacity-50`}>{isSubmitting ? 'processing...' : 'submit concierge brief'}</button>
+                  <p className={`text-center ${theme.formLabel} mt-4`}>your brief is securely transmitted to the artist.</p>
+                </div>
+              </form>
+            </div>
+          )}
+        </motion.aside>
+      </div>
+    )}
+  </div>
   );
 }
 
