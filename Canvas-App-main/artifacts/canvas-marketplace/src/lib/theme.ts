@@ -3,10 +3,10 @@ export const getTheme = (styleVersion?: string) => {
     fontBase: "font-['Manrope']",
     
     // Primary Headers set to Moura
-    headingHero: "font-['Moura'] font-normal text-6xl md:text-7xl text-black leading-[1.1] tracking-normal lowercase",
-    headingModal: "font-['Moura'] text-3xl text-black tracking-tight lowercase",
+    headingHero: "font-['Moura'] font-normal text-6xl md:text-7xl text-black leading-[1.1] tracking-normal",
+    headingModal: "font-['Moura'] text-3xl text-black tracking-tight",
     eyebrow: "font-['Montserrat'] text-[11px] font-bold tracking-[0.2em] text-[#6B3C9C] uppercase",
-    headingSection: "font-['Moura'] text-4xl sm:text-5xl text-[#6B3C9C] tracking-normal lowercase",
+    headingSection: "font-['Moura'] text-4xl sm:text-5xl text-[#6B3C9C] tracking-normal",
     
     bodyText: "font-['Manrope'] text-[15px] font-light leading-[1.9] text-black/60",
     formLabel: "font-['Manrope'] text-[11px] font-medium tracking-[0.15em] text-black/45 uppercase",
@@ -27,7 +27,7 @@ export const getTheme = (styleVersion?: string) => {
     borderBase: "border-[#6B3C9C]/30",
     
     // The Script Accent: Beau Rivage (or change to 'WindSong' if preferred)
-    premiumTag: "font-['Beau_Rivage'] text-[#461D64] text-[1.8em] tracking-normal lowercase",
+    premiumTag: "font-['Beau_Rivage'] text-[#461D64] text-[1.8em] tracking-normal",
     
     accentColor: '#6B3C9C',
     accentLight: '#9B7CB6',

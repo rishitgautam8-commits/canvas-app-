@@ -230,7 +230,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
               <Upload size={20} strokeWidth={1.5} color={accentColor} />
             </div>
 
-            <h3 className={`${theme.headingModal} !text-2xl md:!text-3xl mb-4 capitalize flex flex-col items-center gap-1`}>
+            <h3 className={`${theme.headingModal} !text-2xl md:!text-3xl mb-4 flex flex-col items-center gap-1`}>
   <span className="block">Upload A Pinterest Screenshot</span>
   <span className="block">Or Instagram Save</span>
 </h3>
@@ -307,7 +307,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
               </div>
 
               <h3 className={`${theme.headingModal} !text-3xl mb-8 leading-tight`}>
-                analyzing aesthetic match...
+                Analyzing Aesthetic Match...
               </h3>
 
               <div className="h-8 flex items-center justify-center mb-2">
