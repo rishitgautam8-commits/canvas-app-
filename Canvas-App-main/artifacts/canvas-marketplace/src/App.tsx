@@ -996,16 +996,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     <li>
       <span className="block text-left text-white/50">Operating Hours Are From<br/>9 AM - 9 PM EST Mon-Fri</span>
     </li>
-    <li className="pt-2">
-      <a href="mailto:thecanvasbeauty@gmail.com" className="hover:text-[#6B3C9C] transition-colors text-white block">
-        thecanvasbeauty@gmail.com
-      </a>
-    </li>
-    <li>
-      <a href="tel:+919848285649" className="hover:text-white transition-colors block">
-        +91 98482 85649
-      </a>
-    </li>
     <li className="pt-4">
   <button type="button" onClick={() => setContactOpen(true)} className="hover:text-white transition-colors block text-left cursor-pointer">
     Contact Us
