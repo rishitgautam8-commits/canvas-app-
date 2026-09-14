@@ -365,9 +365,14 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {makeupImages.map((img: string, i: number) => (
               <div key={i} className="group cursor-pointer">
-                <div className={`relative overflow-hidden bg-white mb-4 border ${theme.borderBase} ${theme.cardRadius} shadow-sm`}>
-                  <img src={img} alt={`Look ${i + 1}`} className="w-full aspect-[4/5] object-cover group-hover:scale-105 transition-transform duration-700" />
-                </div>
+                {/* Replace the portfolio image wrapper in ArtistProfile.tsx with this */}
+<div className={`relative overflow-hidden bg-white mb-4 border ${theme.borderBase} ${theme.cardRadius} shadow-sm aspect-[4/5] sm:aspect-[4/5]`}>
+  <img 
+    src={img} 
+    alt={`Look ${i + 1}`} 
+    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" 
+  />
+</div>
                 <div className="flex items-center justify-between">
                   <span className={theme.formLabel}>Look N°{String(i + 1).padStart(2, '0')}</span>
                   <button onClick={() => setShowBookingModal(true)} className={theme.secondaryLink}>Enquire Look ↗</button>
