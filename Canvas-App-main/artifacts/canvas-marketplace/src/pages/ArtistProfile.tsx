@@ -7,6 +7,13 @@ import { artistsData } from '@/Data/artistsData';
 import Autocomplete from "react-google-autocomplete";
 import { getTheme } from '@/lib/theme';
 
+const TIME_SLOTS = [
+  { display: 'Early Morning (Pre-8 AM)', value: 'Morning (06:00 - 09:00)', keyword: 'Early' },
+  { display: 'Morning (8 AM - 12 PM)', value: 'Morning (08:00 - 13:00)', keyword: 'Morning' },
+  { display: 'Afternoon & Evening', value: 'Evening (15:00 - 20:00)', keyword: 'Afternoon' },
+  { display: 'Late Night (Post-8 PM)', value: 'Night (20:00 - 23:59)', keyword: 'Late' }
+];
+
 export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boolean) => void }) {
   const [, params] = useRoute('/artist/:id');
   const [, setLocation] = useLocation();
@@ -317,7 +324,9 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                           const day = String(d.getDate()).padStart(2, '0');
                           const dateStr = `${year}-${month}-${day}`;
                           
-                          const isBooked = bookedTimeSlots[dateStr]?.length >= 2;
+                          const bookedForDate = bookedTimeSlots[dateStr] || [];
+                          const bookedPhaseCount = TIME_SLOTS.filter(slot => bookedForDate.some(t => t?.includes(slot.keyword))).length;
+                          const isBooked = bookedPhaseCount >= TIME_SLOTS.length;
                           const disabled = isBooked || manuallyBlockedDates.includes(dateStr);
                           const isSelected = selectedDate === dateStr;
                           
@@ -353,12 +362,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className={`border-t ${theme.borderBase} pt-6`}>
                     <label className={`mb-4 block ${theme.formLabel}`}>Select Phase Of Day</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[
-{ display: 'Early Morning (Pre-8 AM)', value: 'Morning (06:00 - 09:00)', keyword: 'Early' },
-{ display: 'Morning (8 AM - 12 PM)', value: 'Morning (08:00 - 13:00)', keyword: 'Morning' },
-{ display: 'Afternoon & Evening', value: 'Evening (15:00 - 20:00)', keyword: 'Afternoon' },
-{ display: 'Late Night (Post-8 PM)', value: 'Night (20:00 - 23:59)', keyword: 'Late' }
-].map(slot => {
+                      {TIME_SLOTS.map(slot => {
                         const isTimeBooked = bookedTimeSlots[selectedDate]?.some(t => t?.includes(slot.keyword));
                         
                         return (
