@@ -372,7 +372,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                             onClick={() => setSelectedTime(slot.value)}
                             className={`py-4 ${theme.formLabel} !text-xs border ${theme.cardRadius} transition-all ${
                               isTimeBooked
-                                ? 'bg-black/5 text-black/20 border-transparent cursor-not-allowed line-through'
+                                ? 'bg-[#B3503C]/10 text-[#B3503C] border-[#B3503C]/30 cursor-not-allowed line-through decoration-[#B3503C]/70'
                                 : selectedTime === slot.value 
                                   ? 'bg-black text-white border-black' 
                                   : `bg-transparent text-black ${theme.borderBase} hover:border-black`
