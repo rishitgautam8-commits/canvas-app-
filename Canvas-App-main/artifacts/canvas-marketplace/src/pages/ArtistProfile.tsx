@@ -7,6 +7,10 @@ import { artistsData } from '@/Data/artistsData';
 import Autocomplete from "react-google-autocomplete";
 import { getTheme } from '@/lib/theme';
 
+function getGoogleMapsLink(location: string) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+}
+
 const TIME_SLOTS = [
   { display: 'Early Morning (6:00 AM - 9:00 AM)', value: 'Early Morning (6:00 AM - 9:00 AM)', keyword: 'Early' },
   { display: 'Morning (9:00 AM - 2:00 PM)', value: 'Morning (9:00 AM - 2:00 PM)', keyword: 'Morning' },
@@ -201,7 +205,14 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                 <CheckCircle2 className="text-[#6B3A7D]" size={22} />
               </div>
               <p className={`flex items-center gap-4 ${theme.formLabel} !text-black/50 mb-4`}>
-                <span className="flex items-center gap-1"><MapPin size={14} /> {artist.city || 'hyderabad'}</span>
+                <a
+                  href={getGoogleMapsLink(`${artist.city || 'Hyderabad'}, Hyderabad`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 hover:text-[#9D7C3A] hover:underline transition-colors"
+                >
+                  <MapPin size={14} /> {artist.city || 'hyderabad'}
+                </a>
                 {artist.years_experience && <span className="flex items-center gap-1"><Clock size={14} /> {artist.years_experience} yrs experience</span>}
               </p>
               <div className="flex flex-wrap gap-2">
