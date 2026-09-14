@@ -1,14 +1,118 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRoute, useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, CheckCircle2, MapPin, Clock, X, Calendar } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { artistsData } from '@/Data/artistsData';
-import Autocomplete from "react-google-autocomplete";
 import { getTheme } from '@/lib/theme';
 
 function getGoogleMapsLink(location: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+}
+
+// Free venue address autocomplete using OpenStreetMap's Nominatim search API.
+// No API key, no billing account — replaces react-google-autocomplete.
+// Nominatim's usage policy caps public-instance traffic at ~1 request/sec,
+// which the debounce below respects; fine for a project this size.
+interface NominatimSuggestion {
+  place_id: number;
+  display_name: string;
+}
+
+function VenueAutocomplete({
+  value,
+  onChange,
+  placeholder,
+  className,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  className?: string;
+}) {
+  const [suggestions, setSuggestions] = useState<NominatimSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const fetchSuggestions = (query: string) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (query.trim().length < 3) {
+      setSuggestions([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({
+          format: 'json',
+          q: query,
+          countrycodes: 'in',
+          viewbox: '78.20,17.65,78.75,17.20', // Hyderabad bounding box — biases, doesn't restrict, results
+          addressdetails: '0',
+          limit: '5',
+        });
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+          headers: { 'Accept-Language': 'en' },
+        });
+        const data = await res.json();
+        setSuggestions(Array.isArray(data) ? data : []);
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setLoading(false);
+      }
+    }, 400);
+  };
+
+  return (
+    <div ref={wrapperRef} className="relative w-full">
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setShowSuggestions(true);
+          fetchSuggestions(e.target.value);
+        }}
+        onFocus={() => value.trim() && setShowSuggestions(true)}
+        placeholder={placeholder}
+        className={className}
+      />
+      {showSuggestions && (loading || suggestions.length > 0) && (
+        <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-black/10 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+          {loading && <div className="px-4 py-3 text-sm text-black/40">Searching...</div>}
+          {!loading &&
+            suggestions.map((s) => (
+              <button
+                key={s.place_id}
+                type="button"
+                onClick={() => {
+                  onChange(s.display_name);
+                  setSuggestions([]);
+                  setShowSuggestions(false);
+                }}
+                className="w-full text-left px-4 py-3 text-sm hover:bg-black/5 border-b border-black/5 last:border-b-0"
+              >
+                {s.display_name}
+              </button>
+            ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 const TIME_SLOTS = [
@@ -397,23 +501,11 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
                     <div className="mt-6">
                       <label className={`mb-2 block ${theme.formLabel}`}>Venue Address</label>
-                      <Autocomplete
-                        apiKey="YOUR_GOOGLE_MAPS_API_KEY"
-                        onPlaceSelected={(place) => {
-                          if (place?.formatted_address) {
-                            setVenueAddress(place.formatted_address);
-                          } else if (place?.name) {
-                            setVenueAddress(place.name);
-                          }
-                        }}
-                        defaultValue={venueAddress}
-                        onChange={(e) => setVenueAddress((e.target as HTMLInputElement).value)}
-                        placeholder="Search Exact Venue On Google Maps..."
+                      <VenueAutocomplete
+                        value={venueAddress}
+                        onChange={setVenueAddress}
+                        placeholder="Search Venue Address..."
                         className={`w-full ${theme.inputText}`}
-                        options={{
-                          types: ["establishment", "geocode"],
-                          componentRestrictions: { country: "in" },
-                        }}
                       />
                       {venueAddress.trim() && (
                         <a
