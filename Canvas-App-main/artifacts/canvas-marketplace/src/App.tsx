@@ -576,7 +576,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       <motion.nav 
         animate={{ y: (isChatOpen || isHeaderHidden) ? -120 : 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-6 md:px-12 h-[100px] bg-[#FDF3F1]/90 backdrop-blur-md border-b border-black/5"
+        className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-4 sm:px-6 md:px-12 h-[100px] bg-[#FDF3F1]/90 backdrop-blur-md border-b border-black/5"
       >
         <div className="hidden md:flex items-center gap-8 justify-start">
           <a onClick={() => scrollTo('discover')} className={`${theme.navLink} cursor-pointer`}>directory</a>
@@ -603,7 +603,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 
       <AnimatePresence>
         {menuOpen && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className={`fixed top-[72px] left-0 right-0 z-[190] bg-[#FDF3F1] border-b ${theme.borderBase} p-6 flex flex-col gap-4 shadow-lg md:hidden`}>
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className={`fixed top-[100px] left-0 right-0 z-[190] bg-[#FDF3F1] border-b ${theme.borderBase} p-6 flex flex-col gap-4 shadow-lg md:hidden`}>
             {session && <a onClick={() => { setLocation(`/dashboard?style=${styleVersion}`); setMenuOpen(false); }} className={`${theme.navLink} border-b ${theme.borderBase} pb-3`}>dashboard</a>}
             <a onClick={() => { scrollTo('top'); setMenuOpen(false); }} className={theme.navLink}>home</a>
             <a onClick={() => { scrollTo('discover'); setMenuOpen(false); }} className={theme.navLink}>browse artists</a>
@@ -613,7 +613,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         )}
       </AnimatePresence>
 
-      <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[100px] px-6 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
+      <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[100px] px-4 sm:px-8 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
             <div className="flex flex-col items-start pt-4 mb-8">
@@ -627,17 +627,17 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
   
   {/* Line 1: Moura */}
-<span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
+<span className="font-['Moura'] font-normal text-[2.6rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
   Hyderabad's
 </span>
   
   {/* Line 2: Pinyon Script */}
-  <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[5.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
+  <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[4rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
   Premium
 </span>
   
   {/* Line 3: Moura */}
-<span className="font-['Moura'] font-normal text-[3.8rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
+<span className="font-['Moura'] font-normal text-[2.6rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
   Beauty Match.
 </span>
   
@@ -668,33 +668,32 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       </section>
 
       <main className="relative z-20">
-        <ScrollZoomIn className="stats-bar">
-          <div className="stat">
+        <ScrollZoomIn className="stats-bar w-full">
+          <div className="grid w-full grid-cols-2 items-center gap-y-10 gap-x-4 px-4 py-10 sm:grid-cols-4 sm:gap-x-0 sm:px-8 lg:px-12">
+          <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
             <ScrollZoom><div className={theme.stat}>{sourceArtists.length}</div></ScrollZoom>
             <ScrollZoomIn delay={100}>
               <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('verified artists')}</div>
             </ScrollZoomIn>
           </div>
-          <div className="stat-divider"></div>
-          <div className="stat">
+          <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
             <ScrollZoom><div className={theme.stat}>₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div></ScrollZoom>
             <ScrollZoomIn delay={100}>
               <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('avg booking value')}</div>
             </ScrollZoomIn>
           </div>
-          <div className="stat-divider"></div>
-          <div className="stat">
+          <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
             <ScrollZoom><div className={theme.stat}>100%</div></ScrollZoom>
             <ScrollZoomIn delay={100}>
               <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('client satisfaction')}</div>
             </ScrollZoomIn>
           </div>
-          <div className="stat-divider"></div>
-          <div className="stat">
+          <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
             <ScrollZoom><div className={theme.stat}>{platformStats.avgRating}★</div></ScrollZoom>
             <ScrollZoomIn delay={100}>
               <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('platform avg rating')}</div>
             </ScrollZoomIn>
+          </div>
           </div>
         </ScrollZoomIn>
 
@@ -747,7 +746,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start mt-10">
-              <ScrollZoomIn className={`lg:col-span-1 bg-white/40 backdrop-blur-md border ${theme.borderBase} p-6 space-y-8 sticky top-8 ${theme.cardRadius}`}>
+              <ScrollZoomIn className={`lg:col-span-1 bg-white/40 backdrop-blur-md border ${theme.borderBase} p-6 space-y-8 lg:sticky lg:top-8 ${theme.cardRadius}`}>
                 <div>
                   <label className={`block mb-3 ${theme.formLabel}`}>sort by</label>
                   <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={`w-full bg-transparent border-b ${theme.borderBase} p-3 ${theme.inputText} cursor-pointer`}>
@@ -1078,7 +1077,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             </div>
           )}
           <form className="space-y-8 flex-1 flex flex-col" onSubmit={handleBriefSubmit}>
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               <label className="block"><span className={theme.formLabel}>date required</span><input required type="date" name="date" className={`mt-3 w-full ${theme.inputText}`} /></label>
               <label className="block"><span className={theme.formLabel}>preferred slot</span><select required name="slot" defaultValue="" className={`mt-3 w-full ${theme.inputText} [&>option]:bg-white`}><option value="" disabled>select phase...</option><option value="Early Morning (Before 8 AM)">slot 1: early morning (pre-8am)</option><option value="Morning (8 AM - 12 PM)">slot 2: morning prep (8am-12pm)</option><option value="Afternoon/Evening (12 PM - 8 PM)">slot 3: afternoon & evening</option><option value="Late Night (After 8 PM)">slot 4: late night (post-8pm)</option></select></label>
             </div>
