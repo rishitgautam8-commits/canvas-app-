@@ -10,6 +10,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Session } from '@supabase/supabase-js';
 import { getTheme } from '@/lib/theme';
 
+function getGoogleMapsLink(location: string) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+}
+
 interface DashboardProps {
   session: Session | null;
 }
@@ -419,6 +423,16 @@ export default function Dashboard({ session }: DashboardProps) {
                               <h4 className={theme.headingModal}>{booking.client?.full_name || 'canvas client'}</h4>
                               <p className={`mt-2 ${theme.formLabel} !text-black/60`}>Date: {booking.event_date} | Slot: {booking.time_slot}</p>
                               <p className={`mt-1 ${theme.bodyText} text-sm`}>Venue: {booking.venue_address}</p>
+                              {booking.venue_address && (
+                                <a
+                                  href={getGoogleMapsLink(booking.venue_address)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={`mt-1 inline-block ${theme.formLabel} !text-[#9D7C3A] hover:underline`}
+                                >
+                                  View on Google Maps →
+                                </a>
+                              )}
                             </div>
                             <div className="flex gap-3 items-center">
                               <button onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')} className={`${theme.btnPrimary} ${accentBg} !border-none !text-white`}>accept</button>
@@ -446,6 +460,16 @@ export default function Dashboard({ session }: DashboardProps) {
                               <h4 className={theme.headingModal}>{booking.client?.full_name || 'canvas client'}</h4>
                               <p className={`mt-2 ${theme.formLabel} !text-black/60`}>Date: {booking.event_date} | Slot: {booking.time_slot}</p>
                               <p className={`mt-1 ${theme.bodyText} text-sm`}>Venue: {booking.venue_address}</p>
+                              {booking.venue_address && (
+                                <a
+                                  href={getGoogleMapsLink(booking.venue_address)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={`mt-1 inline-block ${theme.formLabel} !text-[#9D7C3A] hover:underline`}
+                                >
+                                  View on Google Maps →
+                                </a>
+                              )}
                             </div>
                             <div className="flex gap-3 items-center">
                               <span className={`px-4 py-2 bg-green-50 text-green-700 border border-green-200 ${theme.cardRadius} ${theme.formLabel}`}>Confirmed</span>
