@@ -269,13 +269,24 @@ export default function Dashboard({ session }: DashboardProps) {
 
   // FIXED: Updates status in state without deleting the booking from view
   const handleUpdateBookingStatus = async (bookingId: string, newStatus: 'confirmed' | 'declined') => {
-    const { error } = await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId);
-    if (error) { 
-      window.alert(`Failed to update booking: ${error.message}`); 
-    } else { 
-      setBookings((prevBookings) => prevBookings.map((b) => (b.id === bookingId ? { ...b, status: newStatus } : b))); 
-    }
-  };
+  const { data, error } = await supabase
+    .from('bookings')
+    .update({ status: newStatus })
+    .eq('id', bookingId)
+    .select(); // Ensure we get the updated row back
+
+  if (error) { 
+    console.error('Supabase booking update error:', error.message);
+    window.alert(`Failed to update booking: ${error.message}`); 
+  } else if (!data || data.length === 0) {
+    window.alert("Update failed: Row-Level Security (RLS) policy may be blocking this update.");
+  } else { 
+    // Successfully persisted to database, now update local state cleanly
+    setBookings((prevBookings) => 
+      prevBookings.map((b) => (b.id === bookingId ? { ...b, status: newStatus } : b))
+    ); 
+  }
+};
 
   if (loading) {
     return (
