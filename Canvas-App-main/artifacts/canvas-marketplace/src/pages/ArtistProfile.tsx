@@ -415,6 +415,16 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                           componentRestrictions: { country: "in" },
                         }}
                       />
+                      {venueAddress.trim() && (
+                        <a
+                          href={getGoogleMapsLink(venueAddress)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`mt-2 inline-block ${theme.formLabel} !text-[#9D7C3A] hover:underline`}
+                        >
+                          View on Google Maps →
+                        </a>
+                      )}
                     </div>
 
                     <div className="mt-6">
