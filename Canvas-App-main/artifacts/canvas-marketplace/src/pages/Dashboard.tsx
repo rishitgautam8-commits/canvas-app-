@@ -5,6 +5,7 @@ import { ChatDrawer } from '@/components/ChatDrawer';
 import { ArtistOnboardingModal } from '@/components/ArtistOnboardingModal';
 import { ReviewModal } from '@/components/ReviewModal';
 import { Premium } from '@/components/Premium';
+import { ClientBookings } from '@/components/ClientBookings';
 import { ArrowLeft, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Session } from '@supabase/supabase-js';
@@ -14,15 +15,12 @@ function getGoogleMapsLink(location: string) {
   const parts = location.split(',').map(p => p.trim());
   let cleanLocation = location;
 
-  // OpenStreetMap returns massive strings with municipal filler that confuses Google Maps.
-  // If it's a long string, we slice out the middle filler to keep only the Venue + City/Zip.
   if (parts.length > 6) {
-    const specificVenue = parts.slice(0, 3); // Grabs Venue Name, Street, Neighborhood
-    const cityStateZip = parts.slice(-4);    // Grabs City, State, Zip, Country
+    const specificVenue = parts.slice(0, 3);
+    const cityStateZip = parts.slice(-4);
     cleanLocation = [...specificVenue, ...cityStateZip].join(', ');
   }
 
-  // Uses the cleaned string to force an exact dropped pin/route
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(cleanLocation)}`;
 }
 
@@ -310,8 +308,8 @@ export default function Dashboard({ session }: DashboardProps) {
   const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || user?.user_metadata?.name?.split(' ')[0] || 'User';
   const displayFirstName = firstName;
 
-  const pendingBookings = bookings.filter(b => b.status === 'pending' || !b.status);
-  const confirmedBookings = bookings.filter(b => b.status === 'confirmed');
+  const pendingBookings = bookings.filter(b => b.status === 'requested' || b.status === 'pending' || !b.status);
+  const confirmedBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'accepted' || b.status === 'deposit_paid');
 
   return (
     <div className={`min-h-screen bg-[#FDF3F1] text-black pb-24 ${theme.fontBase}`}>
@@ -783,38 +781,19 @@ export default function Dashboard({ session }: DashboardProps) {
           </>
         ) : (
           <div className="mt-16 max-w-4xl">
-            {clientBookings.length > 0 ? (
-              <div className="space-y-6">
-                {clientBookings.map((booking) => (
-                  <div key={booking.id} className={`bg-white/60 border ${theme.borderBase} p-8 shadow-sm flex justify-between items-center ${theme.cardRadius}`}>
-                    <div>
-                      <h4 className={theme.headingModal}>{booking.artist?.business_name || 'canvas artist'}</h4>
-                      <p className={theme.formLabel}>{booking.artist?.city}</p>
-                    </div>
-                    
-                    <div className="flex gap-4 items-center">
-                      <button 
-                        onClick={() => {
-                          setBookingToReview(booking);
-                          setReviewModalOpen(true);
-                        }}
-                        className={`${theme.navLink} ${accentText} hover:!text-black !bg-transparent !border-none`}
-                      >
-                        Leave A Review
-                      </button>
-                      <button onClick={() => setActiveChatBooking(booking)} className={theme.btnPrimary}>
-                        open chat
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className={`flex min-h-[300px] flex-col items-center justify-center border border-dashed ${theme.borderBase} bg-white/40 p-8 text-center shadow-sm ${theme.cardRadius}`}>
-                <p className={`${theme.headingModal} !text-black/30`}>no bookings yet.</p>
-                <button onClick={() => setLocation(`/?style=${styleVersion}`)} className={`mt-8 ${theme.btnPrimary}`}>browse artists</button>
-              </div>
-            )}
+            {/* Embedded Client Bookings & Pay-to-Chat Flow */}
+            <ClientBookings 
+              clientId={user?.id || ''} 
+              onOpenChat={(bookingId) => {
+                const found = clientBookings.find(b => b.id === bookingId);
+                if (found) {
+                  setActiveChatBooking(found);
+                } else {
+                  // Fallback stub object if loaded dynamically
+                  setActiveChatBooking({ id: bookingId });
+                }
+              }} 
+            />
           </div>
         )}
       </main>

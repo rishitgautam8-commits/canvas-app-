@@ -21,6 +21,8 @@ import { ChatDrawer } from '@/components/ChatDrawer';
 import { Reveal } from '@/components/Reveal';
 import { Premium } from '@/components/Premium';
 import { getTheme } from '@/lib/theme';
+import { ArtistBookings } from './components/ArtistBookings';
+import { ClientBookings } from './components/ClientBookings';
 
 // ─── NEW AI MATCHING ENGINE IMPORTS ────────────────────────────────────────────
 // 1. IMPORTS: Hook, panel component, and base matching function
