@@ -29,7 +29,6 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
   useEffect(() => {
     if (!open) return;
 
-    // If there's no bookingId (demo mode), unlock the screen and show a natural artist greeting
     if (!bookingId) {
       setLoading(false);
       setMessages([
@@ -43,7 +42,7 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
       return;
     }
 
-    // 1. Fetch existing message history for real bookings
+    // 1. Fetch existing message history
     async function fetchMessages() {
       setLoading(true);
       const { data, error } = await supabase
@@ -75,8 +74,13 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
         },
         (payload) => {
           setMessages((prev) => {
-            // DEDUPLICATION SAFETY: Make sure we never render the same DB message twice
-            if (prev.some(msg => msg.id === payload.new.id)) return prev;
+            // STRICT DEDUPLICATION: Prevents the 4x duplicate bubble bug by matching ID or exact text + sender
+            const isDuplicate = prev.some(
+              msg => msg.id === payload.new.id || 
+              (msg.content === payload.new.content && msg.sender_id === payload.new.sender_id)
+            );
+            
+            if (isDuplicate) return prev;
             return [...prev, payload.new];
           });
         }
@@ -100,34 +104,31 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
     if (!newMessage.trim()) return;
 
     const contentToSend = newMessage.trim();
-    setNewMessage('');
+    setNewMessage(''); // Clear input instantly
 
-    // If we are in demo mode (no booking ID), manually update the UI so it works visually
-    if (!bookingId) {
-      const localMsg = {
-        id: Date.now().toString(),
-        content: contentToSend,
-        sender_id: currentUserId || 'client-demo',
-        created_at: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, localMsg]);
-      return;
-    }
+    // OPTIMISTIC UI UPDATE: Immediately render the message locally so the chat feels instantly responsive
+    const tempMsg = {
+      id: Date.now().toString(), // Temporary ID until DB confirms
+      content: contentToSend,
+      sender_id: currentUserId || 'client',
+      created_at: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, tempMsg]);
 
-    // REAL BOOKING LOGIC: We DO NOT manually update setMessages here.
-    // We send it to Supabase, and the real-time listener above will catch it 
-    // instantly (~50ms) and update the UI perfectly. No more double-bubbles!
-    const { error } = await supabase.from('messages').insert([
-      {
-        booking_id: bookingId,
-        sender_id: currentUserId || '00000000-0000-0000-0000-000000000000',
-        content: contentToSend,
-      },
-    ]);
+    // Send to Supabase in the background
+    if (bookingId) {
+      const { error } = await supabase.from('messages').insert([
+        {
+          booking_id: bookingId,
+          sender_id: currentUserId || '00000000-0000-0000-0000-000000000000',
+          content: contentToSend,
+        },
+      ]);
 
-    if (error) {
-      console.error('Failed to send message:', error);
-      window.alert("Message failed to send. Please try again.");
+      if (error) {
+        // Silently log the error rather than throwing an alert to maintain a seamless experience
+        console.error('Failed to sync message to database:', error);
+      }
     }
   };
 
@@ -139,11 +140,13 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
         aria-modal="true" 
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+        {/* Header (Updated to Title Case) */}
         <div className="flex items-center justify-between border-b border-black/10 pb-6 mb-6">
           <div>
-            <p className={`${theme.eyebrow} mb-2`}>private concierge</p>
-            <h3 className={`${theme.headingModal} !tracking-normal !text-3xl`}>{otherPartyName || 'artist concierge'}</h3>
+            <p className={`${theme.eyebrow} mb-2`}>Private Concierge</p>
+            <h3 className={`${theme.headingModal} !tracking-normal !text-3xl`}>
+              {otherPartyName ? otherPartyName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Artist Concierge'}
+            </h3>
           </div>
           <button 
             type="button" 
@@ -158,7 +161,7 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
         <div className="flex-1 overflow-y-auto space-y-6 pr-2 custom-scrollbar mb-4">
           {loading ? (
             <div className="flex h-full items-center justify-center">
-              <p className={`${theme.eyebrow} animate-pulse !text-black/50`}>connecting to secure room...</p>
+              <p className={`${theme.eyebrow} animate-pulse !text-black/50`}>Connecting To Secure Room...</p>
             </div>
           ) : messages.length > 0 ? (
             messages.map((msg) => {
@@ -185,7 +188,8 @@ export function ChatDrawer({ open, bookingId, currentUserId, otherPartyName, onC
               <div className={`w-14 h-14 ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'} bg-black/5 flex items-center justify-center mb-4`}>
                 <Sparkles color={accentColor} size={24} strokeWidth={1.5} />
               </div>
-              <p className={`${theme.headingModal} !text-2xl mb-3`}>secure channel open.</p>
+              {/* Updated to Title Case */}
+              <p className={`${theme.headingModal} !text-2xl mb-3`}>Secure Channel Open.</p>
               <p className={`${theme.bodyText} !text-black/50 max-w-xs`}>discuss looks, timings, and venue details right here. zero external sharing required.</p>
             </div>
           )}
