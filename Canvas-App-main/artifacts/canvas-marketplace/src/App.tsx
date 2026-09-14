@@ -507,14 +507,16 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     try {
       const dataElements = new FormData(formData);
       const bookingData = {
-        client_id: session.user.id,
-        artist_id: selectedArtist.id,
-        event_date: dataElements.get('date'),
-        time_slot: dataElements.get('slot'),
-        venue_address: dataElements.get('location'),
-        look_details: dataElements.get('message'),
-        status: 'pending'
-      };
+  client_id: session.user.id,
+  artist_id: selectedArtist.id,
+  service_name: selectedArtist.category || 'Bridal & Event Makeup', // Pulls actual category
+  total_amount: selectedArtist.pricePerSession || 15000,             // Pulls artist's actual price
+  event_date: dataElements.get('date'),
+  time_slot: dataElements.get('slot'),
+  venue_address: dataElements.get('location'),
+  look_details: dataElements.get('message'),
+  status: 'pending'
+};
       const { error } = await supabase.from('bookings').insert([bookingData]);
       if (error) throw error;
       setSent(true);
