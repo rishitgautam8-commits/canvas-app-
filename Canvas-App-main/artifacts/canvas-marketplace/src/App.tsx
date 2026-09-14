@@ -22,18 +22,21 @@ import { Reveal } from '@/components/Reveal';
 import { Premium } from '@/components/Premium';
 import { getTheme } from '@/lib/theme';
 
+// ─── NEW AI MATCHING ENGINE IMPORTS ────────────────────────────────────────────
+// 1. IMPORTS: Hook, panel component, and base matching function
+import { useReferenceMatching } from './hooks/useReferenceMatching';
+import { AIMatchPanel } from './components/AIMatchPanel';
+import { runCanvasMatch } from './lib/matching';
+// ───────────────────────────────────────────────────────────────────────────────
+
 // ==========================================
 // TEXT FORMATTING: TITLE CASE
 // ==========================================
-// Words that stay lowercase in the middle of a title (articles,
-// short conjunctions, short prepositions) unless they open or close it.
 const TITLE_CASE_MINOR_WORDS = new Set([
   'a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'if', 'in',
   'nor', 'of', 'on', 'or', 'so', 'the', 'to', 'up', 'yet', 'with',
 ]);
 
-// Known acronyms/initialisms that should render fully capitalized
-// even when the source string is lowercase (e.g. "ai" -> "AI").
 const TITLE_CASE_ACRONYMS: Record<string, string> = {
   ai: 'AI',
   faq: 'FAQ',
@@ -41,16 +44,12 @@ const TITLE_CASE_ACRONYMS: Record<string, string> = {
   hd: 'HD',
 };
 
-// Converts a string to Title Case for use in headings, subheadings,
-// and category names. Preserves already-stylized words (e.g. "iPhone",
-// "FAQs") and keeps minor words lowercase unless they're first/last.
 function toTitleCase(input: string): string {
   if (!input) return input;
   return input
     .split(' ')
     .map((word, index, words) => {
       if (!word) return word;
-      // Leave words with internal capitals untouched (acronyms, stylized casing)
       if (/[A-Z]/.test(word.slice(1))) return word;
       const lower = word.toLowerCase();
       if (TITLE_CASE_ACRONYMS[lower]) return TITLE_CASE_ACRONYMS[lower];
@@ -165,102 +164,6 @@ function getEstimatedDistance(clientLoc: string, artistCity: string, artistId: s
   return (stableNum % 21) + 5;
 }
 
-function runCanvasMatch(
-  services: string[],
-  location: string,
-  categoryFilter: string,
-  aiTags: string[] = [],
-  pool: Artist[] = local100Artists
-) {
-  return pool.filter(artist => {
-    if (categoryFilter !== 'all') {
-      const artistCat = (artist.category || '').toLowerCase();
-      const filterCat = categoryFilter.toLowerCase();
-      if (!artistCat.includes(filterCat) && !filterCat.includes(artistCat)) return false;
-    }
-    if (services.length > 0 && !artist.services.some(s => services.includes(s))) return false;
-    
-    const estDistance = getEstimatedDistance(location, artist.city, artist.id);
-    if (!(artist as any).isLiveDb && estDistance > artist.maxTravelKm) return false;
-    
-    return true;
-  }).map(artist => {
-    let matchScore = 78;
-    const artistDataString = `${artist.category} ${artist.tags?.join(' ')} ${artist.bio} ${artist.signature}`.toLowerCase();
-    if (aiTags.length > 0) {
-      const matchCount = aiTags.filter(tag => artistDataString.includes(tag.toLowerCase())).length;
-      matchScore = Math.min(99, 75 + (matchCount * 6));
-    } else if ((artist as any).isIncompleteProfile) {
-      matchScore = 60;
-    }
-    const finalScore = (artist as any).isLiveDb && !(artist as any).isIncompleteProfile
-      ? Math.min(matchScore + 4, 99)
-      : matchScore;
-    return {
-      ...artist,
-      match: finalScore,
-      matchReasons: aiTags.length > 0 ? aiTags : ['location', 'style']
-    };
-  });
-}
-
-const fileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-};
-
-async function analyzeLookWithAI(file: File): Promise<string[]> {
-  try {
-    // 1. Convert the file for the AI
-    const base64DataUrl = await fileToBase64(file);
-    const base64Image = base64DataUrl.split(',')[1]; // Strip the data prefix
-    const mimeType = file.type;
-
-    // 2. PASTE YOUR API KEY HERE
-    const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
-    // 3. Call the Real Vision AI Model
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: "Analyze this makeup look. Return exactly 3 to 5 comma-separated tags describing the makeup aesthetic (e.g., soft glam, dewy skin, bold lip, bridal, smokey eye). Do not include any other text." },
-            {
-              inline_data: {
-                mime_type: mimeType,
-                data: base64Image
-              }
-            }
-          ]
-        }]
-      })
-    });
-
-    if (!response.ok) throw new Error('AI API failed to respond');
-
-    const result = await response.json();
-    const textResponse = result.candidates[0].content.parts[0].text;
-
-    // 4. Format the AI's response into clean tags
-    const tags = textResponse.split(',').map((tag: string) => 
-      tag.trim().toLowerCase().replace(/[^a-z0-9 ]/g, '')
-    );
-
-    return tags.filter((tag: string) => tag.length > 0);
-
-  } catch (error) {
-    console.error("Real AI Vision Error:", error);
-    // A failsafe just in case your internet drops during the live demo!
-    return ['soft glam', 'natural', 'bridal'];
-  }
-}
-
 // ==========================================
 // MAGAZINE BLEED HERO VISUAL
 // ==========================================
@@ -284,7 +187,7 @@ function CanvasVisualEditorial({ theme }: { theme: any }) {
           alt="Canvas"
           className="w-[200px] sm:w-[280px] md:w-[380px] lg:w-[440px] object-contain drop-shadow-[0_30px_60px_rgba(74,42,107,0.25)]"
         />
-        
+
         <div className="flex flex-col items-center mt-6">
           <span className={`${theme.eyebrow} mb-3 text-center`}>
             {toTitleCase('the canvas standard')}
@@ -307,7 +210,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   const [contactOpen, setContactOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [aiTags, setAiTags] = useState<string[]>([]);
   const [, setLocation] = useLocation();
   const [sent, setSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -335,12 +237,12 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   });
 
   const handleSelectArtist = (artist: Artist) => {
-  if ((artist as any).isLiveDb || String(artist.id).includes('-')) {
-    setLocation(`/artist/${artist.id}?style=${styleVersion}`);
-  } else {
-    setSelectedArtist(artist);
-  }
-};
+    if ((artist as any).isLiveDb || String(artist.id).includes('-')) {
+      setLocation(`/artist/${artist.id}?style=${styleVersion}`);
+    } else {
+      setSelectedArtist(artist);
+    }
+  };
 
   const editorialImages = [
     '1522337360788-8b13fee7a3af', '1515377905703-c4788e51af15', '1508186225823-0963cfdbaa18',
@@ -353,12 +255,12 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       const { data, error } = await supabase
         .from('artist_profiles')
         .select(`id, business_name, category, city, max_travel_km, starting_price, portfolio`);
-      
+
       if (error) {
         console.error('Error fetching live artists:', error.message);
         return [];
       }
-      
+
       if (data) {
         return data.map((item: any, index: number) => {
           const rawPortfolio = item.portfolio || [];
@@ -394,7 +296,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       }
       return [];
     },
-    staleTime: 1000 * 60 * 5, 
+    staleTime: 1000 * 60 * 5,
   });
 
   const [sortBy, setSortBy] = useState('Best match');
@@ -442,20 +344,47 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     inspirationFile: null
   });
 
+  // ─── 2. STATE HOOK INTEGRATION ──────────────────────────────────────────────
+  // Pure Live Database Mode — sourceArtists feeds the matching hook
+  const sourceArtists: Artist[] = useMemo(() => {
+    return liveArtists;
+  }, [liveArtists]);
+
+  // Initialize the AI Reference Matching hook with our artist roster.
+  // Destructure all values needed for the upload handler and the UI panel.
+  const {
+    phase,
+    analysis,
+    error: matchError,
+    matchedById,
+    submitReference,
+    clearReference,
+  } = useReferenceMatching(sourceArtists);
+  // ────────────────────────────────────────────────────────────────────────────
+
+  // ─── 3. UPLOAD HANDLER ──────────────────────────────────────────────────────
+  // When a client uploads an inspiration photo, pass the file directly to
+  // submitReference(). When they clear it, call clearReference() to reset
+  // the matching engine back to its idle state.
   const handleSearchChange = async (newVal: HeroSearchValue) => {
     if (newVal.inspirationFile && !session) {
       window.alert("Please Sign In or Create an Account to use AI Vision Look Matching.");
       setAuthOpen(true);
       return;
     }
+
     setSearch(newVal);
+
     if (newVal.inspirationFile) {
-      const tags = await analyzeLookWithAI(newVal.inspirationFile);
-      setAiTags(tags);
+      // Hand the raw File directly to the matching engine hook —
+      // useReferenceMatching owns the async AI call from here.
+      submitReference(newVal.inspirationFile);
     } else {
-      setAiTags([]);
+      // Photo was removed — reset the engine to idle.
+      clearReference();
     }
   };
+  // ────────────────────────────────────────────────────────────────────────────
 
   const [hasSearched, setHasSearched] = useState(false);
   const [briefOpen, setBriefOpen] = useState(false);
@@ -470,18 +399,40 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
 
-  // Pure Live Database Mode
-  const sourceArtists: Artist[] = useMemo(() => {
-    return liveArtists;
-  }, [liveArtists]);
-
-  const matchedArtists = runCanvasMatch(
-    search.services, search.location, selectedCategoryFilter, aiTags, sourceArtists
+  // ─── 4. RE-RANKING DIRECTORY GRID ───────────────────────────────────────────
+  // Step 1: Run the canonical Canvas filter/score pass via runCanvasMatch.
+  // Step 2: If the AI engine has returned per-artist scores (matchedById),
+  //         overlay those scores and sort by match % desc, then rating desc.
+  //         If no reference photo has been processed yet, use the base order.
+  const base = runCanvasMatch(
+    search.services,
+    search.location,
+    selectedCategoryFilter,
+    [],            // aiTags are now owned by useReferenceMatching — pass empty here
+    sourceArtists
   );
+
+  // The AI-match overlay adds fields that plain `Artist` doesn't have. Type them
+  // here as optional so TS knows every artist may or may not carry a score.
+  type MatchedArtist = Artist & {
+    match?: number;
+    matchChips?: string[];
+    matchReasons?: string[];
+  };
+
+  const matchedArtists: MatchedArtist[] = !matchedById
+    ? base
+    : base
+        .map((a): MatchedArtist => {
+          const r = matchedById.get(String(a.id));
+          return r ? { ...a, match: r.score, matchChips: r.chips } : a;
+        })
+        .sort((a, b) => (b.match ?? 0) - (a.match ?? 0) || b.rating - a.rating);
+  // ────────────────────────────────────────────────────────────────────────────
 
   const filteredArtists = matchedArtists.filter(artist => {
     if (artist.pricePerSession > maxBudget) return false;
-    
+
     const activeCities = Object.entries(cityFilters)
       .filter(([_, isChecked]) => isChecked)
       .map(([city]) => city.toLowerCase());
@@ -497,16 +448,18 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       });
       if (!matchesCity) return false;
     }
-    
+
     return true;
   }).sort((a, b) => {
     if (sortBy === 'Highest rated') return b.rating - a.rating;
     if (sortBy === 'Price: low to high') return a.pricePerSession - b.pricePerSession;
     if (sortBy === 'Price: high to low') return b.pricePerSession - a.pricePerSession;
-    return (b.match || 0) - (a.match || 0);
+    return (b.match ?? 0) - (a.match ?? 0);
   });
 
-  const uniqueArtists = Array.from(new Map(filteredArtists.map(item => [item.id, item])).values());
+  const uniqueArtists: MatchedArtist[] = Array.from(
+    new Map<string, MatchedArtist>(filteredArtists.map((item) => [item.id, item])).values()
+  );
 
   useEffect(() => {
     if (!discoverOpen) return;
@@ -573,7 +526,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 
   return (
     <div className={`relative min-h-[100dvh] overflow-x-hidden text-[var(--canvas-dp)] bg-[#FDF3F1] ${theme.fontBase}`}>
-      <motion.nav 
+      <motion.nav
         animate={{ y: (isChatOpen || isHeaderHidden) ? -120 : 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 right-0 z-[200] grid grid-cols-3 items-center px-4 sm:px-6 md:px-12 h-[100px] bg-[#FDF3F1]/90 backdrop-blur-md border-b border-black/5"
@@ -617,31 +570,24 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
             <div className="flex flex-col items-start pt-4 mb-8">
-              {/* 1. EYEBROW TAG */}
+              {/* EYEBROW TAG */}
               <div className="flex items-center gap-3 font-['Montserrat'] text-[11px] font-bold uppercase tracking-[0.2em] text-[#9D7C3A] mb-6">
-  <div className="w-[26px] h-[1px] bg-[#9D7C3A]"></div>
-  ai-powered beauty matching
-</div>
+                <div className="w-[26px] h-[1px] bg-[#9D7C3A]"></div>
+                ai-powered beauty matching
+              </div>
 
-              {/* 2. CLEAN, 3-LINE EDITORIAL LOCKUP */}
-<h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
-  
-  {/* Line 1: Moura */}
-<span className="font-['Moura'] font-normal text-[3rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
-  Hyderabad's
-</span>
-  
-  {/* Line 2: Pinyon Script */}
-  <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[4.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
-  Premium
-</span>
-  
-  {/* Line 3: Moura */}
-<span className="font-['Moura'] font-normal text-[3rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
-  Beauty Match.
-</span>
-  
-</h1>
+              {/* EDITORIAL HEADLINE LOCKUP */}
+              <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
+                <span className="font-['Moura'] font-normal text-[3rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
+                  Hyderabad's
+                </span>
+                <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[4.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
+                  Premium
+                </span>
+                <span className="font-['Moura'] font-normal text-[3rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
+                  Beauty Match.
+                </span>
+              </h1>
             </div>
 
             <p className={`${theme.bodyText} max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
@@ -662,7 +608,13 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       <section id="demo-search" className="relative z-20 bg-[#FDF3F1] py-24 border-b border-black/5">
         <ScrollZoomIn>
           <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12">
-            <HeroSearch value={search} onChange={handleSearchChange} onSubmit={(vals) => { setSearch(vals); setHasSearched(true); scrollTo('discover'); }} isAuthenticated={!!session} onAuthRequired={() => setAuthOpen(true)} />
+            <HeroSearch
+              value={search}
+              onChange={handleSearchChange}
+              onSubmit={(vals) => { setSearch(vals); setHasSearched(true); scrollTo('discover'); }}
+              isAuthenticated={!!session}
+              onAuthRequired={() => setAuthOpen(true)}
+            />
           </div>
         </ScrollZoomIn>
       </section>
@@ -670,30 +622,30 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       <main className="relative z-20">
         <ScrollZoomIn className="stats-bar w-full">
           <div className="grid w-full grid-cols-2 items-center gap-y-10 gap-x-4 px-4 py-10 sm:grid-cols-4 sm:gap-x-0 sm:px-8 lg:px-12">
-          <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
-            <ScrollZoom><div className={theme.stat}>{sourceArtists.length}</div></ScrollZoom>
-            <ScrollZoomIn delay={100}>
-              <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('verified artists')}</div>
-            </ScrollZoomIn>
-          </div>
-          <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
-            <ScrollZoom><div className={theme.stat}>₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div></ScrollZoom>
-            <ScrollZoomIn delay={100}>
-              <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('avg booking value')}</div>
-            </ScrollZoomIn>
-          </div>
-          <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
-            <ScrollZoom><div className={theme.stat}>100%</div></ScrollZoom>
-            <ScrollZoomIn delay={100}>
-              <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('client satisfaction')}</div>
-            </ScrollZoomIn>
-          </div>
-          <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
-            <ScrollZoom><div className={theme.stat}>{platformStats.avgRating}★</div></ScrollZoom>
-            <ScrollZoomIn delay={100}>
-              <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('platform avg rating')}</div>
-            </ScrollZoomIn>
-          </div>
+            <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
+              <ScrollZoom><div className={theme.stat}>{sourceArtists.length}</div></ScrollZoom>
+              <ScrollZoomIn delay={100}>
+                <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('verified artists')}</div>
+              </ScrollZoomIn>
+            </div>
+            <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
+              <ScrollZoom><div className={theme.stat}>₹{platformStats.avgBookingValue.toLocaleString('en-IN')}</div></ScrollZoom>
+              <ScrollZoomIn delay={100}>
+                <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('avg booking value')}</div>
+              </ScrollZoomIn>
+            </div>
+            <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
+              <ScrollZoom><div className={theme.stat}>100%</div></ScrollZoom>
+              <ScrollZoomIn delay={100}>
+                <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('client satisfaction')}</div>
+              </ScrollZoomIn>
+            </div>
+            <div className="stat flex flex-col items-center justify-center text-center px-2 sm:px-6 border-black/10 sm:border-l sm:first:border-l-0">
+              <ScrollZoom><div className={theme.stat}>{platformStats.avgRating}★</div></ScrollZoom>
+              <ScrollZoomIn delay={100}>
+                <div className={`${theme.eyebrow} !text-black/80`}>{toTitleCase('platform avg rating')}</div>
+              </ScrollZoomIn>
+            </div>
           </div>
         </ScrollZoomIn>
 
@@ -712,35 +664,38 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             <ScrollZoomIn>
               <div className={`-mx-5 px-5 sm:mx-0 sm:px-0 mb-12 flex gap-3 overflow-x-auto sm:flex-wrap sm:overflow-visible border-b ${theme.borderBase} pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}>
                 {discoverCategories.map((cat) => (
-                  <button key={cat.id} onClick={() => setSelectedCategoryFilter(cat.id)} className={`shrink-0 whitespace-nowrap px-6 py-3 transition-colors border ${theme.cardRadius} ${theme.formLabel} ${selectedCategoryFilter === cat.id ? 'border-black bg-black text-white' : `${theme.borderBase} bg-transparent text-black/60 hover:border-black hover:text-black`}`}>{toTitleCase(cat.label)}</button>
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategoryFilter(cat.id)}
+                    className={`shrink-0 whitespace-nowrap px-6 py-3 transition-colors border ${theme.cardRadius} ${theme.formLabel} ${selectedCategoryFilter === cat.id ? 'border-black bg-black text-white' : `${theme.borderBase} bg-transparent text-black/60 hover:border-black hover:text-black`}`}
+                  >
+                    {toTitleCase(cat.label)}
+                  </button>
                 ))}
               </div>
             </ScrollZoomIn>
 
+            {/*
+              ─── 5. UI RENDER ─────────────────────────────────────────────────────────
+              Replace the old inline AI analysis block with the new <AIMatchPanel />.
+              It is conditionally rendered whenever the user has uploaded an inspiration
+              photo (i.e. search.inspirationFile is truthy) AND a search has been
+              submitted — identical trigger condition as the previous block.
+              The panel owns all its own loading/error/result states internally via
+              the phase, analysis, and error values from useReferenceMatching.
+              onClear wires the panel's dismiss button back to clearReference() so the
+              engine resets and the panel unmounts cleanly.
+              ──────────────────────────────────────────────────────────────────────────
+            */}
             {hasSearched && search.inspirationFile && (
               <ScrollZoomIn>
-                <div className={`mb-12 mt-8 border ${theme.borderBase} bg-white/50 backdrop-blur-sm p-8 lg:p-10 shadow-sm ${theme.cardRadius}`}>
-                  <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b ${theme.borderBase} pb-6 mb-6`}>
-                    <div className="flex items-center gap-4">
-                      <div className={`flex h-12 w-12 items-center justify-center border border-[#6B3A7D]/40 bg-[#6B3A7D]/10 text-[#6B3A7D] ${theme.cardRadius}`}><Sparkles size={20} /></div>
-                      <div>
-                        <span className={theme.eyebrow}>{toTitleCase('canvas ai vision analysis')}</span>
-                        <h3 className={`${theme.headingModal} mt-1`}>{toTitleCase('aesthetic profile extracted')}</h3>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={theme.badge}>{aiTags.length} tags extracted</span>
-                      <span className={theme.badge}>verified secure</span>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <p className={theme.formLabel}>detected aesthetic tags from inspiration:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {(aiTags.length > 0 ? aiTags : ['soft glam', 'editorial', 'bridal']).map((tag, i) => (
-                        <span key={i} className={`py-2 bg-white border ${theme.borderBase} ${theme.cardRadius} ${theme.formLabel} !text-black`}>#{tag}</span>
-                      ))}
-                    </div>
-                  </div>
+                <div className="mb-12 mt-8">
+                  <AIMatchPanel
+                    phase={phase}
+                    analysis={analysis}
+                    error={matchError}
+                    onClear={clearReference}
+                  />
                 </div>
               </ScrollZoomIn>
             )}
@@ -750,7 +705,10 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                 <div>
                   <label className={`block mb-3 ${theme.formLabel}`}>sort by</label>
                   <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className={`w-full bg-transparent border-b ${theme.borderBase} p-3 ${theme.inputText} cursor-pointer`}>
-                    <option value="Best match">best match</option><option value="Highest rated">highest rated</option><option value="Price: low to high">price: low to high</option><option value="Price: high to low">price: high to low</option>
+                    <option value="Best match">best match</option>
+                    <option value="Highest rated">highest rated</option>
+                    <option value="Price: low to high">price: low to high</option>
+                    <option value="Price: high to low">price: high to low</option>
                   </select>
                 </div>
                 <div>
@@ -766,10 +724,22 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                   <div className="space-y-4">
                     {Object.keys(cityFilters).map((city) => (
                       <label key={city} className="flex cursor-pointer items-center group">
-                        <div onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))} className={`mr-4 flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border ${cityFilters[city] ? 'border-[#9D7C3A] bg-[#9D7C3A]' : 'border-black/20 group-hover:border-[#9D7C3A]'} transition-colors`}>
-                          {cityFilters[city] && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                        <div
+                          onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))}
+                          className={`mr-4 flex h-[18px] w-[18px] items-center justify-center rounded-[4px] border ${cityFilters[city] ? 'border-[#9D7C3A] bg-[#9D7C3A]' : 'border-black/20 group-hover:border-[#9D7C3A]'} transition-colors`}
+                        >
+                          {cityFilters[city] && (
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          )}
                         </div>
-                        <span onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))} className={`${theme.formLabel} ${cityFilters[city] ? '!text-black' : '!text-black/50'} transition-colors`}>{city.toLowerCase()}</span>
+                        <span
+                          onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))}
+                          className={`${theme.formLabel} ${cityFilters[city] ? '!text-black' : '!text-black/50'} transition-colors`}
+                        >
+                          {city.toLowerCase()}
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -787,16 +757,16 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                       <div className="grid gap-x-6 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
                         {uniqueArtists.slice(0, visibleCount).map((artist, index) => (
                           <ScrollZoom key={artist.id || index} delay={index * 80}>
-                            <ArtistCard 
-                              name={artist.name} 
-                              image={artist.image} 
-                              hoverImage={artist.hoverImage} 
-                              portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)} 
-                              startingPrice={artist.startingPrice} 
-                              tags={artist.tags} 
-                              matchPercentage={artist.match} 
+                            <ArtistCard
+                              name={artist.name}
+                              image={artist.image}
+                              hoverImage={artist.hoverImage}
+                              portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)}
+                              startingPrice={artist.startingPrice}
+                              tags={artist.tags}
+                              matchPercentage={artist.match}
                               matchReasons={artist.matchReasons}
-                              onClick={() => handleSelectArtist(artist)} 
+                              onClick={() => handleSelectArtist(artist)}
                             />
                           </ScrollZoom>
                         ))}
@@ -814,7 +784,21 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                       <div className={`flex min-h-[300px] flex-col items-center justify-center border ${theme.borderBase} bg-white px-6 text-center shadow-sm ${theme.cardRadius}`}>
                         <p className={theme.headingModal}>{toTitleCase('no artists found')}</p>
                         <p className={`mt-4 max-w-sm ${theme.bodyText}`}>adjust your budget or city filters</p>
-                        <button type="button" onClick={() => { setMaxBudget(65000); setCityFilters({ 'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true, 'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true, 'Begumpet': true, 'Secunderabad': true }); setVisibleCount(9); }} className={`mt-8 ${theme.btnPrimary}`}>reset filters</button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMaxBudget(65000);
+                            setCityFilters({
+                              'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true,
+                              'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true,
+                              'Begumpet': true, 'Secunderabad': true
+                            });
+                            setVisibleCount(9);
+                          }}
+                          className={`mt-8 ${theme.btnPrimary}`}
+                        >
+                          reset filters
+                        </button>
                       </div>
                     </ScrollZoomIn>
                   )}
@@ -915,19 +899,16 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               <h2 className={`${theme.headingHero} !text-white mb-8`}>{toTitleCase('are you a makeup artist?')}</h2>
               <p className={`${theme.bodyText} !text-white/70 mb-12 max-w-[680px] mx-auto`}>it is completely free to list your verified portfolio on canvas. when our ai matches you with a bride, you will receive a blurred notification. to unlock the client&apos;s whatsapp number and inspiration photo (a high-intent lead), you simply pay a micro-fee of ₹99. you can also upgrade to canvas pro for a flat monthly subscription to unlock unlimited leads and priority placement in our ai search results.</p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button 
-                onClick={() => window.alert('Canvas Pro features are launching soon! Create a free account today to get early access.')} 
-                className={`${theme.btnOutline} !border-[#9D7C3A] !text-[#9D7C3A] hover:!bg-[#9D7C3A] hover:!text-white`}
-              >
-                explore pro features
-              </button>
-              <button 
-                onClick={() => setAuthOpen(true)} 
-                className={theme.btnPrimary}
-              >
-                apply to join canvas
-              </button>
-            </div>
+                <button
+                  onClick={() => window.alert('Canvas Pro features are launching soon! Create a free account today to get early access.')}
+                  className={`${theme.btnOutline} !border-[#9D7C3A] !text-[#9D7C3A] hover:!bg-[#9D7C3A] hover:!text-white`}
+                >
+                  explore pro features
+                </button>
+                <button onClick={() => setAuthOpen(true)} className={theme.btnPrimary}>
+                  apply to join canvas
+                </button>
+              </div>
             </div>
           </section>
         </ScrollZoomIn>
@@ -974,125 +955,105 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         </section>
 
         <ScrollZoomIn>
-  <footer className={`bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10 ${theme.fontBase}`}>
-    <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
-      <div className="lg:col-span-1">
-        <h3 className={`${theme.formLabel} !text-white mb-4`}>{toTitleCase('down for more? we got you!')}</h3>
-        <p className={`${theme.bodyText} !text-white/50 mb-6 leading-relaxed`}>the latest artists, drops, in-store event info + more—straight to your inbox.</p>
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-          <div className="relative border-b border-white/20 pb-2">
-            <input type="email" placeholder="email address" className={`w-full bg-transparent ${theme.inputText} !border-none !text-white`} />
-          </div>
-          <div className="relative border-b border-white/20 pb-2 mt-4">
-            <input type="tel" placeholder="phone number" className={`w-full bg-transparent ${theme.inputText} !border-none !text-white`} />
-          </div>
-        </form>
-      </div>
-      
-      <div className="lg:col-span-1 lg:pl-10">
-  <h3 className={`${theme.formLabel} !text-white mb-6`}>{toTitleCase('Client Service')}</h3>
-  <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
-    <li>
-      <span className="block text-left text-white/50">Operating Hours Are From<br/>9 AM - 9 PM EST Mon-Fri</span>
-    </li>
-    <li className="pt-2">
-      <a href="mailto:thecanvasbeauty@gmail.com" className="hover:text-[#6B3C9C] transition-colors text-white block">
-        thecanvasbeauty@gmail.com
-      </a>
-    </li>
-    <li>
-      <a href="tel:+919848285649" className="hover:text-white transition-colors block">
-        +91 98482 85649
-      </a>
-    </li>
-    <li className="pt-4">
-  <button type="button" onClick={() => setContactOpen(true)} className="hover:text-white transition-colors block text-left cursor-pointer">
-    Contact Us
-  </button>
-</li>
-<li>
-  <button type="button" onClick={() => setFaqOpen(true)} className="hover:text-white transition-colors block text-left cursor-pointer">
-    Help & FAQs
-  </button>
-</li>
-  </ul>
-</div>
-      
-      <div className="lg:col-span-1">
-        <h3 className={`${theme.formLabel} !text-white mb-6`}>{toTitleCase('about')}</h3>
-        <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
-          <li>
-            <a href="#about" className="hover:text-white transition-colors block">
-              about the collective
-            </a>
-          </li>
-          <li>
-            <a href="#standard" className="hover:text-white transition-colors block">
-              the standard
-            </a>
-          </li>
-          <li>
-            <a href="#careers" className="hover:text-white transition-colors block">
-              careers
-            </a>
-          </li>
-        </ul>
-      </div>
-      
-      <div className="lg:col-span-1 hidden lg:block">
-        <ScrollZoom>
-          <div className={`h-full w-full bg-[#1A1A1A] border border-white/10 overflow-hidden ${theme.cardRadius}`}>
-            <img src="https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80" alt="Canvas" onError={handleImgError} className="h-full w-full object-cover opacity-80 hover:opacity-100 transition-all duration-700" />
-          </div>
-        </ScrollZoom>
-      </div>
-    </div>
-  </footer>
-</ScrollZoomIn>
-</main>
+          <footer className={`bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10 ${theme.fontBase}`}>
+            <div className="mx-auto max-w-[1400px] grid gap-12 lg:grid-cols-4 lg:gap-8">
+              <div className="lg:col-span-1">
+                <h3 className={`${theme.formLabel} !text-white mb-4`}>{toTitleCase('down for more? we got you!')}</h3>
+                <p className={`${theme.bodyText} !text-white/50 mb-6 leading-relaxed`}>the latest artists, drops, in-store event info + more—straight to your inbox.</p>
+                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+                  <div className="relative border-b border-white/20 pb-2">
+                    <input type="email" placeholder="email address" className={`w-full bg-transparent ${theme.inputText} !border-none !text-white`} />
+                  </div>
+                  <div className="relative border-b border-white/20 pb-2 mt-4">
+                    <input type="tel" placeholder="phone number" className={`w-full bg-transparent ${theme.inputText} !border-none !text-white`} />
+                  </div>
+                </form>
+              </div>
 
-<ProfileModal open={Boolean(selectedArtist)} artist={selectedArtist} onClose={() => setSelectedArtist(null)} onBookAppointment={openBrief} onOpenChat={() => { setSelectedArtist(null); setIsChatOpen(true); }} />
-<ChatDrawer open={isChatOpen} onClose={() => setIsChatOpen(false)} />
+              <div className="lg:col-span-1 lg:pl-10">
+                <h3 className={`${theme.formLabel} !text-white mb-6`}>{toTitleCase('Client Service')}</h3>
+                <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
+                  <li>
+                    <span className="block text-left text-white/50">Operating Hours Are From<br />9 AM - 9 PM EST Mon-Fri</span>
+                  </li>
+                  <li className="pt-2">
+                    <a href="mailto:thecanvasbeauty@gmail.com" className="hover:text-[#6B3C9C] transition-colors text-white block">thecanvasbeauty@gmail.com</a>
+                  </li>
+                  <li>
+                    <a href="tel:+919848285649" className="hover:text-white transition-colors block">+91 98482 85649</a>
+                  </li>
+                  <li className="pt-4">
+                    <button type="button" onClick={() => setContactOpen(true)} className="hover:text-white transition-colors block text-left cursor-pointer">Contact Us</button>
+                  </li>
+                  <li>
+                    <button type="button" onClick={() => setFaqOpen(true)} className="hover:text-white transition-colors block text-left cursor-pointer">Help & FAQs</button>
+                  </li>
+                </ul>
+              </div>
 
-{briefOpen && (
-  <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setBriefOpen(false)}>
-    <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
-      <div className="flex items-start justify-between border-b border-black/10 pb-8 mb-8">
-        <div><p className={`${theme.eyebrow} mb-2`}>{toTitleCase(sent ? 'request secured' : 'private concierge')}</p><h2 className={theme.headingModal}>{toTitleCase(sent ? 'appointment locked.' : 'request a booking.')}</h2></div>
-        <button type="button" onClick={() => setBriefOpen(false)} className="text-black/40 hover:text-black transition-colors"><X size={24} strokeWidth={1.5} /></button>
-      </div>
-      {sent ? (
-        <div className="flex-1 flex flex-col justify-center mb-20 text-center">
-          <div className="w-16 h-16 rounded-full bg-[#9D7C3A]/10 text-[#9D7C3A] flex items-center justify-center mx-auto mb-6"><Sparkles size={32} /></div>
-          <h3 className={`${theme.headingModal} mb-4`}>{toTitleCase('the artist has been notified.')}</h3>
-          <p className={`${theme.bodyText} mb-10 max-w-md mx-auto`}>your brief is securely in the artist&apos;s queue. you will receive a notification in your dashboard once they review the logistics and confirm the slot.</p>
-          <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className={`w-full ${theme.btnPrimary}`}>return to directory</button>
+              <div className="lg:col-span-1">
+                <h3 className={`${theme.formLabel} !text-white mb-6`}>{toTitleCase('about')}</h3>
+                <ul className={`space-y-3 ${theme.formLabel} !text-white/50`}>
+                  <li><a href="#about" className="hover:text-white transition-colors block">about the collective</a></li>
+                  <li><a href="#standard" className="hover:text-white transition-colors block">the standard</a></li>
+                  <li><a href="#careers" className="hover:text-white transition-colors block">careers</a></li>
+                </ul>
+              </div>
+
+              <div className="lg:col-span-1 hidden lg:block">
+                <ScrollZoom>
+                  <div className={`h-full w-full bg-[#1A1A1A] border border-white/10 overflow-hidden ${theme.cardRadius}`}>
+                    <img src="https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80" alt="Canvas" onError={handleImgError} className="h-full w-full object-cover opacity-80 hover:opacity-100 transition-all duration-700" />
+                  </div>
+                </ScrollZoom>
+              </div>
+            </div>
+          </footer>
+        </ScrollZoomIn>
+      </main>
+
+      <ProfileModal open={Boolean(selectedArtist)} artist={selectedArtist} onClose={() => setSelectedArtist(null)} onBookAppointment={openBrief} onOpenChat={() => { setSelectedArtist(null); setIsChatOpen(true); }} />
+      <ChatDrawer open={isChatOpen} onClose={() => setIsChatOpen(false)} />
+
+      {briefOpen && (
+        <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setBriefOpen(false)}>
+          <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between border-b border-black/10 pb-8 mb-8">
+              <div><p className={`${theme.eyebrow} mb-2`}>{toTitleCase(sent ? 'request secured' : 'private concierge')}</p><h2 className={theme.headingModal}>{toTitleCase(sent ? 'appointment locked.' : 'request a booking.')}</h2></div>
+              <button type="button" onClick={() => setBriefOpen(false)} className="text-black/40 hover:text-black transition-colors"><X size={24} strokeWidth={1.5} /></button>
+            </div>
+            {sent ? (
+              <div className="flex-1 flex flex-col justify-center mb-20 text-center">
+                <div className="w-16 h-16 rounded-full bg-[#9D7C3A]/10 text-[#9D7C3A] flex items-center justify-center mx-auto mb-6"><Sparkles size={32} /></div>
+                <h3 className={`${theme.headingModal} mb-4`}>{toTitleCase('the artist has been notified.')}</h3>
+                <p className={`${theme.bodyText} mb-10 max-w-md mx-auto`}>your brief is securely in the artist&apos;s queue. you will receive a notification in your dashboard once they review the logistics and confirm the slot.</p>
+                <button type="button" onClick={() => { setBriefOpen(false); setTimeout(() => setSelectedArtist(null), 200); }} className={`w-full ${theme.btnPrimary}`}>return to directory</button>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col">
+                {selectedArtist && (
+                  <div className={`flex items-center gap-4 bg-black/5 border border-black/10 p-4 mb-10 ${theme.cardRadius}`}>
+                    <img src={selectedArtist.image} alt={selectedArtist.name} onError={handleImgError} className="w-12 h-12 object-cover rounded-full border border-black/10" />
+                    <div><p className={theme.formLabel}>requesting availability for</p><p className={`${theme.headingModal} !text-base mt-0.5`}>{selectedArtist.name}</p></div>
+                  </div>
+                )}
+                <form className="space-y-8 flex-1 flex flex-col" onSubmit={handleBriefSubmit}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <label className="block"><span className={theme.formLabel}>date required</span><input required type="date" name="date" className={`mt-3 w-full ${theme.inputText}`} /></label>
+                    <label className="block"><span className={theme.formLabel}>preferred slot</span><select required name="slot" defaultValue="" className={`mt-3 w-full ${theme.inputText} [&>option]:bg-white`}><option value="" disabled>select phase...</option><option value="Early Morning (Before 8 AM)">slot 1: early morning (pre-8am)</option><option value="Morning (8 AM - 12 PM)">slot 2: morning prep (8am-12pm)</option><option value="Afternoon/Evening (12 PM - 8 PM)">slot 3: afternoon & evening</option><option value="Late Night (After 8 PM)">slot 4: late night (post-8pm)</option></select></label>
+                  </div>
+                  <label className="block"><span className={theme.formLabel}>exact venue / area</span><input required name="location" placeholder="e.g. taj falaknuma palace" className={`mt-3 w-full ${theme.inputText}`} /></label>
+                  <label className="block flex-1"><span className={theme.formLabel}>the vision (look details)</span><textarea required name="message" placeholder="describe the aesthetic, outfit colors, or specific requirements..." rows={4} className={`mt-3 w-full resize-none ${theme.inputText}`} /></label>
+                  <div className="pt-6 mt-auto">
+                    <button type="submit" disabled={isSubmitting} className={`w-full ${theme.btnPrimary} disabled:opacity-50`}>{isSubmitting ? 'processing...' : 'submit concierge brief'}</button>
+                    <p className={`text-center ${theme.formLabel} mt-4`}>your brief is securely transmitted to the artist.</p>
+                  </div>
+                </form>
+              </div>
+            )}
+          </motion.aside>
         </div>
-      ) : (
-        <div className="flex-1 flex flex-col">
-          {selectedArtist && (
-            <div className={`flex items-center gap-4 bg-black/5 border border-black/10 p-4 mb-10 ${theme.cardRadius}`}>
-              <img src={selectedArtist.image} alt={selectedArtist.name} onError={handleImgError} className="w-12 h-12 object-cover rounded-full border border-black/10" />
-              <div><p className={theme.formLabel}>requesting availability for</p><p className={`${theme.headingModal} !text-base mt-0.5`}>{selectedArtist.name}</p></div>
-            </div>
-          )}
-          <form className="space-y-8 flex-1 flex flex-col" onSubmit={handleBriefSubmit}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              <label className="block"><span className={theme.formLabel}>date required</span><input required type="date" name="date" className={`mt-3 w-full ${theme.inputText}`} /></label>
-              <label className="block"><span className={theme.formLabel}>preferred slot</span><select required name="slot" defaultValue="" className={`mt-3 w-full ${theme.inputText} [&>option]:bg-white`}><option value="" disabled>select phase...</option><option value="Early Morning (Before 8 AM)">slot 1: early morning (pre-8am)</option><option value="Morning (8 AM - 12 PM)">slot 2: morning prep (8am-12pm)</option><option value="Afternoon/Evening (12 PM - 8 PM)">slot 3: afternoon & evening</option><option value="Late Night (After 8 PM)">slot 4: late night (post-8pm)</option></select></label>
-            </div>
-            <label className="block"><span className={theme.formLabel}>exact venue / area</span><input required name="location" placeholder="e.g. taj falaknuma palace" className={`mt-3 w-full ${theme.inputText}`} /></label>
-            <label className="block flex-1"><span className={theme.formLabel}>the vision (look details)</span><textarea required name="message" placeholder="describe the aesthetic, outfit colors, or specific requirements..." rows={4} className={`mt-3 w-full resize-none ${theme.inputText}`} /></label>
-            <div className="pt-6 mt-auto">
-                  <button type="submit" disabled={isSubmitting} className={`w-full ${theme.btnPrimary} disabled:opacity-50`}>{isSubmitting ? 'processing...' : 'submit concierge brief'}</button>
-                  <p className={`text-center ${theme.formLabel} mt-4`}>your brief is securely transmitted to the artist.</p>
-                </div>
-              </form>
-            </div>
-          )}
-        </motion.aside>
-      </div>
-    )}
+      )}
 
       {/* CONTACT US MODAL */}
       {contactOpen && (
@@ -1164,7 +1125,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           </motion.aside>
         </div>
       )}
-  </div>
+    </div>
   );
 }
 
@@ -1214,29 +1175,29 @@ export default function App() {
     const checkSession = async () => {
       const isOAuth = window.location.hash.includes('access_token=') || window.location.search.includes('code=');
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       setSession(session);
-      
+
       if (!isOAuth) {
         setLoadingSession(false);
       }
     };
-    
+
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
       setSession(currentSession);
       const isOAuth = window.location.hash.includes('access_token=') || window.location.search.includes('code=');
-      
+
       if (isOAuth) {
         if (event === 'SIGNED_IN') setLoadingSession(false);
       } else {
-        setLoadingSession(false); 
+        setLoadingSession(false);
       }
     });
 
     const fallbackTimer = setTimeout(() => setLoadingSession(false), 3000);
-    
+
     return () => {
       subscription.unsubscribe();
       clearTimeout(fallbackTimer);
@@ -1250,14 +1211,14 @@ export default function App() {
     try {
       const { error } = await supabase.auth.updateUser({ data: { role: selectedRole } });
       if (error) throw error;
-      
+
       const fullName = session.user.user_metadata?.name || session.user.user_metadata?.full_name || 'User';
       await supabase.from('profiles').upsert({ id: session.user.id, role: selectedRole, full_name: fullName });
-      
+
       if (selectedRole === 'artist') {
         await supabase.from('artist_profiles').upsert({ id: session.user.id });
       }
-      
+
       window.location.href = `/dashboard?style=${styleVersion}`;
     } catch (err: any) {
       window.alert(`Failed to switch role: ${err.message}`);
@@ -1272,18 +1233,18 @@ export default function App() {
       </div>
     );
   }
-////
+
   const userRole = session?.user?.user_metadata?.role;
   const needsRole = session && (!userRole || (userRole !== 'client' && userRole !== 'artist'));
 
   if (needsRole) {
     return (
       <div className={`h-screen w-full flex flex-col md:flex-row overflow-hidden bg-[#FDF3F1] fixed inset-0 z-[9999] ${theme.fontBase}`}>
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }} 
-          animate={{ opacity: 1, x: 0 }} 
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
-          onClick={() => !updatingRole && handleGlobalSelectRole('client')} 
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          onClick={() => !updatingRole && handleGlobalSelectRole('client')}
           className="flex-1 relative bg-[#FDF3F1] text-black flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group"
         >
           <div className="absolute inset-0 overflow-hidden">
@@ -1300,11 +1261,11 @@ export default function App() {
           </div>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }} 
-          animate={{ opacity: 1, x: 0 }} 
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
-          onClick={() => !updatingRole && handleGlobalSelectRole('artist')} 
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          onClick={() => !updatingRole && handleGlobalSelectRole('artist')}
           className="flex-1 relative bg-[#05020A] text-white flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group border-t md:border-t-0 md:border-l border-white/10"
         >
           <div className="absolute inset-0 overflow-hidden">
@@ -1323,7 +1284,6 @@ export default function App() {
       </div>
     );
   }
-
 
   return (
     <QueryClientProvider client={queryClient}>
