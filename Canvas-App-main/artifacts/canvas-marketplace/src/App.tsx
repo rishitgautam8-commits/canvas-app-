@@ -282,7 +282,7 @@ function CanvasVisualEditorial({ theme }: { theme: any }) {
         <img
           src="/logo.png"
           alt="Canvas"
-          className="w-[280px] md:w-[380px] lg:w-[440px] object-contain drop-shadow-[0_30px_60px_rgba(74,42,107,0.25)]"
+          className="w-[200px] sm:w-[280px] md:w-[380px] lg:w-[440px] object-contain drop-shadow-[0_30px_60px_rgba(74,42,107,0.25)]"
         />
         
         <div className="flex flex-col items-center mt-6">
@@ -613,7 +613,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         )}
       </AnimatePresence>
 
-      <section id="top" className="min-h-screen grid md:grid-cols-2 gap-8 pt-[100px] px-4 sm:px-8 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
+      <section id="top" className="grid md:grid-cols-2 md:min-h-screen gap-8 pt-[100px] pb-14 md:pb-20 px-4 sm:px-8 md:px-12 lg:px-20 bg-[radial-gradient(ellipse_60%_50%_at_85%_15%,rgba(201,164,99,0.07),transparent_60%)] relative">
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
             <div className="flex flex-col items-start pt-4 mb-8">
@@ -627,17 +627,17 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
   
   {/* Line 1: Moura */}
-<span className="font-['Moura'] font-normal text-[2.6rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
+<span className="font-['Moura'] font-normal text-[3rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
   Hyderabad's
 </span>
   
   {/* Line 2: Pinyon Script */}
-  <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[4rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
+  <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[4.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
   Premium
 </span>
   
   {/* Line 3: Moura */}
-<span className="font-['Moura'] font-normal text-[2.6rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
+<span className="font-['Moura'] font-normal text-[3rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
   Beauty Match.
 </span>
   
@@ -647,13 +647,13 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             <p className={`${theme.bodyText} max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
             <p className={`${theme.bodyText} max-w-[460px] mb-8`}>the exclusive ai-powered bridal and beauty booking platform for hyderabad and cyberabad.</p>
             <div className="flex gap-4 flex-wrap">
-              <button onClick={() => scrollTo('demo-search')} className={theme.btnPrimary}>try the live demo →</button>
+              <button onClick={() => scrollTo('demo-search')} className={`w-full sm:w-auto text-center ${theme.btnPrimary}`}>try the live demo →</button>
             </div>
           </div>
         </ScrollZoomIn>
 
         <ScrollZoom>
-          <div className="flex flex-col items-center justify-center py-10 md:py-16 relative hidden md:flex">
+          <div className="flex flex-col items-center justify-center py-8 md:py-16 relative">
             <CanvasVisualEditorial theme={theme} />
           </div>
         </ScrollZoom>
@@ -710,9 +710,9 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             </ScrollZoomIn>
 
             <ScrollZoomIn>
-              <div className={`mb-12 flex flex-wrap gap-3 border-b ${theme.borderBase} pb-8`}>
+              <div className={`-mx-5 px-5 sm:mx-0 sm:px-0 mb-12 flex gap-3 overflow-x-auto sm:flex-wrap sm:overflow-visible border-b ${theme.borderBase} pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}>
                 {discoverCategories.map((cat) => (
-                  <button key={cat.id} onClick={() => setSelectedCategoryFilter(cat.id)} className={`px-6 py-3 transition-colors border ${theme.cardRadius} ${theme.formLabel} ${selectedCategoryFilter === cat.id ? 'border-black bg-black text-white' : `${theme.borderBase} bg-transparent text-black/60 hover:border-black hover:text-black`}`}>{toTitleCase(cat.label)}</button>
+                  <button key={cat.id} onClick={() => setSelectedCategoryFilter(cat.id)} className={`shrink-0 whitespace-nowrap px-6 py-3 transition-colors border ${theme.cardRadius} ${theme.formLabel} ${selectedCategoryFilter === cat.id ? 'border-black bg-black text-white' : `${theme.borderBase} bg-transparent text-black/60 hover:border-black hover:text-black`}`}>{toTitleCase(cat.label)}</button>
                 ))}
               </div>
             </ScrollZoomIn>
