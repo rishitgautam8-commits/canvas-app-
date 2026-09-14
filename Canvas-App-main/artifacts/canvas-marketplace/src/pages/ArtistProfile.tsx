@@ -7,8 +7,19 @@ import { artistsData } from '@/Data/artistsData';
 import { getTheme } from '@/lib/theme';
 
 function getGoogleMapsLink(location: string) {
-  // Uses the 'dir' and 'destination' parameters to force a dropped pin/route
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location)}`;
+  const parts = location.split(',').map(p => p.trim());
+  let cleanLocation = location;
+
+  // OpenStreetMap returns massive strings with municipal filler that confuses Google Maps.
+  // If it's a long string, we slice out the middle filler to keep only the Venue + City/Zip.
+  if (parts.length > 6) {
+    const specificVenue = parts.slice(0, 3); // Grabs Venue Name, Street, Neighborhood
+    const cityStateZip = parts.slice(-4);    // Grabs City, State, Zip, Country
+    cleanLocation = [...specificVenue, ...cityStateZip].join(', ');
+  }
+
+  // Uses the cleaned string to force an exact dropped pin/route
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(cleanLocation)}`;
 }
 
 // Free venue address autocomplete using OpenStreetMap's Nominatim search API.
