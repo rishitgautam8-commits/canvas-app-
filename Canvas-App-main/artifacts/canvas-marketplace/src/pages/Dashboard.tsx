@@ -48,9 +48,9 @@ export default function Dashboard({ session }: DashboardProps) {
 
   // Adapt accents (Use Dusty Plum for Opt 3, Gold for others)
   const accentColor = styleVersion === '3' ? '#6B3A7D' : '#9D7C3A';
-const accentBg = styleVersion === '3' ? 'bg-[#6B3A7D]' : 'bg-[#9D7C3A]';
-const accentBorder = styleVersion === '3' ? 'border-[#6B3A7D]' : 'border-[#9D7C3A]';
-const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]';
+  const accentBg = styleVersion === '3' ? 'bg-[#6B3A7D]' : 'bg-[#9D7C3A]';
+  const accentBorder = styleVersion === '3' ? 'border-[#6B3A7D]' : 'border-[#9D7C3A]';
+  const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]';
 
   const [formData, setFormData] = useState({
     business_name: '',
@@ -93,19 +93,19 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]';
 
           setArtistReviews(reviewsData || []);
           if (artistData) {
-      setArtistProfile(artistData);
-      setPortfolio(artistData.portfolio || []);
-      setFormData({
-        business_name: artistData.business_name || '',
-        category: artistData.category || '',
-        qualifications: artistData.qualifications || '',
-        city: artistData.city || '',
-        max_travel_km: artistData.max_travel_km?.toString() || '',
-        starting_price: artistData.starting_price?.toString() || '',
-        years_experience: artistData.years_experience?.toString() || '',
-        blocked_dates: artistData.blocked_dates || [],
-      });
-    }
+            setArtistProfile(artistData);
+            setPortfolio(artistData.portfolio || []);
+            setFormData({
+              business_name: artistData.business_name || '',
+              category: artistData.category || '',
+              qualifications: artistData.qualifications || '',
+              city: artistData.city || '',
+              max_travel_km: artistData.max_travel_km?.toString() || '',
+              starting_price: artistData.starting_price?.toString() || '',
+              years_experience: artistData.years_experience?.toString() || '',
+              blocked_dates: artistData.blocked_dates || [],
+            });
+          }
 
           const { data: bookingsData } = await supabase.from('bookings').select('*').eq('artist_id', session.user.id).order('created_at', { ascending: false });
 
@@ -135,6 +135,46 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]';
 
     loadDashboard();
   }, [session, setLocation, styleVersion]);
+
+  // ==========================================
+  // NEW FIX: Real-time Review Listener
+  // ==========================================
+  useEffect(() => {
+    if (role !== 'artist' || !session?.user?.id) return;
+
+    const reviewChannel = supabase
+      .channel(`artist-reviews-${session.user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'reviews',
+          filter: `artist_id=eq.${session.user.id}`
+        },
+        async (payload) => {
+          // Fetch the new review explicitly to get the joined client:profiles(full_name) relation
+          const { data: newReview } = await supabase
+            .from('reviews')
+            .select('*, client:profiles(full_name)')
+            .eq('id', payload.new.id)
+            .single();
+
+          if (newReview) {
+            setArtistReviews((prev) => {
+              if (prev.some(r => r.id === newReview.id)) return prev;
+              return [newReview, ...prev]; // Prepend new review to the top of the list
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(reviewChannel);
+    };
+  }, [role, session?.user?.id]);
+  // ==========================================
 
   const handleRequestRoleSwitch = (targetRole: 'client' | 'artist') => {
     if (targetRole === role) return;
@@ -247,7 +287,6 @@ const accentText = styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]';
   }
 
   const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || user?.user_metadata?.name?.split(' ')[0] || 'User';
-  // CHANGED: removed lowercasing — displayFirstName = firstName as-is
   const displayFirstName = firstName;
 
   return (
