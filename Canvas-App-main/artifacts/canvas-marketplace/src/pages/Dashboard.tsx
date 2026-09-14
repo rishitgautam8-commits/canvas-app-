@@ -86,7 +86,6 @@ export default function Dashboard({ session }: DashboardProps) {
         if (metaRole === 'artist') {
           const { data: artistData } = await supabase.from('artist_profiles').select('*').eq('id', session.user.id).single();
           
-          // BULLETPROOF FIX: Direct query without problematic table joins
           const { data: reviewsData, error: reviewsErr } = await supabase
             .from('reviews')
             .select('*')
@@ -142,9 +141,7 @@ export default function Dashboard({ session }: DashboardProps) {
     loadDashboard();
   }, [session, setLocation, styleVersion]);
 
-  // ==========================================
-  // FIXED: Real-time Review Listener
-  // ==========================================
+  // Real-time Review Listener
   useEffect(() => {
     if (role !== 'artist' || !session?.user?.id) return;
 
@@ -161,7 +158,6 @@ export default function Dashboard({ session }: DashboardProps) {
         (payload) => {
           if (payload.new) {
             setArtistReviews((prev) => {
-              // Deduplicate and instantly prepend the new review directly from the payload
               if (prev.some(r => r.id === payload.new.id)) return prev;
               return [payload.new, ...prev]; 
             });
@@ -174,7 +170,6 @@ export default function Dashboard({ session }: DashboardProps) {
       supabase.removeChannel(reviewChannel);
     };
   }, [role, session?.user?.id]);
-  // ==========================================
 
   const handleRequestRoleSwitch = (targetRole: 'client' | 'artist') => {
     if (targetRole === role) return;
@@ -272,15 +267,15 @@ export default function Dashboard({ session }: DashboardProps) {
     finally { setUploadingPortfolio(false); e.target.value = ''; }
   };
 
+  // FIXED: Updates status in state without deleting the booking from view
   const handleUpdateBookingStatus = async (bookingId: string, newStatus: 'confirmed' | 'declined') => {
-  const { error } = await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId);
-  if (error) { 
-    window.alert(`Failed to update booking: ${error.message}`); 
-  } else { 
-    // Filter out the accepted/declined booking from the active 'New Bookings' view entirely
-    setBookings((prevBookings) => prevBookings.filter((b) => b.id !== bookingId)); 
-  }
-};
+    const { error } = await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId);
+    if (error) { 
+      window.alert(`Failed to update booking: ${error.message}`); 
+    } else { 
+      setBookings((prevBookings) => prevBookings.map((b) => (b.id === bookingId ? { ...b, status: newStatus } : b))); 
+    }
+  };
 
   if (loading) {
     return (
@@ -292,6 +287,10 @@ export default function Dashboard({ session }: DashboardProps) {
 
   const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || user?.user_metadata?.name?.split(' ')[0] || 'User';
   const displayFirstName = firstName;
+
+  // Derived booking filters for tabs & counts
+  const pendingBookings = bookings.filter(b => b.status === 'pending' || !b.status);
+  const confirmedBookings = bookings.filter(b => b.status === 'confirmed');
 
   return (
     <div className={`min-h-screen bg-[#FDF3F1] text-black pb-24 ${theme.fontBase}`}>
@@ -365,7 +364,12 @@ export default function Dashboard({ session }: DashboardProps) {
             <div className={`mt-8 mb-12 flex gap-8 border-b ${theme.borderBase} pb-px overflow-x-auto`}>
               <button onClick={() => setActiveTab('logistics')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'logistics' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>Profile & Logistics</button>
               <button onClick={() => setActiveTab('overview')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'overview' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>Overview</button>
-              <button onClick={() => setActiveTab('briefs')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'briefs' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>New Bookings {bookings.length > 0 && `(${bookings.length})`}</button>
+              
+              {/* Dynamic count badge matching only pending requests */}
+              <button onClick={() => setActiveTab('briefs')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'briefs' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>
+                New Bookings {pendingBookings.length > 0 && `(${pendingBookings.length})`}
+              </button>
+
               <button onClick={() => setActiveTab('reviews')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'reviews' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>
                 Reviews {artistReviews.length > 0 && `(${artistReviews.length})`}
               </button>
@@ -375,12 +379,12 @@ export default function Dashboard({ session }: DashboardProps) {
             {activeTab === 'overview' && (
               <div className="grid gap-6 md:grid-cols-3">
                 <div className={`bg-white/60 border ${theme.borderBase} p-8 shadow-sm ${theme.cardRadius}`}>
-                  <p className={theme.eyebrow}>new bookings</p>
-                  <p className={`mt-4 ${theme.stat} ${styleVersion === '3' ? 'text-[#6B3A7D]' : 'bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block'}`}>{bookings.length}</p>
+                  <p className={theme.eyebrow}>new requests</p>
+                  <p className={`mt-4 ${theme.stat} ${styleVersion === '3' ? 'text-[#6B3A7D]' : 'bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block'}`}>{pendingBookings.length}</p>
                 </div>
                 <div className={`bg-white/60 border ${theme.borderBase} p-8 shadow-sm ${theme.cardRadius}`}>
                   <p className={theme.eyebrow}>upcoming bookings</p>
-                  <p className={`mt-4 ${theme.stat}`}>0</p>
+                  <p className={`mt-4 ${theme.stat}`}>{confirmedBookings.length}</p>
                 </div>
                 <div className={`bg-white/60 border ${theme.borderBase} p-8 shadow-sm ${theme.cardRadius}`}>
                   <p className={theme.eyebrow}>travel radius</p>
@@ -389,31 +393,61 @@ export default function Dashboard({ session }: DashboardProps) {
               </div>
             )}
 
+            {/* UPDATED: Displays both Pending Requests and Confirmed Upcoming Bookings */}
             {activeTab === 'briefs' && (
-              <div className={`max-w-4xl bg-white/60 border ${theme.borderBase} p-8 sm:p-12 shadow-sm ${theme.cardRadius}`}>
-                <div className="mb-8"><h3 className={theme.headingModal}>new <Premium>bookings.</Premium></h3></div>
-                {bookings.length > 0 ? (
-                  <div className="space-y-6">
-                    {bookings.map((booking) => (
-                      <div key={booking.id} className={`border ${theme.borderBase} bg-white p-6 sm:p-8 ${theme.cardRadius}`}>
-                        <div className={`flex flex-col justify-between gap-4 border-b ${theme.borderBase} pb-6 sm:flex-row sm:items-center`}>
-                          <div><h4 className={theme.headingModal}>{booking.client?.full_name || 'canvas client'}</h4></div>
-                          <div className="flex gap-3 items-center">
-                            {booking.status === 'pending' && (
-                              <>
-                                <button onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')} className={`${theme.btnPrimary} ${accentBg} !border-none !text-white`}>accept</button>
-                                <button onClick={() => handleUpdateBookingStatus(booking.id, 'declined')} className={theme.btnOutline}>decline</button>
-                              </>
-                            )}
-                            <button onClick={() => setActiveChatBooking(booking)} className={theme.btnPrimary}>chat</button>
+              <div className="max-w-4xl space-y-12">
+                {/* Section 1: Pending Requests */}
+                <div className={`bg-white/60 border ${theme.borderBase} p-8 sm:p-12 shadow-sm ${theme.cardRadius}`}>
+                  <div className="mb-8"><h3 className={theme.headingModal}>new <Premium>requests.</Premium></h3></div>
+                  {pendingBookings.length > 0 ? (
+                    <div className="space-y-6">
+                      {pendingBookings.map((booking) => (
+                        <div key={booking.id} className={`border ${theme.borderBase} bg-white p-6 sm:p-8 ${theme.cardRadius}`}>
+                          <div className={`flex flex-col justify-between gap-4 border-b ${theme.borderBase} pb-6 sm:flex-row sm:items-center`}>
+                            <div>
+                              <h4 className={theme.headingModal}>{booking.client?.full_name || 'canvas client'}</h4>
+                              <p className={`mt-2 ${theme.formLabel} !text-black/60`}>Date: {booking.event_date} | Slot: {booking.time_slot}</p>
+                              <p className={`mt-1 ${theme.bodyText} text-sm`}>Venue: {booking.venue_address}</p>
+                            </div>
+                            <div className="flex gap-3 items-center">
+                              <button onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')} className={`${theme.btnPrimary} ${accentBg} !border-none !text-white`}>accept</button>
+                              <button onClick={() => handleUpdateBookingStatus(booking.id, 'declined')} className={theme.btnOutline}>decline</button>
+                              <button onClick={() => setActiveChatBooking(booking)} className={theme.btnPrimary}>chat</button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className={`${theme.bodyText} !text-black/40`}>No New Bookings.</p>
-                )}
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={`${theme.bodyText} !text-black/40`}>No Pending Requests.</p>
+                  )}
+                </div>
+
+                {/* Section 2: Confirmed & Upcoming Sessions */}
+                <div className={`bg-white/60 border ${theme.borderBase} p-8 sm:p-12 shadow-sm ${theme.cardRadius}`}>
+                  <div className="mb-8"><h3 className={theme.headingModal}>confirmed & <Premium>upcoming sessions.</Premium></h3></div>
+                  {confirmedBookings.length > 0 ? (
+                    <div className="space-y-6">
+                      {confirmedBookings.map((booking) => (
+                        <div key={booking.id} className={`border ${theme.borderBase} bg-white p-6 sm:p-8 ${theme.cardRadius}`}>
+                          <div className={`flex flex-col justify-between gap-4 border-b ${theme.borderBase} pb-6 sm:flex-row sm:items-center`}>
+                            <div>
+                              <h4 className={theme.headingModal}>{booking.client?.full_name || 'canvas client'}</h4>
+                              <p className={`mt-2 ${theme.formLabel} !text-black/60`}>Date: {booking.event_date} | Slot: {booking.time_slot}</p>
+                              <p className={`mt-1 ${theme.bodyText} text-sm`}>Venue: {booking.venue_address}</p>
+                            </div>
+                            <div className="flex gap-3 items-center">
+                              <span className={`px-4 py-2 bg-green-50 text-green-700 border border-green-200 ${theme.cardRadius} ${theme.formLabel}`}>Confirmed</span>
+                              <button onClick={() => setActiveChatBooking(booking)} className={theme.btnPrimary}>chat</button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={`${theme.bodyText} !text-black/40`}>No Confirmed Bookings Yet.</p>
+                  )}
+                </div>
               </div>
             )}
             
