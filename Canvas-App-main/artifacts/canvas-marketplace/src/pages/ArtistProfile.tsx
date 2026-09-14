@@ -7,7 +7,8 @@ import { artistsData } from '@/Data/artistsData';
 import { getTheme } from '@/lib/theme';
 
 function getGoogleMapsLink(location: string) {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+  // Uses the 'dir' and 'destination' parameters to force a dropped pin/route
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location)}`;
 }
 
 // Free venue address autocomplete using OpenStreetMap's Nominatim search API.
@@ -138,7 +139,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
   const artistId = params?.id;
 
-  // Read style query param for the Dynamic Theme Engine
   const queryParams = new URLSearchParams(window.location.search);
   const styleVersion = queryParams.get('style') || '2';
   const theme = getTheme(styleVersion);

@@ -11,7 +11,8 @@ import { User, Session } from '@supabase/supabase-js';
 import { getTheme } from '@/lib/theme';
 
 function getGoogleMapsLink(location: string) {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+  // Uses the 'dir' and 'destination' parameters to force a dropped pin/route
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location)}`;
 }
 
 interface DashboardProps {
@@ -45,12 +46,10 @@ export default function Dashboard({ session }: DashboardProps) {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [bookingToReview, setBookingToReview] = useState<any>(null);
 
-  // Read style query param for the Dynamic Theme Engine
   const queryParams = new URLSearchParams(window.location.search);
   const styleVersion = queryParams.get('style') || '2';
   const theme = getTheme(styleVersion);
 
-  // Adapt accents (Use Dusty Plum for Opt 3, Gold for others)
   const accentColor = styleVersion === '3' ? '#6B3A7D' : '#9D7C3A';
   const accentBg = styleVersion === '3' ? 'bg-[#6B3A7D]' : 'bg-[#9D7C3A]';
   const accentBorder = styleVersion === '3' ? 'border-[#6B3A7D]' : 'border-[#9D7C3A]';
@@ -145,7 +144,6 @@ export default function Dashboard({ session }: DashboardProps) {
     loadDashboard();
   }, [session, setLocation, styleVersion]);
 
-  // Real-time Review Listener
   useEffect(() => {
     if (role !== 'artist' || !session?.user?.id) return;
 
@@ -271,26 +269,24 @@ export default function Dashboard({ session }: DashboardProps) {
     finally { setUploadingPortfolio(false); e.target.value = ''; }
   };
 
-  // FIXED: Updates status in state without deleting the booking from view
   const handleUpdateBookingStatus = async (bookingId: string, newStatus: 'confirmed' | 'declined') => {
-  const { data, error } = await supabase
-    .from('bookings')
-    .update({ status: newStatus })
-    .eq('id', bookingId)
-    .select(); // Ensure we get the updated row back
+    const { data, error } = await supabase
+      .from('bookings')
+      .update({ status: newStatus })
+      .eq('id', bookingId)
+      .select(); 
 
-  if (error) { 
-    console.error('Supabase booking update error:', error.message);
-    window.alert(`Failed to update booking: ${error.message}`); 
-  } else if (!data || data.length === 0) {
-    window.alert("Update failed: Row-Level Security (RLS) policy may be blocking this update.");
-  } else { 
-    // Successfully persisted to database, now update local state cleanly
-    setBookings((prevBookings) => 
-      prevBookings.map((b) => (b.id === bookingId ? { ...b, status: newStatus } : b))
-    ); 
-  }
-};
+    if (error) { 
+      console.error('Supabase booking update error:', error.message);
+      window.alert(`Failed to update booking: ${error.message}`); 
+    } else if (!data || data.length === 0) {
+      window.alert("Update failed: Row-Level Security (RLS) policy may be blocking this update.");
+    } else { 
+      setBookings((prevBookings) => 
+        prevBookings.map((b) => (b.id === bookingId ? { ...b, status: newStatus } : b))
+      ); 
+    }
+  };
 
   if (loading) {
     return (
@@ -303,7 +299,6 @@ export default function Dashboard({ session }: DashboardProps) {
   const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || user?.user_metadata?.name?.split(' ')[0] || 'User';
   const displayFirstName = firstName;
 
-  // Derived booking filters for tabs & counts
   const pendingBookings = bookings.filter(b => b.status === 'pending' || !b.status);
   const confirmedBookings = bookings.filter(b => b.status === 'confirmed');
 
@@ -380,7 +375,6 @@ export default function Dashboard({ session }: DashboardProps) {
               <button onClick={() => setActiveTab('logistics')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'logistics' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>Profile & Logistics</button>
               <button onClick={() => setActiveTab('overview')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'overview' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>Overview</button>
               
-              {/* Dynamic count badge matching only pending requests */}
               <button onClick={() => setActiveTab('briefs')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'briefs' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>
                 Bookings {pendingBookings.length > 0 && `(${pendingBookings.length})`}
               </button>
@@ -408,10 +402,8 @@ export default function Dashboard({ session }: DashboardProps) {
               </div>
             )}
 
-            {/* UPDATED: Displays both Pending Requests and Confirmed Upcoming Bookings */}
             {activeTab === 'briefs' && (
               <div className="max-w-4xl space-y-12">
-                {/* Section 1: Pending Requests */}
                 <div className={`bg-white/60 border ${theme.borderBase} p-8 sm:p-12 shadow-sm ${theme.cardRadius}`}>
                   <div className="mb-8"><h3 className={theme.headingModal}>new <Premium>requests.</Premium></h3></div>
                   {pendingBookings.length > 0 ? (
@@ -428,9 +420,9 @@ export default function Dashboard({ session }: DashboardProps) {
                                   href={getGoogleMapsLink(booking.venue_address)}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className={`mt-1 inline-block ${theme.formLabel} !text-[#9D7C3A] hover:underline`}
+                                  className={`mt-2 inline-flex items-center gap-1 text-sm font-medium ${styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]'} hover:underline`}
                                 >
-                                  View on Google Maps →
+                                  Get Directions To Venue ↗
                                 </a>
                               )}
                             </div>
@@ -448,7 +440,6 @@ export default function Dashboard({ session }: DashboardProps) {
                   )}
                 </div>
 
-                {/* Section 2: Confirmed & Upcoming Sessions */}
                 <div className={`bg-white/60 border ${theme.borderBase} p-8 sm:p-12 shadow-sm ${theme.cardRadius}`}>
                   <div className="mb-8"><h3 className={theme.headingModal}>confirmed & <Premium>upcoming sessions.</Premium></h3></div>
                   {confirmedBookings.length > 0 ? (
@@ -465,9 +456,9 @@ export default function Dashboard({ session }: DashboardProps) {
                                   href={getGoogleMapsLink(booking.venue_address)}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className={`mt-1 inline-block ${theme.formLabel} !text-[#9D7C3A] hover:underline`}
+                                  className={`mt-2 inline-flex items-center gap-1 text-sm font-medium ${styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]'} hover:underline`}
                                 >
-                                  View on Google Maps →
+                                  Get Directions To Venue ↗
                                 </a>
                               )}
                             </div>
