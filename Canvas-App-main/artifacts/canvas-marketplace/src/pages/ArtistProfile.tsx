@@ -14,7 +14,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   const [loading, setLoading] = useState(true);
   
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [manuallyBlockedDates] = useState<string[]>([]);
   const [bookedTimeSlots, setBookedTimeSlots] = useState<Record<string, string[]>>({});
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedTime, setSelectedTime] = useState<string>('');
@@ -141,6 +140,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   }
 
   const rawPortfolio = artist?.portfolio || [];
+  const manuallyBlockedDates: string[] = Array.isArray(artist?.blocked_dates) ? artist.blocked_dates : [];
   const allImages = rawPortfolio.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean);
   if (allImages.length === 0 && artist?.image) allImages.push(artist.image);
 

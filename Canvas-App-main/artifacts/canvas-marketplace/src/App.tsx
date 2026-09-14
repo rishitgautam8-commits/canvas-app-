@@ -335,12 +335,12 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   });
 
   const handleSelectArtist = (artist: Artist) => {
-    if ((artist as any).isLiveDb || String(artist.id).includes('-')) {
-      setLocation(`/artist/${artist.id}?style=${styleVersion}`);
-    } else {
-      setSelectedArtist(artist);
-    }
-  };
+  if ((artist as any).isLiveDb || String(artist.id).includes('-')) {
+    setLocation(`/artist/${artist.id}?style=${styleVersion}`);
+  } else {
+    setSelectedArtist(artist);
+  }
+};
 
   const editorialImages = [
     '1522337360788-8b13fee7a3af', '1515377905703-c4788e51af15', '1508186225823-0963cfdbaa18',
