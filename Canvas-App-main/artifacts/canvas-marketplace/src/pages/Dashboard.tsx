@@ -367,7 +367,7 @@ export default function Dashboard({ session }: DashboardProps) {
               
               {/* Dynamic count badge matching only pending requests */}
               <button onClick={() => setActiveTab('briefs')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'briefs' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>
-                New Bookings {pendingBookings.length > 0 && `(${pendingBookings.length})`}
+                Bookings {pendingBookings.length > 0 && `(${pendingBookings.length})`}
               </button>
 
               <button onClick={() => setActiveTab('reviews')} className={`${theme.navLink} whitespace-nowrap pb-4 transition-colors !border-none !bg-transparent ${activeTab === 'reviews' ? `border-b-2 ${accentBorder} !text-black` : 'text-black/40 hover:!text-black'}`}>
