@@ -124,13 +124,23 @@ const mergeDefined = (base: AestheticTags, over?: AestheticTags): AestheticTags 
 };
 
 /** Build the tag index for one artist from the shapes already in your app. */
+/** Build the tag index for one artist from the shapes already in your app. */
 export function buildArtistTagIndex(artist: any): ArtistTagIndex {
   const portfolioTags = (artist?.portfolio ?? [])
-    .map((p: any) => (typeof p === 'string' ? undefined : normalizeAestheticTags(p?.tags)))
+    .map((p: any) => {
+      if (typeof p === 'string') return undefined;
+      // Support both nested p.tags AND flattened portfolio objects containing tags
+      const rawTags = p?.tags || p;
+      return normalizeAestheticTags(rawTags);
+    })
     .filter(Boolean) as AestheticTags[];
+
+  const baseAiTags = legacyTagsToStructured(artist?.tags ?? []);
+  const directAiTags = artist?.ai_tags || artist?.aiTags || {};
+
   return {
     id: String(artist?.id),
-    aiTags: mergeDefined(legacyTagsToStructured(artist?.tags ?? []), artist?.ai_tags ?? artist?.aiTags),
+    aiTags: mergeDefined(baseAiTags, directAiTags),
     portfolioTags,
     isVerified: Boolean(artist?.isVerified),
     isIncompleteProfile: Boolean(artist?.isIncompleteProfile),
