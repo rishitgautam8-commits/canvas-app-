@@ -85,13 +85,19 @@ export default function Dashboard({ session }: DashboardProps) {
 
         if (metaRole === 'artist') {
           const { data: artistData } = await supabase.from('artist_profiles').select('*').eq('id', session.user.id).single();
-          const { data: reviewsData } = await supabase
+          
+          // BULLETPROOF FIX: Direct query without problematic table joins
+          const { data: reviewsData, error: reviewsErr } = await supabase
             .from('reviews')
-            .select('*, client:profiles(full_name)')
+            .select('*')
             .eq('artist_id', session.user.id)
             .order('created_at', { ascending: false });
 
+          if (reviewsErr) {
+            console.error('Error fetching reviews:', reviewsErr.message);
+          }
           setArtistReviews(reviewsData || []);
+          
           if (artistData) {
             setArtistProfile(artistData);
             setPortfolio(artistData.portfolio || []);
@@ -137,7 +143,7 @@ export default function Dashboard({ session }: DashboardProps) {
   }, [session, setLocation, styleVersion]);
 
   // ==========================================
-  // NEW FIX: Real-time Review Listener
+  // FIXED: Real-time Review Listener
   // ==========================================
   useEffect(() => {
     if (role !== 'artist' || !session?.user?.id) return;
@@ -152,18 +158,12 @@ export default function Dashboard({ session }: DashboardProps) {
           table: 'reviews',
           filter: `artist_id=eq.${session.user.id}`
         },
-        async (payload) => {
-          // Fetch the new review explicitly to get the joined client:profiles(full_name) relation
-          const { data: newReview } = await supabase
-            .from('reviews')
-            .select('*, client:profiles(full_name)')
-            .eq('id', payload.new.id)
-            .single();
-
-          if (newReview) {
+        (payload) => {
+          if (payload.new) {
             setArtistReviews((prev) => {
-              if (prev.some(r => r.id === newReview.id)) return prev;
-              return [newReview, ...prev]; // Prepend new review to the top of the list
+              // Deduplicate and instantly prepend the new review directly from the payload
+              if (prev.some(r => r.id === payload.new.id)) return prev;
+              return [payload.new, ...prev]; 
             });
           }
         }
