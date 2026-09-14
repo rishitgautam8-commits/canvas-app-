@@ -8,10 +8,10 @@ import Autocomplete from "react-google-autocomplete";
 import { getTheme } from '@/lib/theme';
 
 const TIME_SLOTS = [
-  { display: 'Early Morning (Pre-8 AM)', value: 'Morning (06:00 - 09:00)', keyword: 'Early' },
-  { display: 'Morning (8 AM - 12 PM)', value: 'Morning (08:00 - 13:00)', keyword: 'Morning' },
-  { display: 'Afternoon & Evening', value: 'Evening (15:00 - 20:00)', keyword: 'Afternoon' },
-  { display: 'Late Night (Post-8 PM)', value: 'Night (20:00 - 23:59)', keyword: 'Late' }
+  { display: 'Early Morning (6:00 AM - 9:00 AM)', value: 'Early Morning (6:00 AM - 9:00 AM)', keyword: 'Early' },
+  { display: 'Morning (9:00 AM - 2:00 PM)', value: 'Morning (9:00 AM - 2:00 PM)', keyword: 'Morning' },
+  { display: 'Afternoon & Evening (2:00 PM - 8:00 PM)', value: 'Afternoon & Evening (2:00 PM - 8:00 PM)', keyword: 'Afternoon' },
+  { display: 'Late Night (8:00 PM - 11:59 PM)', value: 'Late Night (8:00 PM - 11:59 PM)', keyword: 'Late' }
 ];
 
 export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boolean) => void }) {
