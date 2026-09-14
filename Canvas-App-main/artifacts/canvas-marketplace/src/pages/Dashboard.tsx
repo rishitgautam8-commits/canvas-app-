@@ -273,10 +273,14 @@ export default function Dashboard({ session }: DashboardProps) {
   };
 
   const handleUpdateBookingStatus = async (bookingId: string, newStatus: 'confirmed' | 'declined') => {
-    const { error } = await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId);
-    if (error) { window.alert(`Failed to update booking: ${error.message}`); } 
-    else { setBookings((prevBookings) => prevBookings.map((b) => (b.id === bookingId ? { ...b, status: newStatus } : b))); }
-  };
+  const { error } = await supabase.from('bookings').update({ status: newStatus }).eq('id', bookingId);
+  if (error) { 
+    window.alert(`Failed to update booking: ${error.message}`); 
+  } else { 
+    // Filter out the accepted/declined booking from the active 'New Bookings' view entirely
+    setBookings((prevBookings) => prevBookings.filter((b) => b.id !== bookingId)); 
+  }
+};
 
   if (loading) {
     return (
