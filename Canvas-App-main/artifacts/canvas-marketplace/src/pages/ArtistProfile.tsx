@@ -298,7 +298,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               <div className={`p-8 border-b ${theme.borderBase} flex justify-between items-center bg-white sticky top-0 ${theme.cardRadius === 'rounded-none' ? '' : 'rounded-t-2xl'}`}>
                 <div>
                   <h3 className={theme.headingModal}>select date & time <span className={theme.premiumTag}>phase.</span></h3>
-                  <p className={`${theme.bodyText} !text-xs mt-1`}>Gray Dates Are Unavailable Or Already Booked.</p>
+                  <p className={`${theme.bodyText} !text-xs mt-1`}>Highlighted Dates Are Unavailable Or Already Booked.</p>
                 </div>
                 <button onClick={() => setShowBookingModal(false)} className="text-black/30 hover:text-black transition-colors"><X size={20} strokeWidth={1.5} /></button>
               </div>
@@ -331,14 +331,14 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                               }}
                               className={`
                                 flex flex-col items-center justify-center p-3 sm:p-4 border transition-all ${theme.cardRadius}
-                                ${disabled ? 'opacity-30 cursor-not-allowed bg-black/5 border-transparent line-through' : 'cursor-pointer hover:border-black'}
-                                ${isSelected ? 'border-black bg-black text-white' : `border-black/10 bg-white text-black`}
+                                ${disabled ? 'cursor-not-allowed bg-[#B3503C]/10 border-[#B3503C]/30 line-through decoration-[#B3503C]/70' : 'cursor-pointer hover:border-black'}
+                                ${isSelected ? 'border-black bg-black text-white' : disabled ? '' : `border-black/10 bg-white text-black`}
                               `}
                             >
-                              <span className={`${theme.formLabel} !tracking-wider ${isSelected ? '!text-white/70' : '!text-black/50'}`}>
+                              <span className={`${theme.formLabel} !tracking-wider ${isSelected ? '!text-white/70' : disabled ? '!text-[#B3503C]/80' : '!text-black/50'}`}>
                                 {d.toLocaleDateString('en-US', { weekday: 'short' })}
                               </span>
-                              <span className={`${theme.stat} !text-xl sm:!text-2xl mt-1 ${isSelected ? '!text-white' : ''}`}>
+                              <span className={`${theme.stat} !text-xl sm:!text-2xl mt-1 ${isSelected ? '!text-white' : disabled ? '!text-[#B3503C]' : ''}`}>
                                 {d.getDate()}
                               </span>
                             </button>
