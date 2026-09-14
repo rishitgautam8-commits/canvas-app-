@@ -1273,7 +1273,7 @@ export default function App() {
       </div>
     );
   }
-
+////
   const userRole = session?.user?.user_metadata?.role;
   const needsRole = session && (!userRole || (userRole !== 'client' && userRole !== 'artist'));
 
@@ -1324,6 +1324,7 @@ export default function App() {
       </div>
     );
   }
+
 
   return (
     <QueryClientProvider client={queryClient}>
