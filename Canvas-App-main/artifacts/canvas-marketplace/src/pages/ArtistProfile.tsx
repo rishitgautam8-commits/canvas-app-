@@ -10,22 +10,15 @@ function getGoogleMapsLink(location: string) {
   const parts = location.split(',').map(p => p.trim());
   let cleanLocation = location;
 
-  // OpenStreetMap returns massive strings with municipal filler that confuses Google Maps.
-  // If it's a long string, we slice out the middle filler to keep only the Venue + City/Zip.
   if (parts.length > 6) {
-    const specificVenue = parts.slice(0, 3); // Grabs Venue Name, Street, Neighborhood
-    const cityStateZip = parts.slice(-4);    // Grabs City, State, Zip, Country
+    const specificVenue = parts.slice(0, 3);
+    const cityStateZip = parts.slice(-4);
     cleanLocation = [...specificVenue, ...cityStateZip].join(', ');
   }
 
-  // Uses the cleaned string to force an exact dropped pin/route
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(cleanLocation)}`;
 }
 
-// Free venue address autocomplete using OpenStreetMap's Nominatim search API.
-// No API key, no billing account — replaces react-google-autocomplete.
-// Nominatim's usage policy caps public-instance traffic at ~1 request/sec,
-// which the debounce below respects; fine for a project this size.
 interface NominatimSuggestion {
   place_id: number;
   display_name: string;
@@ -72,7 +65,7 @@ function VenueAutocomplete({
           format: 'json',
           q: query,
           countrycodes: 'in',
-          viewbox: '78.20,17.65,78.75,17.20', // Hyderabad bounding box — biases, doesn't restrict, results
+          viewbox: '78.20,17.65,78.75,17.20',
           addressdetails: '0',
           limit: '5',
         });
@@ -138,6 +131,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   const [, params] = useRoute('/artist/:id');
   const [, setLocation] = useLocation();
   const [artist, setArtist] = useState<any>(null);
+  const [portfolioItems, setPortfolioItems] = useState<any[]>([]); // Dynamic portfolio state
   const [loading, setLoading] = useState(true);
   
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -158,6 +152,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
     async function fetchArtistData() {
       if (!artistId) return;
 
+      // 1. Fetch main artist details
       const { data: artistData, error: artistError } = await supabase
         .from('artist_profiles')
         .select('*')
@@ -171,6 +166,18 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       
       setArtist(artistData);
 
+      // 2. Fetch dynamic portfolio with AI tags
+      const { data: portfolioData } = await supabase
+        .from('artist_portfolio')
+        .select('*')
+        .eq('artist_id', artistId)
+        .order('created_at', { ascending: false });
+
+      if (portfolioData) {
+        setPortfolioItems(portfolioData);
+      }
+
+      // 3. Fetch bookings for the calendar
       const { data: existingBookings } = await supabase
         .from('bookings')
         .select('event_date, time_slot')
@@ -265,12 +272,11 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
     );
   }
 
-  const rawPortfolio = artist?.portfolio || [];
   const manuallyBlockedDates: string[] = Array.isArray(artist?.blocked_dates) ? artist.blocked_dates : [];
+  
+  // Isolate addons dynamically if they still exist on the profile
+  const rawPortfolio = artist?.portfolio || [];
   const allImages = rawPortfolio.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean);
-  if (allImages.length === 0 && artist?.image) allImages.push(artist.image);
-
-  const makeupImages = allImages.filter((img: string) => !img.toLowerCase().includes('addon'));
   const addonImages = allImages.filter((img: string) => img.toLowerCase().includes('addon'));
   const hasAddonText = Array.isArray(artist?.addons) && artist?.addons.length > 0;
   const hasAddonImages = addonImages.length > 0;
@@ -361,21 +367,31 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
           <p className={theme.formLabel}>Real Client Work Showcasing Signature Aesthetic And Technical Execution.</p>
         </div>
 
-        {makeupImages.length > 0 ? (
+        {portfolioItems.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {makeupImages.map((img: string, i: number) => (
-              <div key={i} className="group cursor-pointer">
-                {/* Replace the portfolio image wrapper in ArtistProfile.tsx with this */}
-<div className={`relative overflow-hidden bg-white mb-4 border ${theme.borderBase} ${theme.cardRadius} shadow-sm aspect-[4/5] sm:aspect-[4/5]`}>
-  <img 
-    src={img} 
-    alt={`Look ${i + 1}`} 
-    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" 
-  />
-</div>
-                <div className="flex items-center justify-between">
-                  <span className={theme.formLabel}>Look N°{String(i + 1).padStart(2, '0')}</span>
-                  <button onClick={() => setShowBookingModal(true)} className={theme.secondaryLink}>Enquire Look ↗</button>
+            {portfolioItems.map((item: any, i: number) => (
+              <div key={item.id} className="group cursor-pointer">
+                <div className={`relative overflow-hidden bg-white mb-4 border ${theme.borderBase} ${theme.cardRadius} shadow-sm aspect-[4/5] sm:aspect-[4/5]`}>
+                  <img 
+                    src={item.image_url} 
+                    alt={`Look ${i + 1}`} 
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" 
+                  />
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className={theme.formLabel}>Look N°{String(i + 1).padStart(2, '0')}</span>
+                    <button onClick={() => setShowBookingModal(true)} className={theme.secondaryLink}>Enquire Look ↗</button>
+                  </div>
+                  
+                  {/* Rendering the AI Extracted Tags! */}
+                  <div className="flex flex-wrap gap-1.5 pt-2">
+                    {item.tags?.map((tag: string, idx: number) => (
+                      <span key={idx} className="px-2 py-0.5 bg-black/5 text-black/70 text-xs rounded-md font-medium border border-black/10">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
