@@ -24,7 +24,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         .from('artist_portfolio')
         .select('*');
 
-      // Fallback per-artist query if bulk fails
+      // Per-artist fallback if bulk fails
       if (portfolioError || !portfolioData || portfolioData.length === 0) {
         const results = await Promise.all(
           (artistsData || []).map((a: any) =>
@@ -34,7 +34,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         portfolioData = results.flatMap((r: any) => r.data ?? []);
       }
 
-      // 3. Map portfolio images and sanitize URLs on-the-fly
+      // 3. Map portfolio images and generate clean public URLs using Supabase SDK
       const combined = (artistsData || []).map((artist: any) => {
         const matchingPortfolios = (portfolioData || []).filter(
           (p: any) => String(p.artist_id).trim() === String(artist.id).trim()
@@ -44,8 +44,17 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
           .map((p: any) => {
             const raw = p.image_url || p.url || p.image || p.photo_url;
             if (!raw) return null;
-            // Instantly fix double folder path in URL
-            return raw.replace('/portfolios/portfolios/', '/portfolios/');
+
+            // Extract the filename and artist folder from the raw URL string
+            // e.g. gets "33638f4b-.../0.6530.jpeg" or "portfolios/33638f4b-.../0.6530.jpeg"
+            const match = raw.match(/(?:portfolios\/)?([a-f0-9\-]{36}\/.+)/i);
+            const storagePath = match ? match[1] : null;
+
+            if (!storagePath) return raw; // Fallback to raw if regex doesn't match
+
+            // Let Supabase SDK generate the absolute correct public URL dynamically
+            const { data } = supabase.storage.from('portfolios').getPublicUrl(storagePath);
+            return data.publicUrl;
           })
           .filter(Boolean);
 
