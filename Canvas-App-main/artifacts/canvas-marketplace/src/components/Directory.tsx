@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { ArtistCard } from './ArtistCard';
 
 interface PortfolioItem {
-  id?: string;
   artist_id: string;
   image_url: string;
   tags: string[];
@@ -12,16 +10,13 @@ interface PortfolioItem {
 interface Artist {
   id: string;
   name: string;
-  studio_name?: string;
-  price?: number | string;
+  studio_name: string;
+  price: number;
   starting_price?: number | string;
-  image_url?: string;
-  avatar_url?: string;
-  location?: string;
-  tags?: string[];
-  artist_portfolio?: PortfolioItem[];
+  image_url: string;
+  location: string;
   matchPercentage?: number;
-  matchReasons?: string[];
+  artist_portfolio?: PortfolioItem[];
 }
 
 interface ArtistMatch {
@@ -36,6 +31,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
   const [extractedTags, setExtractedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // 1. Fetch initial artist list and map portfolio items separately
   useEffect(() => {
     fetchArtists();
   }, []);
@@ -43,14 +39,12 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
   const fetchArtists = async () => {
     setLoading(true);
     try {
-      // 1. Fetch all artists from database
       const { data: artistsData, error: artistError } = await supabase
         .from('artists')
         .select('*');
 
       if (artistError) throw artistError;
 
-      // 2. Fetch all portfolio items independently
       const { data: portfolioData, error: portfolioError } = await supabase
         .from('artist_portfolio')
         .select('*');
@@ -59,7 +53,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         console.error('Error fetching portfolios:', portfolioError);
       }
 
-      // 3. Map portfolio items to their corresponding artist ID
+      // Combine artists with their corresponding portfolio items
       const combinedArtists = (artistsData || []).map((artist) => {
         const matchingPortfolios = (portfolioData || []).filter(
           (item: PortfolioItem) => item.artist_id === artist.id
@@ -72,12 +66,13 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
 
       setArtists(combinedArtists);
     } catch (err) {
-      console.error('Unexpected error fetching directory:', err);
+      console.error('Error fetching artists:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  // 2. The Matching Algorithm Function
   const calculateArtistMatches = async (clientTags: string[]): Promise<ArtistMatch[]> => {
     try {
       const { data: portfolios, error } = await supabase
@@ -101,7 +96,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         const artistTags = artistTagMap[artistId];
         const matchedTags = clientTagsUpper.filter(tag => artistTags.has(tag));
         
-        let score = 70;
+        let score = 70; // baseline fallback
         if (clientTagsUpper.length > 0) {
           const rawRatio = matchedTags.length / clientTagsUpper.length;
           score = Math.min(Math.max(Math.round(rawRatio * 100), 58), 95);
@@ -115,6 +110,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
     }
   };
 
+  // 3. Triggered when client uploads or selects an inspiration photo
   const handleImageUploadSimulation = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -184,24 +180,39 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {artists.map((artist) => {
-              // Extract portfolio image URLs
-              const portfolioImages = artist.artist_portfolio?.map(item => item.image_url) || [];
-              
-              // Fallback chain checks image_url first (matching original schema), then avatar, then portfolio
-              const primaryImage = artist.image_url || artist.avatar_url || portfolioImages[0];
-              const priceDisplay = artist.starting_price || artist.price || 'Starts at ₹5,000';
+              // FIX: Use image_url if available, otherwise grab the first portfolio photo!
+              const displayImage = artist.image_url || artist.artist_portfolio?.[0]?.image_url;
 
               return (
-                <ArtistCard
-                  key={artist.id}
-                  name={artist.name}
-                  image={primaryImage}
-                  portfolioImages={portfolioImages}
-                  startingPrice={priceDisplay}
-                  tags={artist.tags || ['BRIDAL', 'HD MAKEUP']}
-                  matchPercentage={artist.matchPercentage}
-                  onClick={() => onSelectArtist(artist.id)}
-                />
+                <div key={artist.id} className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition">
+                  <div className="relative h-64 bg-stone-100">
+                    <img 
+                      src={displayImage} 
+                      alt={artist.name} 
+                      className="w-full h-full object-cover" 
+                    />
+                    {artist.matchPercentage && (
+                      <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-md text-stone-900 text-xs font-bold rounded-full shadow">
+                        ✨ {artist.matchPercentage}% Match
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-5 space-y-2">
+                    <h4 className="font-bold text-stone-900 text-lg">{artist.name}</h4>
+                    <p className="text-xs text-stone-500 uppercase tracking-wide">{artist.location || 'Banjara Hills, Hyderabad'}</p>
+                    <div className="flex justify-between items-center pt-3 border-t border-stone-100">
+                      <span className="text-sm font-semibold text-stone-900">
+                        ₹{(artist.starting_price || artist.price || 5000).toLocaleString()}
+                      </span>
+                      <button 
+                        onClick={() => onSelectArtist(artist.id)}
+                        className="px-4 py-2 bg-stone-900 text-white text-xs font-medium rounded-lg hover:bg-stone-800 transition"
+                      >
+                        View Profile & Book
+                      </button>
+                    </div>
+                  </div>
+                </div>
               );
             })}
           </div>
