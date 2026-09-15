@@ -12,10 +12,12 @@ interface PortfolioItem {
 interface Artist {
   id: string;
   name: string;
-  studio_name: string;
-  starting_price: number | string;
+  studio_name?: string;
+  price?: number | string;
+  starting_price?: number | string;
+  image_url?: string;
   avatar_url?: string;
-  location: string;
+  location?: string;
   tags?: string[];
   artist_portfolio?: PortfolioItem[];
   matchPercentage?: number;
@@ -34,7 +36,6 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
   const [extractedTags, setExtractedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Fetch artists and portfolios separately to avoid RLS join blocks
   useEffect(() => {
     fetchArtists();
   }, []);
@@ -42,23 +43,23 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
   const fetchArtists = async () => {
     setLoading(true);
     try {
-      // Fetch all artists
+      // 1. Fetch all artists from database
       const { data: artistsData, error: artistError } = await supabase
         .from('artists')
         .select('*');
 
       if (artistError) throw artistError;
 
-      // Fetch all portfolio items independently
+      // 2. Fetch all portfolio items independently
       const { data: portfolioData, error: portfolioError } = await supabase
         .from('artist_portfolio')
         .select('*');
 
       if (portfolioError) {
-        console.error('Error fetching portfolios separately:', portfolioError);
+        console.error('Error fetching portfolios:', portfolioError);
       }
 
-      // Manually map portfolio photos to their corresponding artist ID
+      // 3. Map portfolio items to their corresponding artist ID
       const combinedArtists = (artistsData || []).map((artist) => {
         const matchingPortfolios = (portfolioData || []).filter(
           (item: PortfolioItem) => item.artist_id === artist.id
@@ -71,13 +72,12 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
 
       setArtists(combinedArtists);
     } catch (err) {
-      console.error('Unexpected error fetching artists directory:', err);
+      console.error('Unexpected error fetching directory:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // 2. The Matching Algorithm Function
   const calculateArtistMatches = async (clientTags: string[]): Promise<ArtistMatch[]> => {
     try {
       const { data: portfolios, error } = await supabase
@@ -101,7 +101,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         const artistTags = artistTagMap[artistId];
         const matchedTags = clientTagsUpper.filter(tag => artistTags.has(tag));
         
-        let score = 70; // baseline fallback
+        let score = 70;
         if (clientTagsUpper.length > 0) {
           const rawRatio = matchedTags.length / clientTagsUpper.length;
           score = Math.min(Math.max(Math.round(rawRatio * 100), 58), 95);
@@ -115,22 +115,18 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
     }
   };
 
-  // 3. Triggered when client uploads or selects an inspiration photo
   const handleImageUploadSimulation = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setAnalyzing(true);
 
-    // Simulate AI Vision extracting tags from the uploaded photo
     setTimeout(async () => {
       const mockTags = ['SOFT GLAM', 'SATIN', 'EYES', 'KOOL LINER', 'LIPS SATIN NUDE', 'OCCASION', 'BRIDAL', 'WARM', 'BROWN'];
       setExtractedTags(mockTags);
 
-      // Run matching engine against database portfolio tags
       const rankedMatches = await calculateArtistMatches(mockTags);
 
-      // Sort and update artist cards by match percentage
       setArtists(prevArtists => {
         const updated = prevArtists.map(artist => {
           const match = rankedMatches.find(m => m.artistId === artist.id);
@@ -160,7 +156,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         </label>
       </div>
 
-      {/* Extracted Tags Bar (Visible after analysis) */}
+      {/* Extracted Tags Bar */}
       {extractedTags.length > 0 && (
         <div className="p-6 bg-stone-900 text-white rounded-2xl flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1">
@@ -188,9 +184,12 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {artists.map((artist) => {
-              // Extract mapped portfolio image URLs safely
+              // Extract portfolio image URLs
               const portfolioImages = artist.artist_portfolio?.map(item => item.image_url) || [];
-              const primaryImage = artist.avatar_url || portfolioImages[0];
+              
+              // Fallback chain checks image_url first (matching original schema), then avatar, then portfolio
+              const primaryImage = artist.image_url || artist.avatar_url || portfolioImages[0];
+              const priceDisplay = artist.starting_price || artist.price || 'Starts at ₹5,000';
 
               return (
                 <ArtistCard
@@ -198,7 +197,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
                   name={artist.name}
                   image={primaryImage}
                   portfolioImages={portfolioImages}
-                  startingPrice={artist.starting_price || 'Starts at ₹5,000'}
+                  startingPrice={priceDisplay}
                   tags={artist.tags || ['BRIDAL', 'HD MAKEUP']}
                   matchPercentage={artist.matchPercentage}
                   onClick={() => onSelectArtist(artist.id)}
