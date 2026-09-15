@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { ArtistPhotoUpload } from './ArtistPhotoUpload';
+import { Trash2 } from 'lucide-react';
 
 interface PortfolioItem {
   id: string;
@@ -11,6 +12,7 @@ interface PortfolioItem {
 export function ArtistStudioHub({ artistId }: { artistId: string }) {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchPortfolio = async () => {
     setLoading(true);
@@ -31,6 +33,36 @@ export function ArtistStudioHub({ artistId }: { artistId: string }) {
   useEffect(() => {
     fetchPortfolio();
   }, [artistId]);
+
+  const handleDeletePhoto = async (itemId: string, imageUrl: string) => {
+    if (!window.confirm("Are you sure you want to delete this look?")) return;
+
+    setDeletingId(itemId);
+    try {
+      // 1. Delete row from the database table
+      const { error: dbError } = await supabase
+        .from('artist_portfolio')
+        .delete()
+        .eq('id', itemId);
+
+      if (dbError) throw dbError;
+
+      // 2. Extract the file path from the public URL and delete from storage bucket
+      const urlParts = imageUrl.split('/portfolios/');
+      if (urlParts.length > 1) {
+        const filePath = urlParts[1];
+        await supabase.storage.from('portfolios').remove([filePath]);
+      }
+
+      // Refresh the list
+      setPortfolio(prev => prev.filter(item => item.id !== itemId));
+    } catch (err) {
+      console.error('Error deleting portfolio item:', err);
+      alert('Failed to delete photo.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="w-full space-y-8">
@@ -53,7 +85,17 @@ export function ArtistStudioHub({ artistId }: { artistId: string }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {portfolio.map((item) => (
-              <div key={item.id} className="bg-white p-3 rounded-xl border border-black/5 space-y-3 shadow-sm">
+              <div key={item.id} className="bg-white p-3 rounded-xl border border-black/5 space-y-3 shadow-sm relative group">
+                {/* Delete Button overlay */}
+                <button
+                  onClick={() => handleDeletePhoto(item.id, item.image_url)}
+                  disabled={deletingId === item.id}
+                  className="absolute top-5 right-5 p-2 bg-black/60 hover:bg-red-600 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 backdrop-blur-sm"
+                  title="Delete photo"
+                >
+                  <Trash2 size={14} />
+                </button>
+
                 <img 
                   src={item.image_url} 
                   alt="Artist portfolio look" 
