@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase';
 import { ArtistCard } from './ArtistCard';
 
 interface PortfolioItem {
+  id?: string;
+  artist_id: string;
   image_url: string;
   tags: string[];
 }
@@ -32,29 +34,47 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
   const [extractedTags, setExtractedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Fetch initial artist list with joined portfolio items from Supabase on load
+  // 1. Fetch artists and portfolios separately to avoid RLS join blocks
   useEffect(() => {
     fetchArtists();
   }, []);
 
   const fetchArtists = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('artists')
-      .select(`
-        *,
-        artist_portfolio (
-          image_url,
-          tags
-        )
-      `);
+    try {
+      // Fetch all artists
+      const { data: artistsData, error: artistError } = await supabase
+        .from('artists')
+        .select('*');
 
-    if (error) {
-      console.error('Error fetching artists directory:', error);
-    } else {
-      setArtists(data || []);
+      if (artistError) throw artistError;
+
+      // Fetch all portfolio items independently
+      const { data: portfolioData, error: portfolioError } = await supabase
+        .from('artist_portfolio')
+        .select('*');
+
+      if (portfolioError) {
+        console.error('Error fetching portfolios separately:', portfolioError);
+      }
+
+      // Manually map portfolio photos to their corresponding artist ID
+      const combinedArtists = (artistsData || []).map((artist) => {
+        const matchingPortfolios = (portfolioData || []).filter(
+          (item: PortfolioItem) => item.artist_id === artist.id
+        );
+        return {
+          ...artist,
+          artist_portfolio: matchingPortfolios
+        };
+      });
+
+      setArtists(combinedArtists);
+    } catch (err) {
+      console.error('Unexpected error fetching artists directory:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // 2. The Matching Algorithm Function
@@ -168,7 +188,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {artists.map((artist) => {
-              // Map joined portfolio rows into an array of image URLs
+              // Extract mapped portfolio image URLs safely
               const portfolioImages = artist.artist_portfolio?.map(item => item.image_url) || [];
               const primaryImage = artist.avatar_url || portfolioImages[0];
 
