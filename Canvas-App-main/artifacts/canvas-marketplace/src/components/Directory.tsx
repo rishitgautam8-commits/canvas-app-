@@ -45,18 +45,15 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
             const raw = p.image_url || p.url || p.image || p.photo_url;
             if (!raw) return null;
 
-            // image_url is already a complete, working public URL — it was
-            // generated from the exact same path the file was uploaded to
-            // (see ArtistPhotoUpload.tsx), so it's correct by construction.
-            // Trust it as-is instead of trying to re-derive it: any regex-based
-            // "cleanup" here has to guess how many bucket/folder prefixes are
-            // really part of the stored path vs. redundant, and gets it wrong
-            // for artists whose path has more than the assumed one level
-            // (that mismatch is what was dropping their cards to initials).
-            if (/^https?:\/\//i.test(raw)) return raw;
+            // Extract the filename and artist folder from the raw URL string
+            // e.g. gets "33638f4b-.../0.6530.jpeg" or "portfolios/33638f4b-.../0.6530.jpeg"
+            const match = raw.match(/(?:portfolios\/)?([a-f0-9\-]{36}\/.+)/i);
+            const storagePath = match ? match[1] : null;
 
-            // Only a bare storage path (no protocol) needs getPublicUrl at all.
-            const { data } = supabase.storage.from('portfolios').getPublicUrl(raw);
+            if (!storagePath) return raw; // Fallback to raw if regex doesn't match
+
+            // Let Supabase SDK generate the absolute correct public URL dynamically
+            const { data } = supabase.storage.from('portfolios').getPublicUrl(storagePath);
             return data.publicUrl;
           })
           .filter(Boolean);
@@ -67,13 +64,6 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
           primaryImage: portfolioImages[0] || ''
         };
       });
-      
-      console.log('debug portfolio match', (artistsData || [])
-  .filter((a: any) => ['Kaushal Makeover', 'Tusya'].includes(a.business_name))
-  .map((a: any) => ({
-    id: a.id,
-    matches: (portfolioData || []).filter((p: any) => String(p.artist_id).trim() === String(a.id).trim()),
-  })));
 
       setArtists(combined);
     } catch (error) {
