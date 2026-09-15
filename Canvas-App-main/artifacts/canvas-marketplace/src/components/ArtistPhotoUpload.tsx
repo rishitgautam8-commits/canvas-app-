@@ -15,7 +15,7 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
 
       for (let i = 0; i < fileArray.length; i++) {
         const file = fileArray[i];
-        setUploadProgress(`Analyzing with Gemini & Uploading (${i + 1}/${fileArray.length})...`);
+        setUploadProgress(`Analyzing with Gemini (${i + 1}/${fileArray.length})...`);
 
         // 1. Upload image to Supabase Storage
         const fileExt = file.name.split('.').pop();
@@ -33,8 +33,8 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
           .from('portfolios')
           .getPublicUrl(filePath);
 
-        // 2. Real Gemini AI Vision Tag Extraction
-        const extractedTags = await analyzeImageWithGemini(file, publicUrl);
+        // 2. Real Gemini AI Vision Tag Extraction (using stable 1.5-flash)
+        const extractedTags = await analyzeImageWithGemini(file);
 
         // 3. Save Image URL and Tags to Supabase Database
         const { error: dbError } = await supabase
@@ -46,6 +46,11 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
           });
 
         if (dbError) throw dbError;
+
+        // Brief 1-second pause between multiple uploads to prevent rate limiting (503 errors)
+        if (i < fileArray.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
 
       alert(`${fileArray.length} portfolio photo(s) uploaded and accurately tagged by Gemini!`);
@@ -60,22 +65,19 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
     }
   };
 
-  // Real Gemini Vision API integration
-  const analyzeImageWithGemini = async (file: File, publicUrl: string): Promise<string[]> => {
+  const analyzeImageWithGemini = async (file: File): Promise<string[]> => {
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
     if (!apiKey) {
-      console.warn("VITE_GEMINI_API_KEY missing. Falling back to default tags.");
+      console.warn("VITE_GEMINI_API_KEY missing.");
       return ['BRIDAL', 'SOFT GLAM', 'HD MAKEUP'];
     }
 
     try {
-      // Convert file to base64 for Gemini multimodal input
       const base64Data = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           const result = reader.result as string;
-          // Strip data URL prefix (e.g., "data:image/jpeg;base64,")
           const base64String = result.split(',')[1];
           resolve(base64String);
         };
@@ -83,7 +85,8 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
         reader.readAsDataURL(file);
       });
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      // Using gemini-1.5-flash for stable, reliable vision responses
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,16 +110,19 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
         })
       });
 
-      if (!response.ok) throw new Error('Gemini API request failed');
+      if (!response.ok) {
+        const errData = await response.json();
+        console.error("Gemini API Error:", errData);
+        throw new Error('Gemini API request failed');
+      }
 
       const data = await response.json();
       const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '[]';
       
-      // Clean up markdown code blocks if Gemini accidentally includes them
       const cleanedJSON = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
       const parsedTags = JSON.parse(cleanedJSON);
 
-      return Array.isArray(parsedTags) ? parsedTags : ['BRIDAL', 'GLAM'];
+      return Array.isArray(parsedTags) && parsedTags.length > 0 ? parsedTags : ['BRIDAL', 'GLAM'];
     } catch (err) {
       console.error('Error analyzing image with Gemini Vision:', err);
       return ['BRIDAL', 'HD MAKEUP', 'PROFESSIONAL'];
