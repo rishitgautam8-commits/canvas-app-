@@ -16,14 +16,14 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
       const filePath = `portfolios/${artistId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('artist-images')
+        .from('portfolios')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       // Get public URL of the uploaded image
       const { data: { publicUrl } } = supabase.storage
-        .from('artist-images')
+        .from('portfolios')
         .getPublicUrl(filePath);
 
       // 2. Simulate or trigger AI Vision Tag Extraction
