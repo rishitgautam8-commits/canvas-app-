@@ -647,10 +647,15 @@ export default function Dashboard({ session }: DashboardProps) {
                   </div>
 
                   {/* ---------- HERE IS THE NEW STUDIO HUB ---------- */}
-                  <div className="mt-12">
-                    <ArtistStudioHub artistId={session?.user?.id || ''} />
-                  </div>
-                  {/* ------------------------------------------------ */}
+<div className={`mt-8 bg-white/50 p-6 border-l-2 ${accentBorder} ${styleVersion === '1' || styleVersion === '3' ? 'rounded-none' : 'rounded-r-xl'}`}>
+  <label className={`mb-2 block ${theme.formLabel}`}>AI-Powered Portfolio Upload *</label>
+  <p className={`mb-6 ${theme.bodyText} !text-black/40`}>Upload high-res looks. Our AI will automatically extract aesthetic tags for client matching.</p>
+  
+  <div className="w-full">
+    <ArtistStudioHub artistId={session?.user?.id || ''} />
+  </div>
+</div>
+{/* ------------------------------------------------ */}
 
                   <div className={`border-t ${theme.borderBase} pt-8`}>
                     <label className={`mb-4 block ${theme.formLabel}`}>Do You Offer Any Add-On Skills? (E.g. Hairstyling, Brow Tinting)</label>
