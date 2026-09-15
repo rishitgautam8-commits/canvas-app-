@@ -15,20 +15,15 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
   const fetchArtists = async () => {
     setLoading(true);
     try {
-      // 1. Fetch artists
-      const { data: artistsData, error: artistError } = await supabase.from('artists').select('*');
+      // 1. Fetch from the correct table: artist_profiles
+      const { data: artistsData, error: artistError } = await supabase.from('artist_profiles').select('*');
       if (artistError) throw artistError;
 
       // 2. Fetch portfolio items
       const { data: portfolioData, error: portfolioError } = await supabase.from('artist_portfolio').select('*');
       if (portfolioError) console.error('Portfolio fetch error:', portfolioError);
 
-      // DEBUG: Check your browser console (F12) to see what Supabase actually contains
-      console.log('RAW ARTISTS DATA:', artistsData);
-      console.log('RAW PORTFOLIO DATA:', portfolioData);
-
-      // 3. Robust mapping handling different column names and ID types
-      // Map portfolio photos and ensure image_url is never empty
+      // 3. Map portfolio images to their corresponding artist profile ID
       const combined = (artistsData || []).map((artist) => {
         const matchingPortfolios = (portfolioData || []).filter(
           (p: any) => String(p.artist_id).trim() === String(artist.id).trim()
@@ -40,9 +35,8 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
 
         return {
           ...artist,
-          // If the main artists table image_url is null, grab the first portfolio photo!
-          image_url: artist.image_url || portfolioImages[0] || '',
-          portfolioImages
+          portfolioImages,
+          primaryImage: artist.portfolio_url || portfolioImages[0] || ''
         };
       });
 
@@ -139,11 +133,11 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
             {artists.map((artist) => (
               <ArtistCard
                 key={artist.id}
-                name={artist.name}
+                name={artist.business_name}
                 image={artist.primaryImage}
                 portfolioImages={artist.portfolioImages}
-                startingPrice={artist.starting_price || artist.price || 'Starts at ₹5,000'}
-                tags={artist.tags || ['BRIDAL', 'HD MAKEUP']}
+                startingPrice={artist.starting_price ? `₹${artist.starting_price.toLocaleString('en-IN')}` : 'Starts at ₹5,000'}
+                tags={artist.category ? artist.category.split(',').map((t: string) => t.trim()) : ['BRIDAL', 'HD MAKEUP']}
                 matchPercentage={artist.matchPercentage}
                 onClick={() => onSelectArtist(artist.id)}
               />
