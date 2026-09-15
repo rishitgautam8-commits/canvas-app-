@@ -28,20 +28,21 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
       console.log('RAW PORTFOLIO DATA:', portfolioData);
 
       // 3. Robust mapping handling different column names and ID types
+      // Map portfolio photos and ensure image_url is never empty
       const combined = (artistsData || []).map((artist) => {
         const matchingPortfolios = (portfolioData || []).filter(
           (p: any) => String(p.artist_id).trim() === String(artist.id).trim()
         );
 
-        // Extract image URL checking multiple possible column names
         const portfolioImages = matchingPortfolios
           .map((p: any) => p.image_url || p.url || p.image || p.photo_url)
           .filter(Boolean);
 
         return {
           ...artist,
-          portfolioImages,
-          primaryImage: artist.image_url || artist.avatar_url || artist.url || portfolioImages[0]
+          // If the main artists table image_url is null, grab the first portfolio photo!
+          image_url: artist.image_url || portfolioImages[0] || '',
+          portfolioImages
         };
       });
 
