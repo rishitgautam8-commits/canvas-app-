@@ -67,6 +67,13 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
           primaryImage: portfolioImages[0] || ''
         };
       });
+      
+      console.log('debug portfolio match', (artistsData || [])
+  .filter((a: any) => ['Kaushal Makeover', 'Tusya'].includes(a.business_name))
+  .map((a: any) => ({
+    id: a.id,
+    matches: (portfolioData || []).filter((p: any) => String(p.artist_id).trim() === String(a.id).trim()),
+  })));
 
       setArtists(combined);
     } catch (error) {
