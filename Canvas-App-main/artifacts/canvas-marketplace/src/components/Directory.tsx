@@ -37,7 +37,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
       }
 
       // 3. Map and sanitize image URLs to fix any double-folder paths
-      const combined = (artistsData || []).map((artist) => {
+      const combined = (artistsData || []).map((artist: any) => {
         const matchingPortfolios = (portfolioData || []).filter(
           (p: any) => String(p.artist_id).trim() === String(artist.id).trim()
         );
@@ -46,8 +46,6 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
           .map((p: any) => {
             const rawUrl = p.image_url || p.url || p.image || p.photo_url;
             if (!rawUrl) return null;
-            
-            // Fix potential double '/portfolios/portfolios/' path bug from storage nesting
             return rawUrl.replace('/portfolios/portfolios/', '/portfolios/');
           })
           .filter(Boolean);
@@ -74,7 +72,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
       if (!portfolios) return [];
 
       const artistTagMap: { [artistId: string]: Set<string> } = {};
-      portfolios.forEach((item) => {
+      portfolios.forEach((item: any) => {
         const id = String(item.artist_id);
         if (!artistTagMap[id]) artistTagMap[id] = new Set();
         item.tags?.forEach((tag: string) => artistTagMap[id].add(tag.toUpperCase()));
@@ -107,7 +105,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
       const rankedMatches = await calculateArtistMatches(mockTags);
 
       setArtists(prev => {
-        const updated = prev.map(artist => {
+        const updated = prev.map((artist: any) => {
           const match = rankedMatches.find(m => String(m.artistId) === String(artist.id));
           return { ...artist, matchPercentage: match ? match.matchPercentage : 70 };
         });
@@ -120,7 +118,6 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 bg-white min-h-screen">
       
-      {/* Optional RLS / Portfolio Error Banner */}
       {portfolioErrorMsg && (
         <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl shadow-sm">
           {portfolioErrorMsg}
