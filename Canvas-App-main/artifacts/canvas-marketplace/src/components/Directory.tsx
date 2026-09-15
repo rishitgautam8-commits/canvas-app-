@@ -36,18 +36,14 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         portfolioData = results.flatMap((r: any) => r.data ?? []);
       }
 
-      // 3. Map and sanitize image URLs to fix any double-folder paths
+      // 3. Map portfolio images without altering the storage URL paths
       const combined = (artistsData || []).map((artist: any) => {
         const matchingPortfolios = (portfolioData || []).filter(
           (p: any) => String(p.artist_id).trim() === String(artist.id).trim()
         );
 
         const portfolioImages = matchingPortfolios
-          .map((p: any) => {
-            const rawUrl = p.image_url || p.url || p.image || p.photo_url;
-            if (!rawUrl) return null;
-            return rawUrl.replace('/portfolios/portfolios/', '/portfolios/');
-          })
+          .map((p: any) => p.image_url || p.url || p.image || p.photo_url)
           .filter(Boolean);
 
         return {
