@@ -10,6 +10,7 @@ import { ArrowLeft, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Session } from '@supabase/supabase-js';
 import { getTheme } from '@/lib/theme';
+import { ArtistStudioHub } from '@/components/ArtistStudioHub';
 
 function getGoogleMapsLink(location: string) {
   const parts = location.split(',').map(p => p.trim());
@@ -254,28 +255,6 @@ export default function Dashboard({ session }: DashboardProps) {
     } finally {
       setSaving(false);
     }
-  };
-
-  const handleAddPortfolioImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !session?.user) return;
-
-    setUploadingPortfolio(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${session.user.id}/portfolio-${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage.from('portfolios').upload(filePath, file, { upsert: true });
-      if (uploadError) throw uploadError;
-
-      const { data: publicUrlData } = supabase.storage.from('portfolios').getPublicUrl(filePath);
-      const updatedPortfolio = [...portfolio, publicUrlData.publicUrl];
-      const { error: updateError } = await supabase.from('artist_profiles').update({ portfolio: updatedPortfolio }).eq('id', session.user.id);
-
-      if (updateError) throw updateError;
-      setPortfolio(updatedPortfolio);
-    } catch (err: any) { window.alert(`Failed to upload image: ${err.message}`); } 
-    finally { setUploadingPortfolio(false); e.target.value = ''; }
   };
 
   const handleUpdateBookingStatus = async (bookingId: string, newStatus: 'confirmed' | 'declined') => {
@@ -667,16 +646,11 @@ export default function Dashboard({ session }: DashboardProps) {
                     )}
                   </div>
 
-                  <div className={`bg-white/50 p-6 border-l-2 ${accentBorder} ${styleVersion === '1' || styleVersion === '3' ? 'rounded-none' : 'rounded-r-xl'}`}>
-                    <label className={`mb-2 block ${theme.formLabel}`}>Primary Portfolio Upload *</label>
-                    <p className={`mb-4 ${theme.bodyText} !text-black/40`}>Must Upload A Minimum Of 2 Photos. No Maximum Limit.</p>
-                    
-                    <input type="file" multiple accept="image/*" onChange={handleAddPortfolioImage} className={`w-full ${theme.bodyText} file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:${theme.cardRadius} file:${theme.formLabel} file:!text-black hover:file:bg-black/10 transition-all cursor-pointer`} required={portfolio.length < 2} />
-                    
-                    {portfolio.length > 0 && (
-                      <p className={`mt-4 ${theme.formLabel} ${styleVersion === '3' ? 'text-[#6B3A7D]' : 'bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block'}`}>{portfolio.length} Photo(s) Currently In Portfolio</p>
-                    )}
+                  {/* ---------- HERE IS THE NEW STUDIO HUB ---------- */}
+                  <div className="mt-12">
+                    <ArtistStudioHub artistId={session?.user?.id || ''} />
                   </div>
+                  {/* ------------------------------------------------ */}
 
                   <div className={`border-t ${theme.borderBase} pt-8`}>
                     <label className={`mb-4 block ${theme.formLabel}`}>Do You Offer Any Add-On Skills? (E.g. Hairstyling, Brow Tinting)</label>
