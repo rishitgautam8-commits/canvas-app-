@@ -26,14 +26,14 @@ export type ArtistTint = {
 
 export type ArtistCardProps = {
   name: string;
-  image: string;
+  image?: string;
   hoverImage?: string;
   portfolioImages?: string[];
   hoverVideo?: string;
   startingPrice?: string | number;
   tags?: string[];
   tint?: ArtistTint;
-  matchPercentage?: number; // <--- The AI Percentage Prop!
+  matchPercentage?: number;
   matchReasons?: string[];
   onClick?: () => void;
   testId?: string;
@@ -62,11 +62,15 @@ export function ArtistCard({
   const styleVersion = queryParams.get('style') || '2';
   const theme = getTheme(styleVersion);
 
+  // Construct the list of portfolio images for hover cycling
   const imagesList = portfolioImages.length > 0 
     ? portfolioImages 
     : hoverImage 
       ? [hoverImage] 
       : [];
+
+  // Automatically fall back to the first portfolio image if the main headshot prop is missing
+  const activeImage = image || imagesList[0] || getFallback(name);
 
   const hasPortfolio = imagesList.length > 0 || Boolean(hoverVideo);
 
@@ -123,9 +127,9 @@ export function ArtistCard({
             </div>
           )}
 
-          {/* Default Profile Headshot */}
+          {/* Primary Headshot / Portfolio Thumbnail */}
           <motion.img
-            src={image}
+            src={activeImage}
             alt={`${name}'s profile`}
             onError={(e) => {
               if (e.currentTarget.dataset.hasFailed) return;
