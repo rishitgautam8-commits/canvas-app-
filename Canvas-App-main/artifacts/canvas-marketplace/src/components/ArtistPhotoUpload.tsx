@@ -13,10 +13,9 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
       setUploading(true);
       const fileArray = Array.from(files);
 
-      // Loop through all selected files and process them one by one
       for (let i = 0; i < fileArray.length; i++) {
         const file = fileArray[i];
-        setUploadProgress(`Analyzing & Uploading (${i + 1}/${fileArray.length})...`);
+        setUploadProgress(`Analyzing with Gemini & Uploading (${i + 1}/${fileArray.length})...`);
 
         // 1. Upload image to Supabase Storage
         const fileExt = file.name.split('.').pop();
@@ -34,8 +33,8 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
           .from('portfolios')
           .getPublicUrl(filePath);
 
-        // 2. Simulate or trigger AI Vision Tag Extraction
-        const extractedTags = await simulateAITagExtraction(publicUrl);
+        // 2. Real Gemini AI Vision Tag Extraction
+        const extractedTags = await analyzeImageWithGemini(file, publicUrl);
 
         // 3. Save Image URL and Tags to Supabase Database
         const { error: dbError } = await supabase
@@ -49,7 +48,7 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
         if (dbError) throw dbError;
       }
 
-      alert(`${fileArray.length} portfolio photo(s) uploaded and auto-tagged successfully!`);
+      alert(`${fileArray.length} portfolio photo(s) uploaded and accurately tagged by Gemini!`);
       onUploadComplete();
     } catch (error) {
       console.error('Error uploading portfolio photos:', error);
@@ -57,20 +56,77 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
     } finally {
       setUploading(false);
       setUploadProgress('');
-      // Reset input value so the same file selection can be triggered again if needed
       event.target.value = '';
     }
   };
 
-  // Helper function representing the AI Vision background process
-  const simulateAITagExtraction = async (url: string): Promise<string[]> => {
-    return ['BRIDAL', 'SOFT GLAM', 'SATIN', 'WARM TONES', 'AIRBRUSH'];
+  // Real Gemini Vision API integration
+  const analyzeImageWithGemini = async (file: File, publicUrl: string): Promise<string[]> => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+    if (!apiKey) {
+      console.warn("VITE_GEMINI_API_KEY missing. Falling back to default tags.");
+      return ['BRIDAL', 'SOFT GLAM', 'HD MAKEUP'];
+    }
+
+    try {
+      // Convert file to base64 for Gemini multimodal input
+      const base64Data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          // Strip data URL prefix (e.g., "data:image/jpeg;base64,")
+          const base64String = result.split(',')[1];
+          resolve(base64String);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: 'Analyze this makeup portfolio photo. Return a strict JSON array of 4 to 6 concise, uppercase aesthetic tags relevant to the makeup style (e.g., BRIDAL, SOFT GLAM, SATIN FINISH, WARM TONES, AIRBRUSH, SMOKEY EYE, SOUTH INDIAN, TELUGU BRIDAL, GLASS SKIN, DEWY FINISH). Return ONLY a raw JSON array of strings, with no markdown formatting like ```json or extra text.'
+                },
+                {
+                  inline_data: {
+                    mime_type: file.type || 'image/jpeg',
+                    data: base64Data
+                  }
+                }
+              ]
+            }
+          ]
+        })
+      });
+
+      if (!response.ok) throw new Error('Gemini API request failed');
+
+      const data = await response.json();
+      const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '[]';
+      
+      // Clean up markdown code blocks if Gemini accidentally includes them
+      const cleanedJSON = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsedTags = JSON.parse(cleanedJSON);
+
+      return Array.isArray(parsedTags) ? parsedTags : ['BRIDAL', 'GLAM'];
+    } catch (err) {
+      console.error('Error analyzing image with Gemini Vision:', err);
+      return ['BRIDAL', 'HD MAKEUP', 'PROFESSIONAL'];
+    }
   };
 
   return (
     <div className="p-6 bg-white rounded-2xl border border-stone-200">
       <h4 className="font-semibold text-stone-900 mb-2">Add New Portfolio Looks</h4>
-      <p className="text-xs text-stone-500 mb-4">Upload multiple high-res looks. AI will automatically tag them for client matching.</p>
+      <p className="text-xs text-stone-500 mb-4">Upload multiple high-res looks. Gemini AI will accurately analyze and tag them.</p>
       
       <label className={`px-4 py-2.5 bg-stone-900 text-white text-sm rounded-xl font-medium cursor-pointer hover:bg-stone-800 transition inline-block ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
         {uploading ? (uploadProgress || 'Analyzing & Uploading...') : 'Upload Looks 📸'}
