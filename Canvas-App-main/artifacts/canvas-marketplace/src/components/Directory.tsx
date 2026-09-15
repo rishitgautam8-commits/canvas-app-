@@ -1,22 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
-interface PortfolioItem {
-  artist_id: string;
-  image_url: string;
-  tags: string[];
-}
-
 interface Artist {
   id: string;
   name: string;
   studio_name: string;
   price: number;
-  starting_price?: number | string;
+  starting_price?: number;
   image_url: string;
   location: string;
   matchPercentage?: number;
-  artist_portfolio?: PortfolioItem[];
+  artist_portfolio?: { image_url: string }[];
 }
 
 interface ArtistMatch {
@@ -31,7 +25,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
   const [extractedTags, setExtractedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Fetch initial artist list and map portfolio items separately
+  // 1. Fetch initial artist list and their portfolio images from Supabase on load
   useEffect(() => {
     fetchArtists();
   }, []);
@@ -39,24 +33,17 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
   const fetchArtists = async () => {
     setLoading(true);
     try {
-      const { data: artistsData, error: artistError } = await supabase
-        .from('artists')
-        .select('*');
-
+      // Fetch artists
+      const { data: artistsData, error: artistError } = await supabase.from('artists').select('*');
       if (artistError) throw artistError;
 
-      const { data: portfolioData, error: portfolioError } = await supabase
-        .from('artist_portfolio')
-        .select('*');
+      // Fetch portfolio items so we have access to uploaded photos
+      const { data: portfolioData } = await supabase.from('artist_portfolio').select('artist_id, image_url');
 
-      if (portfolioError) {
-        console.error('Error fetching portfolios:', portfolioError);
-      }
-
-      // Combine artists with their corresponding portfolio items
-      const combinedArtists = (artistsData || []).map((artist) => {
+      // Map portfolio images to their respective artist
+      const combined = (artistsData || []).map((artist) => {
         const matchingPortfolios = (portfolioData || []).filter(
-          (item: PortfolioItem) => item.artist_id === artist.id
+          (p: any) => p.artist_id === artist.id
         );
         return {
           ...artist,
@@ -64,9 +51,9 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         };
       });
 
-      setArtists(combinedArtists);
-    } catch (err) {
-      console.error('Error fetching artists:', err);
+      setArtists(combined);
+    } catch (error) {
+      console.error('Error fetching artists:', error);
     } finally {
       setLoading(false);
     }
@@ -117,12 +104,15 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
 
     setAnalyzing(true);
 
+    // Simulate AI Vision extracting tags from the uploaded photo
     setTimeout(async () => {
       const mockTags = ['SOFT GLAM', 'SATIN', 'EYES', 'KOOL LINER', 'LIPS SATIN NUDE', 'OCCASION', 'BRIDAL', 'WARM', 'BROWN'];
       setExtractedTags(mockTags);
 
+      // Run matching engine against database portfolio tags
       const rankedMatches = await calculateArtistMatches(mockTags);
 
+      // Sort and update artist cards by match percentage
       setArtists(prevArtists => {
         const updated = prevArtists.map(artist => {
           const match = rankedMatches.find(m => m.artistId === artist.id);
@@ -152,7 +142,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         </label>
       </div>
 
-      {/* Extracted Tags Bar */}
+      {/* Extracted Tags Bar (Visible after analysis) */}
       {extractedTags.length > 0 && (
         <div className="p-6 bg-stone-900 text-white rounded-2xl flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1">
@@ -175,22 +165,16 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         
         {loading ? (
           <div className="text-stone-500 text-sm">Loading curated directory...</div>
-        ) : artists.length === 0 ? (
-          <div className="text-stone-500 text-sm">No artists found in the directory.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {artists.map((artist) => {
-              // FIX: Use image_url if available, otherwise grab the first portfolio photo!
+              // FIX: Use main image_url if present, otherwise fall back to the first uploaded portfolio photo!
               const displayImage = artist.image_url || artist.artist_portfolio?.[0]?.image_url;
 
               return (
                 <div key={artist.id} className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition">
                   <div className="relative h-64 bg-stone-100">
-                    <img 
-                      src={displayImage} 
-                      alt={artist.name} 
-                      className="w-full h-full object-cover" 
-                    />
+                    <img src={displayImage} alt={artist.name} className="w-full h-full object-cover" />
                     {artist.matchPercentage && (
                       <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-md text-stone-900 text-xs font-bold rounded-full shadow">
                         ✨ {artist.matchPercentage}% Match
@@ -201,9 +185,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
                     <h4 className="font-bold text-stone-900 text-lg">{artist.name}</h4>
                     <p className="text-xs text-stone-500 uppercase tracking-wide">{artist.location || 'Banjara Hills, Hyderabad'}</p>
                     <div className="flex justify-between items-center pt-3 border-t border-stone-100">
-                      <span className="text-sm font-semibold text-stone-900">
-                        ₹{(artist.starting_price || artist.price || 5000).toLocaleString()}
-                      </span>
+                      <span className="text-sm font-semibold text-stone-900">₹{(artist.starting_price || artist.price || 5000).toLocaleString()}</span>
                       <button 
                         onClick={() => onSelectArtist(artist.id)}
                         className="px-4 py-2 bg-stone-900 text-white text-xs font-medium rounded-lg hover:bg-stone-800 transition"
