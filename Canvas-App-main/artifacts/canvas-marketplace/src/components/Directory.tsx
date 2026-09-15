@@ -7,7 +7,6 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
   const [analyzing, setAnalyzing] = useState(false);
   const [extractedTags, setExtractedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [portfolioErrorMsg, setPortfolioErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     fetchArtists();
@@ -15,7 +14,6 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
 
   const fetchArtists = async () => {
     setLoading(true);
-    setPortfolioErrorMsg(null);
     try {
       // 1. Fetch from artist_profiles table
       const { data: artistsData, error: artistError } = await supabase.from('artist_profiles').select('*');
@@ -26,7 +24,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         .from('artist_portfolio')
         .select('*');
 
-      // Per-artist fallback if bulk fails
+      // Fallback per-artist query if bulk fails
       if (portfolioError || !portfolioData || portfolioData.length === 0) {
         const results = await Promise.all(
           (artistsData || []).map((a: any) =>
@@ -36,14 +34,19 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         portfolioData = results.flatMap((r: any) => r.data ?? []);
       }
 
-      // 3. Map portfolio images without altering the storage URL paths
+      // 3. Map portfolio images and sanitize URLs on-the-fly
       const combined = (artistsData || []).map((artist: any) => {
         const matchingPortfolios = (portfolioData || []).filter(
           (p: any) => String(p.artist_id).trim() === String(artist.id).trim()
         );
 
         const portfolioImages = matchingPortfolios
-          .map((p: any) => p.image_url || p.url || p.image || p.photo_url)
+          .map((p: any) => {
+            const raw = p.image_url || p.url || p.image || p.photo_url;
+            if (!raw) return null;
+            // Instantly fix double folder path in URL
+            return raw.replace('/portfolios/portfolios/', '/portfolios/');
+          })
           .filter(Boolean);
 
         return {
@@ -54,9 +57,8 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
       });
 
       setArtists(combined);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching directory:', error);
-      setPortfolioErrorMsg(`Unexpected error: ${error.message || error}`);
     } finally {
       setLoading(false);
     }
@@ -113,14 +115,6 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 bg-white min-h-screen">
-      
-      {portfolioErrorMsg && (
-        <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl shadow-sm">
-          {portfolioErrorMsg}
-        </div>
-      )}
-
-      {/* Hero Upload Section */}
       <div className="p-8 bg-stone-50 rounded-3xl border border-stone-200 text-center space-y-4 shadow-sm">
         <h2 className="text-xl font-bold text-stone-900">Upload A Pinterest Screenshot Or Instagram Save</h2>
         <p className="text-xs text-stone-500 uppercase tracking-widest">JPG, PNG, WEBP • MAX 10MB • OR DRAG & DROP</p>
@@ -130,7 +124,6 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         </label>
       </div>
 
-      {/* Extracted Tags Bar */}
       {extractedTags.length > 0 && (
         <div className="p-6 bg-stone-900 text-white rounded-2xl flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1">
@@ -147,7 +140,6 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         </div>
       )}
 
-      {/* Artists Grid */}
       <div>
         <h3 className="text-lg font-bold text-stone-900 mb-6">Meet The Artists (Sorted by AI Match)</h3>
         {loading ? (
