@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { ArtistCard } from './ArtistCard';
+
+interface PortfolioItem {
+  image_url: string;
+  tags: string[];
+}
 
 interface Artist {
   id: string;
   name: string;
   studio_name: string;
-  price: number;
-  image_url: string;
+  starting_price: number | string;
+  avatar_url?: string;
   location: string;
+  tags?: string[];
+  artist_portfolio?: PortfolioItem[];
   matchPercentage?: number;
+  matchReasons?: string[];
 }
 
 interface ArtistMatch {
@@ -17,22 +26,31 @@ interface ArtistMatch {
   matchedTags: string[];
 }
 
-export function Directory() {
+export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: string) => void }) {
   const [artists, setArtists] = useState<Artist[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [extractedTags, setExtractedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Fetch initial artist list from Supabase on load
+  // 1. Fetch initial artist list with joined portfolio items from Supabase on load
   useEffect(() => {
     fetchArtists();
   }, []);
 
   const fetchArtists = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from('artists').select('*');
+    const { data, error } = await supabase
+      .from('artists')
+      .select(`
+        *,
+        artist_portfolio (
+          image_url,
+          tags
+        )
+      `);
+
     if (error) {
-      console.error('Error fetching artists:', error);
+      console.error('Error fetching artists directory:', error);
     } else {
       setArtists(data || []);
     }
@@ -145,30 +163,28 @@ export function Directory() {
         
         {loading ? (
           <div className="text-stone-500 text-sm">Loading curated directory...</div>
+        ) : artists.length === 0 ? (
+          <div className="text-stone-500 text-sm">No artists found in the directory.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {artists.map((artist) => (
-              <div key={artist.id} className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition">
-                <div className="relative h-64 bg-stone-100">
-                  <img src={artist.image_url} alt={artist.name} className="w-full h-full object-cover" />
-                  {artist.matchPercentage && (
-                    <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-md text-stone-900 text-xs font-bold rounded-full shadow">
-                      ✨ {artist.matchPercentage}% Match
-                    </span>
-                  )}
-                </div>
-                <div className="p-5 space-y-2">
-                  <h4 className="font-bold text-stone-900 text-lg">{artist.name}</h4>
-                  <p className="text-xs text-stone-500 uppercase tracking-wide">{artist.location || 'Banjara Hills, Hyderabad'}</p>
-                  <div className="flex justify-between items-center pt-3 border-t border-stone-100">
-                    <span className="text-sm font-semibold text-stone-900">₹{artist.price?.toLocaleString()}</span>
-                    <button className="px-4 py-2 bg-stone-900 text-white text-xs font-medium rounded-lg hover:bg-stone-800 transition">
-                      View Profile & Book
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+            {artists.map((artist) => {
+              // Map joined portfolio rows into an array of image URLs
+              const portfolioImages = artist.artist_portfolio?.map(item => item.image_url) || [];
+              const primaryImage = artist.avatar_url || portfolioImages[0];
+
+              return (
+                <ArtistCard
+                  key={artist.id}
+                  name={artist.name}
+                  image={primaryImage}
+                  portfolioImages={portfolioImages}
+                  startingPrice={artist.starting_price || 'Starts at ₹5,000'}
+                  tags={artist.tags || ['BRIDAL', 'HD MAKEUP']}
+                  matchPercentage={artist.matchPercentage}
+                  onClick={() => onSelectArtist(artist.id)}
+                />
+              );
+            })}
           </div>
         )}
       </div>
@@ -176,3 +192,5 @@ export function Directory() {
     </div>
   );
 }
+
+export default Directory;
