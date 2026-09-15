@@ -1,31 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-
-interface Artist {
-  id: string;
-  name: string;
-  studio_name: string;
-  price: number;
-  starting_price?: number;
-  image_url: string;
-  location: string;
-  matchPercentage?: number;
-  artist_portfolio?: { image_url: string }[];
-}
-
-interface ArtistMatch {
-  artistId: string;
-  matchPercentage: number;
-  matchedTags: string[];
-}
+import { ArtistCard } from './ArtistCard';
 
 export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: string) => void }) {
-  const [artists, setArtists] = useState<Artist[]>([]);
+  const [artists, setArtists] = useState<any[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [extractedTags, setExtractedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Fetch initial artist list and their portfolio images from Supabase on load
   useEffect(() => {
     fetchArtists();
   }, []);
@@ -33,48 +15,54 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
   const fetchArtists = async () => {
     setLoading(true);
     try {
-      // Fetch artists
+      // 1. Fetch artists
       const { data: artistsData, error: artistError } = await supabase.from('artists').select('*');
       if (artistError) throw artistError;
 
-      // Fetch portfolio items so we have access to uploaded photos
-      const { data: portfolioData } = await supabase.from('artist_portfolio').select('artist_id, image_url');
+      // 2. Fetch portfolio items
+      const { data: portfolioData, error: portfolioError } = await supabase.from('artist_portfolio').select('*');
+      if (portfolioError) console.error('Portfolio fetch error:', portfolioError);
 
-      // Map portfolio images to their respective artist
+      // DEBUG: Check your browser console (F12) to see what Supabase actually contains
+      console.log('RAW ARTISTS DATA:', artistsData);
+      console.log('RAW PORTFOLIO DATA:', portfolioData);
+
+      // 3. Robust mapping handling different column names and ID types
       const combined = (artistsData || []).map((artist) => {
         const matchingPortfolios = (portfolioData || []).filter(
-          (p: any) => p.artist_id === artist.id
+          (p: any) => String(p.artist_id).trim() === String(artist.id).trim()
         );
+
+        // Extract image URL checking multiple possible column names
+        const portfolioImages = matchingPortfolios
+          .map((p: any) => p.image_url || p.url || p.image || p.photo_url)
+          .filter(Boolean);
+
         return {
           ...artist,
-          artist_portfolio: matchingPortfolios
+          portfolioImages,
+          primaryImage: artist.image_url || artist.avatar_url || artist.url || portfolioImages[0]
         };
       });
 
       setArtists(combined);
     } catch (error) {
-      console.error('Error fetching artists:', error);
+      console.error('Error fetching directory:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // 2. The Matching Algorithm Function
-  const calculateArtistMatches = async (clientTags: string[]): Promise<ArtistMatch[]> => {
+  const calculateArtistMatches = async (clientTags: string[]): Promise<any[]> => {
     try {
-      const { data: portfolios, error } = await supabase
-        .from('artist_portfolio')
-        .select('artist_id, tags');
-
-      if (error) throw error;
-      if (!portfolios || portfolios.length === 0) return [];
+      const { data: portfolios } = await supabase.from('artist_portfolio').select('artist_id, tags');
+      if (!portfolios) return [];
 
       const artistTagMap: { [artistId: string]: Set<string> } = {};
       portfolios.forEach((item) => {
-        if (!artistTagMap[item.artist_id]) {
-          artistTagMap[item.artist_id] = new Set();
-        }
-        item.tags?.forEach((tag: string) => artistTagMap[item.artist_id].add(tag.toUpperCase()));
+        const id = String(item.artist_id);
+        if (!artistTagMap[id]) artistTagMap[id] = new Set();
+        item.tags?.forEach((tag: string) => artistTagMap[id].add(tag.toUpperCase()));
       });
 
       const clientTagsUpper = clientTags.map(t => t.toUpperCase());
@@ -82,67 +70,49 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
       return Object.keys(artistTagMap).map((artistId) => {
         const artistTags = artistTagMap[artistId];
         const matchedTags = clientTagsUpper.filter(tag => artistTags.has(tag));
-        
-        let score = 70; // baseline fallback
+        let score = 70;
         if (clientTagsUpper.length > 0) {
-          const rawRatio = matchedTags.length / clientTagsUpper.length;
-          score = Math.min(Math.max(Math.round(rawRatio * 100), 58), 95);
+          score = Math.min(Math.max(Math.round((matchedTags.length / clientTagsUpper.length) * 100), 58), 95);
         }
-
         return { artistId, matchPercentage: score, matchedTags };
       });
     } catch (err) {
-      console.error('Error calculating matches:', err);
       return [];
     }
   };
 
-  // 3. Triggered when client uploads or selects an inspiration photo
   const handleImageUploadSimulation = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setAnalyzing(true);
-
-    // Simulate AI Vision extracting tags from the uploaded photo
     setTimeout(async () => {
       const mockTags = ['SOFT GLAM', 'SATIN', 'EYES', 'KOOL LINER', 'LIPS SATIN NUDE', 'OCCASION', 'BRIDAL', 'WARM', 'BROWN'];
       setExtractedTags(mockTags);
-
-      // Run matching engine against database portfolio tags
       const rankedMatches = await calculateArtistMatches(mockTags);
 
-      // Sort and update artist cards by match percentage
-      setArtists(prevArtists => {
-        const updated = prevArtists.map(artist => {
-          const match = rankedMatches.find(m => m.artistId === artist.id);
-          return {
-            ...artist,
-            matchPercentage: match ? match.matchPercentage : 70
-          };
+      setArtists(prev => {
+        const updated = prev.map(artist => {
+          const match = rankedMatches.find(m => String(m.artistId) === String(artist.id));
+          return { ...artist, matchPercentage: match ? match.matchPercentage : 70 };
         });
         return updated.sort((a, b) => (b.matchPercentage || 0) - (a.matchPercentage || 0));
       });
-
       setAnalyzing(false);
     }, 1500);
   };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 space-y-8 bg-white min-h-screen">
-      
-      {/* Hero Upload Section */}
       <div className="p-8 bg-stone-50 rounded-3xl border border-stone-200 text-center space-y-4 shadow-sm">
         <h2 className="text-xl font-bold text-stone-900">Upload A Pinterest Screenshot Or Instagram Save</h2>
         <p className="text-xs text-stone-500 uppercase tracking-widest">JPG, PNG, WEBP • MAX 10MB • OR DRAG & DROP</p>
-        
         <label className="inline-block px-6 py-3 bg-stone-900 text-white text-sm font-medium rounded-xl cursor-pointer hover:bg-stone-800 transition shadow">
           {analyzing ? 'Analyzing Aesthetic Match...' : 'Select Inspiration Photo 📸'}
           <input type="file" accept="image/*" onChange={handleImageUploadSimulation} className="hidden" />
         </label>
       </div>
 
-      {/* Extracted Tags Bar (Visible after analysis) */}
       {extractedTags.length > 0 && (
         <div className="p-6 bg-stone-900 text-white rounded-2xl flex flex-wrap items-center justify-between gap-4">
           <div className="space-y-1">
@@ -159,48 +129,27 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         </div>
       )}
 
-      {/* Artists Grid */}
       <div>
         <h3 className="text-lg font-bold text-stone-900 mb-6">Meet The Artists (Sorted by AI Match)</h3>
-        
         {loading ? (
           <div className="text-stone-500 text-sm">Loading curated directory...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {artists.map((artist) => {
-              // FIX: Use main image_url if present, otherwise fall back to the first uploaded portfolio photo!
-              const displayImage = artist.image_url || artist.artist_portfolio?.[0]?.image_url;
-
-              return (
-                <div key={artist.id} className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition">
-                  <div className="relative h-64 bg-stone-100">
-                    <img src={displayImage} alt={artist.name} className="w-full h-full object-cover" />
-                    {artist.matchPercentage && (
-                      <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-md text-stone-900 text-xs font-bold rounded-full shadow">
-                        ✨ {artist.matchPercentage}% Match
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-5 space-y-2">
-                    <h4 className="font-bold text-stone-900 text-lg">{artist.name}</h4>
-                    <p className="text-xs text-stone-500 uppercase tracking-wide">{artist.location || 'Banjara Hills, Hyderabad'}</p>
-                    <div className="flex justify-between items-center pt-3 border-t border-stone-100">
-                      <span className="text-sm font-semibold text-stone-900">₹{(artist.starting_price || artist.price || 5000).toLocaleString()}</span>
-                      <button 
-                        onClick={() => onSelectArtist(artist.id)}
-                        className="px-4 py-2 bg-stone-900 text-white text-xs font-medium rounded-lg hover:bg-stone-800 transition"
-                      >
-                        View Profile & Book
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {artists.map((artist) => (
+              <ArtistCard
+                key={artist.id}
+                name={artist.name}
+                image={artist.primaryImage}
+                portfolioImages={artist.portfolioImages}
+                startingPrice={artist.starting_price || artist.price || 'Starts at ₹5,000'}
+                tags={artist.tags || ['BRIDAL', 'HD MAKEUP']}
+                matchPercentage={artist.matchPercentage}
+                onClick={() => onSelectArtist(artist.id)}
+              />
+            ))}
           </div>
         )}
       </div>
-
     </div>
   );
 }
