@@ -17,49 +17,45 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
     setLoading(true);
     setPortfolioErrorMsg(null);
     try {
-      // 1. Fetch all artist profiles
+      // 1. Fetch from artist_profiles table
       const { data: artistsData, error: artistError } = await supabase.from('artist_profiles').select('*');
       if (artistError) throw artistError;
 
-      // 2. Try bulk fetch of portfolio items first
+      // 2. Fetch portfolio records
       let { data: portfolioData, error: portfolioError } = await supabase
         .from('artist_portfolio')
         .select('*');
 
-      // 3. Fallback: If bulk fetch fails or comes back empty, query per-artist 
-      // (the exact pattern your working detail page uses)
+      // Per-artist fallback if bulk fails
       if (portfolioError || !portfolioData || portfolioData.length === 0) {
-        console.warn('Bulk portfolio fetch failed/empty, retrying per-artist:', portfolioError);
         const results = await Promise.all(
           (artistsData || []).map((a: any) =>
             supabase.from('artist_portfolio').select('*').eq('artist_id', a.id)
           )
         );
         portfolioData = results.flatMap((r: any) => r.data ?? []);
-        const firstError = results.find((r: any) => r.error)?.error;
-        if (firstError) portfolioError = firstError;
       }
 
-      if (portfolioError) {
-        setPortfolioErrorMsg(
-          `Could not load portfolio images (${portfolioError.code ?? 'error'}: ${portfolioError.message}). Check RLS policies on artist_portfolio.`
-        );
-      }
-
-      // 4. Map portfolio items to their corresponding artist profiles
+      // 3. Map and sanitize image URLs to fix any double-folder paths
       const combined = (artistsData || []).map((artist) => {
         const matchingPortfolios = (portfolioData || []).filter(
           (p: any) => String(p.artist_id).trim() === String(artist.id).trim()
         );
 
         const portfolioImages = matchingPortfolios
-          .map((p: any) => p.image_url || p.url || p.image || p.photo_url)
+          .map((p: any) => {
+            const rawUrl = p.image_url || p.url || p.image || p.photo_url;
+            if (!rawUrl) return null;
+            
+            // Fix potential double '/portfolios/portfolios/' path bug from storage nesting
+            return rawUrl.replace('/portfolios/portfolios/', '/portfolios/');
+          })
           .filter(Boolean);
 
         return {
           ...artist,
           portfolioImages,
-          primaryImage: artist.portfolio_url || portfolioImages[0] || ''
+          primaryImage: portfolioImages[0] || ''
         };
       });
 
