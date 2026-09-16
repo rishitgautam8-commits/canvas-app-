@@ -309,9 +309,13 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       <section className={`bg-white/60 border-b ${theme.borderBase} py-16 px-6 sm:px-12`}>
         <div className="mx-auto max-w-[1400px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
-            <div className={`h-24 w-24 sm:h-32 sm:w-32 bg-black/10 flex items-center justify-center text-3xl font-light uppercase text-black/40 border ${theme.borderBase} overflow-hidden shrink-0 ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'}`}>
+            <div className={`relative h-24 w-24 sm:h-32 sm:w-32 bg-black/5 flex items-center justify-center text-3xl font-light uppercase text-black/40 border-2 ${theme.borderBase} overflow-hidden shrink-0 rounded-full shadow-sm`}>
               {artist.avatar_url || artist.image ? (
-                <img src={artist.avatar_url || artist.image} alt={artist.business_name} className="h-full w-full object-cover" />
+                <img 
+                  src={artist.avatar_url || artist.image} 
+                  alt={artist.business_name} 
+                  className="absolute inset-0 w-full h-full object-cover object-center" 
+                />
               ) : (
                 artist.business_name?.charAt(0) || 'a'
               )}
