@@ -23,7 +23,7 @@ import { Premium } from '@/components/Premium';
 import { getTheme } from '@/lib/theme';
 import { ArtistBookings } from './components/ArtistBookings';
 import { ClientBookings } from './components/ClientBookings';
-import { Search, PlusCircle, BookOpen } from 'lucide-react';
+import { Search, PlusCircle, BookOpen} from 'lucide-react';
 
 // ─── NEW AI MATCHING ENGINE IMPORTS ────────────────────────────────────────────
 // 1. IMPORTS: Hook, panel component, and base matching function
@@ -1150,9 +1150,9 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
   const [searchQuery, setSearchQuery] = useState('');
   const [isWriting, setIsWriting] = useState(false);
   
-  // Form state for publishing
+  // Form state
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('Skincare & Prep');
+  const [category, setCategory] = useState('Perspective');
   const [content, setContent] = useState('');
   const [publishing, setPublishing] = useState(false);
 
@@ -1188,7 +1188,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
       author_name: userName,
       author_role: userRole,
       title,
-      category,
+      category: category.toUpperCase(),
       read_time: readTime,
       content
     });
@@ -1198,7 +1198,6 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
     if (error) {
       alert("Failed to publish article: " + error.message);
     } else {
-      alert("Article published successfully to the journal!");
       setTitle('');
       setContent('');
       setIsWriting(false);
@@ -1213,21 +1212,69 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
     art.author_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Fallback default editorial pieces if database is empty so the layout always looks stunning
+  const displayArticles = filteredArticles.length > 0 ? filteredArticles : [
+    {
+      id: 'default-1',
+      category: 'PERSPECTIVE',
+      read_time: '06 min read',
+      title: 'On Keeping Your Own Face.',
+      content: 'A conversation about recognition, restraint, and honoring natural beauty in modern styling.',
+      author_name: 'Studio Editorial',
+      author_role: 'artist'
+    },
+    {
+      id: 'default-2',
+      category: 'RITUAL',
+      read_time: '03 min read',
+      title: 'A Small Ritual Before the Chair.',
+      content: 'Preparing your canvas for a transformative session through mindful hydration and calm.',
+      author_name: 'Hansika',
+      author_role: 'founder'
+    },
+    {
+      id: 'default-3',
+      category: 'INDUSTRY',
+      read_time: '05 min read',
+      title: 'The Science of Skin Prep.',
+      content: 'Why layering lightweight textures changes how long professional makeup holds throughout the day.',
+      author_name: 'Canvas Team',
+      author_role: 'artist'
+    }
+  ];
+
+  const featuredArticle = displayArticles[0];
+  const sideArticles = displayArticles.slice(1, 3);
+
   return (
-    <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-5 py-24 sm:px-8 lg:px-12">
+    <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-6 py-28 sm:px-12 lg:px-20">
       <div className="max-w-[1400px] mx-auto">
         
-        {/* Section Header & Description */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
+        {/* Luxury Header & Description */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-8 border-b border-white/10 pb-12">
           <div>
-            <p className={`${theme.eyebrow} !text-[#E2BE68] mb-3`}>from the journal</p>
-            <h2 className={`${theme.headingHero} !text-white`}>Stories, Rituals & <span className="italic font-serif">Perspective.</span></h2>
-            <p className="text-white/60 mt-4 max-w-2xl text-sm leading-relaxed font-sans">
-              A curated editorial space where both artists and clients share expert beauty tips, product reviews, personal routines, and industry insights. Read freely or publish your own perspective.
+            <p className="text-xs uppercase tracking-[0.25em] text-[#E2BE68] mb-3 font-mono">from the journal</p>
+            <h2 className="text-5xl sm:text-6xl font-light tracking-tight font-serif">
+              From The <span className="italic font-serif text-[#E2BE68]">Journal.</span>
+            </h2>
+            <p className="text-white/60 mt-4 max-w-xl text-sm leading-relaxed font-sans font-light">
+              A curated editorial space where artists and clients share expert beauty tips, product reviews, personal routines, and industry perspectives.
             </p>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={16} />
+              <input 
+                type="text" 
+                placeholder="Search topics or tips..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full sm:w-64 bg-white/5 border border-white/10 rounded-full pl-11 pr-4 py-2.5 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[#E2BE68] transition"
+              />
+            </div>
+
             <button 
               onClick={() => {
                 if (!session?.user) {
@@ -1236,101 +1283,121 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                   setIsWriting(!isWriting);
                 }
               }}
-              className="flex items-center gap-2 px-6 py-3 bg-[#E2BE68] text-black text-xs font-semibold uppercase tracking-wider rounded-full hover:bg-white transition shadow-lg"
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#E2BE68] text-black text-xs font-medium uppercase tracking-widest rounded-full hover:bg-white transition shadow-md"
             >
-              <PlusCircle size={16} /> {isWriting ? 'Close Editor' : 'Write Article / Tip'}
+              <PlusCircle size={14} /> {isWriting ? 'Close Editor' : 'Write Article'}
             </button>
           </div>
         </div>
 
-        {/* Search Bar Option */}
-        <div className="relative max-w-lg mb-12">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
-          <input 
-            type="text" 
-            placeholder="Search topics, ingredients, bridal rituals, or authors..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-full pl-12 pr-6 py-3.5 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#E2BE68] transition"
-          />
-        </div>
-
-        {/* Write Article Form / Modal Drawer */}
+        {/* Writing Modal Drawer */}
         {isWriting && (
-          <form onSubmit={handlePublish} className="bg-white/5 border border-[#E2BE68]/30 p-8 sm:p-10 rounded-2xl mb-16 space-y-6 max-w-3xl shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <h3 className="text-xl font-serif text-[#E2BE68]">Publish a Beauty Insight or Tip</h3>
-              <span className="text-xs uppercase tracking-widest text-white/40">Posting as {session?.user?.user_metadata?.role || 'Member'}</span>
+          <div className="bg-white/5 border border-[#E2BE68]/30 p-8 sm:p-12 rounded-3xl mb-16 space-y-6 max-w-3xl mx-auto shadow-2xl relative animate-in fade-in duration-300">
+            <button onClick={() => setIsWriting(false)} className="absolute right-6 top-6 text-white/40 hover:text-white"><X size={20}/></button>
+            <div className="border-b border-white/10 pb-4">
+              <h3 className="text-2xl font-serif text-[#E2BE68]">Publish to The Journal</h3>
+              <p className="text-xs text-white/50 mt-1">Share your beauty tips, routines, or perspective with the community.</p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <form onSubmit={handlePublish} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Article Title *</label>
+                  <input 
+                    type="text" required value={title} onChange={(e) => setTitle(e.target.value)} 
+                    placeholder="E.g., Summer Hydration Secrets" 
+                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#E2BE68]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Category *</label>
+                  <select 
+                    value={category} onChange={(e) => setCategory(e.target.value)}
+                    className="w-full bg-[#1b1222] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#E2BE68]"
+                  >
+                    <option value="Perspective">Perspective</option>
+                    <option value="Ritual">Ritual</option>
+                    <option value="Industry">Industry</option>
+                    <option value="Skincare">Skincare</option>
+                    <option value="Product Review">Product Review</option>
+                  </select>
+                </div>
+              </div>
+
               <div>
-                <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">Article Title *</label>
-                <input 
-                  type="text" required value={title} onChange={(e) => setTitle(e.target.value)} 
-                  placeholder="E.g., The Secret to Long-Lasting Summer Hydration" 
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E2BE68]"
+                <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Your Content *</label>
+                <textarea 
+                  required rows={5} value={content} onChange={(e) => setContent(e.target.value)} 
+                  placeholder="Write your article or beauty advice here..." 
+                  className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-xs text-white focus:outline-none focus:border-[#E2BE68] leading-relaxed"
                 />
               </div>
-              <div>
-                <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">Category *</label>
-                <select 
-                  value={category} onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-[#1b1222] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E2BE68]"
-                >
-                  <option value="Skincare & Prep">Skincare & Prep</option>
-                  <option value="Bridal Tips">Bridal Tips</option>
-                  <option value="Product Review">Product Review</option>
-                  <option value="Industry Perspective">Industry Perspective</option>
-                  <option value="Daily Routine">Daily Routine</option>
-                </select>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={() => setIsWriting(false)} className="px-6 py-2.5 border border-white/20 text-white rounded-full text-xs uppercase tracking-wider hover:bg-white/10">
+                  Cancel
+                </button>
+                <button type="submit" disabled={publishing} className="px-8 py-2.5 bg-[#E2BE68] text-black font-semibold uppercase tracking-wider text-xs rounded-full hover:bg-white transition disabled:opacity-50">
+                  {publishing ? 'Publishing...' : 'Publish Story →'}
+                </button>
               </div>
-            </div>
-
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">Your Story, Tips or Advice *</label>
-              <textarea 
-                required rows={6} value={content} onChange={(e) => setContent(e.target.value)} 
-                placeholder="Share your expertise, product recommendations, or beauty ritual..." 
-                className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#E2BE68] leading-relaxed"
-              />
-            </div>
-
-            <div className="flex justify-end gap-4">
-              <button type="button" onClick={() => setIsWriting(false)} className="px-6 py-3 border border-white/20 text-white rounded-xl text-xs uppercase tracking-wider hover:bg-white/10">
-                Cancel
-              </button>
-              <button type="submit" disabled={publishing} className="px-8 py-3 bg-[#E2BE68] text-black font-semibold uppercase tracking-wider text-xs rounded-xl hover:bg-white transition disabled:opacity-50">
-                {publishing ? 'Publishing...' : 'Publish Story ✍️'}
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         )}
 
-        {/* Articles Display Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredArticles.length > 0 ? (
-            filteredArticles.map((art) => (
-              <div key={art.id} className="bg-white/5 border border-white/10 p-8 rounded-2xl flex flex-col justify-between hover:border-[#E2BE68]/50 transition group">
-                <div>
-                  <div className="flex items-center justify-between text-xs text-[#E2BE68] uppercase tracking-widest mb-4 font-mono">
-                    <span>{art.category}</span>
-                    <span>{art.read_time}</span>
-                  </div>
-                  <h3 className="text-2xl font-serif mb-3 group-hover:text-[#E2BE68] transition">{art.title}</h3>
-                  <p className="text-white/60 text-sm line-clamp-3 leading-relaxed mb-6 font-sans">{art.content}</p>
-                </div>
-                <div className="pt-6 border-t border-white/10 flex items-center justify-between text-xs text-white/40">
-                  <span className="capitalize">By {art.author_name} <span className="text-[#E2BE68]">({art.author_role})</span></span>
-                  <span className="text-[#E2BE68] font-medium flex items-center gap-1 group-hover:translate-x-1 transition">Read <BookOpen size={12} /></span>
+        {/* The Original Asymmetric Editorial Grid Layout */}
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+          
+          {/* Left Large Featured Card */}
+          {featuredArticle && (
+            <div className="group relative min-h-[440px] overflow-hidden border border-white/10 bg-[#150A26] p-10 sm:p-12 flex flex-col justify-between cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl">
+              <div>
+                <span className="text-[11px] uppercase tracking-[0.2em] text-[#E2BE68] font-mono">
+                  {featuredArticle.category} · {featuredArticle.read_time}
+                </span>
+                <div className="mt-6">
+                  <h3 className="text-3xl sm:text-4xl font-serif text-white group-hover:text-[#E2BE68] transition-colors leading-snug">
+                    {featuredArticle.title}
+                  </h3>
+                  <p className="text-white/60 text-sm mt-4 leading-relaxed font-light line-clamp-3">
+                    {featuredArticle.content}
+                  </p>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="col-span-full py-12 text-center bg-white/5 rounded-2xl border border-dashed border-white/10">
-              <p className="text-white/40 text-sm italic">No articles found matching your search. Be the first to write one!</p>
+              <div className="pt-8 border-t border-white/10 flex items-center justify-between text-xs text-white/40 font-mono">
+                <span>By {featuredArticle.author_name}</span>
+                <span className="text-[#E2BE68] group-hover:translate-x-1 transition-transform flex items-center gap-1">Read Article <BookOpen size={12}/></span>
+              </div>
             </div>
           )}
+
+          {/* Right Stacked Cards */}
+          <div className="grid gap-6">
+            {sideArticles.map((art) => (
+              <div key={art.id} className="group border border-white/10 bg-[#150A26] p-8 sm:p-10 cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl flex flex-col justify-between">
+                <div>
+                  <span className="text-[11px] uppercase tracking-[0.2em] text-[#E2BE68] font-mono">
+                    {art.category} · {art.read_time}
+                  </span>
+                  <h3 className="text-2xl font-serif text-white mt-3 group-hover:text-[#E2BE68] transition-colors">
+                    {art.title}
+                  </h3>
+                  <p className="text-white/60 text-xs mt-2 font-light line-clamp-2">{art.content}</p>
+                </div>
+                <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40 font-mono">
+                  <span>By {art.author_name}</span>
+                  <span className="text-[#E2BE68]">Read →</span>
+                </div>
+              </div>
+            ))}
+
+            {sideArticles.length === 0 && (
+              <div className="bg-[#150A26] border border-white/10 rounded-2xl p-8 text-center text-white/40 text-xs italic">
+                More stories coming soon...
+              </div>
+            )}
+          </div>
+
         </div>
 
       </div>
