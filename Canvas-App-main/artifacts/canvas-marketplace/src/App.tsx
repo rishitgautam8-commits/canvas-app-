@@ -1250,38 +1250,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
     art.author_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const displayArticles = filteredArticles.length > 0 ? filteredArticles : [
-    {
-      id: 'default-1',
-      category: 'PERSPECTIVE',
-      read_time: '06 min read',
-      title: 'On Keeping Your Own Face.',
-      content: 'A conversation about recognition, restraint, and honoring natural beauty in modern styling. When we look at contemporary bridal makeup, the tendency is often to layer, conceal, and transform. But true luxury lies in restraint—allowing skin texture to breathe, keeping freckles visible, and honoring the unique architecture of your own bone structure.',
-      author_name: 'Studio Editorial',
-      author_role: 'artist',
-      image_url: '' // Clean solid background by default
-    },
-    {
-      id: 'default-2',
-      category: 'INDUSTRY',
-      read_time: '05 min read',
-      title: 'The Science of Skin Prep.',
-      content: 'Why layering lightweight textures changes how long professional makeup holds throughout the day. Heavy creams cause sliding; lightweight hyaluronic essences paired with targeted silicones lock pigments in place for 14+ hours of flawless wear.',
-      author_name: 'Canvas Team',
-      author_role: 'artist',
-      image_url: ''
-    },
-    {
-      id: 'default-3',
-      category: 'SKINCARE',
-      read_time: '04 min read',
-      title: 'Summer Hydration Secrets.',
-      content: 'Keeping your skin luminous under high temperatures requires balancing lightweight gel moisturizers with broad-spectrum mineral SPF protection.',
-      author_name: 'Hansika',
-      author_role: 'founder',
-      image_url: ''
-    }
-  ];
+  const displayArticles = filteredArticles;
 
   const featuredArticle = displayArticles[0];
   const sideArticles = displayArticles.slice(1, 3);
