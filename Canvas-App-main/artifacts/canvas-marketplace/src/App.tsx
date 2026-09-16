@@ -1190,13 +1190,25 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
         }
       }
 
-      const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.first_name || 'Community Member';
+      // UNIVERSAL FIX: Fetch artist business name if available, otherwise fallback to profile name
+      let authorDisplayName = session.user.user_metadata?.full_name || session.user.user_metadata?.first_name || 'Community Member';
+      
+      const { data: artistProfile } = await supabase
+        .from('artist_profiles')
+        .select('business_name')
+        .eq('id', session.user.id)
+        .single();
+
+      if (artistProfile?.business_name) {
+        authorDisplayName = artistProfile.business_name;
+      }
+
       const userRole = session.user.user_metadata?.role || 'client';
       const readTime = `${Math.ceil(content.split(' ').length / 200)} min read`;
 
       const { error } = await supabase.from('journal_articles').insert({
         author_id: session.user.id,
-        author_name: userName,
+        author_name: authorDisplayName, // Automatically uses Business Name or Profile Name universally
         author_role: userRole,
         title,
         category: category.toUpperCase(),
@@ -1478,7 +1490,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
             <div className="bg-[#150A26] border border-[#E2BE68]/30 max-w-3xl w-full p-8 sm:p-14 rounded-3xl relative shadow-2xl my-auto">
               <button 
                 onClick={() => setActiveArticle(null)} 
-                className="absolute right-6 top-6 text-white/50 hover:text-white p-2 bg-white/5 rounded-full transition z-20"
+                className="absolute right-6 top-6 text-white/50 hover:text-white p-2 bg-white/5 rounded-full transition z-25"
               >
                 <X size={20}/>
               </button>
