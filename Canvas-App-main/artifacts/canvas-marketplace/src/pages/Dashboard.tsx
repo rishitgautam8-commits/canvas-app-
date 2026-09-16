@@ -114,6 +114,9 @@ export default function Dashboard({ session }: DashboardProps) {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [bookingToReview, setBookingToReview] = useState<any>(null);
 
+  // NEW STATE: Profile Image Upload
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+
   const queryParams = new URLSearchParams(window.location.search);
   const styleVersion = queryParams.get('style') || '2';
   const theme = getTheme(styleVersion);
@@ -274,6 +277,27 @@ export default function Dashboard({ session }: DashboardProps) {
     setSaving(true);
 
     try {
+      // 1. Upload Profile Avatar if provided
+      let avatarUrl = artistProfile?.avatar_url || '';
+      
+      if (profileImageFile) {
+        const fileExt = profileImageFile.name.split('.').pop();
+        const fileName = `avatar-${session.user.id}-${Date.now()}.${fileExt}`;
+        const filePath = `${session.user.id}/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('portfolios')
+          .upload(filePath, profileImageFile, { upsert: true });
+
+        if (!uploadError) {
+          const { data: publicURLData } = supabase.storage
+            .from('portfolios')
+            .getPublicUrl(filePath);
+          avatarUrl = publicURLData.publicUrl;
+        }
+      }
+
+      // 2. Save base profile
       const { error: profileError } = await supabase.from('profiles').upsert(
         {
           id: session.user.id,
@@ -293,6 +317,7 @@ export default function Dashboard({ session }: DashboardProps) {
         ? addons.map(a => `${a.name} (₹${a.price})`).filter(a => a.trim() !== '(₹)') 
         : [];
 
+      // 3. Save artist profile including new avatar_url
       const { error: artistError } = await supabase.from('artist_profiles').upsert(
         {
           id: session.user.id,
@@ -304,19 +329,21 @@ export default function Dashboard({ session }: DashboardProps) {
           starting_price: parseInt(formData.starting_price) || 0,
           years_experience: parseInt(formData.years_experience) || 0,
           blocked_dates: formData.blocked_dates,
-          addons: formattedAddonsText
+          addons: formattedAddonsText,
+          avatar_url: avatarUrl // <-- Saved here
         },
         { onConflict: 'id' }
       );
 
       if (artistError) throw artistError;
 
+      // 4. Save Addons
       if (hasAddonSkill) {
         for (const addon of addons) {
           if (addon.file) {
             const fileExt = addon.file.name.split('.').pop();
             const fileName = `addon_${Math.random()}.${fileExt}`;
-            const filePath = `portfolios/${session.user.id}/${fileName}`;
+            const filePath = `${session.user.id}/${fileName}`;
             
             const { error: uploadError } = await supabase.storage
               .from('portfolios')
@@ -341,7 +368,7 @@ export default function Dashboard({ session }: DashboardProps) {
       }
 
       window.alert('Logistics & Add-ons updated successfully! AI Tags have been generated.');
-      setArtistProfile({ ...artistProfile, ...formData, addons: formattedAddonsText });
+      setArtistProfile({ ...artistProfile, ...formData, addons: formattedAddonsText, avatar_url: avatarUrl });
     } catch (err: any) {
       window.alert(`Error saving: ${err.message}`);
     } finally {
@@ -377,7 +404,6 @@ export default function Dashboard({ session }: DashboardProps) {
   }
 
   const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || user?.user_metadata?.name?.split(' ')[0] || 'User';
-  // Use business name if available and role is artist, otherwise fallback to first name
   const headerDisplayName = role === 'artist' && formData.business_name ? formData.business_name : firstName;
 
   const pendingBookings = bookings.filter(b => b.status === 'requested' || b.status === 'pending' || !b.status);
@@ -605,7 +631,12 @@ export default function Dashboard({ session }: DashboardProps) {
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                       <label className={`mb-2 block ${theme.formLabel}`}>Profile Picture *</label>
-                      <input type="file" accept="image/*" className={`w-full ${theme.bodyText} file:mr-4 file:border-0 file:bg-black/5 file:px-4 file:py-2 file:${theme.cardRadius} file:${theme.formLabel} file:!text-black hover:file:bg-black/10 transition-all cursor-pointer`} />
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => setProfileImageFile(e.target.files?.[0] || null)}
+                        className={`w-full ${theme.bodyText} file:mr-4 file:border-0 file:bg-black/5 file:px-4 file:py-2 file:${theme.cardRadius} file:${theme.formLabel} file:!text-black hover:file:bg-black/10 transition-all cursor-pointer`} 
+                      />
                     </div>
                     <div>
                       <label className={`mb-2 block ${theme.formLabel}`}>Years Of Experience *</label>

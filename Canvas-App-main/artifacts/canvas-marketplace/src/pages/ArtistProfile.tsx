@@ -131,7 +131,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   const [, params] = useRoute('/artist/:id');
   const [, setLocation] = useLocation();
   const [artist, setArtist] = useState<any>(null);
-  const [portfolioItems, setPortfolioItems] = useState<any[]>([]); // Dynamic portfolio state
+  const [portfolioItems, setPortfolioItems] = useState<any[]>([]); 
   const [loading, setLoading] = useState(true);
   
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -152,7 +152,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
     async function fetchArtistData() {
       if (!artistId) return;
 
-      // 1. Fetch main artist details
       const { data: artistData, error: artistError } = await supabase
         .from('artist_profiles')
         .select('*')
@@ -166,7 +165,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
       
       setArtist(artistData);
 
-      // 2. Fetch dynamic portfolio with AI tags
       const { data: portfolioData } = await supabase
         .from('artist_portfolio')
         .select('*')
@@ -177,7 +175,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         setPortfolioItems(portfolioData);
       }
 
-      // 3. Fetch bookings for the calendar
       const { data: existingBookings } = await supabase
         .from('bookings')
         .select('event_date, time_slot')
@@ -274,7 +271,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
   const manuallyBlockedDates: string[] = Array.isArray(artist?.blocked_dates) ? artist.blocked_dates : [];
   
-  // Isolate addons dynamically if they still exist on the profile
   const rawPortfolio = artist?.portfolio || [];
   const allImages = rawPortfolio.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean);
   const addonImages = allImages.filter((img: string) => img.toLowerCase().includes('addon'));
@@ -314,8 +310,8 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         <div className="mx-auto max-w-[1400px] flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div className="flex items-center gap-6">
             <div className={`h-24 w-24 sm:h-32 sm:w-32 bg-black/10 flex items-center justify-center text-3xl font-light uppercase text-black/40 border ${theme.borderBase} overflow-hidden shrink-0 ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'}`}>
-              {artist.image ? (
-                <img src={artist.image} alt={artist.business_name} className="h-full w-full object-cover" />
+              {artist.avatar_url || artist.image ? (
+                <img src={artist.avatar_url || artist.image} alt={artist.business_name} className="h-full w-full object-cover" />
               ) : (
                 artist.business_name?.charAt(0) || 'a'
               )}
@@ -370,7 +366,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         {portfolioItems.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {portfolioItems.map((item: any, i: number) => {
-              // Automatically generates the exact proven working Supabase URL on the fly
               const getWorkingImageUrl = () => {
                 const raw = item.image_url || '';
                 const filename = raw.split('/').pop();

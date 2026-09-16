@@ -247,8 +247,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     queryKey: ['liveArtists'],
     queryFn: async () => {
       const { data: profiles, error: profileError } = await supabase
-        .from('artist_profiles')
-        .select(`id, business_name, category, city, max_travel_km, starting_price`);
+  .from('artist_profiles')
+  .select(`id, business_name, category, city, max_travel_km, starting_price, avatar_url`); // <-- Added avatar_url here
 
       if (profileError) {
         console.error('Error fetching live artists:', profileError.message);
@@ -301,7 +301,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         });
 
         const fallbackImage = `https://images.unsplash.com/photo-${editorialImages[index % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
-        const mainImage = normalizedPortfolio[0]?.image || fallbackImage;
+        const mainImage = item.avatar_url || normalizedPortfolio[0]?.image || fallbackImage;
         const hoverImage = normalizedPortfolio[1]?.image || mainImage;
 
         return {
