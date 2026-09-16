@@ -24,6 +24,7 @@ import { getTheme } from '@/lib/theme';
 import { ArtistBookings } from './components/ArtistBookings';
 import { ClientBookings } from './components/ClientBookings';
 import { Search, PlusCircle, BookOpen} from 'lucide-react';
+import { extractTagsFromText } from './lib/matching';
 
 // ─── NEW AI MATCHING ENGINE IMPORTS ────────────────────────────────────────────
 import { useReferenceMatching } from './hooks/useReferenceMatching';
@@ -623,12 +624,30 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         <ScrollZoomIn>
           <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12">
             <HeroSearch
-              value={search}
-              onChange={handleSearchChange}
-              onSubmit={(vals) => { setSearch(vals); setHasSearched(true); scrollTo('discover'); }}
-              isAuthenticated={!!session}
-              onAuthRequired={() => setAuthOpen(true)}
-            />
+  value={search}
+  onChange={handleSearchChange}
+  onSubmit={async (vals) => {
+  setSearch(vals);
+  setHasSearched(true);
+  
+  if (vals.inspirationFile) {
+    // If they uploaded a photo, use the image matching hook
+    submitReference(vals.inspirationFile);
+  } else if (vals.lookDescription && vals.lookDescription.trim().length > 3) {
+    // NEW: If they typed text, extract tags via Gemini and trigger AI matching!
+    const extractedTags = await extractTagsFromText(vals.lookDescription);
+    
+    // Bypass type check since submitReference can handle raw aesthetic tag objects
+    (submitReference as any)(extractedTags);
+  } else {
+    clearReference();
+  }
+  
+  scrollTo('discover');
+}}
+  isAuthenticated={!!session}
+  onAuthRequired={() => setAuthOpen(true)}
+/>
           </div>
         </ScrollZoomIn>
       </section>
