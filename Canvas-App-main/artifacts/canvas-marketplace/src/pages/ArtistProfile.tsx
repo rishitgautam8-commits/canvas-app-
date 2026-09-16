@@ -369,41 +369,47 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
         {portfolioItems.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {portfolioItems.map((item: any, i: number) => (
-              <div key={item.id} className="group cursor-pointer">
-                <div className={`relative overflow-hidden bg-white mb-4 border ${theme.borderBase} ${theme.cardRadius} shadow-sm aspect-[4/5] sm:aspect-[4/5]`}>
-                  <img 
-  src={(() => {
-    const raw = item.image_url;
-    if (!raw) return '';
-    if (/^https?:\/\//i.test(raw)) return raw; // if it's already a full URL, use it
-    
-    // Otherwise, dynamically build the clean public URL using the Supabase SDK
-    const filename = raw.split('/').pop();
-    const { data } = supabase.storage.from('portfolios').getPublicUrl(`${artistId}/${filename}`);
-    return data.publicUrl;
-  })()} 
-  alt={`Look ${i + 1}`} 
-  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" 
-/>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className={theme.formLabel}>Look N°{String(i + 1).padStart(2, '0')}</span>
-                    <button onClick={() => setShowBookingModal(true)} className={theme.secondaryLink}>Enquire Look ↗</button>
+            {portfolioItems.map((item: any, i: number) => {
+              // BULLETPROOF URL BUILDER: Ignores whatever broken text is in the DB
+              const getSafeImageUrl = () => {
+                const raw = item.image_url;
+                if (!raw) return '';
+                // Extract just the filename (e.g., "0.9379126741014436.jpeg")
+                const filename = raw.split('/').pop();
+                if (!filename) return raw;
+                // Force it into the correct Supabase storage bucket path: {artist_id}/{filename}
+                const { data } = supabase.storage
+                  .from('portfolios')
+                  .getPublicUrl(`${item.artist_id || artistId}/${filename}`);
+                return data.publicUrl;
+              };
+
+              return (
+                <div key={item.id} className="group cursor-pointer">
+                  <div className={`relative overflow-hidden bg-white mb-4 border ${theme.borderBase} ${theme.cardRadius} shadow-sm aspect-[4/5] sm:aspect-[4/5]`}>
+                    <img 
+                      src={getSafeImageUrl()} 
+                      alt={`Look ${i + 1}`} 
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" 
+                    />
                   </div>
-                  
-                  {/* Rendering the AI Extracted Tags! */}
-                  <div className="flex flex-wrap gap-1.5 pt-2">
-                    {item.tags?.map((tag: string, idx: number) => (
-                      <span key={idx} className="px-2 py-0.5 bg-black/5 text-black/70 text-xs rounded-md font-medium border border-black/10">
-                        {tag}
-                      </span>
-                    ))}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className={theme.formLabel}>Look N°{String(i + 1).padStart(2, '0')}</span>
+                      <button onClick={() => setShowBookingModal(true)} className={theme.secondaryLink}>Enquire Look ↗</button>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-1.5 pt-2">
+                      {item.tags?.map((tag: string, idx: number) => (
+                        <span key={idx} className="px-2 py-0.5 bg-black/5 text-black/70 text-xs rounded-md font-medium border border-black/10">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className={`border border-dashed ${theme.borderBase} bg-white/40 p-12 text-center ${theme.cardRadius}`}>
