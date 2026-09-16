@@ -26,7 +26,6 @@ import { ClientBookings } from './components/ClientBookings';
 import { Search, PlusCircle, BookOpen} from 'lucide-react';
 
 // ─── NEW AI MATCHING ENGINE IMPORTS ────────────────────────────────────────────
-// 1. IMPORTS: Hook, panel component, and base matching function
 import { useReferenceMatching } from './hooks/useReferenceMatching';
 import { AIMatchPanel } from './components/AIMatchPanel';
 import { runCanvasMatch, legacyTagsToStructured } from './lib/matching';
@@ -159,14 +158,6 @@ const local100Artists: Artist[] = artists.slice(0, 100).map((a: any, index: numb
   };
 });
 
-function getEstimatedDistance(clientLoc: string, artistCity: string, artistId: string): number {
-  const locLower = clientLoc.toLowerCase();
-  const cityLower = artistCity.toLowerCase();
-  if (locLower === '' || cityLower.includes(locLower) || locLower.includes(cityLower)) return 5;
-  const stableNum = parseInt(artistId.replace(/\D/g, '')) || 0;
-  return (stableNum % 21) + 5;
-}
-
 // ==========================================
 // MAGAZINE BLEED HERO VISUAL
 // ==========================================
@@ -255,7 +246,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   const { data: liveArtists = [] } = useQuery({
     queryKey: ['liveArtists'],
     queryFn: async () => {
-      // 1. Fetch artist profiles
       const { data: profiles, error: profileError } = await supabase
         .from('artist_profiles')
         .select(`id, business_name, category, city, max_travel_km, starting_price`);
@@ -267,13 +257,11 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 
       if (!profiles) return [];
 
-      // 2. Fetch portfolio items INCLUDING tags
       const { data: allPortfolios } = await supabase
         .from('artist_portfolio')
         .select('artist_id, image_url, tags, created_at')
         .order('created_at', { ascending: false });
 
-      // Group portfolios and collect all unique tags per artist
       const portfolioMap = new Map<string, Array<{ url: string; tags: string[] }>>();
       const artistTagMap = new Map<string, string[]>();
 
@@ -281,13 +269,11 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         allPortfolios.forEach((p: any) => {
           const rowTags: string[] = Array.isArray(p.tags) ? p.tags : [];
 
-          // Map images, keeping each image's own tags attached to it
           if (!portfolioMap.has(p.artist_id)) {
             portfolioMap.set(p.artist_id, []);
           }
           portfolioMap.get(p.artist_id)?.push({ url: p.image_url, tags: rowTags });
 
-          // Map and accumulate tags
           if (!artistTagMap.has(p.artist_id)) {
             artistTagMap.set(p.artist_id, []);
           }
@@ -301,7 +287,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         const rawPort = portfolioMap.get(item.id) || [];
         const artistTags = Array.from(new Set(artistTagMap.get(item.id) || []));
 
-        // Normalize portfolio URLs with Supabase public URL builder
         const normalizedPortfolio = rawPort.map((entry, i) => {
           const filename = entry.url.split('/').pop();
           const { data } = supabase.storage
@@ -452,8 +437,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     matchReasons?: string[];
   };
 
-  // Real AI scoring, straight from useReferenceMatching (rankArtists + scoreArtistAgainstReference).
-  // No hashing, no rank-derived numbers: the percentage IS the computed match.
   const matchedArtists: MatchedArtist[] = !matchedById
     ? base
     : base
@@ -511,10 +494,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       setBgY(prefersReducedMotion ? 0 : Math.min(latest * BG_PARALLAX_FACTOR, BG_PARALLAX_MAX_PX));
     });
   }, [scrollY, prefersReducedMotion]);
-
-  const gridY = useTransform(scrollY, (latest) =>
-    prefersReducedMotion ? 0 : Math.max(latest * GRID_PARALLAX_FACTOR, -GRID_PARALLAX_MAX_PX)
-  );
 
   const scrollTo = (id: string) => {
     setMenuOpen(false);
@@ -1292,7 +1271,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
           </div>
         </div>
 
-        {/* Spacious Publishing Modal Drawer (Expanded to max-w-4xl & tall textarea) */}
+        {/* Spacious Publishing Modal Drawer */}
         {isWriting && (
           <div className="bg-[#12081d] border border-[#E2BE68]/40 p-8 sm:p-14 rounded-3xl mb-16 space-y-8 max-w-4xl mx-auto shadow-2xl relative animate-in fade-in duration-300">
             <button onClick={() => setIsWriting(false)} className="absolute right-6 top-6 text-white/50 hover:text-white p-2 bg-white/5 rounded-full transition"><X size={20}/></button>
@@ -1395,9 +1374,10 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                     </p>
                   </div>
                 </div>
-                <div className="relative z-10 p-10 pt-0 pb-12 border-t border-white/10 flex items-center justify-between text-xs text-white/40">
-                  <span className={`${theme.bodyText}`}>By {featuredArticle.author_name}</span>
-                  <span className={`${theme.secondaryLink} text-[#E2BE68] group-hover:translate-x-1 transition-transform flex items-center gap-1`}>Read Article <BookOpen size={12}/></span>
+                {/* Featured Card Footer */}
+                <div className="relative z-10 p-10 pt-0 pb-12 border-t border-white/10 flex items-center justify-between text-xs text-white/85 font-sans">
+                  <span>By {featuredArticle.author_name}</span>
+                  <span className="text-[#E2BE68] group-hover:translate-x-1 transition-transform flex items-center gap-1 font-medium">Read Article <BookOpen size={12}/></span>
                 </div>
               </div>
             )}
@@ -1422,9 +1402,11 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                     </h3>
                     <p className={`${theme.bodyText} text-white/60 text-xs mt-2 line-clamp-2`}>{art.content}</p>
                   </div>
-                  <div className="relative z-10 pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40">
-                    <span className={`${theme.bodyText}`}>By {art.author_name}</span>
-                    <span className={`${theme.secondaryLink} text-[#E2BE68]`}>Read →</span>
+                  
+                  {/* Side Cards Footer */}
+                  <div className="relative z-10 pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-xs text-white/85 font-sans">
+                    <span>By {art.author_name}</span>
+                    <span className="text-[#E2BE68] font-medium">Read →</span>
                   </div>
                 </div>
               ))}
@@ -1478,9 +1460,9 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                       <h3 className="text-xl font-serif text-white mb-3">{art.title}</h3>
                       <p className="text-white/60 text-xs leading-relaxed mb-6 line-clamp-3">{art.content}</p>
                     </div>
-                    <div className="pt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40 font-mono">
+                    <div className="pt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/85 font-sans">
                       <span>By {art.author_name}</span>
-                      <span className="text-[#E2BE68] capitalize">By {art.author_role}</span>
+                      <span className="text-[#E2BE68] capitalize font-medium">{art.author_role}</span>
                     </div>
                   </div>
                 ))}
@@ -1512,10 +1494,10 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                   {activeArticle.title}
                 </h2>
 
-                <div className="flex items-center gap-4 py-4 border-y border-white/10 text-xs text-white/60 font-mono">
+                <div className="flex items-center gap-4 py-4 border-y border-white/10 text-xs text-white/85 font-sans">
                   <span className="text-white font-medium">By {activeArticle.author_name}</span>
                   <span>•</span>
-                  <span className="capitalize text-[#E2BE68]">{activeArticle.author_role}</span>
+                  <span className="capitalize text-[#E2BE68] font-medium">{activeArticle.author_role}</span>
                 </div>
 
                 {activeArticle.image_url ? (
@@ -1653,7 +1635,7 @@ export default function App() {
           className="flex-1 relative bg-[#05020A] text-white flex flex-col items-center justify-center p-8 md:p-12 cursor-pointer group border-t md:border-t-0 md:border-l border-white/10"
         >
           <div className="absolute inset-0 overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1522337360788-8b13fee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" />
+            <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a3af?auto=format&fit=crop&w=1200&q=80" alt="Artist" className="w-full h-full object-cover opacity-0 group-hover:opacity-10 transition-opacity duration-700 grayscale" />
           </div>
           <div className="relative z-10 text-center transform group-hover:-translate-y-2 transition-transform duration-700">
             <p className={`${theme.eyebrow} mb-6`}>{toTitleCase('for professionals')}</p>
