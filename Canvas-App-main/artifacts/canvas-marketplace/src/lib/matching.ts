@@ -157,69 +157,66 @@ const CHIP_LABEL: Record<ScalarField, (v: string) => string> = {
   occasion: (v) => `${v} occasion`,
 };
 
-/* ── the scorer (Forgiving & Dynamic) ── */
-
 export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTagIndex): ArtistMatchResult {
-  let score = 58; // Start above baseline so it never flatlines
+  let score = 0;
   const chips: Array<{ label: string; weight: number }> = [];
   const matchedFields: Array<keyof AestheticTags> = [];
+  const fields = Object.keys(FIELD_WEIGHTS) as ScalarField[];
 
-  // Collect all text tokens from the reference tags
-  const refTokens = new Set(
-    Object.values(ref)
-      .flatMap((v) => (Array.isArray(v) ? v : [v]))
-      .filter(Boolean)
-      .map((s) => norm(String(s)))
-      .flatMap((s) => s.split(' '))
-      .filter((t) => t.length > 2)
-  );
+  for (const field of fields) {
+    const refVal = ref[field];
+    if (!refVal) continue;
 
-  if (refTokens.size === 0) {
-    return {
-      artistId: artist.id,
-      score: 65,
-      chips: ['General aesthetic alignment'],
-      matchedFields: [],
-      portfolioCoverage: 0,
-    };
+    let best = matchStrings(refVal, artist.aiTags?.[field]);
+    for (const img of artist.portfolioTags ?? []) {
+      best = Math.max(best, matchStrings(refVal, img?.[field]));
+    }
+    if (best <= 0) continue;
+
+    score += FIELD_WEIGHTS[field] * best;
+    matchedFields.push(field);
+    if (best >= 0.5) chips.push({ label: CHIP_LABEL[field](norm(refVal)), weight: FIELD_WEIGHTS[field] * best });
   }
 
-  // Check artist AI tags and portfolio tags for keyword overlaps
-  const allArtistTags = [
-    ...(artist.aiTags ? Object.values(artist.aiTags).flatMap(v => Array.isArray(v) ? v : [v]) : []),
-    ...(artist.portfolioTags ?? []).flatMap((img) => Object.values(img).flatMap(v => Array.isArray(v) ? v : [v])),
-  ]
-    .filter(Boolean)
-    .map((s) => norm(String(s)));
-
-  let matchCount = 0;
-  for (const token of refTokens) {
-    const found = allArtistTags.some((at) => at.includes(token) || token.includes(at));
-    if (found) {
-      matchCount++;
-      score += 7; // Add points per matching keyword/token
-      if (matchCount <= 3) {
-        chips.push({ label: `Matches ${token}`, weight: 10 });
-        matchedFields.push('look' as any);
-      }
+  // tones: partial credit per matched tone
+  const refTones = ref.tones ?? [];
+  if (refTones.length > 0) {
+    const artistTones = [
+      ...(artist.aiTags?.tones ?? []),
+      ...(artist.portfolioTags ?? []).flatMap((t) => t?.tones ?? []),
+    ];
+    const matched = refTones.filter((rt) => artistTones.some((at) => matchStrings(rt, at) >= 0.7));
+    if (matched.length > 0) {
+      score += TONES_WEIGHT * Math.min(1, matched.length / refTones.length);
+      matchedFields.push('tones');
+      chips.push({ label: `${matched.slice(0, 2).join(' + ')} tones`, weight: TONES_WEIGHT });
     }
   }
 
-  // Portfolio consistency bonus
+  // portfolio coverage = consistency signal (an artist who nails the look
+  // repeatedly should edge out a one-hit wonder)
   const imgs = artist.portfolioTags ?? [];
-  const coverage = imgs.length > 0 ? Math.min(1, matchCount / (imgs.length * 2)) : 0;
-  score += Math.round(coverage * 10);
+  let coverage = 0;
+  if (imgs.length > 0) {
+    const hits = imgs.filter((img) =>
+      fields.some((f) => ref[f] && matchStrings(ref[f], img?.[f]) >= 0.5)
+    ).length;
+    coverage = hits / imgs.length;
+    score += Math.round(COVERAGE_BONUS_MAX * coverage);
+  }
 
-  if (artist.isVerified) score += 4;
-  if (artist.isIncompleteProfile) score -= 15;
+  if (artist.isVerified) score += VERIFIED_BONUS;
+  if (artist.isIncompleteProfile) score -= INCOMPLETE_PENALTY;
 
-  // Clamp realistic band between 60% and 96%
-  const finalScore = Math.max(60, Math.min(96, Math.round(score)));
+  const finalScore = Math.max(MIN_SCORE, Math.min(MAX_SCORE, Math.round(score)));
 
   return {
     artistId: artist.id,
     score: finalScore,
-    chips: chips.map((c) => c.label).slice(0, 3),
+    chips:
+      finalScore >= CHIP_SCORE_THRESHOLD
+        ? chips.sort((a, b) => b.weight - a.weight).slice(0, 4).map((c) => c.label)
+        : [],
     matchedFields,
     portfolioCoverage: coverage,
   };
