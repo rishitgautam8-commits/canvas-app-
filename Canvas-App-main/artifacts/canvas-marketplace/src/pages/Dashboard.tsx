@@ -25,6 +25,66 @@ function getGoogleMapsLink(location: string) {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(cleanLocation)}`;
 }
 
+// ==========================================
+// 1. AI VISION AUTOMATED TAGGING HELPERS
+// ==========================================
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+const generateTagsWithAI = async (file: File): Promise<string[]> => {
+  try {
+    const base64Image = await fileToBase64(file);
+
+    // Swap this with your actual Vision AI endpoint (e.g., OpenAI, Claude, etc.)
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer YOUR_OPENAI_API_KEY_HERE` // <-- ADD YOUR KEY HERE
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { 
+                type: "text", 
+                text: "Analyze this makeup look. Return ONLY a JSON array of 4 to 6 aesthetic tags describing the makeup style. Keep tags short (e.g., 'Soft Glam', 'Matte Skin', 'Graphic Liner', 'Bridal'). Do not include any other text." 
+              },
+              { 
+                type: "image_url", 
+                image_url: { url: base64Image } 
+              }
+            ]
+          }
+        ],
+        max_tokens: 50
+      })
+    });
+
+    const data = await response.json();
+    const rawContent = data.choices[0].message.content;
+
+    // Parse the AI's string response into a real JavaScript array
+    const cleanedContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
+    const aiTags = JSON.parse(cleanedContent);
+
+    return Array.isArray(aiTags) ? aiTags : [];
+    
+  } catch (error) {
+    console.error("AI Tagging failed:", error);
+    return []; // Return empty so we don't save broken data
+  }
+};
+// ==========================================
+
 interface DashboardProps {
   session: Session | null;
 }
@@ -231,6 +291,11 @@ export default function Dashboard({ session }: DashboardProps) {
 
       if (profileError) throw new Error(`Failed to save base profile: ${profileError.message}`);
 
+      // Parse Add-on texts for the profile
+      const formattedAddonsText = hasAddonSkill 
+        ? addons.map(a => `${a.name} (₹${a.price})`).filter(a => a.trim() !== '(₹)') 
+        : [];
+
       const { error: artistError } = await supabase.from('artist_profiles').upsert(
         {
           id: session.user.id,
@@ -242,14 +307,52 @@ export default function Dashboard({ session }: DashboardProps) {
           starting_price: parseInt(formData.starting_price) || 0,
           years_experience: parseInt(formData.years_experience) || 0,
           blocked_dates: formData.blocked_dates,
+          addons: formattedAddonsText
         },
         { onConflict: 'id' }
       );
 
       if (artistError) throw artistError;
 
-      window.alert('Logistics updated successfully! Your search filtering is now live.');
-      setArtistProfile({ ...artistProfile, ...formData });
+      // ==========================================
+      // NEW: UPLOAD ADD-ON IMAGES WITH AI TAGS
+      // ==========================================
+      if (hasAddonSkill) {
+        for (const addon of addons) {
+          if (addon.file) {
+            // 1. Upload the image to Supabase Storage
+            const fileExt = addon.file.name.split('.').pop();
+            const fileName = `addon_${Math.random()}.${fileExt}`;
+            const filePath = `portfolios/${session.user.id}/${fileName}`;
+            
+            const { error: uploadError } = await supabase.storage
+              .from('portfolios')
+              .upload(filePath, addon.file);
+              
+            if (uploadError) throw uploadError;
+
+            const { data: publicUrlData } = supabase.storage
+              .from('portfolios')
+              .getPublicUrl(filePath);
+
+            // 2. Automate Tagging with Vision AI
+            const aiTags = await generateTagsWithAI(addon.file);
+            
+            // Combine AI tags with the Add-on name
+            const finalTags = [...new Set([...aiTags, addon.name, 'Add-on'])];
+
+            // 3. Save to artist_portfolio with REAL tags
+            await supabase.from('artist_portfolio').insert({
+              artist_id: session.user.id,
+              image_url: publicUrlData.publicUrl,
+              tags: finalTags // <--- 100% accurate, AI-generated tags!
+            });
+          }
+        }
+      }
+
+      window.alert('Logistics & Add-ons updated successfully! AI Tags have been generated.');
+      setArtistProfile({ ...artistProfile, ...formData, addons: formattedAddonsText });
     } catch (err: any) {
       window.alert(`Error saving: ${err.message}`);
     } finally {
@@ -646,16 +749,16 @@ export default function Dashboard({ session }: DashboardProps) {
                     )}
                   </div>
 
-                  {/* ---------- HERE IS THE NEW STUDIO HUB ---------- */}
-<div className={`mt-8 bg-white/50 p-6 border-l-2 ${accentBorder} ${styleVersion === '1' || styleVersion === '3' ? 'rounded-none' : 'rounded-r-xl'}`}>
-  <label className={`mb-2 block ${theme.formLabel}`}>AI-Powered Portfolio Upload *</label>
-  <p className={`mb-6 ${theme.bodyText} !text-black/40`}>Upload high-res looks. Our AI will automatically extract aesthetic tags for client matching.</p>
-  
-  <div className="w-full">
-    <ArtistStudioHub artistId={session?.user?.id || ''} />
-  </div>
-</div>
-{/* ------------------------------------------------ */}
+                  {/* ---------- MAIN PORTFOLIO COMPONENT ---------- */}
+                  <div className={`mt-8 bg-white/50 p-6 border-l-2 ${accentBorder} ${styleVersion === '1' || styleVersion === '3' ? 'rounded-none' : 'rounded-r-xl'}`}>
+                    <label className={`mb-2 block ${theme.formLabel}`}>AI-Powered Portfolio Upload *</label>
+                    <p className={`mb-6 ${theme.bodyText} !text-black/40`}>Upload high-res looks. Our AI will automatically extract aesthetic tags for client matching.</p>
+                    
+                    <div className="w-full">
+                      <ArtistStudioHub artistId={session?.user?.id || ''} />
+                    </div>
+                  </div>
+                  {/* ------------------------------------------------ */}
 
                   <div className={`border-t ${theme.borderBase} pt-8`}>
                     <label className={`mb-4 block ${theme.formLabel}`}>Do You Offer Any Add-On Skills? (E.g. Hairstyling, Brow Tinting)</label>
@@ -751,7 +854,7 @@ export default function Dashboard({ session }: DashboardProps) {
 
                   <div className="pt-4 flex justify-end">
                     <button type="submit" disabled={saving || uploadingPortfolio} className={`${theme.btnPrimary} disabled:opacity-50`}>
-                      {saving ? 'Saving...' : 'save changes'}
+                      {saving ? 'Saving & Generating AI Tags...' : 'save changes'}
                     </button>
                   </div>
                 </form>
