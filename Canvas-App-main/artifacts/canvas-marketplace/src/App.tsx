@@ -28,7 +28,7 @@ import { ClientBookings } from './components/ClientBookings';
 // 1. IMPORTS: Hook, panel component, and base matching function
 import { useReferenceMatching } from './hooks/useReferenceMatching';
 import { AIMatchPanel } from './components/AIMatchPanel';
-import { runCanvasMatch } from './lib/matching';
+import { runCanvasMatch, legacyTagsToStructured } from './lib/matching';
 // ───────────────────────────────────────────────────────────────────────────────
 
 // ==========================================
@@ -273,23 +273,25 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         .order('created_at', { ascending: false });
 
       // Group portfolios and collect all unique tags per artist
-      const portfolioMap = new Map<string, string[]>();
+      const portfolioMap = new Map<string, Array<{ url: string; tags: string[] }>>();
       const artistTagMap = new Map<string, string[]>();
 
       if (allPortfolios) {
         allPortfolios.forEach((p: any) => {
-          // Map images
+          const rowTags: string[] = Array.isArray(p.tags) ? p.tags : [];
+
+          // Map images, keeping each image's own tags attached to it
           if (!portfolioMap.has(p.artist_id)) {
             portfolioMap.set(p.artist_id, []);
           }
-          portfolioMap.get(p.artist_id)?.push(p.image_url);
+          portfolioMap.get(p.artist_id)?.push({ url: p.image_url, tags: rowTags });
 
           // Map and accumulate tags
           if (!artistTagMap.has(p.artist_id)) {
             artistTagMap.set(p.artist_id, []);
           }
-          if (Array.isArray(p.tags)) {
-            artistTagMap.get(p.artist_id)?.push(...p.tags);
+          if (rowTags.length > 0) {
+            artistTagMap.get(p.artist_id)?.push(...rowTags);
           }
         });
       }
@@ -299,14 +301,15 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         const artistTags = Array.from(new Set(artistTagMap.get(item.id) || []));
 
         // Normalize portfolio URLs with Supabase public URL builder
-        const normalizedPortfolio = rawPort.map((rawUrl, i) => {
-          const filename = rawUrl.split('/').pop();
+        const normalizedPortfolio = rawPort.map((entry, i) => {
+          const filename = entry.url.split('/').pop();
           const { data } = supabase.storage
             .from('portfolios')
             .getPublicUrl(`portfolios/${item.id}/${filename}`);
           return {
             style: `look n°${String(i + 1).padStart(2, '0')}`,
-            image: data.publicUrl
+            image: data.publicUrl,
+            tags: legacyTagsToStructured(entry.tags)
           };
         });
 
@@ -330,6 +333,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           image: mainImage,
           hoverImage: hoverImage,
           tags: artistTags.length > 0 ? artistTags.slice(0, 4) : [item.category || 'Bridal', 'HD Airbrush', 'Custom Styling'],
+          ai_tags: legacyTagsToStructured(artistTags.length > 0 ? artistTags : [item.category || 'Bridal']),
           bio: `${item.business_name || 'This artist'} specializes in ${(item.category || 'bridal & wedding').toLowerCase()} looks, tailored to high-end events in ${item.city || 'Hyderabad'}.`,
           signature: `${item.category || 'Signature Aesthetic'}`,
           portfolio: normalizedPortfolio.length > 0 ? normalizedPortfolio : [{ style: 'signature work', image: fallbackImage }],
@@ -445,111 +449,18 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     matchReasons?: string[];
   };
 
-  // Real AI-driven matching with organic variance (jitter) and guaranteed unique percentages
-  // Real AI-driven matching dynamically responsive to each uploaded reference image
-  // Real AI-driven matching dynamically responsive to each uploaded reference image
-  // Real AI-driven matching dynamically responsive to each uploaded reference image
-  // Real AI-driven matching dynamically responsive to each uploaded reference image
-  // Real AI-driven matching dynamically responsive to each uploaded reference image
-  const matchedArtists: MatchedArtist[] = (() => {
-    const sorted = [...base];
-
-    // Extract tags safely using a deep recursive search
-    const analysisTags: string[] = [];
-    
-    if (analysis) {
-      // This recursive function digs through every layer of the AI response to find strings
-      const extractStrings = (node: any) => {
-        if (!node) return;
-        
-        if (typeof node === 'string') {
-          // Keep only reasonable length strings, block images and timestamps
-          if (
-            node.length > 2 && 
-            node.length < 40 && 
-            !node.startsWith('data:') && 
-            !/\d{4}-\d{2}-\d{2}/.test(node)
-          ) {
-            analysisTags.push(node);
-          }
-        } else if (Array.isArray(node)) {
-          node.forEach(extractStrings);
-        } else if (typeof node === 'object') {
-          Object.entries(node).forEach(([key, val]) => {
-            // Block metadata keys from being parsed
-            if (['id', 'timestamp', 'createdat', 'date'].some(k => key.toLowerCase().includes(k))) return;
-            extractStrings(val); // Dig deeper into the object
-          });
-        }
-      };
-
-      extractStrings(analysis);
-    }
-
-    const activeQueryTags = analysisTags.length > 0 
-      ? analysisTags 
-      : [search.lookDescription, ...(search.services || [])].filter(Boolean);
-
-    // Generate a strong, unique hash based STRICTLY on the aesthetic tags
-    const tagsString = activeQueryTags.join('').toLowerCase();
-    let queryHash = 0;
-    for (let i = 0; i < tagsString.length; i++) {
-      queryHash = Math.imul(31, queryHash) + tagsString.charCodeAt(i) | 0;
-    }
-    queryHash = Math.abs(queryHash);
-
-    const withScores = sorted.map((artist) => {
-      const artistTags = artist.tags || [];
-      let overlapCount = 0;
-
-      artistTags.forEach((aTag: string) => {
-        const lowerATag = aTag.toLowerCase();
-        if (activeQueryTags.some(qTag => typeof qTag === 'string' && (lowerATag.includes(qTag.toLowerCase()) || qTag.toLowerCase().includes(lowerATag)))) {
-          overlapCount += 2;
-        }
-      });
-
-      const artistIdNum = parseInt(String(artist.id).replace(/\D/g, '')) || 5;
-      
-      // Truly dynamic score tied specifically to the image's tag hash
-      const calculatedScore = 50 + (overlapCount * 10) + ((artistIdNum ^ queryHash) % 40);
-      const hookMatch = matchedById?.get(String(artist.id)) as any;
-      
-      // Get a clean tag for the UI reason
-      const displayTag = activeQueryTags.find(t => typeof t === 'string' && t.length > 3) || 'aesthetic';
-
-      return {
-        ...artist,
-        aiScore: calculatedScore,
-        matchChips: hookMatch?.chips || activeQueryTags.slice(0, 3),
-        matchReasons: hookMatch?.matchReasons || [`Matched based on ${displayTag.toLowerCase()} style overlap.`],
-      };
-    });
-
-    // Sort descending by the newly computed image-specific AI score
-    withScores.sort((a, b) => b.aiScore - a.aiScore);
-
-    const usedPercentages = new Set<number>();
-
-    return withScores.map((artist, idx) => {
-      const charCodeSum = String(artist.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const jitter = ((charCodeSum + queryHash + idx) % 3) - 1; // -1, 0, or 1
-
-      let baseMatch = 97 - (idx * 3) + jitter;
-
-      while (usedPercentages.has(baseMatch)) {
-        baseMatch -= 1;
-      }
-      usedPercentages.add(baseMatch);
-
-      const uniqueMatch = Math.max(68, Math.min(98, baseMatch));
-
-      return {
-        ...artist,
-        match: uniqueMatch,
-      };
-    });
-  })();
+  // Real AI scoring, straight from useReferenceMatching (rankArtists + scoreArtistAgainstReference).
+  // No hashing, no rank-derived numbers: the percentage IS the computed match.
+  const matchedArtists: MatchedArtist[] = !matchedById
+    ? base
+    : base
+        .map((a): MatchedArtist => {
+          const r = matchedById.get(String(a.id));
+          return r
+            ? { ...a, match: r.score, matchChips: r.chips, matchReasons: r.chips }
+            : a;
+        })
+        .sort((a, b) => (b.match ?? 0) - (a.match ?? 0) || b.rating - a.rating);
 
   const filteredArtists = matchedArtists.filter(artist => {
     if (artist.pricePerSession > maxBudget) return false;
