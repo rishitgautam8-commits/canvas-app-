@@ -1317,14 +1317,19 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                 <div>
                   <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Category *</label>
                   <select 
-                    value={category} onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-[#1b1222] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#E2BE68]"
-                  >
-                    <option value="PERSPECTIVE">Perspective</option>
-                    <option value="INDUSTRY">Industry</option>
-                    <option value="SKINCARE">Skincare</option>
-                    <option value="PRODUCT REVIEW">Product Review</option>
-                  </select>
+  value={category} onChange={(e) => setCategory(e.target.value)}
+  className="w-full bg-[#1b1222] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#E2BE68]"
+>
+  <option value="PERSPECTIVE">Perspective</option>
+  <option value="BRIDAL CRAFT">Bridal Craft</option>
+  <option value="SKINCARE">Skincare</option>
+  <option value="INDUSTRY">Industry</option>
+  <option value="PRODUCT REVIEW">Product Review</option>
+  <option value="MAKEUP TRENDS">Makeup Trends</option>
+  <option value="HAIR & GROOMING">Hair & Grooming</option>
+  <option value="CLIENT GUIDE">Client Guide</option>
+  <option value="ARTIST SPOTLIGHT">Artist Spotlight</option>
+</select>
                 </div>
               </div>
 
