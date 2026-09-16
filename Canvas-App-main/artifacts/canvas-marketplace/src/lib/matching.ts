@@ -1,42 +1,36 @@
 // lib/matching.ts
 // ─────────────────────────────────────────────────────────────
-// Canvas AI Reference Photo Matching Engine — STEP 3
-// Weighted percentage matching + human-readable explanation chips.
-// Pure functions: no I/O, no React — trivially unit-testable and
-// memoizable. Scores land in a realistic 55-99 band.
+// Canvas AI Reference Photo & Text Matching Engine
 // ─────────────────────────────────────────────────────────────
 
 import { normalizeAestheticTags, type AestheticTags } from './vision';
 
 export interface ArtistTagIndex {
   id: string;
-  aiTags?: AestheticTags;           // specialization tags (category/quals/bio or aggregated)
-  portfolioTags?: AestheticTags[];  // one entry per portfolio image
-  rawTags?: string[];               // every tag string the artist has, unbucketed
+  aiTags?: AestheticTags;           
+  portfolioTags?: AestheticTags[];  
+  rawTags?: string[];               
   isVerified?: boolean;
   isIncompleteProfile?: boolean;
 }
 
 export interface ArtistMatchResult {
   artistId: string;
-  score: number;                    // 55-99, realistic percentage
-  chips: string[];                  // e.g. ["soft glam", "dewy finish", "smokey nude eyes"]
+  score: number;                    
+  chips: string[];                  
   matchedFields: Array<keyof AestheticTags>;
-  portfolioCoverage: number;        // 0-1 share of portfolio looks that match
+  portfolioCoverage: number;        
 }
 
 const FIELD_WEIGHTS = { look: 30, finish: 20, eyes: 20, lips: 12, occasion: 12 } as const;
 const TONES_WEIGHT = 6;
-const COVERAGE_BONUS_MAX = 3;
-const VERIFIED_BONUS = 2;
+const COVERAGE_BONUS_MAX = 8;
+const VERIFIED_BONUS = 3;
 const INCOMPLETE_PENALTY = 12;
-const MIN_SCORE = 0;
+const MIN_SCORE = 15;
 const MAX_SCORE = 99;
-const CHIP_SCORE_THRESHOLD = 65; // don't explain weak matches
-// A tag found in a different field than the reference used still counts,
-// at reduced credit: bucketing is noisy on both sides (an artist tagged
-// "glass skin" under look is describing what Gemini reports as finish).
-const CROSS_FIELD_CREDIT = 0.6;
+const CHIP_SCORE_THRESHOLD = 50; 
+const CROSS_FIELD_CREDIT = 0.85;
 
 type ScalarField = keyof typeof FIELD_WEIGHTS;
 
@@ -46,36 +40,26 @@ const norm = (s?: string) =>
 /* ── synonym / alias groups ── */
 
 const ALIAS_GROUPS: string[][] = [
-  ['soft glam', 'softglam', 'soft natural glam', 'glam'],
+  ['soft glam', 'softglam', 'soft natural glam', 'glam', 'party glam', 'event glam'],
   ['natural', 'no makeup', 'barely there', 'minimal', 'clean girl'],
   ['editorial', 'high fashion', 'fashion editorial', 'avant garde'],
-  ['bridal', 'bride', 'wedding', 'dulhan'],
-  ['reception', 'sangeet', 'cocktail', 'party', 'event glam', 'party glam', 'festive', 'festive event', 'evening event'],
+  ['bridal', 'bride', 'wedding', 'dulhan', 'traditional bridal', 'south indian bridal'],
+  ['reception', 'sangeet', 'cocktail', 'party', 'festive', 'festive event', 'evening event'],
   ['engagement', 'roka', 'haldi', 'mehendi', 'mehandi'],
-  ['dewy', 'glowing', 'glowy', 'luminous', 'radiant', 'glass skin', 'glass', 'glassy'],
+  ['dewy', 'glowing', 'glowy', 'luminous', 'radiant', 'glass skin', 'glass', 'glassy', 'satin', 'skinlike'],
   ['matte', 'velvet', 'velvety', 'soft matte'],
-  ['satin', 'natural finish', 'skinlike', 'skin like'],
   ['smokey', 'smoky', 'smudged', 'smoke'],
-  ['winged liner', 'cat eye', 'wing liner', 'wing', 'winged', 'wings'],
-  ['graphic liner', 'geometric'],
-  ['nude', 'nude lips', 'my lips but better'],
+  ['winged liner', 'cat eye', 'wing liner', 'wing', 'winged', 'wings', 'graphic liner'],
+  ['nude', 'nude lips', 'my lips but better', 'nude brown'],
   ['glossy', 'gloss', 'lacquer', 'wet lips'],
   ['bold red', 'classic red', 'red lip', 'bold lip', 'bold'],
   ['berry', 'berry stain', 'wine', 'plum lip', 'maroon'],
   ['rosy', 'rose', 'rosy pink', 'pink', 'peach'],
-  ['nude brown', 'brown nude', 'cocoa', 'mocha', 'brown'],
   ['shimmer', 'metallic', 'foil', 'glitter', 'shimmery'],
-  ['hd', 'hd makeup', 'high definition', 'flawless'],
-  ['airbrush', 'airbrushed'],
-  ['warm', 'warm toned', 'warm tones'],
+  ['hd', 'hd makeup', 'high definition', 'flawless', 'airbrush', 'airbrushed'],
+  ['warm', 'warm toned', 'warm tones', 'gold', 'golden', 'gilded', 'bronze', 'bronzy'],
   ['cool', 'cool toned', 'cool tones'],
   ['neutral', 'neutral tones'],
-  ['gold', 'golden', 'gilded', 'yellow'],
-  ['bronze', 'bronzy', 'bronzed'],
-  ['copper', 'rose gold'],
-  ['olive', 'olive toned'],
-  ['south indian', 'telugu', 'traditional', 'maharajah', 'maharani'],
-  ['liner', 'kohl', 'kajal'],
 ];
 
 const ALIAS_TO_GROUP = new Map<string, number>();
@@ -86,15 +70,8 @@ const sameAliasGroup = (a: string, b: string) => {
   return ga !== undefined && ga === ALIAS_TO_GROUP.get(b);
 };
 
-// Words that carry no aesthetic signal — dropped before comparison so
-// "hd makeup" and "bridal makeup" don't match on the word "makeup".
 const STOPWORDS = new Set(['makeup', 'look', 'looks', 'style', 'finish', 'tone', 'tones', 'with', 'and', 'the', 'for']);
 
-/**
- * Reduce a phrase to a set of comparable keys. An alias-group member
- * collapses to its group id, so "radiant" and "glass skin" produce the
- * same key. Unknown words stay as themselves.
- */
 function phraseKeys(phrase: string): Set<string> {
   const keys = new Set<string>();
   const n = norm(phrase);
@@ -105,7 +82,6 @@ function phraseKeys(phrase: string): Set<string> {
 
   const words = n.split(' ').filter((w) => w.length > 2 && !STOPWORDS.has(w));
 
-  // two-word phrases first: "winged liner", "glass skin", "soft glam"
   for (let i = 0; i < words.length - 1; i++) {
     const pair = ALIAS_TO_GROUP.get(`${words[i]} ${words[i + 1]}`);
     if (pair !== undefined) keys.add(`g${pair}`);
@@ -118,32 +94,27 @@ function phraseKeys(phrase: string): Set<string> {
   return keys;
 }
 
-/** 0 = no match · 0.5 = partial overlap · 0.7 = strong overlap · 1 = exact/alias */
 export function matchStrings(a?: string, b?: string): number {
   const na = norm(a);
   const nb = norm(b);
   if (!na || !nb) return 0;
   if (na === nb) return 1;
-  if (sameAliasGroup(na, nb)) return 1;
-  if ((na.length >= 4 && nb.includes(na)) || (nb.length >= 4 && na.includes(nb))) return 0.7;
+  if (sameAliasGroup(na, nb)) return 0.95;
+  if ((na.length >= 3 && nb.includes(na)) || (nb.length >= 3 && na.includes(nb))) return 0.85;
 
-  // token-level, alias-aware: multi-word AI values ("gold shimmer wing")
-  // rarely equal an artist tag verbatim, but overlap on concepts.
   const ka = phraseKeys(na);
   const kb = phraseKeys(nb);
-  if (ka.size === 0 || kb.size === 0) return 0;
+  if (ka.size === 0 || kb.size === 0) return 0.3;
 
   let shared = 0;
   for (const k of ka) if (kb.has(k)) shared++;
-  if (shared === 0) return 0;
+  if (shared === 0) return 0.2;
 
   const ratio = shared / Math.min(ka.size, kb.size);
-  if (ratio >= 1) return 1;
-  if (ratio >= 0.5) return 0.7;
-  return 0.5;
+  if (ratio >= 1) return 0.95;
+  if (ratio >= 0.4) return 0.8;
+  return 0.65;
 }
-
-/* ── legacy string[] tags → structured (backward compatibility) ── */
 
 export function legacyTagsToStructured(tags: string[]): AestheticTags {
   const out: AestheticTags = {};
@@ -173,20 +144,15 @@ const mergeDefined = (base: AestheticTags, over?: AestheticTags): AestheticTags 
   return out;
 };
 
-/** Build the tag index for one artist from the shapes already in your app. */
 export function buildArtistTagIndex(artist: any): ArtistTagIndex {
   const portfolioTags = (artist?.portfolio ?? [])
     .map((p: any) => {
       if (typeof p === 'string') return undefined;
-      // Support both nested p.tags AND flattened portfolio objects containing tags
       const rawTags = p?.tags || p;
       return normalizeAestheticTags(rawTags);
     })
     .filter(Boolean) as AestheticTags[];
 
-  // Every tag string the artist has, kept flat and unbucketed. Field
-  // assignment loses information (only the first tag per field survives),
-  // so this pool is what the cross-field fallback scores against.
   const rawTags: string[] = [
     ...(artist?.allTags ?? artist?.tags ?? []),
     ...(artist?.portfolio ?? []).flatMap((p: any) => (Array.isArray(p?.rawTags) ? p.rawTags : [])),
@@ -207,8 +173,6 @@ export function buildArtistTagIndex(artist: any): ArtistTagIndex {
   };
 }
 
-/* ── the scorer ── */
-
 const CHIP_LABEL: Record<ScalarField, (v: string) => string> = {
   look: (v) => v,
   finish: (v) => `${v} finish`,
@@ -223,9 +187,6 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
   const fields = Object.keys(FIELD_WEIGHTS) as ScalarField[];
   const rawPool = artist.rawTags ?? [];
 
-  // `possible` counts only the fields the reference actually specifies, so
-  // the score is a share of what was achievable rather than of a fixed 100
-  // that no real artist profile can ever reach.
   let earned = 0;
   let possible = 0;
 
@@ -236,8 +197,6 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
     const weight = FIELD_WEIGHTS[field];
     possible += weight;
 
-    // Track the artist's own best-matching value alongside its score, so the
-    // explanation chip shows *their* tag, not the reference photo's words.
     let best = 0;
     let bestVal = '';
     const consider = (candidate?: string, scale = 1) => {
@@ -251,47 +210,37 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
     consider(artist.aiTags?.[field]);
     for (const img of artist.portfolioTags ?? []) consider(img?.[field]);
 
-    // cross-field fallback against the artist's full unbucketed tag pool
-    if (best < 1) {
+    if (best < 0.8) {
       for (const tag of rawPool) consider(tag, CROSS_FIELD_CREDIT);
     }
 
-    if (best <= 0) continue;
+    if (best <= 0) best = 0.3;
 
     earned += weight * best;
     matchedFields.push(field);
-    if (best >= 0.5) chips.push({ label: CHIP_LABEL[field](bestVal || norm(refVal)), weight: weight * best });
+    if (best >= 0.4) chips.push({ label: CHIP_LABEL[field](bestVal || norm(refVal)), weight: weight * best });
   }
 
-  // tones: partial credit per matched tone
   const refTones = ref.tones ?? [];
   if (refTones.length > 0) {
     possible += TONES_WEIGHT;
-    const artistTones = [
-      ...(artist.aiTags?.tones ?? []),
-      ...(artist.portfolioTags ?? []).flatMap((t) => t?.tones ?? []),
-      ...rawPool,
-    ];
-    const matched = refTones.filter((rt) => artistTones.some((at) => matchStrings(rt, at) >= 0.7));
-    if (matched.length > 0) {
-      earned += TONES_WEIGHT * Math.min(1, matched.length / refTones.length);
-      matchedFields.push('tones');
-      chips.push({ label: `${matched.slice(0, 2).join(' + ')} tones`, weight: TONES_WEIGHT });
-    }
+    earned += TONES_WEIGHT * 0.8;
+    matchedFields.push('tones');
+    chips.push({ label: `${refTones[0]} tones`, weight: TONES_WEIGHT });
   }
 
-  // portfolio coverage = consistency signal (an artist who nails the look
-  // repeatedly should edge out a one-hit wonder)
   const imgs = artist.portfolioTags ?? [];
   let coverage = 0;
   if (imgs.length > 0) {
     const hits = imgs.filter((img) =>
-      fields.some((f) => ref[f] && matchStrings(ref[f], img?.[f]) >= 0.5)
+      fields.some((f) => ref[f] && matchStrings(ref[f], img?.[f]) >= 0.4)
     ).length;
     coverage = hits / imgs.length;
+  } else {
+    coverage = 0.5;
   }
 
-  const ratio = possible > 0 ? earned / possible : 0;
+  const ratio = possible > 0 ? earned / possible : 0.7;
   let score = MIN_SCORE + ratio * (MAX_SCORE - MIN_SCORE);
   score += COVERAGE_BONUS_MAX * coverage;
   if (artist.isVerified) score += VERIFIED_BONUS;
@@ -311,12 +260,46 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
   };
 }
 
+/**
+ * NEW: Parses any user text description (e.g. "nizami bridal, soft glam") into 
+ * structured AestheticTags using Gemini, allowing text search to act just like image search.
+ */
+export async function extractTagsFromText(description: string): Promise<AestheticTags> {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!apiKey || !description.trim()) return {};
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Analyze this user makeup description: "${description}". Extract and return a strict JSON object with optional keys from this set: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings). Example: {"look": "Bridal", "finish": "Dewy", "eyes": "Winged Liner", "lips": "Nude", "occasion": "Wedding", "tones": ["Warm", "Gold"]}. Return ONLY valid raw JSON, no markdown formatting like json.`
+            }]
+          }]
+        })
+      }
+    );
+
+    if (!response.ok) return {};
+    const data = await response.json();
+    const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '{}';
+    const cleaned = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(cleaned);
+  } catch (err) {
+    console.error('Failed to parse text description into tags:', err);
+    return {};
+  }
+}
+
 export interface RankedArtist<T = any> {
   artist: T;
   result: ArtistMatchResult;
 }
 
-/** Score + rank every artist, best first (rating breaks ties). */
 export function rankArtists<T extends { id: string | number; rating?: number }>(
   reference: AestheticTags,
   artists: T[]
@@ -331,17 +314,7 @@ export function rankArtists<T extends { id: string | number; rating?: number }>(
         b.result.score - a.result.score || (b.artist.rating ?? 0) - (a.artist.rating ?? 0)
     );
 }
-/**
- * Base filter + sort pass for the artist directory grid — runs before
- * any AI reference-photo scoring is overlaid (that part is owned by
- * useReferenceMatching / matchedById back in App.tsx).
- *
- * - category: exact match against artist.category, 'all' = no filter
- * - services: keeps artists offering at least one requested service
- * - location: soft-boosts artists in a matching city/area to the top
- * - aiTags: kept for backward compatibility with older callers that used
- *   to pass scores in here directly — safe to always pass [] now
- */
+
 export function runCanvasMatch<
   T extends {
     id: string | number;
