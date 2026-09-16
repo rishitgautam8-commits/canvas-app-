@@ -21,8 +21,6 @@ import { ChatDrawer } from '@/components/ChatDrawer';
 import { Reveal } from '@/components/Reveal';
 import { Premium } from '@/components/Premium';
 import { getTheme } from '@/lib/theme';
-import { ArtistBookings } from './components/ArtistBookings';
-import { ClientBookings } from './components/ClientBookings';
 
 // ─── NEW AI MATCHING ENGINE IMPORTS ────────────────────────────────────────────
 // 1. IMPORTS: Hook, panel component, and base matching function
@@ -254,91 +252,49 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   const { data: liveArtists = [] } = useQuery({
     queryKey: ['liveArtists'],
     queryFn: async () => {
-      // 1. Fetch artist profiles
-      const { data: profiles, error: profileError } = await supabase
+      const { data, error } = await supabase
         .from('artist_profiles')
-        .select(`id, business_name, category, city, max_travel_km, starting_price`);
+        .select(`id, business_name, category, city, max_travel_km, starting_price, portfolio`);
 
-      if (profileError) {
-        console.error('Error fetching live artists:', profileError.message);
+      if (error) {
+        console.error('Error fetching live artists:', error.message);
         return [];
       }
 
-      if (!profiles) return [];
-
-      // 2. Fetch portfolio items INCLUDING tags
-      const { data: allPortfolios } = await supabase
-        .from('artist_portfolio')
-        .select('artist_id, image_url, tags, created_at')
-        .order('created_at', { ascending: false });
-
-      // Group portfolios and collect all unique tags per artist
-      const portfolioMap = new Map<string, string[]>();
-      const artistTagMap = new Map<string, string[]>();
-
-      if (allPortfolios) {
-        allPortfolios.forEach((p: any) => {
-          // Map images
-          if (!portfolioMap.has(p.artist_id)) {
-            portfolioMap.set(p.artist_id, []);
-          }
-          portfolioMap.get(p.artist_id)?.push(p.image_url);
-
-          // Map and accumulate tags
-          if (!artistTagMap.has(p.artist_id)) {
-            artistTagMap.set(p.artist_id, []);
-          }
-          if (Array.isArray(p.tags)) {
-            artistTagMap.get(p.artist_id)?.push(...p.tags);
-          }
+      if (data) {
+        return data.map((item: any, index: number) => {
+          const rawPortfolio = item.portfolio || [];
+          const mainImage = rawPortfolio.length > 0
+            ? typeof rawPortfolio[0] === 'string' ? rawPortfolio[0] : rawPortfolio[0]?.image
+            : `https://images.unsplash.com/photo-${editorialImages[index % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
+          const normalizedPortfolio = normalizePortfolio(rawPortfolio, mainImage);
+          return {
+            id: item.id,
+            name: item.business_name || 'Canvas Artist',
+            category: item.category || 'Bridal & Wedding',
+            services: ['Makeup Artist', item.category || 'Bridal & Wedding'],
+            city: item.city || 'Jubilee Hills',
+            location: `${item.city || 'Jubilee Hills'}, Hyderabad`,
+            maxTravelKm: item.max_travel_km || 25,
+            pricePerSession: item.starting_price || 15000,
+            startingPrice: `₹${(item.starting_price || 15000).toLocaleString('en-IN')}`,
+            rating: 4.9,
+            reviewCount: 24 + (index % 40),
+            reviewsCount: 24 + (index % 40),
+            image: mainImage,
+            hoverImage: normalizedPortfolio[1]?.image || mainImage,
+            tags: [item.category || 'Bridal & Wedding', 'HD Airbrush', 'Custom Styling'],
+            bio: `${item.business_name || 'This artist'} specializes in ${(item.category || 'bridal & wedding').toLowerCase()} looks, tailored to high-end events in ${item.city || 'Hyderabad'}.`,
+            signature: `${item.category || 'Signature Aesthetic'}`,
+            portfolio: normalizedPortfolio,
+            addons: [],
+            isVerified: true,
+            isLiveDb: true,
+            isIncompleteProfile: !item.business_name || rawPortfolio.length === 0,
+          } as Artist & { isLiveDb?: boolean; isIncompleteProfile?: boolean };
         });
       }
-
-      return profiles.map((item: any, index: number) => {
-        const rawPort = portfolioMap.get(item.id) || [];
-        const artistTags = Array.from(new Set(artistTagMap.get(item.id) || []));
-
-        // Normalize portfolio URLs with Supabase public URL builder
-        const normalizedPortfolio = rawPort.map((rawUrl, i) => {
-          const filename = rawUrl.split('/').pop();
-          const { data } = supabase.storage
-            .from('portfolios')
-            .getPublicUrl(`portfolios/${item.id}/${filename}`);
-          return {
-            style: `look n°${String(i + 1).padStart(2, '0')}`,
-            image: data.publicUrl
-          };
-        });
-
-        const fallbackImage = `https://images.unsplash.com/photo-${editorialImages[index % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
-        const mainImage = normalizedPortfolio[0]?.image || fallbackImage;
-        const hoverImage = normalizedPortfolio[1]?.image || mainImage;
-
-        return {
-          id: item.id,
-          name: item.business_name || 'Canvas Artist',
-          category: item.category || 'Bridal & Wedding',
-          services: ['Makeup Artist', item.category || 'Bridal & Wedding'],
-          city: item.city || 'Jubilee Hills',
-          location: `${item.city || 'Jubilee Hills'}, Hyderabad`,
-          maxTravelKm: item.max_travel_km || 25,
-          pricePerSession: item.starting_price || 15000,
-          startingPrice: `₹${(item.starting_price || 15000).toLocaleString('en-IN')}`,
-          rating: 4.9,
-          reviewCount: 24 + (index % 40),
-          reviewsCount: 24 + (index % 40),
-          image: mainImage,
-          hoverImage: hoverImage,
-          tags: artistTags.length > 0 ? artistTags.slice(0, 4) : [item.category || 'Bridal', 'HD Airbrush', 'Custom Styling'],
-          bio: `${item.business_name || 'This artist'} specializes in ${(item.category || 'bridal & wedding').toLowerCase()} looks, tailored to high-end events in ${item.city || 'Hyderabad'}.`,
-          signature: `${item.category || 'Signature Aesthetic'}`,
-          portfolio: normalizedPortfolio.length > 0 ? normalizedPortfolio : [{ style: 'signature work', image: fallbackImage }],
-          addons: [],
-          isVerified: true,
-          isLiveDb: true,
-          isIncompleteProfile: !item.business_name || normalizedPortfolio.length === 0,
-        } as Artist & { isLiveDb?: boolean; isIncompleteProfile?: boolean; matchScore?: number };
-      });
+      return [];
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -388,10 +344,14 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     inspirationFile: null
   });
 
+  // ─── 2. STATE HOOK INTEGRATION ──────────────────────────────────────────────
+  // Pure Live Database Mode — sourceArtists feeds the matching hook
   const sourceArtists: Artist[] = useMemo(() => {
     return liveArtists;
   }, [liveArtists]);
 
+  // Initialize the AI Reference Matching hook with our artist roster.
+  // Destructure all values needed for the upload handler and the UI panel.
   const {
     phase,
     analysis,
@@ -400,7 +360,12 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     submitReference,
     clearReference,
   } = useReferenceMatching(sourceArtists);
+  // ────────────────────────────────────────────────────────────────────────────
 
+  // ─── 3. UPLOAD HANDLER ──────────────────────────────────────────────────────
+  // When a client uploads an inspiration photo, pass the file directly to
+  // submitReference(). When they clear it, call clearReference() to reset
+  // the matching engine back to its idle state.
   const handleSearchChange = async (newVal: HeroSearchValue) => {
     if (newVal.inspirationFile && !session) {
       window.alert("Please Sign In or Create an Account to use AI Vision Look Matching.");
@@ -411,11 +376,15 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     setSearch(newVal);
 
     if (newVal.inspirationFile) {
+      // Hand the raw File directly to the matching engine hook —
+      // useReferenceMatching owns the async AI call from here.
       submitReference(newVal.inspirationFile);
     } else {
+      // Photo was removed — reset the engine to idle.
       clearReference();
     }
   };
+  // ────────────────────────────────────────────────────────────────────────────
 
   const [hasSearched, setHasSearched] = useState(false);
   const [briefOpen, setBriefOpen] = useState(false);
@@ -430,126 +399,36 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
 
+  // ─── 4. RE-RANKING DIRECTORY GRID ───────────────────────────────────────────
+  // Step 1: Run the canonical Canvas filter/score pass via runCanvasMatch.
+  // Step 2: If the AI engine has returned per-artist scores (matchedById),
+  //         overlay those scores and sort by match % desc, then rating desc.
+  //         If no reference photo has been processed yet, use the base order.
   const base = runCanvasMatch(
     search.services,
     search.location,
     selectedCategoryFilter,
-    [],
+    [],            // aiTags are now owned by useReferenceMatching — pass empty here
     sourceArtists
   );
 
+  // The AI-match overlay adds fields that plain `Artist` doesn't have. Type them
+  // here as optional so TS knows every artist may or may not carry a score.
   type MatchedArtist = Artist & {
     match?: number;
-    matchScore?: number;
     matchChips?: string[];
     matchReasons?: string[];
   };
 
-  // Real AI-driven matching with organic variance (jitter) and guaranteed unique percentages
-  // Real AI-driven matching dynamically responsive to each uploaded reference image
-  // Real AI-driven matching dynamically responsive to each uploaded reference image
-  // Real AI-driven matching dynamically responsive to each uploaded reference image
-  // Real AI-driven matching dynamically responsive to each uploaded reference image
-  // Real AI-driven matching dynamically responsive to each uploaded reference image
-  const matchedArtists: MatchedArtist[] = (() => {
-    const sorted = [...base];
-
-    // Extract tags safely using a deep recursive search
-    const analysisTags: string[] = [];
-    
-    if (analysis) {
-      // This recursive function digs through every layer of the AI response to find strings
-      const extractStrings = (node: any) => {
-        if (!node) return;
-        
-        if (typeof node === 'string') {
-          // Keep only reasonable length strings, block images and timestamps
-          if (
-            node.length > 2 && 
-            node.length < 40 && 
-            !node.startsWith('data:') && 
-            !/\d{4}-\d{2}-\d{2}/.test(node)
-          ) {
-            analysisTags.push(node);
-          }
-        } else if (Array.isArray(node)) {
-          node.forEach(extractStrings);
-        } else if (typeof node === 'object') {
-          Object.entries(node).forEach(([key, val]) => {
-            // Block metadata keys from being parsed
-            if (['id', 'timestamp', 'createdat', 'date'].some(k => key.toLowerCase().includes(k))) return;
-            extractStrings(val); // Dig deeper into the object
-          });
-        }
-      };
-
-      extractStrings(analysis);
-    }
-
-    const activeQueryTags = analysisTags.length > 0 
-      ? analysisTags 
-      : [search.lookDescription, ...(search.services || [])].filter(Boolean);
-
-    // Generate a strong, unique hash based STRICTLY on the aesthetic tags
-    const tagsString = activeQueryTags.join('').toLowerCase();
-    let queryHash = 0;
-    for (let i = 0; i < tagsString.length; i++) {
-      queryHash = Math.imul(31, queryHash) + tagsString.charCodeAt(i) | 0;
-    }
-    queryHash = Math.abs(queryHash);
-
-    const withScores = sorted.map((artist) => {
-      const artistTags = artist.tags || [];
-      let overlapCount = 0;
-
-      artistTags.forEach((aTag: string) => {
-        const lowerATag = aTag.toLowerCase();
-        if (activeQueryTags.some(qTag => typeof qTag === 'string' && (lowerATag.includes(qTag.toLowerCase()) || qTag.toLowerCase().includes(lowerATag)))) {
-          overlapCount += 2;
-        }
-      });
-
-      const artistIdNum = parseInt(String(artist.id).replace(/\D/g, '')) || 5;
-      
-      // Truly dynamic score tied specifically to the image's tag hash
-      const calculatedScore = 50 + (overlapCount * 10) + ((artistIdNum ^ queryHash) % 40);
-      const hookMatch = matchedById?.get(String(artist.id)) as any;
-      
-      // Get a clean tag for the UI reason
-      const displayTag = activeQueryTags.find(t => typeof t === 'string' && t.length > 3) || 'aesthetic';
-
-      return {
-        ...artist,
-        aiScore: calculatedScore,
-        matchChips: hookMatch?.chips || activeQueryTags.slice(0, 3),
-        matchReasons: hookMatch?.matchReasons || [`Matched based on ${displayTag.toLowerCase()} style overlap.`],
-      };
-    });
-
-    // Sort descending by the newly computed image-specific AI score
-    withScores.sort((a, b) => b.aiScore - a.aiScore);
-
-    const usedPercentages = new Set<number>();
-
-    return withScores.map((artist, idx) => {
-      const charCodeSum = String(artist.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const jitter = ((charCodeSum + queryHash + idx) % 3) - 1; // -1, 0, or 1
-
-      let baseMatch = 97 - (idx * 3) + jitter;
-
-      while (usedPercentages.has(baseMatch)) {
-        baseMatch -= 1;
-      }
-      usedPercentages.add(baseMatch);
-
-      const uniqueMatch = Math.max(68, Math.min(98, baseMatch));
-
-      return {
-        ...artist,
-        match: uniqueMatch,
-      };
-    });
-  })();
+  const matchedArtists: MatchedArtist[] = !matchedById
+    ? base
+    : base
+        .map((a): MatchedArtist => {
+          const r = matchedById.get(String(a.id));
+          return r ? { ...a, match: r.score, matchChips: r.chips } : a;
+        })
+        .sort((a, b) => (b.match ?? 0) - (a.match ?? 0) || b.rating - a.rating);
+  // ────────────────────────────────────────────────────────────────────────────
 
   const filteredArtists = matchedArtists.filter(artist => {
     if (artist.pricePerSession > maxBudget) return false;
@@ -628,8 +507,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       const bookingData = {
         client_id: session.user.id,
         artist_id: selectedArtist.id,
-        service_name: selectedArtist.category || 'Bridal & Event Makeup',
-        total_amount: selectedArtist.pricePerSession || 15000,
         event_date: dataElements.get('date'),
         time_slot: dataElements.get('slot'),
         venue_address: dataElements.get('location'),
@@ -693,11 +570,13 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
             <div className="flex flex-col items-start pt-4 mb-8">
+              {/* EYEBROW TAG */}
               <div className="flex items-center gap-3 font-['Montserrat'] text-[11px] font-bold uppercase tracking-[0.2em] text-[#9D7C3A] mb-6">
                 <div className="w-[26px] h-[1px] bg-[#9D7C3A]"></div>
                 ai-powered beauty matching
               </div>
 
+              {/* EDITORIAL HEADLINE LOCKUP */}
               <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
                 <span className="font-['Moura'] font-normal text-[3rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
                   Hyderabad's
@@ -796,6 +675,18 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               </div>
             </ScrollZoomIn>
 
+            {/*
+              ─── 5. UI RENDER ─────────────────────────────────────────────────────────
+              Replace the old inline AI analysis block with the new <AIMatchPanel />.
+              It is conditionally rendered whenever the user has uploaded an inspiration
+              photo (i.e. search.inspirationFile is truthy) AND a search has been
+              submitted — identical trigger condition as the previous block.
+              The panel owns all its own loading/error/result states internally via
+              the phase, analysis, and error values from useReferenceMatching.
+              onClear wires the panel's dismiss button back to clearReference() so the
+              engine resets and the panel unmounts cleanly.
+              ──────────────────────────────────────────────────────────────────────────
+            */}
             {hasSearched && search.inspirationFile && (
               <ScrollZoomIn>
                 <div className="mb-12 mt-8">
@@ -873,7 +764,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                               portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)}
                               startingPrice={artist.startingPrice}
                               tags={artist.tags}
-                              matchPercentage={search.inspirationFile ? artist.match : undefined}
+                              matchPercentage={artist.match}
                               matchReasons={artist.matchReasons}
                               onClick={() => handleSelectArtist(artist)}
                             />
@@ -1164,6 +1055,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         </div>
       )}
 
+      {/* CONTACT US MODAL */}
       {contactOpen && (
         <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setContactOpen(false)}>
           <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
@@ -1197,6 +1089,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         </div>
       )}
 
+      {/* HELP & FAQS MODAL */}
       {faqOpen && (
         <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setFaqOpen(false)}>
           <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
