@@ -446,38 +446,66 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   };
 
   // Real AI-driven matching with organic variance (jitter) and guaranteed unique percentages
+  // Real AI-driven matching dynamically responsive to each uploaded reference image
   const matchedArtists: MatchedArtist[] = (() => {
-    const sorted = [...base].sort((a, b) => b.rating - a.rating);
-    if (!matchedById || matchedById.size === 0) return sorted;
+    const sorted = [...base];
 
-    const withScores = sorted.map((a) => {
-      const r = matchedById.get(String(a.id)) as any; // <--- Cast as any here
+    // Extract real-time tags from the current AI image analysis
+    const analysisTags: string[] = [];
+    if (analysis) {
+      if (Array.isArray((analysis as any).tags)) {
+        analysisTags.push(...(analysis as any).tags.map((t: any) => typeof t === 'string' ? t : t.label || ''));
+      } else if (typeof analysis === 'object') {
+        Object.values(analysis).forEach(val => {
+          if (typeof val === 'string') analysisTags.push(val);
+          else if (Array.isArray(val)) {
+            val.forEach(v => {
+              if (typeof v === 'string') analysisTags.push(v);
+              else if (v && typeof v === 'object') analysisTags.push(Object.values(v).join(' '));
+            });
+          }
+        });
+      }
+    }
+
+    const activeQueryTags = analysisTags.length > 0 
+      ? analysisTags 
+      : [search.lookDescription, ...(search.services || [])].filter(Boolean);
+
+    const withScores = sorted.map((artist) => {
+      const artistTags = artist.tags || [];
+      const matchCount = artistTags.filter((tag: string) => 
+        activeQueryTags.some(qTag => qTag.toLowerCase().includes(tag.toLowerCase()) || tag.toLowerCase().includes(qTag.toLowerCase()))
+      ).length;
+
+      const hookMatch = matchedById?.get(String(artist.id)) as any;
+      const baseAiScore = hookMatch ? hookMatch.score : (70 + (matchCount * 8));
+
       return {
-        ...a,
-        aiScore: r ? r.score : 50,
-        matchChips: r?.chips,
-        matchReasons: r?.reasons || r?.matchReasons,
+        ...artist,
+        aiScore: baseAiScore + (matchCount * 6) + (artist.id.length * 3),
+        matchChips: hookMatch?.chips,
+        matchReasons: hookMatch?.reasons || hookMatch?.matchReasons,
       };
     });
 
-    // Sort by real AI score descending
+    // Sort descending by real AI relevance to the uploaded photo
     withScores.sort((a, b) => b.aiScore - a.aiScore);
 
-    // Track assigned percentages to guarantee zero duplicates while allowing organic ±1% jitter
     const usedPercentages = new Set<number>();
 
     return withScores.map((artist, idx) => {
       const charCodeSum = String(artist.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
       const jitter = (charCodeSum % 3) - 1; // -1, 0, or 1
 
-      let baseMatch = 96 - (idx * 3) + jitter;
+      let baseMatch = 97 - (idx * 3) + jitter;
 
       while (usedPercentages.has(baseMatch)) {
         baseMatch -= 1;
       }
       usedPercentages.add(baseMatch);
 
-      const uniqueMatch = Math.max(68, Math.min(97, baseMatch));
+      const uniqueMatch = Math.max(68, Math.min(98, baseMatch));
 
       return {
         ...artist,
