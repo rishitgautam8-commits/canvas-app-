@@ -294,22 +294,37 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         });
       }
 
-      // Current search/inspiration tags simulation (or connect to your search state)
+      // Current search/inspiration tags simulation
       const activeSearchTags = ['bridal glam', 'satin', 'smokey brown', 'matte red', 'bridal', 'hd airbrush'];
 
-      return profiles.map((item: any, index: number) => {
+      // 3. Map and calculate raw scores first
+      const scoredProfiles = profiles.map((item: any, index: number) => {
         const rawPort = portfolioMap.get(item.id) || [];
         const artistTags = Array.from(new Set(artistTagMap.get(item.id) || []));
         
-        // Dynamically calculate match percentage based on tag overlap
         const matchingTags = activeSearchTags.filter(searchTag => 
           artistTags.some((t: string) => t.toLowerCase().includes(searchTag.toLowerCase()))
         );
-        
-        // Compute match score between 72% and 95% based on tag relevance
-        const dynamicMatch = artistTags.length > 0 
-          ? Math.min(95, Math.max(72, 70 + (matchingTags.length * 6) + (item.business_name.length % 5)))
-          : 82; // fallback default match
+
+        // Raw score combines tag matches and a stable unique tie-breaker
+        const rawScore = (matchingTags.length * 10) + (item.business_name ? item.business_name.length : index);
+
+        return {
+          item,
+          rawPort,
+          artistTags,
+          rawScore,
+          index
+        };
+      });
+
+      // 4. Sort artists descending by their match relevance
+      scoredProfiles.sort((a, b) => b.rawScore - a.rawScore);
+
+      // 5. Map to final artist objects, guaranteeing 100% unique descending percentages
+      return scoredProfiles.map(({ item, rawPort, artistTags }, sortedIndex) => {
+        // Generates unique percentages starting from 96% down (e.g., 96%, 93%, 90%, 87%...)
+        const uniqueMatch = Math.max(68, 96 - (sortedIndex * 3));
 
         // Normalize portfolio URLs with Supabase public URL builder
         const normalizedPortfolio = rawPort.map((rawUrl, i) => {
@@ -323,7 +338,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           };
         });
 
-        const fallbackImage = `https://images.unsplash.com/photo-${editorialImages[index % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
+        const fallbackImage = `https://images.unsplash.com/photo-${editorialImages[sortedIndex % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
         const mainImage = normalizedPortfolio[0]?.image || fallbackImage;
         const hoverImage = normalizedPortfolio[1]?.image || mainImage;
 
@@ -338,9 +353,9 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           pricePerSession: item.starting_price || 15000,
           startingPrice: `₹${(item.starting_price || 15000).toLocaleString('en-IN')}`,
           rating: 4.9,
-          reviewCount: 24 + (index % 40),
-          reviewsCount: 24 + (index % 40),
-          matchScore: dynamicMatch, // <--- Dynamic percentage assigned here
+          reviewCount: 24 + (sortedIndex * 3),
+          reviewsCount: 24 + (sortedIndex * 3),
+          matchScore: uniqueMatch,
           image: mainImage,
           hoverImage: hoverImage,
           tags: artistTags.length > 0 ? artistTags.slice(0, 4) : [item.category || 'Bridal', 'HD Airbrush', 'Custom Styling'],
@@ -402,14 +417,10 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     inspirationFile: null
   });
 
-  // ─── 2. STATE HOOK INTEGRATION ──────────────────────────────────────────────
-  // Pure Live Database Mode — sourceArtists feeds the matching hook
   const sourceArtists: Artist[] = useMemo(() => {
     return liveArtists;
   }, [liveArtists]);
 
-  // Initialize the AI Reference Matching hook with our artist roster.
-  // Destructure all values needed for the upload handler and the UI panel.
   const {
     phase,
     analysis,
@@ -418,12 +429,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     submitReference,
     clearReference,
   } = useReferenceMatching(sourceArtists);
-  // ────────────────────────────────────────────────────────────────────────────
 
-  // ─── 3. UPLOAD HANDLER ──────────────────────────────────────────────────────
-  // When a client uploads an inspiration photo, pass the file directly to
-  // submitReference(). When they clear it, call clearReference() to reset
-  // the matching engine back to its idle state.
   const handleSearchChange = async (newVal: HeroSearchValue) => {
     if (newVal.inspirationFile && !session) {
       window.alert("Please Sign In or Create an Account to use AI Vision Look Matching.");
@@ -434,15 +440,11 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     setSearch(newVal);
 
     if (newVal.inspirationFile) {
-      // Hand the raw File directly to the matching engine hook —
-      // useReferenceMatching owns the async AI call from here.
       submitReference(newVal.inspirationFile);
     } else {
-      // Photo was removed — reset the engine to idle.
       clearReference();
     }
   };
-  // ────────────────────────────────────────────────────────────────────────────
 
   const [hasSearched, setHasSearched] = useState(false);
   const [briefOpen, setBriefOpen] = useState(false);
@@ -457,23 +459,17 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
 
-  // ─── 4. RE-RANKING DIRECTORY GRID ───────────────────────────────────────────
-  // Step 1: Run the canonical Canvas filter/score pass via runCanvasMatch.
-  // Step 2: If the AI engine has returned per-artist scores (matchedById),
-  //         overlay those scores and sort by match % desc, then rating desc.
-  //         If no reference photo has been processed yet, use the base order.
   const base = runCanvasMatch(
     search.services,
     search.location,
     selectedCategoryFilter,
-    [],            // aiTags are now owned by useReferenceMatching — pass empty here
+    [],
     sourceArtists
   );
 
-  // The AI-match overlay adds fields that plain `Artist` doesn't have. Type them
-  // here as optional so TS knows every artist may or may not carry a score.
   type MatchedArtist = Artist & {
     match?: number;
+    matchScore?: number; // <--- Add this line
     matchChips?: string[];
     matchReasons?: string[];
   };
@@ -486,7 +482,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           return r ? { ...a, match: r.score, matchChips: r.chips } : a;
         })
         .sort((a, b) => (b.match ?? 0) - (a.match ?? 0) || b.rating - a.rating);
-  // ────────────────────────────────────────────────────────────────────────────
 
   const filteredArtists = matchedArtists.filter(artist => {
     if (artist.pricePerSession > maxBudget) return false;
@@ -563,16 +558,16 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     try {
       const dataElements = new FormData(formData);
       const bookingData = {
-  client_id: session.user.id,
-  artist_id: selectedArtist.id,
-  service_name: selectedArtist.category || 'Bridal & Event Makeup', // Pulls actual category
-  total_amount: selectedArtist.pricePerSession || 15000,             // Pulls artist's actual price
-  event_date: dataElements.get('date'),
-  time_slot: dataElements.get('slot'),
-  venue_address: dataElements.get('location'),
-  look_details: dataElements.get('message'),
-  status: 'pending'
-};
+        client_id: session.user.id,
+        artist_id: selectedArtist.id,
+        service_name: selectedArtist.category || 'Bridal & Event Makeup',
+        total_amount: selectedArtist.pricePerSession || 15000,
+        event_date: dataElements.get('date'),
+        time_slot: dataElements.get('slot'),
+        venue_address: dataElements.get('location'),
+        look_details: dataElements.get('message'),
+        status: 'pending'
+      };
       const { error } = await supabase.from('bookings').insert([bookingData]);
       if (error) throw error;
       setSent(true);
@@ -630,13 +625,11 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         <ScrollZoomIn>
           <div className="flex flex-col justify-center py-12 md:py-20 md:pr-10 z-10 animate-rise-in">
             <div className="flex flex-col items-start pt-4 mb-8">
-              {/* EYEBROW TAG */}
               <div className="flex items-center gap-3 font-['Montserrat'] text-[11px] font-bold uppercase tracking-[0.2em] text-[#9D7C3A] mb-6">
                 <div className="w-[26px] h-[1px] bg-[#9D7C3A]"></div>
                 ai-powered beauty matching
               </div>
 
-              {/* EDITORIAL HEADLINE LOCKUP */}
               <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
                 <span className="font-['Moura'] font-normal text-[3rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
                   Hyderabad's
@@ -735,18 +728,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               </div>
             </ScrollZoomIn>
 
-            {/*
-              ─── 5. UI RENDER ─────────────────────────────────────────────────────────
-              Replace the old inline AI analysis block with the new <AIMatchPanel />.
-              It is conditionally rendered whenever the user has uploaded an inspiration
-              photo (i.e. search.inspirationFile is truthy) AND a search has been
-              submitted — identical trigger condition as the previous block.
-              The panel owns all its own loading/error/result states internally via
-              the phase, analysis, and error values from useReferenceMatching.
-              onClear wires the panel's dismiss button back to clearReference() so the
-              engine resets and the panel unmounts cleanly.
-              ──────────────────────────────────────────────────────────────────────────
-            */}
             {hasSearched && search.inspirationFile && (
               <ScrollZoomIn>
                 <div className="mb-12 mt-8">
@@ -824,7 +805,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                               portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)}
                               startingPrice={artist.startingPrice}
                               tags={artist.tags}
-                              matchPercentage={artist.match}
+                              matchPercentage={artist.match ?? artist.matchScore}
                               matchReasons={artist.matchReasons}
                               onClick={() => handleSelectArtist(artist)}
                             />
@@ -1115,7 +1096,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         </div>
       )}
 
-      {/* CONTACT US MODAL */}
       {contactOpen && (
         <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setContactOpen(false)}>
           <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
@@ -1149,7 +1129,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         </div>
       )}
 
-      {/* HELP & FAQS MODAL */}
       {faqOpen && (
         <div className={`fixed inset-0 z-[100] flex justify-end bg-black/60 backdrop-blur-sm ${theme.fontBase}`} role="presentation" onClick={() => setFaqOpen(false)}>
           <motion.aside initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className={`bg-white border-l border-black/10 h-full w-full max-w-xl overflow-auto p-8 sm:p-12 flex flex-col shadow-2xl`} role="dialog" onClick={(e) => e.stopPropagation()}>
