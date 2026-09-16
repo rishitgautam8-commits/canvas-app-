@@ -1212,7 +1212,6 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
     art.author_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Fallback default editorial pieces if database is empty so the layout always looks stunning
   const displayArticles = filteredArticles.length > 0 ? filteredArticles : [
     {
       id: 'default-1',
@@ -1250,14 +1249,14 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
     <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-6 py-28 sm:px-12 lg:px-20">
       <div className="max-w-[1400px] mx-auto">
         
-        {/* Luxury Header & Description */}
+        {/* Luxury Header matching your exact reference */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-8 border-b border-white/10 pb-12">
           <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-[#E2BE68] mb-3 font-mono">from the journal</p>
-            <h2 className="text-5xl sm:text-6xl font-light tracking-tight font-serif">
-              From The <span className="italic font-serif text-[#E2BE68]">Journal.</span>
+            <p className={`${theme.eyebrow} text-[#E2BE68] mb-3 tracking-widest`}>from the journal</p>
+            <h2 className={`${theme.headingHero} text-white text-5xl sm:text-6xl`}>
+              From The <span className={`${theme.premiumTag} text-[#E2BE68] italic`}>Journal.</span>
             </h2>
-            <p className="text-white/60 mt-4 max-w-xl text-sm leading-relaxed font-sans font-light">
+            <p className={`${theme.bodyText} text-white/60 mt-4 max-w-xl text-sm leading-relaxed`}>
               A curated editorial space where artists and clients share expert beauty tips, product reviews, personal routines, and industry perspectives.
             </p>
           </div>
@@ -1295,14 +1294,14 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
           <div className="bg-white/5 border border-[#E2BE68]/30 p-8 sm:p-12 rounded-3xl mb-16 space-y-6 max-w-3xl mx-auto shadow-2xl relative animate-in fade-in duration-300">
             <button onClick={() => setIsWriting(false)} className="absolute right-6 top-6 text-white/40 hover:text-white"><X size={20}/></button>
             <div className="border-b border-white/10 pb-4">
-              <h3 className="text-2xl font-serif text-[#E2BE68]">Publish to The Journal</h3>
-              <p className="text-xs text-white/50 mt-1">Share your beauty tips, routines, or perspective with the community.</p>
+              <h3 className={`${theme.headingModal} text-2xl text-[#E2BE68]`}>Publish to The Journal</h3>
+              <p className={`${theme.bodyText} text-xs text-white/50 mt-1`}>Share your beauty tips, routines, or perspective with the community.</p>
             </div>
             
             <form onSubmit={handlePublish} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Article Title *</label>
+                  <label className={`${theme.eyebrow} block text-[10px] text-white/60 mb-2`}>Article Title *</label>
                   <input 
                     type="text" required value={title} onChange={(e) => setTitle(e.target.value)} 
                     placeholder="E.g., Summer Hydration Secrets" 
@@ -1310,7 +1309,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Category *</label>
+                  <label className={`${theme.eyebrow} block text-[10px] text-white/60 mb-2`}>Category *</label>
                   <select 
                     value={category} onChange={(e) => setCategory(e.target.value)}
                     className="w-full bg-[#1b1222] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#E2BE68]"
@@ -1325,7 +1324,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Your Content *</label>
+                <label className={`${theme.eyebrow} block text-[10px] text-white/60 mb-2`}>Your Content *</label>
                 <textarea 
                   required rows={5} value={content} onChange={(e) => setContent(e.target.value)} 
                   placeholder="Write your article or beauty advice here..." 
@@ -1334,7 +1333,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setIsWriting(false)} className="px-6 py-2.5 border border-white/20 text-white rounded-full text-xs uppercase tracking-wider hover:bg-white/10">
+                <button type="button" onClick={() => setIsWriting(false)} className="px-6 py-2.5 border border-white/25 text-white rounded-full text-xs uppercase tracking-wider hover:bg-white/10">
                   Cancel
                 </button>
                 <button type="submit" disabled={publishing} className="px-8 py-2.5 bg-[#E2BE68] text-black font-semibold uppercase tracking-wider text-xs rounded-full hover:bg-white transition disabled:opacity-50">
@@ -1345,28 +1344,28 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
           </div>
         )}
 
-        {/* The Original Asymmetric Editorial Grid Layout */}
+        {/* Editorial Grid Using Theme Typography Classes */}
         <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
           
           {/* Left Large Featured Card */}
           {featuredArticle && (
             <div className="group relative min-h-[440px] overflow-hidden border border-white/10 bg-[#150A26] p-10 sm:p-12 flex flex-col justify-between cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl">
               <div>
-                <span className="text-[11px] uppercase tracking-[0.2em] text-[#E2BE68] font-mono">
+                <span className={`${theme.eyebrow} text-[11px] text-[#E2BE68]`}>
                   {featuredArticle.category} · {featuredArticle.read_time}
                 </span>
                 <div className="mt-6">
-                  <h3 className="text-3xl sm:text-4xl font-serif text-white group-hover:text-[#E2BE68] transition-colors leading-snug">
+                  <h3 className={`${theme.headingModal} text-3xl sm:text-4xl text-white group-hover:text-[#E2BE68] transition-colors leading-snug`}>
                     {featuredArticle.title}
                   </h3>
-                  <p className="text-white/60 text-sm mt-4 leading-relaxed font-light line-clamp-3">
+                  <p className={`${theme.bodyText} text-white/60 text-sm mt-4 leading-relaxed`}>
                     {featuredArticle.content}
                   </p>
                 </div>
               </div>
-              <div className="pt-8 border-t border-white/10 flex items-center justify-between text-xs text-white/40 font-mono">
-                <span>By {featuredArticle.author_name}</span>
-                <span className="text-[#E2BE68] group-hover:translate-x-1 transition-transform flex items-center gap-1">Read Article <BookOpen size={12}/></span>
+              <div className="pt-8 border-t border-white/10 flex items-center justify-between text-xs text-white/40">
+                <span className={`${theme.bodyText}`}>By {featuredArticle.author_name}</span>
+                <span className={`${theme.secondaryLink} text-[#E2BE68] group-hover:translate-x-1 transition-transform flex items-center gap-1`}>Read Article <BookOpen size={12}/></span>
               </div>
             </div>
           )}
@@ -1376,26 +1375,20 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
             {sideArticles.map((art) => (
               <div key={art.id} className="group border border-white/10 bg-[#150A26] p-8 sm:p-10 cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl flex flex-col justify-between">
                 <div>
-                  <span className="text-[11px] uppercase tracking-[0.2em] text-[#E2BE68] font-mono">
+                  <span className={`${theme.eyebrow} text-[11px] text-[#E2BE68]`}>
                     {art.category} · {art.read_time}
                   </span>
-                  <h3 className="text-2xl font-serif text-white mt-3 group-hover:text-[#E2BE68] transition-colors">
+                  <h3 className={`${theme.headingModal} text-2xl text-white mt-3 group-hover:text-[#E2BE68] transition-colors`}>
                     {art.title}
                   </h3>
-                  <p className="text-white/60 text-xs mt-2 font-light line-clamp-2">{art.content}</p>
+                  <p className={`${theme.bodyText} text-white/60 text-xs mt-2 line-clamp-2`}>{art.content}</p>
                 </div>
-                <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40 font-mono">
-                  <span>By {art.author_name}</span>
-                  <span className="text-[#E2BE68]">Read →</span>
+                <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40">
+                  <span className={`${theme.bodyText}`}>By {art.author_name}</span>
+                  <span className={`${theme.secondaryLink} text-[#E2BE68]`}>Read →</span>
                 </div>
               </div>
             ))}
-
-            {sideArticles.length === 0 && (
-              <div className="bg-[#150A26] border border-white/10 rounded-2xl p-8 text-center text-white/40 text-xs italic">
-                More stories coming soon...
-              </div>
-            )}
           </div>
 
         </div>
