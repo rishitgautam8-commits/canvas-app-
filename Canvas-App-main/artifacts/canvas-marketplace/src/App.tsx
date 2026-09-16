@@ -1149,7 +1149,8 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
   const [articles, setArticles] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isWriting, setIsWriting] = useState(false);
-  const [showAllModal, setShowAllModal] = useState(false); // Controls the "Read All Stories" modal
+  const [showAllModal, setShowAllModal] = useState(false);
+  const [activeArticle, setActiveArticle] = useState<any>(null); // State for the full article reader view
   
   // Form state
   const [title, setTitle] = useState('');
@@ -1219,7 +1220,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
       category: 'PERSPECTIVE',
       read_time: '06 min read',
       title: 'On Keeping Your Own Face.',
-      content: 'A conversation about recognition, restraint, and honoring natural beauty in modern styling.',
+      content: 'A conversation about recognition, restraint, and honoring natural beauty in modern styling. When we look at contemporary bridal makeup, the tendency is often to layer, conceal, and transform. But true luxury lies in restraint—allowing skin texture to breathe, keeping freckles visible, and honoring the unique architecture of your own bone structure. This editorial explores why modern clients are shifting away from heavy masks toward effortless, high-craft individuality.',
       author_name: 'Studio Editorial',
       author_role: 'artist'
     },
@@ -1228,7 +1229,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
       category: 'RITUAL',
       read_time: '03 min read',
       title: 'A Small Ritual Before the Chair.',
-      content: 'Preparing your canvas for a transformative session through mindful hydration and calm.',
+      content: 'Preparing your canvas for a transformative session through mindful hydration and calm. Before any brush touches skin, the internal state dictates the glow. Take ten minutes prior to your makeup appointment to sip cold water, practice deep box breathing, and let your skincare settle fully into the dermis.',
       author_name: 'Hansika',
       author_role: 'founder'
     },
@@ -1237,7 +1238,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
       category: 'INDUSTRY',
       read_time: '05 min read',
       title: 'The Science of Skin Prep.',
-      content: 'Why layering lightweight textures changes how long professional makeup holds throughout the day.',
+      content: 'Why layering lightweight textures changes how long professional makeup holds throughout the day. Heavy creams cause sliding; lightweight hyaluronic essences paired with targeted silicones lock pigments in place for 14+ hours of flawless wear.',
       author_name: 'Canvas Team',
       author_role: 'artist'
     }
@@ -1250,7 +1251,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
     <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-6 py-28 sm:px-12 lg:px-20">
       <div className="max-w-[1400px] mx-auto">
         
-        {/* Luxury Header with "Read All Stories" link */}
+        {/* Luxury Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 gap-8 border-b border-white/10 pb-12">
           <div>
             <p className={`${theme.eyebrow} text-[#E2BE68] mb-3 tracking-widest`}>from the journal</p>
@@ -1341,10 +1342,10 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
           </div>
         )}
 
-        {/* Homepage Editorial Grid (Teaser) */}
+        {/* Homepage Editorial Grid (Clicking opens reader view) */}
         <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
           {featuredArticle && (
-            <div className="group relative min-h-[440px] overflow-hidden border border-white/10 bg-[#150A26] p-10 sm:p-12 flex flex-col justify-between cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl">
+            <div onClick={() => setActiveArticle(featuredArticle)} className="group relative min-h-[440px] overflow-hidden border border-white/10 bg-[#150A26] p-10 sm:p-12 flex flex-col justify-between cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl">
               <div>
                 <span className={`${theme.eyebrow} text-[11px] text-[#E2BE68]`}>
                   {featuredArticle.category} · {featuredArticle.read_time}
@@ -1360,14 +1361,14 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
               </div>
               <div className="pt-8 border-t border-white/10 flex items-center justify-between text-xs text-white/40">
                 <span className={`${theme.bodyText}`}>By {featuredArticle.author_name}</span>
-                <span onClick={() => setShowAllModal(true)} className={`${theme.secondaryLink} text-[#E2BE68] group-hover:translate-x-1 transition-transform flex items-center gap-1 cursor-pointer`}>Read Article <BookOpen size={12}/></span>
+                <span className={`${theme.secondaryLink} text-[#E2BE68] group-hover:translate-x-1 transition-transform flex items-center gap-1`}>Read Article <BookOpen size={12}/></span>
               </div>
             </div>
           )}
 
           <div className="grid gap-6">
             {sideArticles.map((art) => (
-              <div key={art.id} onClick={() => setShowAllModal(true)} className="group border border-white/10 bg-[#150A26] p-8 sm:p-10 cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl flex flex-col justify-between">
+              <div key={art.id} onClick={() => setActiveArticle(art)} className="group border border-white/10 bg-[#150A26] p-8 sm:p-10 cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl flex flex-col justify-between">
                 <div>
                   <span className={`${theme.eyebrow} text-[11px] text-[#E2BE68]`}>
                     {art.category} · {art.read_time}
@@ -1391,7 +1392,6 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col p-6 sm:p-12 overflow-y-auto animate-in fade-in duration-300">
             <div className="max-w-[1400px] w-full mx-auto">
               
-              {/* Modal Header & Search */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/10 pb-8 mb-12">
                 <div>
                   <p className="text-xs uppercase tracking-[0.25em] text-[#E2BE68] mb-2 font-mono">complete archive</p>
@@ -1418,26 +1418,70 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                 </div>
               </div>
 
-              {/* Full Scrollable Grid of All Articles */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {displayArticles.map((art) => (
-                  <div key={art.id} className="bg-[#150A26] border border-white/10 p-8 rounded-2xl flex flex-col justify-between hover:border-[#E2BE68]/50 transition">
+                  <div key={art.id} onClick={() => { setShowAllModal(false); setActiveArticle(art); }} className="bg-[#150A26] border border-white/10 p-8 rounded-2xl flex flex-col justify-between hover:border-[#E2BE68]/50 transition cursor-pointer">
                     <div>
                       <div className="flex items-center justify-between text-[11px] text-[#E2BE68] uppercase tracking-widest mb-4 font-mono">
                         <span>{art.category}</span>
                         <span>{art.read_time}</span>
                       </div>
                       <h3 className="text-xl font-serif text-white mb-3">{art.title}</h3>
-                      <p className="text-white/60 text-xs leading-relaxed mb-6">{art.content}</p>
+                      <p className="text-white/60 text-xs leading-relaxed mb-6 line-clamp-3">{art.content}</p>
                     </div>
                     <div className="pt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40 font-mono">
                       <span>By {art.author_name}</span>
-                      <span className="text-[#E2BE68]">By {art.author_role}</span>
+                      <span className="text-[#E2BE68] capitalize">By {art.author_role}</span>
                     </div>
                   </div>
                 ))}
               </div>
 
+            </div>
+          </div>
+        )}
+
+        {/* INDIVIDUAL ARTICLE READER MODAL */}
+        {activeArticle && (
+          <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-lg flex items-center justify-center p-4 sm:p-8 overflow-y-auto animate-in fade-in duration-300">
+            <div className="bg-[#150A26] border border-[#E2BE68]/30 max-w-3xl w-full p-8 sm:p-14 rounded-3xl relative shadow-2xl my-auto">
+              <button 
+                onClick={() => setActiveArticle(null)} 
+                className="absolute right-6 top-6 text-white/50 hover:text-white p-2 bg-white/5 rounded-full transition"
+              >
+                <X size={20}/>
+              </button>
+
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-[#E2BE68] font-mono">
+                  <span>{activeArticle.category}</span>
+                  <span>·</span>
+                  <span>{activeArticle.read_time}</span>
+                </div>
+
+                <h2 className="text-3xl sm:text-5xl font-serif text-white leading-tight">
+                  {activeArticle.title}
+                </h2>
+
+                <div className="flex items-center gap-3 py-4 border-y border-white/10 text-xs text-white/60 font-mono">
+                  <span className="text-white font-medium">By {activeArticle.author_name}</span>
+                  <span>•</span>
+                  <span className="capitalize text-[#E2BE68]">{activeArticle.author_role}</span>
+                </div>
+
+                <div className="text-white/80 text-sm sm:text-base leading-relaxed font-sans space-y-4 pt-2">
+                  <p>{activeArticle.content}</p>
+                </div>
+
+                <div className="pt-8 border-t border-white/10 flex justify-end">
+                  <button 
+                    onClick={() => setActiveArticle(null)}
+                    className="px-8 py-3 bg-[#E2BE68] text-black text-xs uppercase tracking-widest font-semibold rounded-full hover:bg-white transition"
+                  >
+                    Close Story
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
