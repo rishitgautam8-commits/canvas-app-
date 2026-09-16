@@ -634,16 +634,18 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     // If they uploaded a photo, use the image matching hook normally
     submitReference(vals.inspirationFile);
   } else if (vals.lookDescription && vals.lookDescription.trim().length > 3) {
-    // NEW: If they typed text, extract tags via Gemini and trigger AI matching!
+    // NEW: If they typed text, extract tags and set them directly as the active reference
     console.log("Extracting tags for description:", vals.lookDescription);
     const extractedTags = await extractTagsFromText(vals.lookDescription);
     console.log("Extracted Tags Result:", extractedTags);
     
-    // If your hook exposes a direct setter for reference tags (like setReferenceTags), use it here.
-    // Otherwise, pass it safely:
-    if (extractedTags && Object.keys(extractedTags).length > 0) {
-      // This forces your matching engine to recognize the text-derived tags as the active reference
-      (submitReference as any)({ tags: extractedTags }); 
+    // Pass the tags directly to your active reference matcher state/function 
+    // (If your hook exposes a direct setter or state for reference tags, call it here)
+    if (typeof (window as any).__setCanvasReference === 'function') {
+      (window as any).__setCanvasReference(extractedTags);
+    } else {
+      // Fallback: trigger a custom event or let your ranking engine take the tags
+      window.dispatchEvent(new CustomEvent('canvas-text-match', { detail: extractedTags }));
     }
   } else {
     clearReference();
