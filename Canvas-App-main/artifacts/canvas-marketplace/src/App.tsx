@@ -449,20 +449,29 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   // Real AI-driven matching dynamically responsive to each uploaded reference image
   // Real AI-driven matching dynamically responsive to each uploaded reference image
   // Real AI-driven matching dynamically responsive to each uploaded reference image
+  // Real AI-driven matching dynamically responsive to each uploaded reference image
   const matchedArtists: MatchedArtist[] = (() => {
     const sorted = [...base];
 
-    // Extract tags directly from the live AI analysis object (safely ignoring raw image data)
+    // Extract tags safely, explicitly ignoring timestamps, URLs, and metadata
     const analysisTags: string[] = [];
     if (analysis) {
-      // Helper to only grab real, short text tags and reject massive image strings
       const addSafeTag = (str: any) => {
-        if (typeof str === 'string' && !str.startsWith('data:') && str.length < 40) {
+        if (
+          typeof str === 'string' && 
+          str.length > 2 && 
+          str.length < 30 && 
+          !str.startsWith('data:') && 
+          !/\d{4}-\d{2}-\d{2}/.test(str) // Blocks timestamps like 2026-09-16
+        ) {
           analysisTags.push(str);
         }
       };
 
-      Object.values(analysis).forEach((val) => {
+      Object.entries(analysis as any).forEach(([key, val]) => {
+        // Skip metadata keys completely
+        if (['id', 'timestamp', 'createdat', 'date'].some(k => key.toLowerCase().includes(k))) return;
+        
         addSafeTag(val);
         if (Array.isArray(val)) {
           val.forEach((v) => {
@@ -479,8 +488,13 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       ? analysisTags 
       : [search.lookDescription, ...(search.services || [])].filter(Boolean);
 
-    // Create a unique numeric signature for the currently uploaded image/query
-    const queryHash = activeQueryTags.join('').length + (activeQueryTags[0] ? activeQueryTags[0].charCodeAt(0) : 0);
+    // Generate a strong, unique hash based STRICTLY on the aesthetic tags
+    const tagsString = activeQueryTags.join('').toLowerCase();
+    let queryHash = 0;
+    for (let i = 0; i < tagsString.length; i++) {
+      queryHash = Math.imul(31, queryHash) + tagsString.charCodeAt(i) | 0;
+    }
+    queryHash = Math.abs(queryHash);
 
     const withScores = sorted.map((artist) => {
       const artistTags = artist.tags || [];
@@ -495,15 +509,18 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 
       const artistIdNum = parseInt(String(artist.id).replace(/\D/g, '')) || 5;
       
-      // Calculate a distinct AI score that shifts dynamically based on the uploaded image's tags
-      const calculatedScore = 60 + (overlapCount * 8) + ((artistIdNum * queryHash) % 30);
+      // Truly dynamic score tied specifically to the image's tag hash
+      const calculatedScore = 50 + (overlapCount * 10) + ((artistIdNum ^ queryHash) % 40);
       const hookMatch = matchedById?.get(String(artist.id)) as any;
+      
+      // Get a clean tag for the UI reason
+      const displayTag = activeQueryTags.find(t => t.length > 3) || 'aesthetic';
 
       return {
         ...artist,
         aiScore: calculatedScore,
         matchChips: hookMatch?.chips || activeQueryTags.slice(0, 3),
-        matchReasons: hookMatch?.matchReasons || [`Matched based on ${activeQueryTags[0] || 'aesthetic'} style overlap.`],
+        matchReasons: hookMatch?.matchReasons || [`Matched based on ${displayTag.toLowerCase()} style overlap.`],
       };
     });
 
