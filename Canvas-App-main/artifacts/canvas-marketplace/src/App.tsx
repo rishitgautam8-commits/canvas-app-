@@ -448,21 +448,27 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   // Real AI-driven matching with organic variance (jitter) and guaranteed unique percentages
   // Real AI-driven matching dynamically responsive to each uploaded reference image
   // Real AI-driven matching dynamically responsive to each uploaded reference image
+  // Real AI-driven matching dynamically responsive to each uploaded reference image
   const matchedArtists: MatchedArtist[] = (() => {
     const sorted = [...base];
 
-    // Extract tags directly from the live AI analysis object
+    // Extract tags directly from the live AI analysis object (safely ignoring raw image data)
     const analysisTags: string[] = [];
     if (analysis) {
+      // Helper to only grab real, short text tags and reject massive image strings
+      const addSafeTag = (str: any) => {
+        if (typeof str === 'string' && !str.startsWith('data:') && str.length < 40) {
+          analysisTags.push(str);
+        }
+      };
+
       Object.values(analysis).forEach((val) => {
-        if (typeof val === 'string') analysisTags.push(val);
-        else if (Array.isArray(val)) {
+        addSafeTag(val);
+        if (Array.isArray(val)) {
           val.forEach((v) => {
-            if (typeof v === 'string') analysisTags.push(v);
-            else if (v && typeof v === 'object') {
-              Object.values(v).forEach(subV => {
-                if (typeof subV === 'string') analysisTags.push(subV);
-              });
+            addSafeTag(v);
+            if (v && typeof v === 'object') {
+              Object.values(v).forEach(addSafeTag);
             }
           });
         }
