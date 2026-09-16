@@ -1155,7 +1155,8 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
   // Form state
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('PERSPECTIVE');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
   const [content, setContent] = useState('');
   const [publishing, setPublishing] = useState(false);
 
@@ -1174,6 +1175,14 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handlePublish = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.user) {
@@ -1182,31 +1191,55 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
     }
 
     setPublishing(true);
-    const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.first_name || 'Community Member';
-    const userRole = session.user.user_metadata?.role || 'client';
-    const readTime = `${Math.ceil(content.split(' ').length / 200)} min read`;
+    let uploadedImageUrl = null;
 
-    const { error } = await supabase.from('journal_articles').insert({
-      author_id: session.user.id,
-      author_name: userName,
-      author_role: userRole,
-      title,
-      category: category.toUpperCase(),
-      read_time: readTime,
-      content,
-      image_url: imageUrl.trim() || null
-    });
+    try {
+      // 1. Upload image to Supabase storage if file is selected
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Math.random().toString(36.substring(2))}-${Date.now()}.${fileExt}`;
+        const filePath = `journal-images/${fileName}`;
 
-    setPublishing(false);
+        const { error: uploadError } = await supabase.storage
+          .from('art-uploads') // Uses your platform's existing storage bucket
+          .upload(filePath, imageFile);
 
-    if (error) {
-      alert("Failed to publish article: " + error.message);
-    } else {
+        if (!uploadError) {
+          const { data: publicURLData } = supabase.storage
+            .from('art-uploads')
+            .getPublicUrl(filePath);
+          uploadedImageUrl = publicURLData.publicUrl;
+        }
+      }
+
+      const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.first_name || 'Community Member';
+      const userRole = session.user.user_metadata?.role || 'client';
+      const readTime = `${Math.ceil(content.split(' ').length / 200)} min read`;
+
+      // 2. Insert into database
+      const { error } = await supabase.from('journal_articles').insert({
+        author_id: session.user.id,
+        author_name: userName,
+        author_role: userRole,
+        title,
+        category: category.toUpperCase(),
+        read_time: readTime,
+        content,
+        image_url: uploadedImageUrl
+      });
+
+      if (error) throw error;
+
       setTitle('');
-      setImageUrl('');
+      setImageFile(null);
+      setImagePreview('');
       setContent('');
       setIsWriting(false);
       fetchArticles();
+    } catch (err: any) {
+      alert("Failed to publish: " + (err.message || err));
+    } finally {
+      setPublishing(false);
     }
   };
 
@@ -1226,7 +1259,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
       content: 'A conversation about recognition, restraint, and honoring natural beauty in modern styling. When we look at contemporary bridal makeup, the tendency is often to layer, conceal, and transform. But true luxury lies in restraint—allowing skin texture to breathe, keeping freckles visible, and honoring the unique architecture of your own bone structure.',
       author_name: 'Studio Editorial',
       author_role: 'artist',
-      image_url: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=1000'
+      image_url: '' // Clean solid background by default
     },
     {
       id: 'default-2',
@@ -1236,7 +1269,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
       content: 'Why layering lightweight textures changes how long professional makeup holds throughout the day. Heavy creams cause sliding; lightweight hyaluronic essences paired with targeted silicones lock pigments in place for 14+ hours of flawless wear.',
       author_name: 'Canvas Team',
       author_role: 'artist',
-      image_url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=1000'
+      image_url: ''
     },
     {
       id: 'default-3',
@@ -1293,7 +1326,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
           </div>
         </div>
 
-        {/* Writing Modal Drawer */}
+        {/* Writing Modal Drawer with File Upload Button */}
         {isWriting && (
           <div className="bg-white/5 border border-[#E2BE68]/30 p-8 sm:p-12 rounded-3xl mb-16 space-y-6 max-w-3xl mx-auto shadow-2xl relative animate-in fade-in duration-300">
             <button onClick={() => setIsWriting(false)} className="absolute right-6 top-6 text-white/50 hover:text-white"><X size={20}/></button>
@@ -1326,13 +1359,23 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                 </div>
               </div>
 
+              {/* Actual File Upload Button */}
               <div>
-                <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Featured Image URL (Optional)</label>
-                <input 
-                  type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} 
-                  placeholder="https://example.com/image.jpg" 
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#E2BE68]"
-                />
+                <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Featured Cover Image (Optional)</label>
+                <div className="flex items-center gap-4">
+                  <label className="cursor-pointer px-5 py-2.5 bg-white/10 border border-white/20 text-white rounded-xl text-xs uppercase tracking-wider hover:bg-white/20 transition">
+                    Choose Image File
+                    <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+                  </label>
+                  <span className="text-xs text-white/50 truncate max-w-xs">
+                    {imageFile ? imageFile.name : 'No file chosen (will use solid background)'}
+                  </span>
+                </div>
+                {imagePreview && (
+                  <div className="mt-3 w-24 h-16 rounded-lg overflow-hidden border border-white/20">
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
               </div>
 
               <div>
@@ -1349,22 +1392,24 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                   Cancel
                 </button>
                 <button type="submit" disabled={publishing} className="px-8 py-2.5 bg-[#E2BE68] text-black font-semibold uppercase tracking-wider text-xs rounded-full hover:bg-white transition disabled:opacity-50">
-                  {publishing ? 'Publishing...' : 'Publish Story →'}
+                  {publishing ? 'Uploading & Publishing...' : 'Publish Story →'}
                 </button>
               </div>
             </form>
           </div>
         )}
 
-        {/* Homepage Editorial Grid */}
+        {/* Homepage Editorial Grid (Solid dark background if no image_url) */}
         <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
           {featuredArticle && (
             <div onClick={() => setActiveArticle(featuredArticle)} className="group relative min-h-[440px] overflow-hidden border border-white/10 bg-[#150A26] flex flex-col justify-between cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl">
-              {featuredArticle.image_url && (
+              {featuredArticle.image_url ? (
                 <div className="absolute inset-0 z-0 opacity-25 group-hover:opacity-40 transition-opacity">
                   <img src={featuredArticle.image_url} alt="" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#150A26] via-[#150A26]/80 to-transparent"></div>
                 </div>
+              ) : (
+                <div className="absolute inset-0 z-0 bg-[#150A26]"></div> // Solid dark background when no image
               )}
               <div className="relative z-10 p-10 sm:p-12">
                 <span className={`${theme.eyebrow} text-[11px] text-[#E2BE68]`}>
@@ -1379,7 +1424,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                   </p>
                 </div>
               </div>
-              <div className="relative z-10 p-10 sm:pt-0 pt-0 pb-10 sm:pb-12 border-t border-white/10 flex items-center justify-between text-xs text-white/40">
+              <div className="relative z-10 p-10 pt-0 pb-12 border-t border-white/10 flex items-center justify-between text-xs text-white/40">
                 <span className={`${theme.bodyText}`}>By {featuredArticle.author_name}</span>
                 <span className={`${theme.secondaryLink} text-[#E2BE68] group-hover:translate-x-1 transition-transform flex items-center gap-1`}>Read Article <BookOpen size={12}/></span>
               </div>
@@ -1389,11 +1434,13 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
           <div className="grid gap-6">
             {sideArticles.map((art) => (
               <div key={art.id} onClick={() => setActiveArticle(art)} className="group relative overflow-hidden border border-white/10 bg-[#150A26] p-8 sm:p-10 cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl flex flex-col justify-between">
-                {art.image_url && (
+                {art.image_url ? (
                   <div className="absolute inset-0 z-0 opacity-20 group-hover:opacity-30 transition-opacity">
                     <img src={art.image_url} alt="" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#150A26] via-[#150A26]/90 to-transparent"></div>
                   </div>
+                ) : (
+                  <div className="absolute inset-0 z-0 bg-[#150A26]"></div> // Solid dark background when no image
                 )}
                 <div className="relative z-10">
                   <span className={`${theme.eyebrow} text-[11px] text-[#E2BE68]`}>
@@ -1495,11 +1542,12 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                   <span className="capitalize text-[#E2BE68]">{activeArticle.author_role}</span>
                 </div>
 
-                {activeArticle.image_url && (
+                {/* Only renders image if user actually uploaded one; otherwise shows clean solid background */}
+                {activeArticle.image_url ? (
                   <div className="w-full h-64 sm:h-80 rounded-2xl overflow-hidden border border-white/10 my-4">
                     <img src={activeArticle.image_url} alt="" className="w-full h-full object-cover" />
                   </div>
-                )}
+                ) : null}
 
                 <div className="text-white/80 text-sm sm:text-base leading-relaxed font-sans space-y-4 pt-2">
                   <p>{activeArticle.content}</p>
