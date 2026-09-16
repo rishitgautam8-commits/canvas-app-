@@ -370,17 +370,15 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         {portfolioItems.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {portfolioItems.map((item: any, i: number) => {
-              // BULLETPROOF URL BUILDER: Ignores whatever broken text is in the DB
-              const getSafeImageUrl = () => {
-                const raw = item.image_url;
-                if (!raw) return '';
-                // Extract just the filename (e.g., "0.9379126741014436.jpeg")
+              // Automatically generates the exact proven working Supabase URL on the fly
+              const getWorkingImageUrl = () => {
+                const raw = item.image_url || '';
                 const filename = raw.split('/').pop();
                 if (!filename) return raw;
-                // Force it into the correct Supabase storage bucket path: {artist_id}/{filename}
+                
                 const { data } = supabase.storage
                   .from('portfolios')
-                  .getPublicUrl(`${item.artist_id || artistId}/${filename}`);
+                  .getPublicUrl(`portfolios/${artistId}/${filename}`);
                 return data.publicUrl;
               };
 
@@ -388,7 +386,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                 <div key={item.id} className="group cursor-pointer">
                   <div className={`relative overflow-hidden bg-white mb-4 border ${theme.borderBase} ${theme.cardRadius} shadow-sm aspect-[4/5] sm:aspect-[4/5]`}>
                     <img 
-                      src={getSafeImageUrl()} 
+                      src={getWorkingImageUrl()} 
                       alt={`Look ${i + 1}`} 
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" 
                     />
