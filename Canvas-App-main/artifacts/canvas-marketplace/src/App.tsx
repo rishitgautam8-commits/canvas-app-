@@ -1131,6 +1131,10 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
   const [showAllModal, setShowAllModal] = useState(false);
   const [activeArticle, setActiveArticle] = useState<any>(null);
   
+  const [, setLocation] = useLocation();
+  const queryParams = new URLSearchParams(window.location.search);
+  const styleVersion = queryParams.get('style') || '2';
+  
   // Form state
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('BRIDAL CRAFT');
@@ -1190,7 +1194,6 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
         }
       }
 
-      // UNIVERSAL FIX: Fetch artist business name if available, otherwise fallback to profile name
       let authorDisplayName = session.user.user_metadata?.full_name || session.user.user_metadata?.first_name || 'Community Member';
       
       const { data: artistProfile } = await supabase
@@ -1208,7 +1211,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
 
       const { error } = await supabase.from('journal_articles').insert({
         author_id: session.user.id,
-        author_name: authorDisplayName, // Automatically uses Business Name or Profile Name universally
+        author_name: authorDisplayName,
         author_role: userRole,
         title,
         category: category.toUpperCase(),
@@ -1242,6 +1245,15 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
   const displayArticles = filteredArticles;
   const featuredArticle = displayArticles[0];
   const sideArticles = displayArticles.slice(1, 3);
+
+  const navigateToArtist = (authorId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (authorId) {
+      setShowAllModal(false);
+      setActiveArticle(null);
+      setLocation(`/artist/${authorId}?style=${styleVersion}`);
+    }
+  };
 
   return (
     <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-6 py-28 sm:px-12 lg:px-20">
@@ -1386,9 +1398,14 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                     </p>
                   </div>
                 </div>
-                {/* Featured Card Footer */}
+                {/* Featured Card Footer with Clickable Author Link */}
                 <div className="relative z-10 p-10 pt-0 pb-12 border-t border-white/10 flex items-center justify-between text-xs text-white/85 font-sans">
-                  <span>By {featuredArticle.author_name}</span>
+                  <span 
+                    onClick={(e) => navigateToArtist(featuredArticle.author_id, e)}
+                    className="hover:text-[#E2BE68] hover:underline cursor-pointer transition-colors"
+                  >
+                    By {featuredArticle.author_name}
+                  </span>
                   <span className="text-[#E2BE68] group-hover:translate-x-1 transition-transform flex items-center gap-1 font-medium">Read Article <BookOpen size={12}/></span>
                 </div>
               </div>
@@ -1415,9 +1432,14 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                     <p className={`${theme.bodyText} text-white/60 text-xs mt-2 line-clamp-2`}>{art.content}</p>
                   </div>
                   
-                  {/* Side Cards Footer */}
+                  {/* Side Cards Footer with Clickable Author Link */}
                   <div className="relative z-10 pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-xs text-white/85 font-sans">
-                    <span>By {art.author_name}</span>
+                    <span 
+                      onClick={(e) => navigateToArtist(art.author_id, e)}
+                      className="hover:text-[#E2BE68] hover:underline cursor-pointer transition-colors"
+                    >
+                      By {art.author_name}
+                    </span>
                     <span className="text-[#E2BE68] font-medium">Read →</span>
                   </div>
                 </div>
@@ -1472,8 +1494,14 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                       <h3 className="text-xl font-serif text-white mb-3">{art.title}</h3>
                       <p className="text-white/60 text-xs leading-relaxed mb-6 line-clamp-3">{art.content}</p>
                     </div>
+                    {/* Archive Card Footer with Clickable Author Link */}
                     <div className="pt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/85 font-sans">
-                      <span>By {art.author_name}</span>
+                      <span 
+                        onClick={(e) => navigateToArtist(art.author_id, e)}
+                        className="hover:text-[#E2BE68] hover:underline cursor-pointer transition-colors"
+                      >
+                        By {art.author_name}
+                      </span>
                       <span className="text-[#E2BE68] capitalize font-medium">{art.author_role}</span>
                     </div>
                   </div>
@@ -1490,7 +1518,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
             <div className="bg-[#150A26] border border-[#E2BE68]/30 max-w-3xl w-full p-8 sm:p-14 rounded-3xl relative shadow-2xl my-auto">
               <button 
                 onClick={() => setActiveArticle(null)} 
-                className="absolute right-6 top-6 text-white/50 hover:text-white p-2 bg-white/5 rounded-full transition z-25"
+                className="absolute right-6 top-6 text-white/50 hover:text-white p-2 bg-white/5 rounded-full transition z-20"
               >
                 <X size={20}/>
               </button>
@@ -1506,8 +1534,14 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                   {activeArticle.title}
                 </h2>
 
+                {/* Reader Modal Header with Clickable Author Link */}
                 <div className="flex items-center gap-4 py-4 border-y border-white/10 text-xs text-white/85 font-sans">
-                  <span className="text-white font-medium">By {activeArticle.author_name}</span>
+                  <span 
+                    onClick={(e) => navigateToArtist(activeArticle.author_id, e)}
+                    className="text-white hover:text-[#E2BE68] hover:underline cursor-pointer font-medium transition-colors"
+                  >
+                    By {activeArticle.author_name}
+                  </span>
                   <span>•</span>
                   <span className="capitalize text-[#E2BE68] font-medium">{activeArticle.author_role}</span>
                 </div>
