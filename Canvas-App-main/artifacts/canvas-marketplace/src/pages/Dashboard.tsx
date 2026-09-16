@@ -41,12 +41,11 @@ const generateTagsWithAI = async (file: File): Promise<string[]> => {
   try {
     const base64Image = await fileToBase64(file);
 
-    // Swap this with your actual Vision AI endpoint (e.g., OpenAI, Claude, etc.)
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer YOUR_OPENAI_API_KEY_HERE` // <-- ADD YOUR KEY HERE
+        'Authorization': `Bearer YOUR_OPENAI_API_KEY_HERE`
       },
       body: JSON.stringify({
         model: "gpt-4o",
@@ -72,7 +71,6 @@ const generateTagsWithAI = async (file: File): Promise<string[]> => {
     const data = await response.json();
     const rawContent = data.choices[0].message.content;
 
-    // Parse the AI's string response into a real JavaScript array
     const cleanedContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
     const aiTags = JSON.parse(cleanedContent);
 
@@ -80,7 +78,7 @@ const generateTagsWithAI = async (file: File): Promise<string[]> => {
     
   } catch (error) {
     console.error("AI Tagging failed:", error);
-    return []; // Return empty so we don't save broken data
+    return [];
   }
 };
 // ==========================================
@@ -291,7 +289,6 @@ export default function Dashboard({ session }: DashboardProps) {
 
       if (profileError) throw new Error(`Failed to save base profile: ${profileError.message}`);
 
-      // Parse Add-on texts for the profile
       const formattedAddonsText = hasAddonSkill 
         ? addons.map(a => `${a.name} (₹${a.price})`).filter(a => a.trim() !== '(₹)') 
         : [];
@@ -314,13 +311,9 @@ export default function Dashboard({ session }: DashboardProps) {
 
       if (artistError) throw artistError;
 
-      // ==========================================
-      // NEW: UPLOAD ADD-ON IMAGES WITH AI TAGS
-      // ==========================================
       if (hasAddonSkill) {
         for (const addon of addons) {
           if (addon.file) {
-            // 1. Upload the image to Supabase Storage
             const fileExt = addon.file.name.split('.').pop();
             const fileName = `addon_${Math.random()}.${fileExt}`;
             const filePath = `portfolios/${session.user.id}/${fileName}`;
@@ -335,17 +328,13 @@ export default function Dashboard({ session }: DashboardProps) {
               .from('portfolios')
               .getPublicUrl(filePath);
 
-            // 2. Automate Tagging with Vision AI
             const aiTags = await generateTagsWithAI(addon.file);
-            
-            // Combine AI tags with the Add-on name
             const finalTags = [...new Set([...aiTags, addon.name, 'Add-on'])];
 
-            // 3. Save to artist_portfolio with REAL tags
             await supabase.from('artist_portfolio').insert({
               artist_id: session.user.id,
               image_url: publicUrlData.publicUrl,
-              tags: finalTags // <--- 100% accurate, AI-generated tags!
+              tags: finalTags
             });
           }
         }
@@ -388,7 +377,8 @@ export default function Dashboard({ session }: DashboardProps) {
   }
 
   const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || user?.user_metadata?.name?.split(' ')[0] || 'User';
-  const displayFirstName = firstName;
+  // Use business name if available and role is artist, otherwise fallback to first name
+  const headerDisplayName = role === 'artist' && formData.business_name ? formData.business_name : firstName;
 
   const pendingBookings = bookings.filter(b => b.status === 'requested' || b.status === 'pending' || !b.status);
   const confirmedBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'accepted' || b.status === 'deposit_paid');
@@ -426,7 +416,7 @@ export default function Dashboard({ session }: DashboardProps) {
             </div>
 
             <div className={`h-8 w-8 ${accentBg} flex items-center justify-center text-white ${theme.formLabel} !border-none ${theme.cardRadius === 'rounded-none' ? 'rounded-none' : 'rounded-full'}`}>
-              {displayFirstName.charAt(0)}
+              {headerDisplayName.charAt(0)}
             </div>
           </div>
         </div>
@@ -457,7 +447,7 @@ export default function Dashboard({ session }: DashboardProps) {
 
       <main className="mx-auto max-w-[1400px] px-6 py-12 sm:px-12">
         <h1 className={`${theme.headingHero} mb-4`}>
-          welcome, <Premium>{displayFirstName}.</Premium>
+          welcome, <Premium>{headerDisplayName}.</Premium>
         </h1>
 
         {role === 'artist' ? (
@@ -636,7 +626,7 @@ export default function Dashboard({ session }: DashboardProps) {
                       <input 
                         type="text" 
                         value={formData.business_name} 
-                        onChange={(e) => setFormData({...formData, business_name: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
+                        onChange={(e) => setFormData({...formData, business_name: e.target.value})} 
                         placeholder="E.g. Your Studio Name" 
                         className={`w-full ${theme.inputText}`} 
                         required 
@@ -749,7 +739,6 @@ export default function Dashboard({ session }: DashboardProps) {
                     )}
                   </div>
 
-                  {/* ---------- MAIN PORTFOLIO COMPONENT ---------- */}
                   <div className={`mt-8 bg-white/50 p-6 border-l-2 ${accentBorder} ${styleVersion === '1' || styleVersion === '3' ? 'rounded-none' : 'rounded-r-xl'}`}>
                     <label className={`mb-2 block ${theme.formLabel}`}>AI-Powered Portfolio Upload *</label>
                     <p className={`mb-6 ${theme.bodyText} !text-black/40`}>Upload high-res looks. Our AI will automatically extract aesthetic tags for client matching.</p>
@@ -758,7 +747,6 @@ export default function Dashboard({ session }: DashboardProps) {
                       <ArtistStudioHub artistId={session?.user?.id || ''} />
                     </div>
                   </div>
-                  {/* ------------------------------------------------ */}
 
                   <div className={`border-t ${theme.borderBase} pt-8`}>
                     <label className={`mb-4 block ${theme.formLabel}`}>Do You Offer Any Add-On Skills? (E.g. Hairstyling, Brow Tinting)</label>
@@ -863,7 +851,6 @@ export default function Dashboard({ session }: DashboardProps) {
           </>
         ) : (
           <div className="mt-16 max-w-4xl">
-            {/* Embedded Client Bookings & Pay-to-Chat Flow */}
             <ClientBookings 
               clientId={user?.id || ''} 
               onOpenChat={(bookingId) => {
@@ -871,7 +858,6 @@ export default function Dashboard({ session }: DashboardProps) {
                 if (found) {
                   setActiveChatBooking(found);
                 } else {
-                  // Fallback stub object if loaded dynamically
                   setActiveChatBooking({ id: bookingId });
                 }
               }} 
