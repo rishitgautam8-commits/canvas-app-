@@ -254,49 +254,78 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   const { data: liveArtists = [] } = useQuery({
     queryKey: ['liveArtists'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // 1. Fetch artist profiles
+      const { data: profiles, error: profileError } = await supabase
         .from('artist_profiles')
-        .select(`id, business_name, category, city, max_travel_km, starting_price, portfolio`);
+        .select(`id, business_name, category, city, max_travel_km, starting_price`);
 
-      if (error) {
-        console.error('Error fetching live artists:', error.message);
+      if (profileError) {
+        console.error('Error fetching live artists:', profileError.message);
         return [];
       }
 
-      if (data) {
-        return data.map((item: any, index: number) => {
-          const rawPortfolio = item.portfolio || [];
-          const mainImage = rawPortfolio.length > 0
-            ? typeof rawPortfolio[0] === 'string' ? rawPortfolio[0] : rawPortfolio[0]?.image
-            : `https://images.unsplash.com/photo-${editorialImages[index % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
-          const normalizedPortfolio = normalizePortfolio(rawPortfolio, mainImage);
-          return {
-            id: item.id,
-            name: item.business_name || 'Canvas Artist',
-            category: item.category || 'Bridal & Wedding',
-            services: ['Makeup Artist', item.category || 'Bridal & Wedding'],
-            city: item.city || 'Jubilee Hills',
-            location: `${item.city || 'Jubilee Hills'}, Hyderabad`,
-            maxTravelKm: item.max_travel_km || 25,
-            pricePerSession: item.starting_price || 15000,
-            startingPrice: `₹${(item.starting_price || 15000).toLocaleString('en-IN')}`,
-            rating: 4.9,
-            reviewCount: 24 + (index % 40),
-            reviewsCount: 24 + (index % 40),
-            image: mainImage,
-            hoverImage: normalizedPortfolio[1]?.image || mainImage,
-            tags: [item.category || 'Bridal & Wedding', 'HD Airbrush', 'Custom Styling'],
-            bio: `${item.business_name || 'This artist'} specializes in ${(item.category || 'bridal & wedding').toLowerCase()} looks, tailored to high-end events in ${item.city || 'Hyderabad'}.`,
-            signature: `${item.category || 'Signature Aesthetic'}`,
-            portfolio: normalizedPortfolio,
-            addons: [],
-            isVerified: true,
-            isLiveDb: true,
-            isIncompleteProfile: !item.business_name || rawPortfolio.length === 0,
-          } as Artist & { isLiveDb?: boolean; isIncompleteProfile?: boolean };
+      if (!profiles) return [];
+
+      // 2. Fetch all portfolio items from artist_portfolio table
+      const { data: allPortfolios } = await supabase
+        .from('artist_portfolio')
+        .select('artist_id, image_url, created_at')
+        .order('created_at', { ascending: false });
+
+      const portfolioMap = new Map<string, string[]>();
+      if (allPortfolios) {
+        allPortfolios.forEach((p: any) => {
+          if (!portfolioMap.has(p.artist_id)) {
+            portfolioMap.set(p.artist_id, []);
+          }
+          portfolioMap.get(p.artist_id)?.push(p.image_url);
         });
       }
-      return [];
+
+      return profiles.map((item: any, index: number) => {
+        const rawPort = portfolioMap.get(item.id) || [];
+        
+        // Dynamically build working Supabase public URLs for the card images
+        const normalizedPortfolio = rawPort.map((rawUrl, i) => {
+          const filename = rawUrl.split('/').pop();
+          const { data } = supabase.storage
+            .from('portfolios')
+            .getPublicUrl(`portfolios/${item.id}/${filename}`);
+          return {
+            style: `look n°${String(i + 1).padStart(2, '0')}`,
+            image: data.publicUrl
+          };
+        });
+
+        const fallbackImage = `https://images.unsplash.com/photo-${editorialImages[index % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
+        const mainImage = normalizedPortfolio[0]?.image || fallbackImage;
+        const hoverImage = normalizedPortfolio[1]?.image || mainImage;
+
+        return {
+          id: item.id,
+          name: item.business_name || 'Canvas Artist',
+          category: item.category || 'Bridal & Wedding',
+          services: ['Makeup Artist', item.category || 'Bridal & Wedding'],
+          city: item.city || 'Jubilee Hills',
+          location: `${item.city || 'Jubilee Hills'}, Hyderabad`,
+          maxTravelKm: item.max_travel_km || 25,
+          pricePerSession: item.starting_price || 15000,
+          startingPrice: `₹${(item.starting_price || 15000).toLocaleString('en-IN')}`,
+          rating: 4.9,
+          reviewCount: 24 + (index % 40),
+          reviewsCount: 24 + (index % 40),
+          image: mainImage,
+          hoverImage: hoverImage,
+          tags: [item.category || 'Bridal & Wedding', 'HD Airbrush', 'Custom Styling'],
+          bio: `${item.business_name || 'This artist'} specializes in ${(item.category || 'bridal & wedding').toLowerCase()} looks, tailored to high-end events in ${item.city || 'Hyderabad'}.`,
+          signature: `${item.category || 'Signature Aesthetic'}`,
+          portfolio: normalizedPortfolio.length > 0 ? normalizedPortfolio : [{ style: 'signature work', image: fallbackImage }],
+          addons: [],
+          isVerified: true,
+          isLiveDb: true,
+          isIncompleteProfile: !item.business_name || normalizedPortfolio.length === 0,
+        } as Artist & { isLiveDb?: boolean; isIncompleteProfile?: boolean };
+      });
     },
     staleTime: 1000 * 60 * 5,
   });
