@@ -332,7 +332,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
         } as Artist & { isLiveDb?: boolean; isIncompleteProfile?: boolean; matchScore?: number };
       });
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
   });
 
   const [sortBy, setSortBy] = useState('Best match');
