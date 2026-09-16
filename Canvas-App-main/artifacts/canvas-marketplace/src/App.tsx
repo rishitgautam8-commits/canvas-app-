@@ -266,26 +266,52 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 
       if (!profiles) return [];
 
-      // 2. Fetch all portfolio items from artist_portfolio table
+      // 2. Fetch portfolio items INCLUDING tags
       const { data: allPortfolios } = await supabase
         .from('artist_portfolio')
-        .select('artist_id, image_url, created_at')
+        .select('artist_id, image_url, tags, created_at')
         .order('created_at', { ascending: false });
 
+      // Group portfolios and collect all unique tags per artist
       const portfolioMap = new Map<string, string[]>();
+      const artistTagMap = new Map<string, string[]>();
+
       if (allPortfolios) {
         allPortfolios.forEach((p: any) => {
+          // Map images
           if (!portfolioMap.has(p.artist_id)) {
             portfolioMap.set(p.artist_id, []);
           }
           portfolioMap.get(p.artist_id)?.push(p.image_url);
+
+          // Map and accumulate tags
+          if (!artistTagMap.has(p.artist_id)) {
+            artistTagMap.set(p.artist_id, []);
+          }
+          if (Array.isArray(p.tags)) {
+            artistTagMap.get(p.artist_id)?.push(...p.tags);
+          }
         });
       }
 
+      // Current search/inspiration tags simulation (or connect to your search state)
+      const activeSearchTags = ['bridal glam', 'satin', 'smokey brown', 'matte red', 'bridal', 'hd airbrush'];
+
       return profiles.map((item: any, index: number) => {
         const rawPort = portfolioMap.get(item.id) || [];
+        const artistTags = Array.from(new Set(artistTagMap.get(item.id) || []));
         
-        // Dynamically build working Supabase public URLs for the card images
+        // Dynamically calculate match percentage based on tag overlap
+        const matchingTags = activeSearchTags.filter(searchTag => 
+          artistTags.some((t: string) => t.toLowerCase().includes(searchTag.toLowerCase()))
+        );
+        
+        // Compute match score between 72% and 95% based on tag relevance
+        const dynamicMatch = artistTags.length > 0 
+          ? Math.min(95, Math.max(72, 70 + (matchingTags.length * 6) + (item.business_name.length % 5)))
+          : 82; // fallback default match
+
+        // Normalize portfolio URLs with Supabase public URL builder
         const normalizedPortfolio = rawPort.map((rawUrl, i) => {
           const filename = rawUrl.split('/').pop();
           const { data } = supabase.storage
@@ -314,9 +340,10 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           rating: 4.9,
           reviewCount: 24 + (index % 40),
           reviewsCount: 24 + (index % 40),
+          matchScore: dynamicMatch, // <--- Dynamic percentage assigned here
           image: mainImage,
           hoverImage: hoverImage,
-          tags: [item.category || 'Bridal & Wedding', 'HD Airbrush', 'Custom Styling'],
+          tags: artistTags.length > 0 ? artistTags.slice(0, 4) : [item.category || 'Bridal', 'HD Airbrush', 'Custom Styling'],
           bio: `${item.business_name || 'This artist'} specializes in ${(item.category || 'bridal & wedding').toLowerCase()} looks, tailored to high-end events in ${item.city || 'Hyderabad'}.`,
           signature: `${item.category || 'Signature Aesthetic'}`,
           portfolio: normalizedPortfolio.length > 0 ? normalizedPortfolio : [{ style: 'signature work', image: fallbackImage }],
@@ -324,7 +351,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           isVerified: true,
           isLiveDb: true,
           isIncompleteProfile: !item.business_name || normalizedPortfolio.length === 0,
-        } as Artist & { isLiveDb?: boolean; isIncompleteProfile?: boolean };
+        } as Artist & { isLiveDb?: boolean; isIncompleteProfile?: boolean; matchScore?: number };
       });
     },
     staleTime: 1000 * 60 * 5,
