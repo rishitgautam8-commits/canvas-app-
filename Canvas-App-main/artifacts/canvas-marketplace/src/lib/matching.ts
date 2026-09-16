@@ -261,44 +261,92 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
 }
 
 /**
- * NEW: Parses any user text description (e.g. "nizami bridal, soft glam") into 
- * structured AestheticTags using Gemini, allowing text search to act just like image search.
+ * Parses user text descriptions into structured AestheticTags using Gemini,
+ * with an intelligent local keyword fallback to guarantee zero API downtime.
  */
 export async function extractTagsFromText(description: string): Promise<AestheticTags> {
+  if (!description || !description.trim()) return {};
+
+  const cleanDesc = description.toLowerCase();
+  let extracted: AestheticTags = {};
+
+  // 1. Try Gemini API first
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  if (!apiKey || !description.trim()) return {};
-
-  try {
-    // Switched to gemini-pro which is universally supported for text tasks
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `Analyze this user makeup description: "${description}". Extract and return a strict JSON object with optional keys from this set: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings). Example: {"look": "Bridal", "finish": "Dewy", "eyes": "Winged Liner", "lips": "Nude", "occasion": "Wedding", "tones": ["Warm", "Gold"]}. Return ONLY valid raw JSON, no markdown formatting.`
+  if (apiKey) {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `Analyze this user makeup description: "${description}". Extract and return a strict JSON object with optional keys from this set: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings). Example: {"look": "Bridal", "finish": "Dewy", "eyes": "Winged Liner", "lips": "Nude", "occasion": "Wedding", "tones": ["Warm", "Gold"]}. Return ONLY valid raw JSON, no markdown formatting.`
+              }]
             }]
-          }]
-        })
-      }
-    );
+          })
+        }
+      );
 
-    if (!response.ok) {
-      const errBody = await response.text();
-      console.error('Gemini Text API Error:', errBody);
-      return {};
+      if (response.ok) {
+        const data = await response.json();
+        const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '{}';
+        const cleaned = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleaned);
+        if (parsed && Object.keys(parsed).length > 0) {
+          extracted = parsed;
+        }
+      }
+    } catch (err) {
+      console.warn('Gemini API skipped, using local keyword tag extractor.');
+    }
+  }
+
+  // 2. Intelligent local fallback if API fails or isn't configured
+  if (!extracted.look && !extracted.finish && !extracted.occasion) {
+    const tags: AestheticTags = {};
+    const tones: string[] = [];
+
+    if (cleanDesc.includes('bridal') || cleanDesc.includes('bride') || cleanDesc.includes('nizami') || cleanDesc.includes('dulhan')) {
+      tags.look = 'Bridal';
+      tags.occasion = 'Wedding';
+    } else if (cleanDesc.includes('party') || cleanDesc.includes('sangeet') || cleanDesc.includes('reception')) {
+      tags.look = 'Party Glam';
+      tags.occasion = 'Reception';
+    } else if (cleanDesc.includes('editorial') || cleanDesc.includes('fashion')) {
+      tags.look = 'Editorial';
+    } else if (cleanDesc.includes('soft glam') || cleanDesc.includes('natural')) {
+      tags.look = 'Soft Glam';
     }
 
-    const data = await response.json();
-    const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '{}';
-    const cleaned = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(cleaned);
-  } catch (err) {
-    console.error('Failed to parse text description into tags:', err);
-    return {};
+    if (cleanDesc.includes('dewy') || cleanDesc.includes('glass') || cleanDesc.includes('glow')) {
+      tags.finish = 'Dewy Finish';
+    } else if (cleanDesc.includes('matte')) {
+      tags.finish = 'Matte Finish';
+    }
+
+    if (cleanDesc.includes('smokey') || cleanDesc.includes('smoky')) {
+      tags.eyes = 'Smokey Eye';
+    } else if (cleanDesc.includes('winged') || cleanDesc.includes('liner')) {
+      tags.eyes = 'Winged Liner';
+    }
+
+    if (cleanDesc.includes('nude')) {
+      tags.lips = 'Nude Lip';
+    } else if (cleanDesc.includes('red') || cleanDesc.includes('bold')) {
+      tags.lips = 'Bold Red';
+    }
+
+    if (cleanDesc.includes('warm') || cleanDesc.includes('gold') || cleanDesc.includes('bronze')) {
+      tones.push('Warm');
+    }
+
+    if (tones.length > 0) tags.tones = tones;
+    extracted = tags;
   }
+
+  return extracted;
 }
 
 export interface RankedArtist<T = any> {
