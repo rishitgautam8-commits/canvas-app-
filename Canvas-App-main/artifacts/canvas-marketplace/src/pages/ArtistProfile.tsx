@@ -373,10 +373,19 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               <div key={item.id} className="group cursor-pointer">
                 <div className={`relative overflow-hidden bg-white mb-4 border ${theme.borderBase} ${theme.cardRadius} shadow-sm aspect-[4/5] sm:aspect-[4/5]`}>
                   <img 
-                    src={item.image_url} 
-                    alt={`Look ${i + 1}`} 
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" 
-                  />
+  src={(() => {
+    const raw = item.image_url;
+    if (!raw) return '';
+    if (/^https?:\/\//i.test(raw)) return raw; // if it's already a full URL, use it
+    
+    // Otherwise, dynamically build the clean public URL using the Supabase SDK
+    const filename = raw.split('/').pop();
+    const { data } = supabase.storage.from('portfolios').getPublicUrl(`${artistId}/${filename}`);
+    return data.publicUrl;
+  })()} 
+  alt={`Look ${i + 1}`} 
+  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" 
+/>
                 </div>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
