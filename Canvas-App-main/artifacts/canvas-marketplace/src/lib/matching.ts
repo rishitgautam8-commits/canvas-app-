@@ -269,6 +269,7 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
   if (!apiKey || !description.trim()) return {};
 
   try {
+    // Updated to use the standard gemini-1.5-flash endpoint path
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
@@ -277,14 +278,19 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `Analyze this user makeup description: "${description}". Extract and return a strict JSON object with optional keys from this set: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings). Example: {"look": "Bridal", "finish": "Dewy", "eyes": "Winged Liner", "lips": "Nude", "occasion": "Wedding", "tones": ["Warm", "Gold"]}. Return ONLY valid raw JSON, no markdown formatting like json.`
+              text: `Analyze this user makeup description: "${description}". Extract and return a strict JSON object with optional keys from this set: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings). Example: {"look": "Bridal", "finish": "Dewy", "eyes": "Winged Liner", "lips": "Nude", "occasion": "Wedding", "tones": ["Warm", "Gold"]}. Return ONLY valid raw JSON, no markdown formatting.`
             }]
           }]
         })
       }
     );
 
-    if (!response.ok) return {};
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.error('Gemini Text API Error:', errBody);
+      return {};
+    }
+
     const data = await response.json();
     const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '{}';
     const cleaned = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
