@@ -151,7 +151,7 @@ export function legacyTagsToStructured(tags: string[]): AestheticTags {
   for (const raw of tags ?? []) {
     const t = norm(raw);
     if (!t) continue;
-    if (/(dewy|matte|satin|velvet|glossy|glowing|luminous|radiant|glass skin|airbrush)/.test(t)) out.finish = out.finish ?? t;
+    if (/(dewy|matte|satin|velvet|glossy|glow\b|glowing|luminous|radiant|glass skin|airbrush)/.test(t)) out.finish = out.finish ?? t;
     else if (/(smokey|smoky|winged|graphic|shimmer|liner|kohl|kajal|lash|eye)/.test(t)) out.eyes = out.eyes ?? t;
     else if (/(\blip|nude|red|berry|rosy|pink|gloss|maroon)/.test(t)) out.lips = out.lips ?? t;
     else if (/(bridal|wedding|bride|reception|party|sangeet|engagement|haldi|mehendi|mehandi|festive|editorial|shoot|groom)/.test(t))
@@ -236,23 +236,31 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
     const weight = FIELD_WEIGHTS[field];
     possible += weight;
 
-    let best = matchStrings(refVal, artist.aiTags?.[field]);
-    for (const img of artist.portfolioTags ?? []) {
-      best = Math.max(best, matchStrings(refVal, img?.[field]));
-    }
+    // Track the artist's own best-matching value alongside its score, so the
+    // explanation chip shows *their* tag, not the reference photo's words.
+    let best = 0;
+    let bestVal = '';
+    const consider = (candidate?: string, scale = 1) => {
+      const m = matchStrings(refVal, candidate) * scale;
+      if (m > best) {
+        best = m;
+        bestVal = norm(candidate);
+      }
+    };
+
+    consider(artist.aiTags?.[field]);
+    for (const img of artist.portfolioTags ?? []) consider(img?.[field]);
 
     // cross-field fallback against the artist's full unbucketed tag pool
     if (best < 1) {
-      let cross = 0;
-      for (const tag of rawPool) cross = Math.max(cross, matchStrings(refVal, tag));
-      best = Math.max(best, cross * CROSS_FIELD_CREDIT);
+      for (const tag of rawPool) consider(tag, CROSS_FIELD_CREDIT);
     }
 
     if (best <= 0) continue;
 
     earned += weight * best;
     matchedFields.push(field);
-    if (best >= 0.5) chips.push({ label: CHIP_LABEL[field](norm(refVal)), weight: weight * best });
+    if (best >= 0.5) chips.push({ label: CHIP_LABEL[field](bestVal || norm(refVal)), weight: weight * best });
   }
 
   // tones: partial credit per matched tone
