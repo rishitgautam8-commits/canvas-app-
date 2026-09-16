@@ -1579,9 +1579,16 @@ export default function App() {
   const [loadingSession, setLoadingSession] = useState(true);
   const [updatingRole, setUpdatingRole] = useState(false);
 
-  const queryParams = new URLSearchParams(window.location.search);
+const queryParams = new URLSearchParams(window.location.search);
   const styleVersion = queryParams.get('style') || '2';
   const theme = getTheme(styleVersion);
+
+  // AUTOMATIC URL CLEANUP: Removes ?style= from the address bar on load
+  useEffect(() => {
+    if (queryParams.has('style')) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     const checkSession = async () => {
