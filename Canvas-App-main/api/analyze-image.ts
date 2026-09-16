@@ -3,7 +3,16 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { imageBase64, mimeType } = req.body;
+  let { imageBase64, mimeType } = req.body;
+
+  if (!imageBase64) {
+    return res.status(400).json({ error: 'No image data provided' });
+  }
+
+  // SAFETY FIX: Strip data URL prefix if the frontend sent it by accident
+  if (imageBase64.includes('base64,')) {
+    imageBase64 = imageBase64.split('base64,')[1];
+  }
   
   // Use globalThis cast to satisfy TypeScript's node types
   const env = (globalThis as any).process?.env || {};
@@ -12,7 +21,6 @@ export default async function handler(req: any, res: any) {
   if (!apiKey) {
     return res.status(500).json({ error: 'Gemini API key not configured on server' });
   }
-  // ... rest of your code
 
   try {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
