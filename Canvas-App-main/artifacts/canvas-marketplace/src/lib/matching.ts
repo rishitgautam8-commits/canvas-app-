@@ -30,7 +30,7 @@ const TONES_WEIGHT = 6;
 const COVERAGE_BONUS_MAX = 3;
 const VERIFIED_BONUS = 2;
 const INCOMPLETE_PENALTY = 12;
-const MIN_SCORE = 55;
+const MIN_SCORE = 0;
 const MAX_SCORE = 99;
 const CHIP_SCORE_THRESHOLD = 65; // don't explain weak matches
 // A tag found in a different field than the reference used still counts,
