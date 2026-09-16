@@ -1150,11 +1150,12 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
   const [searchQuery, setSearchQuery] = useState('');
   const [isWriting, setIsWriting] = useState(false);
   const [showAllModal, setShowAllModal] = useState(false);
-  const [activeArticle, setActiveArticle] = useState<any>(null); // State for the full article reader view
+  const [activeArticle, setActiveArticle] = useState<any>(null);
   
   // Form state
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('Perspective');
+  const [category, setCategory] = useState('PERSPECTIVE');
+  const [imageUrl, setImageUrl] = useState('');
   const [content, setContent] = useState('');
   const [publishing, setPublishing] = useState(false);
 
@@ -1192,7 +1193,8 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
       title,
       category: category.toUpperCase(),
       read_time: readTime,
-      content
+      content,
+      image_url: imageUrl.trim() || null
     });
 
     setPublishing(false);
@@ -1201,6 +1203,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
       alert("Failed to publish article: " + error.message);
     } else {
       setTitle('');
+      setImageUrl('');
       setContent('');
       setIsWriting(false);
       fetchArticles();
@@ -1220,27 +1223,30 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
       category: 'PERSPECTIVE',
       read_time: '06 min read',
       title: 'On Keeping Your Own Face.',
-      content: 'A conversation about recognition, restraint, and honoring natural beauty in modern styling. When we look at contemporary bridal makeup, the tendency is often to layer, conceal, and transform. But true luxury lies in restraint—allowing skin texture to breathe, keeping freckles visible, and honoring the unique architecture of your own bone structure. This editorial explores why modern clients are shifting away from heavy masks toward effortless, high-craft individuality.',
+      content: 'A conversation about recognition, restraint, and honoring natural beauty in modern styling. When we look at contemporary bridal makeup, the tendency is often to layer, conceal, and transform. But true luxury lies in restraint—allowing skin texture to breathe, keeping freckles visible, and honoring the unique architecture of your own bone structure.',
       author_name: 'Studio Editorial',
-      author_role: 'artist'
+      author_role: 'artist',
+      image_url: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=1000'
     },
     {
       id: 'default-2',
-      category: 'RITUAL',
-      read_time: '03 min read',
-      title: 'A Small Ritual Before the Chair.',
-      content: 'Preparing your canvas for a transformative session through mindful hydration and calm. Before any brush touches skin, the internal state dictates the glow. Take ten minutes prior to your makeup appointment to sip cold water, practice deep box breathing, and let your skincare settle fully into the dermis.',
-      author_name: 'Hansika',
-      author_role: 'founder'
-    },
-    {
-      id: 'default-3',
       category: 'INDUSTRY',
       read_time: '05 min read',
       title: 'The Science of Skin Prep.',
       content: 'Why layering lightweight textures changes how long professional makeup holds throughout the day. Heavy creams cause sliding; lightweight hyaluronic essences paired with targeted silicones lock pigments in place for 14+ hours of flawless wear.',
       author_name: 'Canvas Team',
-      author_role: 'artist'
+      author_role: 'artist',
+      image_url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=1000'
+    },
+    {
+      id: 'default-3',
+      category: 'SKINCARE',
+      read_time: '04 min read',
+      title: 'Summer Hydration Secrets.',
+      content: 'Keeping your skin luminous under high temperatures requires balancing lightweight gel moisturizers with broad-spectrum mineral SPF protection.',
+      author_name: 'Hansika',
+      author_role: 'founder',
+      image_url: ''
     }
   ];
 
@@ -1290,16 +1296,16 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
         {/* Writing Modal Drawer */}
         {isWriting && (
           <div className="bg-white/5 border border-[#E2BE68]/30 p-8 sm:p-12 rounded-3xl mb-16 space-y-6 max-w-3xl mx-auto shadow-2xl relative animate-in fade-in duration-300">
-            <button onClick={() => setIsWriting(false)} className="absolute right-6 top-6 text-white/40 hover:text-white"><X size={20}/></button>
+            <button onClick={() => setIsWriting(false)} className="absolute right-6 top-6 text-white/50 hover:text-white"><X size={20}/></button>
             <div className="border-b border-white/10 pb-4">
-              <h3 className="text-2xl font-serif text-[#E2BE68] tracking-normal">Publish to The Journal</h3>
-              <p className={`${theme.bodyText} text-xs text-white/50 mt-1`}>Share your beauty tips, routines, or perspective with the community.</p>
+              <h3 className="text-2xl font-serif text-[#E2BE68]">Publish to The Journal</h3>
+              <p className="text-xs text-white/50 mt-1">Share your beauty tips, routines, or perspective with the community.</p>
             </div>
             
             <form onSubmit={handlePublish} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label className={`${theme.eyebrow} block text-[10px] text-white/60 mb-2`}>Article Title *</label>
+                  <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Article Title *</label>
                   <input 
                     type="text" required value={title} onChange={(e) => setTitle(e.target.value)} 
                     placeholder="E.g., Summer Hydration Secrets" 
@@ -1307,22 +1313,30 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                   />
                 </div>
                 <div>
-                  <label className={`${theme.eyebrow} block text-[10px] text-white/60 mb-2`}>Category *</label>
+                  <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Category *</label>
                   <select 
                     value={category} onChange={(e) => setCategory(e.target.value)}
                     className="w-full bg-[#1b1222] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#E2BE68]"
                   >
-                    <option value="Perspective">Perspective</option>
-                    <option value="Ritual">Ritual</option>
-                    <option value="Industry">Industry</option>
-                    <option value="Skincare">Skincare</option>
-                    <option value="Product Review">Product Review</option>
+                    <option value="PERSPECTIVE">Perspective</option>
+                    <option value="INDUSTRY">Industry</option>
+                    <option value="SKINCARE">Skincare</option>
+                    <option value="PRODUCT REVIEW">Product Review</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className={`${theme.eyebrow} block text-[10px] text-white/60 mb-2`}>Your Content *</label>
+                <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Featured Image URL (Optional)</label>
+                <input 
+                  type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} 
+                  placeholder="https://example.com/image.jpg" 
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-[#E2BE68]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-white/60 mb-2 font-mono">Your Content *</label>
                 <textarea 
                   required rows={5} value={content} onChange={(e) => setContent(e.target.value)} 
                   placeholder="Write your article or beauty advice here..." 
@@ -1342,11 +1356,17 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
           </div>
         )}
 
-        {/* Homepage Editorial Grid (Clicking opens reader view) */}
+        {/* Homepage Editorial Grid */}
         <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
           {featuredArticle && (
-            <div onClick={() => setActiveArticle(featuredArticle)} className="group relative min-h-[440px] overflow-hidden border border-white/10 bg-[#150A26] p-10 sm:p-12 flex flex-col justify-between cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl">
-              <div>
+            <div onClick={() => setActiveArticle(featuredArticle)} className="group relative min-h-[440px] overflow-hidden border border-white/10 bg-[#150A26] flex flex-col justify-between cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl">
+              {featuredArticle.image_url && (
+                <div className="absolute inset-0 z-0 opacity-25 group-hover:opacity-40 transition-opacity">
+                  <img src={featuredArticle.image_url} alt="" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#150A26] via-[#150A26]/80 to-transparent"></div>
+                </div>
+              )}
+              <div className="relative z-10 p-10 sm:p-12">
                 <span className={`${theme.eyebrow} text-[11px] text-[#E2BE68]`}>
                   {featuredArticle.category} · {featuredArticle.read_time}
                 </span>
@@ -1359,7 +1379,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                   </p>
                 </div>
               </div>
-              <div className="pt-8 border-t border-white/10 flex items-center justify-between text-xs text-white/40">
+              <div className="relative z-10 p-10 sm:pt-0 pt-0 pb-10 sm:pb-12 border-t border-white/10 flex items-center justify-between text-xs text-white/40">
                 <span className={`${theme.bodyText}`}>By {featuredArticle.author_name}</span>
                 <span className={`${theme.secondaryLink} text-[#E2BE68] group-hover:translate-x-1 transition-transform flex items-center gap-1`}>Read Article <BookOpen size={12}/></span>
               </div>
@@ -1368,8 +1388,14 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
 
           <div className="grid gap-6">
             {sideArticles.map((art) => (
-              <div key={art.id} onClick={() => setActiveArticle(art)} className="group border border-white/10 bg-[#150A26] p-8 sm:p-10 cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl flex flex-col justify-between">
-                <div>
+              <div key={art.id} onClick={() => setActiveArticle(art)} className="group relative overflow-hidden border border-white/10 bg-[#150A26] p-8 sm:p-10 cursor-pointer hover:border-[#E2BE68]/50 transition-all rounded-2xl flex flex-col justify-between">
+                {art.image_url && (
+                  <div className="absolute inset-0 z-0 opacity-20 group-hover:opacity-30 transition-opacity">
+                    <img src={art.image_url} alt="" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#150A26] via-[#150A26]/90 to-transparent"></div>
+                  </div>
+                )}
+                <div className="relative z-10">
                   <span className={`${theme.eyebrow} text-[11px] text-[#E2BE68]`}>
                     {art.category} · {art.read_time}
                   </span>
@@ -1378,7 +1404,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                   </h3>
                   <p className={`${theme.bodyText} text-white/60 text-xs mt-2 line-clamp-2`}>{art.content}</p>
                 </div>
-                <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40">
+                <div className="relative z-10 pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-white/40">
                   <span className={`${theme.bodyText}`}>By {art.author_name}</span>
                   <span className={`${theme.secondaryLink} text-[#E2BE68]`}>Read →</span>
                 </div>
@@ -1387,7 +1413,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
           </div>
         </div>
 
-        {/* FULL ARCHIVE MODAL ("Read All Stories") */}
+        {/* FULL ARCHIVE MODAL */}
         {showAllModal && (
           <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col p-6 sm:p-12 overflow-y-auto animate-in fade-in duration-300">
             <div className="max-w-[1400px] w-full mx-auto">
@@ -1447,7 +1473,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
             <div className="bg-[#150A26] border border-[#E2BE68]/30 max-w-3xl w-full p-8 sm:p-14 rounded-3xl relative shadow-2xl my-auto">
               <button 
                 onClick={() => setActiveArticle(null)} 
-                className="absolute right-6 top-6 text-white/50 hover:text-white p-2 bg-white/5 rounded-full transition"
+                className="absolute right-6 top-6 text-white/50 hover:text-white p-2 bg-white/5 rounded-full transition z-20"
               >
                 <X size={20}/>
               </button>
@@ -1468,6 +1494,12 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
                   <span>•</span>
                   <span className="capitalize text-[#E2BE68]">{activeArticle.author_role}</span>
                 </div>
+
+                {activeArticle.image_url && (
+                  <div className="w-full h-64 sm:h-80 rounded-2xl overflow-hidden border border-white/10 my-4">
+                    <img src={activeArticle.image_url} alt="" className="w-full h-full object-cover" />
+                  </div>
+                )}
 
                 <div className="text-white/80 text-sm sm:text-base leading-relaxed font-sans space-y-4 pt-2">
                   <p>{activeArticle.content}</p>
