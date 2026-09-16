@@ -631,14 +631,20 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   setHasSearched(true);
   
   if (vals.inspirationFile) {
-    // If they uploaded a photo, use the image matching hook
+    // If they uploaded a photo, use the image matching hook normally
     submitReference(vals.inspirationFile);
   } else if (vals.lookDescription && vals.lookDescription.trim().length > 3) {
     // NEW: If they typed text, extract tags via Gemini and trigger AI matching!
+    console.log("Extracting tags for description:", vals.lookDescription);
     const extractedTags = await extractTagsFromText(vals.lookDescription);
+    console.log("Extracted Tags Result:", extractedTags);
     
-    // Bypass type check since submitReference can handle raw aesthetic tag objects
-    (submitReference as any)(extractedTags);
+    // If your hook exposes a direct setter for reference tags (like setReferenceTags), use it here.
+    // Otherwise, pass it safely:
+    if (extractedTags && Object.keys(extractedTags).length > 0) {
+      // This forces your matching engine to recognize the text-derived tags as the active reference
+      (submitReference as any)({ tags: extractedTags }); 
+    }
   } else {
     clearReference();
   }
