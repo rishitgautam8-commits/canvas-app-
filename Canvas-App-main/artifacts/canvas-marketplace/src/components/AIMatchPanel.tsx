@@ -58,7 +58,7 @@ export function AIMatchPanel({
           {phase === 'ready' && (
             <>
               <span className={theme.badge}>{tagCount} tags extracted</span>
-              {analysis?.isMock && <span className={`${theme.badge} !text-black/50 !border-black/20`}>preview mode — full AI analysis unavailable right now</span>}
+              {analysis?.isMock && <span className={`${theme.badge} !text-black/50 !border-black/20`}>demo mode</span>}
               <span className={theme.badge}>verified secure</span>
             </>
           )}
