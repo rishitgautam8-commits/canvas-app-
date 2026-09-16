@@ -23,6 +23,7 @@ import { Premium } from '@/components/Premium';
 import { getTheme } from '@/lib/theme';
 import { ArtistBookings } from './components/ArtistBookings';
 import { ClientBookings } from './components/ClientBookings';
+import { Search, PlusCircle, BookOpen } from 'lucide-react';
 
 // ─── NEW AI MATCHING ENGINE IMPORTS ────────────────────────────────────────────
 // 1. IMPORTS: Hook, panel component, and base matching function
@@ -935,46 +936,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           </section>
         </ScrollZoomIn>
 
-        <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-5 py-24 sm:px-8 lg:px-12 lg:py-36">
-          <div className="max-w-[1400px] mx-auto">
-            <ScrollZoomIn>
-              <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end mb-16">
-                <div>
-                  <p className={`${theme.eyebrow} !text-[#9D7C3A] mb-3`}>{toTitleCase('from the journal')}</p>
-                  <h2 className={`${theme.headingHero} !text-white`}>{toTitleCase('from the')} <span className={`${theme.premiumTag} !text-[#9D7C3A]`}>{toTitleCase('journal.')}</span></h2>
-                </div>
-                <button type="button" onClick={() => window.alert('The journal is being written. Check back soon.')} className={`${theme.secondaryLink} border-b border-white/30 pb-1 !text-white`}>read all stories</button>
-              </div>
-            </ScrollZoomIn>
-            <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-              <ScrollZoom>
-                <div className={`group relative min-h-[400px] overflow-hidden border border-white/10 bg-[#150A26] p-10 flex flex-col justify-between cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
-                  <ScrollZoomIn delay={150}>
-                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>{toTitleCase('perspective · 06 min read')}</span>
-                    <div>
-                      <h3 className={`${theme.headingModal} !text-white mt-4`}>{toTitleCase('on keeping your own face.')}</h3>
-                      <p className={`${theme.bodyText} !text-white/60 mt-2`}>a conversation about recognition and restraint.</p>
-                    </div>
-                  </ScrollZoomIn>
-                </div>
-              </ScrollZoom>
-              <div className="grid gap-6">
-                <ScrollZoomIn delay={100}>
-                  <div className={`group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
-                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>{toTitleCase('ritual · 03 min read')}</span>
-                    <h3 className={`${theme.headingModal} !text-white mt-4`}>{toTitleCase('a small ritual before the chair.')}</h3>
-                  </div>
-                </ScrollZoomIn>
-                <ScrollZoomIn delay={200}>
-                  <div className={`group border border-white/10 bg-[#150A26] p-8 cursor-pointer hover:bg-white/5 transition-colors ${theme.cardRadius}`}>
-                    <span className={`${theme.eyebrow} !text-[#9D7C3A]`}>{toTitleCase('industry · 05 min read')}</span>
-                    <h3 className={`${theme.headingModal} !text-white mt-4`}>{toTitleCase('the science of skin prep.')}</h3>
-                  </div>
-                </ScrollZoomIn>
-              </div>
-            </div>
-          </div>
-        </section>
+        <JournalSectionSessionWrapper session={session} setAuthOpen={setAuthOpen} theme={theme} />
 
         <ScrollZoomIn>
           <footer className={`bg-[#05020A] text-white px-5 py-16 sm:px-8 lg:px-12 border-t border-white/10 ${theme.fontBase}`}>
@@ -1182,6 +1144,200 @@ function Router({ session, styleVersion }: { session: Session | null; styleVersi
 // ==========================================
 // APP ROOT
 // ==========================================
+
+function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session: any; setAuthOpen: (open: boolean) => void; theme: any }) {
+  const [articles, setArticles] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isWriting, setIsWriting] = useState(false);
+  
+  // Form state for publishing
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState('Skincare & Prep');
+  const [content, setContent] = useState('');
+  const [publishing, setPublishing] = useState(false);
+
+  useEffect(() => {
+    fetchArticles();
+  }, []);
+
+  const fetchArticles = async () => {
+    const { data, error } = await supabase
+      .from('journal_articles')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (!error && data) {
+      setArticles(data);
+    }
+  };
+
+  const handlePublish = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!session?.user) {
+      setAuthOpen(true);
+      return;
+    }
+
+    setPublishing(true);
+    const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.first_name || 'Community Member';
+    const userRole = session.user.user_metadata?.role || 'client';
+    const readTime = `${Math.ceil(content.split(' ').length / 200)} min read`;
+
+    const { error } = await supabase.from('journal_articles').insert({
+      author_id: session.user.id,
+      author_name: userName,
+      author_role: userRole,
+      title,
+      category,
+      read_time: readTime,
+      content
+    });
+
+    setPublishing(false);
+
+    if (error) {
+      alert("Failed to publish article: " + error.message);
+    } else {
+      alert("Article published successfully to the journal!");
+      setTitle('');
+      setContent('');
+      setIsWriting(false);
+      fetchArticles();
+    }
+  };
+
+  const filteredArticles = articles.filter(art => 
+    art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    art.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    art.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    art.author_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <section id="journal" className="bg-[#0A0510] text-white mx-auto w-full px-5 py-24 sm:px-8 lg:px-12">
+      <div className="max-w-[1400px] mx-auto">
+        
+        {/* Section Header & Description */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-6">
+          <div>
+            <p className={`${theme.eyebrow} !text-[#E2BE68] mb-3`}>from the journal</p>
+            <h2 className={`${theme.headingHero} !text-white`}>Stories, Rituals & <span className="italic font-serif">Perspective.</span></h2>
+            <p className="text-white/60 mt-4 max-w-2xl text-sm leading-relaxed font-sans">
+              A curated editorial space where both artists and clients share expert beauty tips, product reviews, personal routines, and industry insights. Read freely or publish your own perspective.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => {
+                if (!session?.user) {
+                  setAuthOpen(true);
+                } else {
+                  setIsWriting(!isWriting);
+                }
+              }}
+              className="flex items-center gap-2 px-6 py-3 bg-[#E2BE68] text-black text-xs font-semibold uppercase tracking-wider rounded-full hover:bg-white transition shadow-lg"
+            >
+              <PlusCircle size={16} /> {isWriting ? 'Close Editor' : 'Write Article / Tip'}
+            </button>
+          </div>
+        </div>
+
+        {/* Search Bar Option */}
+        <div className="relative max-w-lg mb-12">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={18} />
+          <input 
+            type="text" 
+            placeholder="Search topics, ingredients, bridal rituals, or authors..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-white/5 border border-white/10 rounded-full pl-12 pr-6 py-3.5 text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#E2BE68] transition"
+          />
+        </div>
+
+        {/* Write Article Form / Modal Drawer */}
+        {isWriting && (
+          <form onSubmit={handlePublish} className="bg-white/5 border border-[#E2BE68]/30 p-8 sm:p-10 rounded-2xl mb-16 space-y-6 max-w-3xl shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h3 className="text-xl font-serif text-[#E2BE68]">Publish a Beauty Insight or Tip</h3>
+              <span className="text-xs uppercase tracking-widest text-white/40">Posting as {session?.user?.user_metadata?.role || 'Member'}</span>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">Article Title *</label>
+                <input 
+                  type="text" required value={title} onChange={(e) => setTitle(e.target.value)} 
+                  placeholder="E.g., The Secret to Long-Lasting Summer Hydration" 
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E2BE68]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">Category *</label>
+                <select 
+                  value={category} onChange={(e) => setCategory(e.target.value)}
+                  className="w-full bg-[#1b1222] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#E2BE68]"
+                >
+                  <option value="Skincare & Prep">Skincare & Prep</option>
+                  <option value="Bridal Tips">Bridal Tips</option>
+                  <option value="Product Review">Product Review</option>
+                  <option value="Industry Perspective">Industry Perspective</option>
+                  <option value="Daily Routine">Daily Routine</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-white/60 mb-2">Your Story, Tips or Advice *</label>
+              <textarea 
+                required rows={6} value={content} onChange={(e) => setContent(e.target.value)} 
+                placeholder="Share your expertise, product recommendations, or beauty ritual..." 
+                className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-[#E2BE68] leading-relaxed"
+              />
+            </div>
+
+            <div className="flex justify-end gap-4">
+              <button type="button" onClick={() => setIsWriting(false)} className="px-6 py-3 border border-white/20 text-white rounded-xl text-xs uppercase tracking-wider hover:bg-white/10">
+                Cancel
+              </button>
+              <button type="submit" disabled={publishing} className="px-8 py-3 bg-[#E2BE68] text-black font-semibold uppercase tracking-wider text-xs rounded-xl hover:bg-white transition disabled:opacity-50">
+                {publishing ? 'Publishing...' : 'Publish Story ✍️'}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Articles Display Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredArticles.length > 0 ? (
+            filteredArticles.map((art) => (
+              <div key={art.id} className="bg-white/5 border border-white/10 p-8 rounded-2xl flex flex-col justify-between hover:border-[#E2BE68]/50 transition group">
+                <div>
+                  <div className="flex items-center justify-between text-xs text-[#E2BE68] uppercase tracking-widest mb-4 font-mono">
+                    <span>{art.category}</span>
+                    <span>{art.read_time}</span>
+                  </div>
+                  <h3 className="text-2xl font-serif mb-3 group-hover:text-[#E2BE68] transition">{art.title}</h3>
+                  <p className="text-white/60 text-sm line-clamp-3 leading-relaxed mb-6 font-sans">{art.content}</p>
+                </div>
+                <div className="pt-6 border-t border-white/10 flex items-center justify-between text-xs text-white/40">
+                  <span className="capitalize">By {art.author_name} <span className="text-[#E2BE68]">({art.author_role})</span></span>
+                  <span className="text-[#E2BE68] font-medium flex items-center gap-1 group-hover:translate-x-1 transition">Read <BookOpen size={12} /></span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full py-12 text-center bg-white/5 rounded-2xl border border-dashed border-white/10">
+              <p className="text-white/40 text-sm italic">No articles found matching your search. Be the first to write one!</p>
+            </div>
+          )}
+        </div>
+
+      </div>
+    </section>
+  );
+}
+
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
