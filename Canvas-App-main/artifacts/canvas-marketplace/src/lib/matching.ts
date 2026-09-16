@@ -12,6 +12,7 @@ export interface ArtistTagIndex {
   id: string;
   aiTags?: AestheticTags;           // specialization tags (category/quals/bio or aggregated)
   portfolioTags?: AestheticTags[];  // one entry per portfolio image
+  rawTags?: string[];               // every tag string the artist has, unbucketed
   isVerified?: boolean;
   isIncompleteProfile?: boolean;
 }
@@ -32,6 +33,10 @@ const INCOMPLETE_PENALTY = 12;
 const MIN_SCORE = 55;
 const MAX_SCORE = 99;
 const CHIP_SCORE_THRESHOLD = 65; // don't explain weak matches
+// A tag found in a different field than the reference used still counts,
+// at reduced credit: bucketing is noisy on both sides (an artist tagged
+// "glass skin" under look is describing what Gemini reports as finish).
+const CROSS_FIELD_CREDIT = 0.6;
 
 type ScalarField = keyof typeof FIELD_WEIGHTS;
 
@@ -41,34 +46,36 @@ const norm = (s?: string) =>
 /* ── synonym / alias groups ── */
 
 const ALIAS_GROUPS: string[][] = [
-  ['soft glam', 'softglam', 'soft natural glam'],
+  ['soft glam', 'softglam', 'soft natural glam', 'glam'],
   ['natural', 'no makeup', 'barely there', 'minimal', 'clean girl'],
   ['editorial', 'high fashion', 'fashion editorial', 'avant garde'],
-  ['bridal', 'bride', 'wedding'],
-  ['reception', 'sangeet', 'cocktail', 'party', 'event glam', 'party glam'],
-  ['engagement', 'roka', 'haldi', 'mehendi'],
-  ['dewy', 'glowing', 'glowy', 'luminous', 'radiant'],
+  ['bridal', 'bride', 'wedding', 'dulhan'],
+  ['reception', 'sangeet', 'cocktail', 'party', 'event glam', 'party glam', 'festive', 'festive event', 'evening event'],
+  ['engagement', 'roka', 'haldi', 'mehendi', 'mehandi'],
+  ['dewy', 'glowing', 'glowy', 'luminous', 'radiant', 'glass skin', 'glass', 'glassy'],
   ['matte', 'velvet', 'velvety', 'soft matte'],
   ['satin', 'natural finish', 'skinlike', 'skin like'],
   ['smokey', 'smoky', 'smudged', 'smoke'],
-  ['winged liner', 'cat eye', 'wing liner'],
+  ['winged liner', 'cat eye', 'wing liner', 'wing', 'winged', 'wings'],
   ['graphic liner', 'geometric'],
   ['nude', 'nude lips', 'my lips but better'],
   ['glossy', 'gloss', 'lacquer', 'wet lips'],
-  ['bold red', 'classic red', 'red lip'],
-  ['berry', 'berry stain', 'wine', 'plum lip'],
-  ['rosy', 'rose', 'rosy pink'],
-  ['nude brown', 'brown nude', 'cocoa', 'mocha'],
-  ['shimmer', 'metallic', 'foil', 'glitter'],
+  ['bold red', 'classic red', 'red lip', 'bold lip', 'bold'],
+  ['berry', 'berry stain', 'wine', 'plum lip', 'maroon'],
+  ['rosy', 'rose', 'rosy pink', 'pink', 'peach'],
+  ['nude brown', 'brown nude', 'cocoa', 'mocha', 'brown'],
+  ['shimmer', 'metallic', 'foil', 'glitter', 'shimmery'],
   ['hd', 'hd makeup', 'high definition', 'flawless'],
   ['airbrush', 'airbrushed'],
   ['warm', 'warm toned', 'warm tones'],
   ['cool', 'cool toned', 'cool tones'],
   ['neutral', 'neutral tones'],
-  ['gold', 'golden', 'gilded'],
+  ['gold', 'golden', 'gilded', 'yellow'],
   ['bronze', 'bronzy', 'bronzed'],
   ['copper', 'rose gold'],
   ['olive', 'olive toned'],
+  ['south indian', 'telugu', 'traditional', 'maharajah', 'maharani'],
+  ['liner', 'kohl', 'kajal'],
 ];
 
 const ALIAS_TO_GROUP = new Map<string, number>();
@@ -79,7 +86,39 @@ const sameAliasGroup = (a: string, b: string) => {
   return ga !== undefined && ga === ALIAS_TO_GROUP.get(b);
 };
 
-/** 0 = no match · 0.5 = shared keyword · 0.7 = containment · 1 = exact/alias */
+// Words that carry no aesthetic signal — dropped before comparison so
+// "hd makeup" and "bridal makeup" don't match on the word "makeup".
+const STOPWORDS = new Set(['makeup', 'look', 'looks', 'style', 'finish', 'tone', 'tones', 'with', 'and', 'the', 'for']);
+
+/**
+ * Reduce a phrase to a set of comparable keys. An alias-group member
+ * collapses to its group id, so "radiant" and "glass skin" produce the
+ * same key. Unknown words stay as themselves.
+ */
+function phraseKeys(phrase: string): Set<string> {
+  const keys = new Set<string>();
+  const n = norm(phrase);
+  if (!n) return keys;
+
+  const whole = ALIAS_TO_GROUP.get(n);
+  if (whole !== undefined) keys.add(`g${whole}`);
+
+  const words = n.split(' ').filter((w) => w.length > 2 && !STOPWORDS.has(w));
+
+  // two-word phrases first: "winged liner", "glass skin", "soft glam"
+  for (let i = 0; i < words.length - 1; i++) {
+    const pair = ALIAS_TO_GROUP.get(`${words[i]} ${words[i + 1]}`);
+    if (pair !== undefined) keys.add(`g${pair}`);
+  }
+
+  for (const w of words) {
+    const g = ALIAS_TO_GROUP.get(w);
+    keys.add(g !== undefined ? `g${g}` : w);
+  }
+  return keys;
+}
+
+/** 0 = no match · 0.5 = partial overlap · 0.7 = strong overlap · 1 = exact/alias */
 export function matchStrings(a?: string, b?: string): number {
   const na = norm(a);
   const nb = norm(b);
@@ -87,10 +126,21 @@ export function matchStrings(a?: string, b?: string): number {
   if (na === nb) return 1;
   if (sameAliasGroup(na, nb)) return 1;
   if ((na.length >= 4 && nb.includes(na)) || (nb.length >= 4 && na.includes(nb))) return 0.7;
-  const ta = new Set(na.split(' ').filter((t) => t.length > 3));
-  const tb = new Set(nb.split(' ').filter((t) => t.length > 3));
-  for (const t of ta) if (tb.has(t)) return 0.5;
-  return 0;
+
+  // token-level, alias-aware: multi-word AI values ("gold shimmer wing")
+  // rarely equal an artist tag verbatim, but overlap on concepts.
+  const ka = phraseKeys(na);
+  const kb = phraseKeys(nb);
+  if (ka.size === 0 || kb.size === 0) return 0;
+
+  let shared = 0;
+  for (const k of ka) if (kb.has(k)) shared++;
+  if (shared === 0) return 0;
+
+  const ratio = shared / Math.min(ka.size, kb.size);
+  if (ratio >= 1) return 1;
+  if (ratio >= 0.5) return 0.7;
+  return 0.5;
 }
 
 /* ── legacy string[] tags → structured (backward compatibility) ── */
@@ -101,12 +151,12 @@ export function legacyTagsToStructured(tags: string[]): AestheticTags {
   for (const raw of tags ?? []) {
     const t = norm(raw);
     if (!t) continue;
-    if (/(dewy|matte|satin|velvet|glossy|glowing|luminous)/.test(t)) out.finish = out.finish ?? t;
-    else if (/(smokey|smoky|winged|graphic|shimmer|liner|kohl|lash)/.test(t)) out.eyes = out.eyes ?? t;
-    else if (/(\blip|nude|red|berry|rosy|pink|gloss)/.test(t)) out.lips = out.lips ?? t;
-    else if (/(bridal|wedding|bride|reception|party|sangeet|engagement|editorial|shoot|groom)/.test(t))
+    if (/(dewy|matte|satin|velvet|glossy|glowing|luminous|radiant|glass skin|airbrush)/.test(t)) out.finish = out.finish ?? t;
+    else if (/(smokey|smoky|winged|graphic|shimmer|liner|kohl|kajal|lash|eye)/.test(t)) out.eyes = out.eyes ?? t;
+    else if (/(\blip|nude|red|berry|rosy|pink|gloss|maroon)/.test(t)) out.lips = out.lips ?? t;
+    else if (/(bridal|wedding|bride|reception|party|sangeet|engagement|haldi|mehendi|mehandi|festive|editorial|shoot|groom)/.test(t))
       out.occasion = out.occasion ?? t;
-    else if (/(warm|cool|neutral|gold|bronze|copper|rose|olive)/.test(t)) tones.push(t.split(' ')[0]);
+    else if (/(warm|cool|neutral|gold|bronze|copper|rose|olive|brown|yellow)/.test(t)) tones.push(t.split(' ')[0]);
     else out.look = out.look ?? t;
   }
   if (tones.length) out.tones = [...new Set(tones)].slice(0, 4);
@@ -124,7 +174,6 @@ const mergeDefined = (base: AestheticTags, over?: AestheticTags): AestheticTags 
 };
 
 /** Build the tag index for one artist from the shapes already in your app. */
-/** Build the tag index for one artist from the shapes already in your app. */
 export function buildArtistTagIndex(artist: any): ArtistTagIndex {
   const portfolioTags = (artist?.portfolio ?? [])
     .map((p: any) => {
@@ -135,13 +184,24 @@ export function buildArtistTagIndex(artist: any): ArtistTagIndex {
     })
     .filter(Boolean) as AestheticTags[];
 
-  const baseAiTags = legacyTagsToStructured(artist?.tags ?? []);
+  // Every tag string the artist has, kept flat and unbucketed. Field
+  // assignment loses information (only the first tag per field survives),
+  // so this pool is what the cross-field fallback scores against.
+  const rawTags: string[] = [
+    ...(artist?.allTags ?? artist?.tags ?? []),
+    ...(artist?.portfolio ?? []).flatMap((p: any) => (Array.isArray(p?.rawTags) ? p.rawTags : [])),
+  ]
+    .map((t: any) => norm(String(t)))
+    .filter(Boolean);
+
+  const baseAiTags = legacyTagsToStructured(artist?.allTags ?? artist?.tags ?? []);
   const directAiTags = artist?.ai_tags || artist?.aiTags || {};
 
   return {
     id: String(artist?.id),
     aiTags: mergeDefined(baseAiTags, directAiTags),
     portfolioTags,
+    rawTags: [...new Set(rawTags)],
     isVerified: Boolean(artist?.isVerified),
     isIncompleteProfile: Boolean(artist?.isIncompleteProfile),
   };
@@ -158,36 +218,55 @@ const CHIP_LABEL: Record<ScalarField, (v: string) => string> = {
 };
 
 export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTagIndex): ArtistMatchResult {
-  let score = 0;
   const chips: Array<{ label: string; weight: number }> = [];
   const matchedFields: Array<keyof AestheticTags> = [];
   const fields = Object.keys(FIELD_WEIGHTS) as ScalarField[];
+  const rawPool = artist.rawTags ?? [];
+
+  // `possible` counts only the fields the reference actually specifies, so
+  // the score is a share of what was achievable rather than of a fixed 100
+  // that no real artist profile can ever reach.
+  let earned = 0;
+  let possible = 0;
 
   for (const field of fields) {
     const refVal = ref[field];
     if (!refVal) continue;
 
+    const weight = FIELD_WEIGHTS[field];
+    possible += weight;
+
     let best = matchStrings(refVal, artist.aiTags?.[field]);
     for (const img of artist.portfolioTags ?? []) {
       best = Math.max(best, matchStrings(refVal, img?.[field]));
     }
+
+    // cross-field fallback against the artist's full unbucketed tag pool
+    if (best < 1) {
+      let cross = 0;
+      for (const tag of rawPool) cross = Math.max(cross, matchStrings(refVal, tag));
+      best = Math.max(best, cross * CROSS_FIELD_CREDIT);
+    }
+
     if (best <= 0) continue;
 
-    score += FIELD_WEIGHTS[field] * best;
+    earned += weight * best;
     matchedFields.push(field);
-    if (best >= 0.5) chips.push({ label: CHIP_LABEL[field](norm(refVal)), weight: FIELD_WEIGHTS[field] * best });
+    if (best >= 0.5) chips.push({ label: CHIP_LABEL[field](norm(refVal)), weight: weight * best });
   }
 
   // tones: partial credit per matched tone
   const refTones = ref.tones ?? [];
   if (refTones.length > 0) {
+    possible += TONES_WEIGHT;
     const artistTones = [
       ...(artist.aiTags?.tones ?? []),
       ...(artist.portfolioTags ?? []).flatMap((t) => t?.tones ?? []),
+      ...rawPool,
     ];
     const matched = refTones.filter((rt) => artistTones.some((at) => matchStrings(rt, at) >= 0.7));
     if (matched.length > 0) {
-      score += TONES_WEIGHT * Math.min(1, matched.length / refTones.length);
+      earned += TONES_WEIGHT * Math.min(1, matched.length / refTones.length);
       matchedFields.push('tones');
       chips.push({ label: `${matched.slice(0, 2).join(' + ')} tones`, weight: TONES_WEIGHT });
     }
@@ -202,9 +281,11 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
       fields.some((f) => ref[f] && matchStrings(ref[f], img?.[f]) >= 0.5)
     ).length;
     coverage = hits / imgs.length;
-    score += Math.round(COVERAGE_BONUS_MAX * coverage);
   }
 
+  const ratio = possible > 0 ? earned / possible : 0;
+  let score = MIN_SCORE + ratio * (MAX_SCORE - MIN_SCORE);
+  score += COVERAGE_BONUS_MAX * coverage;
   if (artist.isVerified) score += VERIFIED_BONUS;
   if (artist.isIncompleteProfile) score -= INCOMPLETE_PENALTY;
 

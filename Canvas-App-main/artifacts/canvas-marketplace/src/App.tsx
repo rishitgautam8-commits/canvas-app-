@@ -309,7 +309,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           return {
             style: `look n°${String(i + 1).padStart(2, '0')}`,
             image: data.publicUrl,
-            tags: legacyTagsToStructured(entry.tags)
+            tags: legacyTagsToStructured(entry.tags),
+            rawTags: entry.tags
           };
         });
 
@@ -333,6 +334,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           image: mainImage,
           hoverImage: hoverImage,
           tags: artistTags.length > 0 ? artistTags.slice(0, 4) : [item.category || 'Bridal', 'HD Airbrush', 'Custom Styling'],
+          allTags: artistTags,
           ai_tags: legacyTagsToStructured(artistTags.length > 0 ? artistTags : [item.category || 'Bridal']),
           bio: `${item.business_name || 'This artist'} specializes in ${(item.category || 'bridal & wedding').toLowerCase()} looks, tailored to high-end events in ${item.city || 'Hyderabad'}.`,
           signature: `${item.category || 'Signature Aesthetic'}`,
