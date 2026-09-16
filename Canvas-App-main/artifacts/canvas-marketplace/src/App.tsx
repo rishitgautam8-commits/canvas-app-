@@ -450,38 +450,40 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   // Real AI-driven matching dynamically responsive to each uploaded reference image
   // Real AI-driven matching dynamically responsive to each uploaded reference image
   // Real AI-driven matching dynamically responsive to each uploaded reference image
+  // Real AI-driven matching dynamically responsive to each uploaded reference image
   const matchedArtists: MatchedArtist[] = (() => {
     const sorted = [...base];
 
-    // Extract tags safely, explicitly ignoring timestamps, URLs, and metadata
+    // Extract tags safely using a deep recursive search
     const analysisTags: string[] = [];
+    
     if (analysis) {
-      const addSafeTag = (str: any) => {
-        if (
-          typeof str === 'string' && 
-          str.length > 2 && 
-          str.length < 30 && 
-          !str.startsWith('data:') && 
-          !/\d{4}-\d{2}-\d{2}/.test(str) // Blocks timestamps like 2026-09-16
-        ) {
-          analysisTags.push(str);
+      // This recursive function digs through every layer of the AI response to find strings
+      const extractStrings = (node: any) => {
+        if (!node) return;
+        
+        if (typeof node === 'string') {
+          // Keep only reasonable length strings, block images and timestamps
+          if (
+            node.length > 2 && 
+            node.length < 40 && 
+            !node.startsWith('data:') && 
+            !/\d{4}-\d{2}-\d{2}/.test(node)
+          ) {
+            analysisTags.push(node);
+          }
+        } else if (Array.isArray(node)) {
+          node.forEach(extractStrings);
+        } else if (typeof node === 'object') {
+          Object.entries(node).forEach(([key, val]) => {
+            // Block metadata keys from being parsed
+            if (['id', 'timestamp', 'createdat', 'date'].some(k => key.toLowerCase().includes(k))) return;
+            extractStrings(val); // Dig deeper into the object
+          });
         }
       };
 
-      Object.entries(analysis as any).forEach(([key, val]) => {
-        // Skip metadata keys completely
-        if (['id', 'timestamp', 'createdat', 'date'].some(k => key.toLowerCase().includes(k))) return;
-        
-        addSafeTag(val);
-        if (Array.isArray(val)) {
-          val.forEach((v) => {
-            addSafeTag(v);
-            if (v && typeof v === 'object') {
-              Object.values(v).forEach(addSafeTag);
-            }
-          });
-        }
-      });
+      extractStrings(analysis);
     }
 
     const activeQueryTags = analysisTags.length > 0 
@@ -502,7 +504,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 
       artistTags.forEach((aTag: string) => {
         const lowerATag = aTag.toLowerCase();
-        if (activeQueryTags.some(qTag => lowerATag.includes(qTag.toLowerCase()) || qTag.toLowerCase().includes(lowerATag))) {
+        if (activeQueryTags.some(qTag => typeof qTag === 'string' && (lowerATag.includes(qTag.toLowerCase()) || qTag.toLowerCase().includes(lowerATag)))) {
           overlapCount += 2;
         }
       });
@@ -514,7 +516,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       const hookMatch = matchedById?.get(String(artist.id)) as any;
       
       // Get a clean tag for the UI reason
-      const displayTag = activeQueryTags.find(t => t.length > 3) || 'aesthetic';
+      const displayTag = activeQueryTags.find(t => typeof t === 'string' && t.length > 3) || 'aesthetic';
 
       return {
         ...artist,
