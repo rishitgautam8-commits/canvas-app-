@@ -34,7 +34,7 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
         portfolioData = results.flatMap((r: any) => r.data ?? []);
       }
 
-      // 3. Map portfolio images and generate clean public URLs using Supabase SDK
+      // 3. Dynamically normalize and generate clean public URLs on the fly
       const combined = (artistsData || []).map((artist: any) => {
         const matchingPortfolios = (portfolioData || []).filter(
           (p: any) => String(p.artist_id).trim() === String(artist.id).trim()
@@ -45,18 +45,15 @@ export function Directory({ onSelectArtist }: { onSelectArtist: (artistId: strin
             const raw = p.image_url || p.url || p.image || p.photo_url;
             if (!raw) return null;
 
-            // image_url is already a complete, working public URL — it was
-            // generated from the exact same path the file was uploaded to
-            // (see ArtistPhotoUpload.tsx), so it's correct by construction.
-            // Trust it as-is instead of trying to re-derive it: any regex-based
-            // "cleanup" here has to guess how many bucket/folder prefixes are
-            // really part of the stored path vs. redundant, and gets it wrong
-            // for artists whose path has more than the assumed one level
-            // (that mismatch is what was dropping their cards to initials).
-            if (/^https?:\/\//i.test(raw)) return raw;
+            // Extract the filename (e.g., "0.9379126741014436.jpeg") from whatever raw string is in the DB
+            const filename = raw.split('/').pop();
+            if (!filename) return raw;
 
-            // Only a bare storage path (no protocol) needs getPublicUrl at all.
-            const { data } = supabase.storage.from('portfolios').getPublicUrl(raw);
+            // Construct the exact correct storage path using the artist's ID folder
+            const storagePath = `${artist.id}/${filename}`;
+
+            // Let Supabase SDK generate the absolute correct public URL dynamically
+            const { data } = supabase.storage.from('portfolios').getPublicUrl(storagePath);
             return data.publicUrl;
           })
           .filter(Boolean);
