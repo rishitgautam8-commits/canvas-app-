@@ -269,9 +269,9 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
   if (!apiKey || !description.trim()) return {};
 
   try {
-    // Updated to use the standard gemini-1.5-flash endpoint path
+    // Updated to use -latest so the v1beta endpoint recognizes the model
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
