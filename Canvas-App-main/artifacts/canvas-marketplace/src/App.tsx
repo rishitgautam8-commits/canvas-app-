@@ -1197,7 +1197,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
       // 1. Upload image to Supabase storage if file is selected
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Math.random().toString(36.substring(2))}-${Date.now()}.${fileExt}`;
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
         const filePath = `journal-images/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
