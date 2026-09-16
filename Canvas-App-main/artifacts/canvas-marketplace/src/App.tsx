@@ -1292,7 +1292,7 @@ function JournalSectionSessionWrapper({ session, setAuthOpen, theme }: { session
           <div className="bg-white/5 border border-[#E2BE68]/30 p-8 sm:p-12 rounded-3xl mb-16 space-y-6 max-w-3xl mx-auto shadow-2xl relative animate-in fade-in duration-300">
             <button onClick={() => setIsWriting(false)} className="absolute right-6 top-6 text-white/40 hover:text-white"><X size={20}/></button>
             <div className="border-b border-white/10 pb-4">
-              <h3 className={`${theme.headingModal} text-2xl text-[#E2BE68]`}>Publish to The Journal</h3>
+              <h3 className="text-2xl font-serif text-[#E2BE68] tracking-normal">Publish to The Journal</h3>
               <p className={`${theme.bodyText} text-xs text-white/50 mt-1`}>Share your beauty tips, routines, or perspective with the community.</p>
             </div>
             
