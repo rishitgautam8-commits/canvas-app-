@@ -651,7 +651,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   } else {
     clearReference();
   }
-  
+  ////////////////////
   scrollTo('discover');
 }}
   isAuthenticated={!!session}
