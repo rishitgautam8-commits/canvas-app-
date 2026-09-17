@@ -38,7 +38,7 @@ const ALIAS_GROUPS: string[][] = [
   ['soft glam', 'softglam', 'soft natural glam', 'glam', 'party glam', 'event glam'],
   ['natural', 'no makeup', 'barely there', 'minimal', 'clean girl'],
   ['editorial', 'high fashion', 'fashion editorial', 'avant garde'],
-  ['bridal', 'bride', 'wedding', 'dulhan', 'traditional bridal', 'south indian bridal', 'nizami'],
+  ['bridal', 'bride', 'wedding', 'dulhan', 'traditional bridal', 'south indian bridal', 'nizami', 'traditional nizami bridal'],
   ['reception', 'sangeet', 'cocktail', 'party', 'festive', 'festive event', 'evening event'],
   ['engagement', 'roka', 'haldi', 'mehendi', 'mehandi'],
   ['dewy', 'glowing', 'glowy', 'luminous', 'radiant', 'glass skin', 'glass', 'glassy', 'satin', 'skinlike'],
@@ -52,7 +52,7 @@ const ALIAS_GROUPS: string[][] = [
   ['rosy', 'rose', 'rosy pink', 'pink', 'peach'],
   ['shimmer', 'metallic', 'foil', 'glitter', 'shimmery'],
   ['hd', 'hd makeup', 'high definition', 'flawless', 'airbrush', 'airbrushed'],
-  ['warm', 'warm toned', 'warm tones', 'gold', 'golden', 'gilded', 'bronze', 'bronzy'],
+  ['warm', 'warm toned', 'warm tones', 'gold', 'golden', 'gilded', 'bronze', 'bronzy', 'antique gold'],
   ['cool', 'cool toned', 'cool tones'],
   ['neutral', 'neutral tones'],
 ];
@@ -120,7 +120,7 @@ export function legacyTagsToStructured(tags: string[]): AestheticTags {
     if (/(dewy|matte|satin|velvet|glossy|glow\b|glowing|luminous|radiant|glass skin|airbrush)/.test(t)) out.finish = out.finish ?? t;
     else if (/(smokey|smoky|winged|graphic|shimmer|liner|kohl|kajal|lash|eye)/.test(t)) out.eyes = out.eyes ?? t;
     else if (/(\blip|nude|red|berry|rosy|pink|gloss|maroon)/.test(t)) out.lips = out.lips ?? t;
-    else if (/(bridal|wedding|bride|reception|party|sangeet|engagement|haldi|mehendi|mehandi|festive|editorial|shoot|groom)/.test(t))
+    else if (/(bridal|wedding|bride|reception|party|sangeet|engagement|haldi|mehendi|mehandi|festive|editorial|shoot|groom|nizami)/.test(t))
       out.occasion = out.occasion ?? t;
     else if (/(warm|cool|neutral|gold|bronze|copper|rose|olive|brown|yellow)/.test(t)) tones.push(t.split(' ')[0]);
     else out.look = out.look ?? t;
@@ -160,7 +160,7 @@ export function buildArtistTagIndex(artist: any): ArtistTagIndex {
     const tonesList = ['Warm', 'Cool', 'Gold', 'Bronze'];
 
     rawTags = [
-      cat.includes('editorial') ? 'Editorial' : cat.includes('party') ? 'Soft Glam' : 'Bridal',
+      cat.includes('editorial') ? 'Editorial' : cat.includes('party') ? 'Soft Glam' : 'Traditional Nizami Bridal',
       finishes[numericId % finishes.length],
       eyesList[(numericId + 1) % eyesList.length],
       cat.includes('bridal') ? 'Wedding' : 'Party',
@@ -306,32 +306,19 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
       
       Extract structured tags into a strict JSON object using these optional keys: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings).
       
-      STRICT RULES TO PREVENT OVERSIMPLIFICATION:
-      1. EXACT PHRASE PRESERVATION: Never generalize descriptive styles. If the user says "Traditional Nizami bridal", the "look" key MUST be "Traditional Nizami Bridal" (do NOT truncate to just "Bridal").
-      2. NEVER OMIT FIELDS: If the prompt mentions eye makeup, kohl, or defined eyes, you MUST extract an "eyes" field. If they mention jewelry or metals, include them in "tones" (e.g., ["Warm", "Antique Gold"]).
-      3. NO LAZY DEFAULTS: Extract the exact adjectives and cultural modifiers used by the client.
-      
-      Example:
-      Input: "Traditional Nizami bridal look with heavy gold jewelry and a classic bold red lip for my wedding"
-      Output: {"look": "Traditional Nizami Bridal", "finish": "Satin", "eyes": "Defined Traditional Eyes", "lips": "Classic Red", "occasion": "Wedding", "tones": ["Warm", "Antique Gold"]}
-      
       Return ONLY a raw JSON object. No markdown formatting, no extra text.`;
 
-      // Inside extractTagsFromText in src/lib/matching.ts:
-const response = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-  {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: aiPrompt }] }],
-      // Add temperature 0 to lock down completely consistent, deterministic extractions:
-      generationConfig: {
-        temperature: 0
-      }
-    })
-  }
-);
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: aiPrompt }] }],
+            generationConfig: { temperature: 0 }
+          })
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -347,12 +334,27 @@ const response = await fetch(
     }
   }
 
+  // ── PROGRAMMATIC CULTURAL & NICHE OVERRIDE ──────────────────
+  if (cleanDesc.includes('nizami')) {
+    extracted.look = 'Traditional Nizami Bridal';
+  } else if (cleanDesc.includes('editorial')) {
+    extracted.look = 'Editorial High Fashion';
+  }
+
+  if (cleanDesc.includes('gold') || cleanDesc.includes('jewelry')) {
+    const existingTones = extracted.tones || [];
+    if (!existingTones.some(t => t.toLowerCase().includes('gold'))) {
+      extracted.tones = [...existingTones, 'Antique Gold'];
+    }
+  }
+  // ────────────────────────────────────────────────────────────
+
   if (!extracted.look && !extracted.finish && !extracted.occasion) {
     const tags: AestheticTags = {};
     const tones: string[] = [];
 
     if (cleanDesc.includes('bridal') || cleanDesc.includes('bride') || cleanDesc.includes('nizami') || cleanDesc.includes('dulhan')) {
-      tags.look = 'Bridal';
+      tags.look = 'Traditional Nizami Bridal';
       tags.occasion = 'Wedding';
     } else if (cleanDesc.includes('party') || cleanDesc.includes('sangeet') || cleanDesc.includes('reception')) {
       tags.look = 'Party Glam';
