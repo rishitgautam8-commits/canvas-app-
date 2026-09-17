@@ -717,18 +717,19 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               </div>
             </ScrollZoomIn>
 
-            {hasSearched && search.inspirationFile && (
-              <ScrollZoomIn>
-                <div className="mb-12 mt-8">
-                  <AIMatchPanel
-                    phase={phase}
-                    analysis={analysis}
-                    error={matchError}
-                    onClear={clearReference}
-                  />
-                </div>
-              </ScrollZoomIn>
-            )}
+            {/* CHANGE THIS: Allow AI Match Panel to show for both files and text */}
+{hasSearched && (search.inspirationFile || search.lookDescription) && (
+  <ScrollZoomIn>
+    <div className="mb-12 mt-8">
+      <AIMatchPanel
+        phase={phase}
+        analysis={analysis}
+        error={matchError}
+        onClear={clearReference}
+      />
+    </div>
+  </ScrollZoomIn>
+)}
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start mt-10">
               <ScrollZoomIn className={`lg:col-span-1 bg-white/40 backdrop-blur-md border ${theme.borderBase} p-6 space-y-8 lg:sticky lg:top-8 ${theme.cardRadius}`}>
@@ -794,8 +795,10 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)}
   startingPrice={artist.startingPrice}
   tags={artist.tags}
-  // CHANGE THIS LINE: Allow match score for both files and text descriptions
+  
+  // CHANGE THIS: Display match score for both photo uploads and text look descriptions
   matchPercentage={(search.inspirationFile || search.lookDescription) ? artist.match : undefined}
+  
   matchReasons={artist.matchReasons}
   onClick={() => handleSelectArtist(artist)}
 />
