@@ -27,8 +27,24 @@ const TONES_WEIGHT = 6;
 const COVERAGE_BONUS_MAX = 8;
 const VERIFIED_BONUS = 3;
 const INCOMPLETE_PENALTY = 12;
-const MIN_SCORE = 30; // Score floor set to 30 for organic variance
-const MAX_SCORE = 99;
+
+// ── score curve tuning ──
+// possible/earned is always computed over the full FIELD_WEIGHTS pool now
+// (94 points), never a shrunk subset, so these constants are calibrated
+// against that fixed denominator:
+//   - a reference that specifies every field and matches perfectly lands at
+//     BASE_CEIL before bonuses, landing in the 95-98 range after coverage/
+//     verified bonuses are applied
+//   - a reference that only specifies a couple of fields (the "look" +
+//     "occasion" case from the bug report) lands in the 35-65 band, because
+//     the unspecified fields only earn UNSPECIFIED_FIELD_CREDIT instead of
+//     being dropped from the pool entirely
+const MIN_SCORE = 30;                    // absolute floor, only hit when almost nothing matches
+const MAX_SCORE = 98;                    // absolute ceiling
+const BASE_CEIL = 95;                    // ratio === 1 (every field present + perfect match) lands here pre-bonus
+const CURVE_EXPONENT = 2;                // stretches mid-range ratios apart so partial matches don't cluster near the top
+const UNSPECIFIED_FIELD_CREDIT = 0.35;   // neutral credit for a field the user's search never mentioned - not a free pass
+const NO_MATCH_FLOOR = 0.12;             // floor for a field the user DID specify but the artist doesn't match at all
 const CHIP_SCORE_THRESHOLD = 50; 
 const CROSS_FIELD_CREDIT = 0.85;
 
@@ -218,10 +234,23 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
 
   for (const field of fields) {
     const refVal = ref[field];
-    if (!refVal) continue;
-
     const weight = FIELD_WEIGHTS[field];
+
+    // Every standard field always counts toward the pool, whether or not the
+    // user's reference specified it. Skipping unspecified fields here was the
+    // root cause of the clustering bug: it shrank `possible` down to just the
+    // handful of fields the user happened to mention, so `earned / possible`
+    // landed near 1.0 for almost any artist.
     possible += weight;
+
+    if (!refVal) {
+      // No user preference for this field - award partial, neutral credit
+      // instead of skipping it. This keeps the field in the pool without
+      // pretending we know it's a match, so artists aren't rewarded for
+      // fields nobody actually asked about.
+      earned += weight * UNSPECIFIED_FIELD_CREDIT;
+      continue;
+    }
 
     let best = 0;
     let bestVal = '';
@@ -240,7 +269,7 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
       for (const tag of rawPool) consider(tag, CROSS_FIELD_CREDIT);
     }
 
-    if (best <= 0) best = 0.3;
+    if (best <= 0) best = NO_MATCH_FLOOR;
 
     earned += weight * best;
     matchedFields.push(field);
@@ -266,11 +295,14 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
     coverage = 0.5;
   }
 
-  // Non-linear power curve to stretch score gaps and prevent clustering
-  const baseRatio = possible > 0 ? earned / possible : 0.3;
-  const penalizedRatio = Math.pow(baseRatio, 2.3);
+  // Non-linear power curve to stretch score gaps and prevent clustering.
+  // `possible` is now the fixed full-field pool (94 pts + tones), so this
+  // ratio actually reflects match quality instead of shrinking toward 1.0
+  // whenever the user's reference only specifies a couple of fields.
+  const baseRatio = possible > 0 ? earned / possible : UNSPECIFIED_FIELD_CREDIT;
+  const curved = Math.pow(baseRatio, CURVE_EXPONENT);
 
-  let score = MIN_SCORE + penalizedRatio * (MAX_SCORE - MIN_SCORE);
+  let score = MIN_SCORE + curved * (BASE_CEIL - MIN_SCORE);
   score += COVERAGE_BONUS_MAX * coverage;
   if (artist.isVerified) score += VERIFIED_BONUS;
   if (artist.isIncompleteProfile) score -= INCOMPLETE_PENALTY;
