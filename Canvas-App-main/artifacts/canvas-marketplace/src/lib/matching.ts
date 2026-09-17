@@ -378,10 +378,12 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
     extracted.occasion = text.includes('wedding') || text.includes('bridal') ? 'Wedding' : 'Reception';
   }
 
-  // 3. Finish, Eyes, Lips & Tones Rules (Clean & Compact)
-  if (!extracted.finish) {
-    if (text.includes('oily') || text.includes('sweat') || text.includes('melt')) extracted.finish = 'Matte';
-    else if (text.includes('dewy') || text.includes('glass')) extracted.finish = 'Dewy';
+  // 3. Finish, Eyes, Lips & Tones Rules (With Anti-Melt Skin-Type Rule)
+  if (cleanDesc.includes('oily') || cleanDesc.includes('sweat') || cleanDesc.includes('melt')) {
+    extracted.finish = 'Matte'; // Force matte/satin for oily/sweat-prone skin types
+  } else if (!extracted.finish) {
+    if (cleanDesc.includes('dewy') || cleanDesc.includes('glass')) extracted.finish = 'Dewy';
+    else if (cleanDesc.includes('matte')) extracted.finish = 'Matte';
     else extracted.finish = 'Satin';
   }
 
