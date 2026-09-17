@@ -147,17 +147,26 @@ export function buildArtistTagIndex(artist: any): ArtistTagIndex {
     .map((t: any) => norm(String(t)))
     .filter(Boolean);
 
+  // GUARANTEED UNIQUE AUTO-TAGGER HASH FALLBACK
   if (rawTags.length === 0 || rawTags.length < 3) {
     const cat = (artist?.category || 'bridal').toLowerCase();
-    const uniqueSeed = String(artist?.id || artist?.name || 'canvas').length;
+    let numericId = 0;
+    const idStr = String(artist?.id || artist?.name || 'canvas');
+    for (let i = 0; i < idStr.length; i++) numericId += idStr.charCodeAt(i);
 
-    if (cat.includes('bridal') || cat.includes('traditional')) {
-      rawTags = ['Bridal', uniqueSeed % 2 === 0 ? 'Dewy' : 'Matte', uniqueSeed % 3 === 0 ? 'Soft Smokey Eye' : 'Winged Liner', 'Wedding', uniqueSeed % 4 === 0 ? 'Classic Red' : 'Nude'];
-    } else if (cat.includes('editorial') || cat.includes('high fashion')) {
-      rawTags = ['Editorial', 'Satin', 'Graphic Liner', 'Bold Red', 'High Fashion'];
-    } else {
-      rawTags = ['Soft Glam', uniqueSeed % 2 === 0 ? 'Satin' : 'Dewy', 'Soft Smokey Eye', 'Nude', 'Party'];
-    }
+    const finishes = ['Dewy', 'Matte', 'Satin', 'Glass Skin'];
+    const eyesList = ['Soft Smokey Eye', 'Winged Liner', 'Glitter Shimmer', 'Defined Eyes'];
+    const lipsList = ['Nude', 'Classic Red', 'Bold Berry', 'Glossy Pink'];
+    const tonesList = ['Warm', 'Cool', 'Gold', 'Bronze'];
+
+    rawTags = [
+      cat.includes('editorial') ? 'Editorial' : cat.includes('party') ? 'Soft Glam' : 'Bridal',
+      finishes[numericId % finishes.length],
+      eyesList[(numericId + 1) % eyesList.length],
+      cat.includes('bridal') ? 'Wedding' : 'Party',
+      lipsList[(numericId + 2) % lipsList.length],
+      tonesList[(numericId + 3) % tonesList.length]
+    ];
   }
 
   const portfolioTags = (artist?.portfolio ?? [])
@@ -200,7 +209,7 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
 
   for (const field of fields) {
     const refVal = ref[field];
-    if (!refVal) continue; // Skip unmentioned fields so scores don't cluster!
+    if (!refVal) continue;
 
     const weight = FIELD_WEIGHTS[field];
     possible += weight;
@@ -222,7 +231,7 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
       for (const tag of rawPool) consider(tag, CROSS_FIELD_CREDIT);
     }
 
-    if (best <= 0) best = 0.15; // Penalty for unmatching requested traits
+    if (best <= 0) best = 0.1; // Heavy penalty for non-matching criteria
 
     earned += weight * best;
     matchedFields.push(field);
@@ -237,15 +246,15 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
     chips.push({ label: `${refTones[0]} tones`, weight: TONES_WEIGHT });
   }
 
-  // Fallback if no specific tags were matched in search query
   if (possible === 0) {
     possible = 50;
-    earned = 35;
+    earned = 30;
   }
 
+  // ── CINEMATIC POWER CURVE (STRETCHES SCORES WIDELY) ──────────
   const ratio = earned / possible;
-  const curved = Math.pow(ratio, 2.0); // Sharp power curve
-  let score = 30 + curved * 68; // Spreads scores between 30 and 98
+  const curved = Math.pow(ratio, 3.2); // Steeper curve separates top experts from generalists
+  let score = 25 + curved * 73; // Spreads score range between 25% and 98%
 
   const imgs = artist.portfolioTags ?? [];
   let coverage = 0.5;
@@ -254,25 +263,22 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
       fields.some((f) => ref[f] && matchStrings(ref[f], img?.[f]) >= 0.4)
     ).length;
     coverage = hits / imgs.length;
-    score += coverage * 6;
+    score += coverage * 5;
   }
 
   if (artist.isVerified) score += 3;
   if (artist.isIncompleteProfile) score -= 12;
 
-  // ── GUARANTEED UNIQUE TIE-BREAKER HASH JITTER ─────────────────
-  // Generates a unique deterministic offset (-4 to +4) based on artist ID
-  // so no two artists ever display the exact same percentage tie.
+  // Unique hash tie-breaker jitter
   const idStr = String(artist.id);
   let hash = 0;
   for (let i = 0; i < idStr.length; i++) {
     hash = (hash << 5) - hash + idStr.charCodeAt(i);
     hash |= 0;
   }
-  score += (Math.abs(hash) % 9) - 4;
-  // ─────────────────────────────────────────────────────────────
+  score += (Math.abs(hash) % 7) - 3;
 
-  const finalScore = Math.max(30, Math.min(98, Math.round(score)));
+  const finalScore = Math.max(25, Math.min(98, Math.round(score)));
 
   return {
     artistId: artist.id,
