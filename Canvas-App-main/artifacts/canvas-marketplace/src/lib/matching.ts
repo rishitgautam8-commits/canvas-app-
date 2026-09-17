@@ -9,7 +9,7 @@ export interface ArtistTagIndex {
   id: string;
   aiTags?: AestheticTags;           
   portfolioTags?: AestheticTags[];  
-  rawTags?: string[];               
+  rawTags?: string[];              
   isVerified?: boolean;
   isIncompleteProfile?: boolean;
 }
@@ -27,7 +27,7 @@ const TONES_WEIGHT = 6;
 const COVERAGE_BONUS_MAX = 8;
 const VERIFIED_BONUS = 3;
 const INCOMPLETE_PENALTY = 12;
-const MIN_SCORE = 15;
+const MIN_SCORE = 30; // Adjusted floor for realistic scoring variance
 const MAX_SCORE = 99;
 const CHIP_SCORE_THRESHOLD = 50; 
 const CROSS_FIELD_CREDIT = 0.85;
@@ -43,7 +43,7 @@ const ALIAS_GROUPS: string[][] = [
   ['soft glam', 'softglam', 'soft natural glam', 'glam', 'party glam', 'event glam'],
   ['natural', 'no makeup', 'barely there', 'minimal', 'clean girl'],
   ['editorial', 'high fashion', 'fashion editorial', 'avant garde'],
-  ['bridal', 'bride', 'wedding', 'dulhan', 'traditional bridal', 'south indian bridal'],
+  ['bridal', 'bride', 'wedding', 'dulhan', 'traditional bridal', 'south indian bridal', 'nizami'],
   ['reception', 'sangeet', 'cocktail', 'party', 'festive', 'festive event', 'evening event'],
   ['engagement', 'roka', 'haldi', 'mehendi', 'mehandi'],
   ['dewy', 'glowing', 'glowy', 'luminous', 'radiant', 'glass skin', 'glass', 'glassy', 'satin', 'skinlike'],
@@ -273,23 +273,19 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (apiKey) {
     try {
-      // THE NEW CONSULTANT PROMPT
-      const aiPrompt = `You are an expert celebrity and bridal makeup consultant. 
+      const aiPrompt = `You are an expert celebrity and bridal makeup consultant for Canvas. 
       Analyze this client's conversational makeup request: "${description}"
       
-      The client might use slang, Hinglish, regional terms (Telugu/Hindi), or describe a "vibe" instead of technical makeup terms. 
       Translate their intent into a strict JSON object using ONLY these optional keys: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings).
       
       Consulting Rules:
       1. Contextual Fixes: If they mention "oily skin" or "sweat" but ask for "glass skin", infer a "Matte" or "Satin" finish so their makeup actually lasts.
       2. Celebrity Vibes: If they mention Deepika Padukone, lean towards Warm tones and Smokey eyes. If Alia Bhatt, lean towards Dewy finish, Soft Glam, and Nude lips.
       3. Regional Mapping: Map words like "dulhan", "muhurtham", "roka", or "sangeet" to standard occasions like "Wedding", "Engagement", or "Party".
-      4. Outfit Colors: If they mention wearing a red/maroon lehenga, infer appropriate tone complements (Warm, Gold, Classic Red lip, etc).
       
       Example output format: {"look": "Soft Glam", "finish": "Matte", "eyes": "Smokey Eye", "lips": "Nude", "occasion": "Reception", "tones": ["Warm", "Bronze"]}
       Return ONLY a raw JSON object. No markdown formatting, no extra text.`;
 
-      // Switch from v1/gemini-pro to v1beta/gemini-1.5-flash
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
         {
@@ -315,7 +311,7 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
     }
   }
 
-  // 2. Intelligent local fallback if API fails
+  // Intelligent local fallback if API fails or is missing key
   if (!extracted.look && !extracted.finish && !extracted.occasion) {
     const tags: AestheticTags = {};
     const tones: string[] = [];
@@ -328,27 +324,28 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
       tags.occasion = 'Reception';
     } else if (cleanDesc.includes('editorial') || cleanDesc.includes('fashion')) {
       tags.look = 'Editorial';
-    } else if (cleanDesc.includes('soft glam') || cleanDesc.includes('natural') || cleanDesc.includes('alia')) {
+    } else {
       tags.look = 'Soft Glam';
     }
 
     if (cleanDesc.includes('dewy') || cleanDesc.includes('glass') || cleanDesc.includes('glow')) {
-      // Basic logic check for oily skin in fallback
-      tags.finish = cleanDesc.includes('oily') ? 'Matte Finish' : 'Dewy Finish';
+      tags.finish = cleanDesc.includes('oily') ? 'Matte' : 'Dewy';
     } else if (cleanDesc.includes('matte') || cleanDesc.includes('sweat')) {
-      tags.finish = 'Matte Finish';
+      tags.finish = 'Matte';
+    } else {
+      tags.finish = 'Satin';
     }
 
     if (cleanDesc.includes('smokey') || cleanDesc.includes('smoky') || cleanDesc.includes('deepika')) {
-      tags.eyes = 'Smokey Eye';
+      tags.eyes = 'Soft Smokey Eye';
     } else if (cleanDesc.includes('winged') || cleanDesc.includes('liner')) {
       tags.eyes = 'Winged Liner';
     }
 
     if (cleanDesc.includes('nude') || cleanDesc.includes('minimal')) {
-      tags.lips = 'Nude Lip';
+      tags.lips = 'Nude';
     } else if (cleanDesc.includes('red') || cleanDesc.includes('bold')) {
-      tags.lips = 'Bold Red';
+      tags.lips = 'Classic Red';
     }
 
     if (cleanDesc.includes('warm') || cleanDesc.includes('gold') || cleanDesc.includes('bronze')) {
