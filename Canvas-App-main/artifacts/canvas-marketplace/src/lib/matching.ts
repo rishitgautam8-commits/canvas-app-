@@ -301,18 +301,18 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (apiKey) {
     try {
-      const aiPrompt = `You are an expert celebrity and bridal makeup consultant for Canvas. 
-      Analyze this client's conversational makeup request: "${description}"
-      
-      Translate their intent into a strict JSON object using ONLY these optional keys: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings).
-      
-      Consulting Rules:
-      1. Contextual Fixes: If they mention "oily skin" or "sweat" but ask for "glass skin", infer a "Matte" or "Satin" finish so their makeup actually lasts.
-      2. Celebrity Vibes: If they mention Deepika Padukone, lean towards Warm tones and Smokey eyes. If Alia Bhatt, lean towards Dewy finish, Soft Glam, and Nude lips.
-      3. Regional Mapping: Map words like "dulhan", "muhurtham", "roka", or "sangeet" to standard occasions like "Wedding", "Engagement", or "Party".
-      
-      Example output format: {"look": "Soft Glam", "finish": "Matte", "eyes": "Smokey Eye", "lips": "Nude", "occasion": "Reception", "tones": ["Warm", "Bronze"]}
-      Return ONLY a raw JSON object. No markdown formatting, no extra text.`;
+      const aiPrompt = `You are an expert celebrity and bridal makeup consultant for Canvas, an elite beauty platform in Hyderabad. 
+Analyze this client's conversational makeup request: "${description}"
+
+Translate their intent into a strict JSON object using ONLY these optional keys: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings).
+
+CRITICAL EXTRACTION RULES:
+1. PRESERVE CULTURAL & REGIONAL MODIFIERS: Do not strip words like "Nizami", "Traditional", or "South Indian" from the look. If the user says "Traditional Nizami bridal", the look tag MUST be "Traditional Nizami Bridal", not just "Bridal".
+2. CAPTURE ALL DETAILS: Never leave the "eyes" or "lips" fields empty if the prompt implies them. Extract specific eye styles (e.g., "Kohl Defined", "Smokey", "Traditional Eyes") and tones (e.g., capture "gold" or "metallic" into tones if jewelry or metallic accents are mentioned).
+3. Contextual Fixes: If they mention "oily skin" or "sweat" but ask for "glass skin", infer a "Matte" or "Satin" finish.
+
+Example output format: {"look": "Traditional Nizami Bridal", "finish": "Satin", "eyes": "Traditional Defined Eyes", "lips": "Classic Red", "occasion": "Wedding", "tones": ["Warm", "Gold"]}
+Return ONLY a raw JSON object. No markdown formatting, no extra text.`;
 
       // Inside extractTagsFromText in src/lib/matching.ts:
 const response = await fetch(
