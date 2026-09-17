@@ -788,16 +788,17 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                         {uniqueArtists.slice(0, visibleCount).map((artist, index) => (
                           <ScrollZoom key={artist.id || index} delay={index * 80}>
                             <ArtistCard
-                              name={artist.name}
-                              image={artist.image}
-                              hoverImage={artist.hoverImage}
-                              portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)}
-                              startingPrice={artist.startingPrice}
-                              tags={artist.tags}
-                              matchPercentage={search.inspirationFile ? artist.match : undefined}
-                              matchReasons={artist.matchReasons}
-                              onClick={() => handleSelectArtist(artist)}
-                            />
+  name={artist.name}
+  image={artist.image}
+  hoverImage={artist.hoverImage}
+  portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)}
+  startingPrice={artist.startingPrice}
+  tags={artist.tags}
+  // CHANGE THIS LINE: Allow match score for both files and text descriptions
+  matchPercentage={(search.inspirationFile || search.lookDescription) ? artist.match : undefined}
+  matchReasons={artist.matchReasons}
+  onClick={() => handleSelectArtist(artist)}
+/>
                           </ScrollZoom>
                         ))}
                       </div>
