@@ -245,7 +245,7 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
   // ---> PUT THE NEW CODE HERE <---
   // Apply a non-linear power curve to spread out the scores dramatically
   const baseRatio = possible > 0 ? earned / possible : 0.4;
-  const penalizedRatio = Math.pow(baseRatio, 1.6); // Stretches the gap between experts and generalists
+  const penalizedRatio = Math.pow(baseRatio, 2.3); // Stretches the gap between experts and generalists
 
   let score = MIN_SCORE + penalizedRatio * (MAX_SCORE - MIN_SCORE);
   score += COVERAGE_BONUS_MAX * coverage;
