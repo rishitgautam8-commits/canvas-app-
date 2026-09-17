@@ -301,18 +301,21 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (apiKey) {
     try {
-      const aiPrompt = `You are an expert celebrity and bridal makeup consultant for Canvas, an elite beauty platform in Hyderabad. 
-Analyze this client's conversational makeup request: "${description}"
-
-Translate their intent into a strict JSON object using ONLY these optional keys: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings).
-
-CRITICAL EXTRACTION RULES:
-1. PRESERVE CULTURAL & REGIONAL MODIFIERS: Do not strip words like "Nizami", "Traditional", or "South Indian" from the look. If the user says "Traditional Nizami bridal", the look tag MUST be "Traditional Nizami Bridal", not just "Bridal".
-2. CAPTURE ALL DETAILS: Never leave the "eyes" or "lips" fields empty if the prompt implies them. Extract specific eye styles (e.g., "Kohl Defined", "Smokey", "Traditional Eyes") and tones (e.g., capture "gold" or "metallic" into tones if jewelry or metallic accents are mentioned).
-3. Contextual Fixes: If they mention "oily skin" or "sweat" but ask for "glass skin", infer a "Matte" or "Satin" finish.
-
-Example output format: {"look": "Traditional Nizami Bridal", "finish": "Satin", "eyes": "Traditional Defined Eyes", "lips": "Classic Red", "occasion": "Wedding", "tones": ["Warm", "Gold"]}
-Return ONLY a raw JSON object. No markdown formatting, no extra text.`;
+      const aiPrompt = `You are an elite beauty and cultural aesthetic parser for Canvas, Hyderabad. 
+      Analyze this client's conversational makeup request: "${description}"
+      
+      Extract structured tags into a strict JSON object using these optional keys: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings).
+      
+      STRICT RULES TO PREVENT OVERSIMPLIFICATION:
+      1. EXACT PHRASE PRESERVATION: Never generalize descriptive styles. If the user says "Traditional Nizami bridal", the "look" key MUST be "Traditional Nizami Bridal" (do NOT truncate to just "Bridal").
+      2. NEVER OMIT FIELDS: If the prompt mentions eye makeup, kohl, or defined eyes, you MUST extract an "eyes" field. If they mention jewelry or metals, include them in "tones" (e.g., ["Warm", "Antique Gold"]).
+      3. NO LAZY DEFAULTS: Extract the exact adjectives and cultural modifiers used by the client.
+      
+      Example:
+      Input: "Traditional Nizami bridal look with heavy gold jewelry and a classic bold red lip for my wedding"
+      Output: {"look": "Traditional Nizami Bridal", "finish": "Satin", "eyes": "Defined Traditional Eyes", "lips": "Classic Red", "occasion": "Wedding", "tones": ["Warm", "Antique Gold"]}
+      
+      Return ONLY a raw JSON object. No markdown formatting, no extra text.`;
 
       // Inside extractTagsFromText in src/lib/matching.ts:
 const response = await fetch(
