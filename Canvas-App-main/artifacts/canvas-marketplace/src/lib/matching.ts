@@ -229,6 +229,8 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
     chips.push({ label: `${refTones[0]} tones`, weight: TONES_WEIGHT });
   }
 
+  // ... (previous part of scoreArtistAgainstReference)
+
   const imgs = artist.portfolioTags ?? [];
   let coverage = 0;
   if (imgs.length > 0) {
@@ -240,8 +242,12 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
     coverage = 0.5;
   }
 
-  const ratio = possible > 0 ? earned / possible : 0.7;
-  let score = MIN_SCORE + ratio * (MAX_SCORE - MIN_SCORE);
+  // ---> PUT THE NEW CODE HERE <---
+  // Apply a non-linear power curve to spread out the scores dramatically
+  const baseRatio = possible > 0 ? earned / possible : 0.4;
+  const penalizedRatio = Math.pow(baseRatio, 1.6); // Stretches the gap between experts and generalists
+
+  let score = MIN_SCORE + penalizedRatio * (MAX_SCORE - MIN_SCORE);
   score += COVERAGE_BONUS_MAX * coverage;
   if (artist.isVerified) score += VERIFIED_BONUS;
   if (artist.isIncompleteProfile) score -= INCOMPLETE_PENALTY;
