@@ -36,19 +36,19 @@ const norm = (s?: string) =>
 
 const ALIAS_GROUPS: string[][] = [
   ['soft glam', 'softglam', 'soft natural glam', 'glam', 'party glam', 'event glam'],
-  ['natural', 'no makeup', 'barely there', 'minimal', 'clean girl'],
-  ['editorial', 'high fashion', 'fashion editorial', 'avant garde'],
+  ['natural', 'no makeup', 'barely there', 'minimal', 'clean girl', 'clean girl minimal'],
+  ['editorial', 'high fashion', 'fashion editorial', 'avant garde', 'editorial high fashion'],
   ['bridal', 'bride', 'wedding', 'dulhan', 'traditional bridal', 'south indian bridal', 'nizami', 'traditional nizami bridal'],
-  ['reception', 'sangeet', 'cocktail', 'party', 'festive', 'festive event', 'evening event'],
+  ['reception', 'sangeet', 'cocktail', 'party', 'festive', 'festive event', 'evening event', 'day event', 'fashion shoot'],
   ['engagement', 'roka', 'haldi', 'mehendi', 'mehandi'],
   ['dewy', 'glowing', 'glowy', 'luminous', 'radiant', 'glass skin', 'glass', 'glassy', 'satin', 'skinlike'],
   ['matte', 'velvet', 'velvety', 'soft matte'],
-  ['smokey', 'smoky', 'smudged', 'smoke'],
+  ['smokey', 'smoky', 'smudged', 'smoke', 'soft smokey eye'],
   ['winged liner', 'cat eye', 'wing liner', 'wing', 'winged', 'wings', 'graphic liner'],
   ['nude', 'nude lips', 'my lips but better', 'nude brown'],
   ['glossy', 'gloss', 'lacquer', 'wet lips'],
   ['bold red', 'classic red', 'red lip', 'bold lip', 'bold'],
-  ['berry', 'berry stain', 'wine', 'plum lip', 'maroon'],
+  ['berry', 'berry stain', 'wine', 'plum lip', 'maroon', 'bold berry'],
   ['rosy', 'rose', 'rosy pink', 'pink', 'peach'],
   ['shimmer', 'metallic', 'foil', 'glitter', 'shimmery'],
   ['hd', 'hd makeup', 'high definition', 'flawless', 'airbrush', 'airbrushed'],
@@ -147,7 +147,6 @@ export function buildArtistTagIndex(artist: any): ArtistTagIndex {
     .map((t: any) => norm(String(t)))
     .filter(Boolean);
 
-  // GUARANTEED UNIQUE AUTO-TAGGER HASH FALLBACK
   if (rawTags.length === 0 || rawTags.length < 3) {
     const cat = (artist?.category || 'bridal').toLowerCase();
     let numericId = 0;
@@ -160,7 +159,7 @@ export function buildArtistTagIndex(artist: any): ArtistTagIndex {
     const tonesList = ['Warm', 'Cool', 'Gold', 'Bronze'];
 
     rawTags = [
-      cat.includes('editorial') ? 'Editorial' : cat.includes('party') ? 'Soft Glam' : 'Traditional Nizami Bridal',
+      cat.includes('editorial') ? 'Editorial High Fashion' : cat.includes('party') ? 'Soft Glam' : 'Traditional Nizami Bridal',
       finishes[numericId % finishes.length],
       eyesList[(numericId + 1) % eyesList.length],
       cat.includes('bridal') ? 'Wedding' : 'Party',
@@ -251,7 +250,6 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
     earned = 30;
   }
 
-  // ── CINEMATIC POWER CURVE ──────────────────────────────────
   const ratio = earned / possible;
   const curved = Math.pow(ratio, 3.2);
   let score = 25 + curved * 73;
@@ -269,7 +267,6 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
   if (artist.isVerified) score += 3;
   if (artist.isIncompleteProfile) score -= 12;
 
-  // Unique hash tie-breaker jitter
   const idStr = String(artist.id);
   let hash = 0;
   for (let i = 0; i < idStr.length; i++) {
@@ -334,31 +331,48 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
     }
   }
 
-  // ── ROBUST FIELD BACKFILLING & CULTURAL OVERRIDES ──────────
-  if (cleanDesc.includes('nizami')) {
+  // ── ROBUST BACKFILLING & AESTHETIC OVERRIDES ───────────────
+  if (cleanDesc.includes('editorial') || cleanDesc.includes('avant-garde') || cleanDesc.includes('fashion') || cleanDesc.includes('shoot')) {
+    extracted.look = 'Editorial High Fashion';
+  } else if (cleanDesc.includes('clean girl') || cleanDesc.includes('minimal')) {
+    extracted.look = 'Clean Girl Minimal';
+  } else if (cleanDesc.includes('nizami')) {
     extracted.look = 'Traditional Nizami Bridal';
   } else if (!extracted.look) {
     extracted.look = cleanDesc.includes('bridal') || cleanDesc.includes('bride') ? 'Bridal' : 'Soft Glam';
   }
 
   if (!extracted.occasion) {
-    extracted.occasion = cleanDesc.includes('wedding') || cleanDesc.includes('bridal') ? 'Wedding' : 'Reception';
+    if (cleanDesc.includes('shoot') || cleanDesc.includes('fashion') || cleanDesc.includes('editorial')) {
+      extracted.occasion = 'Fashion Shoot';
+    } else if (cleanDesc.includes('day') || cleanDesc.includes('brunch') || cleanDesc.includes('event')) {
+      extracted.occasion = 'Day Event';
+    } else {
+      extracted.occasion = cleanDesc.includes('wedding') || cleanDesc.includes('bridal') ? 'Wedding' : 'Reception';
+    }
   }
 
   if (!extracted.finish) {
-    if (cleanDesc.includes('dewy') || cleanDesc.includes('glass')) extracted.finish = 'Dewy';
-    else if (cleanDesc.includes('matte')) extracted.finish = 'Matte';
-    else extracted.finish = 'Satin';
+    if (cleanDesc.includes('oily') || cleanDesc.includes('sweat') || cleanDesc.includes('melt')) {
+      extracted.finish = 'Matte';
+    } else if (cleanDesc.includes('dewy') || cleanDesc.includes('glass')) {
+      extracted.finish = 'Dewy';
+    } else {
+      extracted.finish = 'Satin';
+    }
   }
 
   if (!extracted.eyes) {
-    if (cleanDesc.includes('smokey') || cleanDesc.includes('smoky')) extracted.eyes = 'Soft Smokey Eye';
+    if (cleanDesc.includes('graphic')) extracted.eyes = 'Graphic Liner';
+    else if (cleanDesc.includes('smokey') || cleanDesc.includes('smoky')) extracted.eyes = 'Soft Smokey Eye';
     else if (cleanDesc.includes('liner') || cleanDesc.includes('winged')) extracted.eyes = 'Winged Liner';
+    else if (cleanDesc.includes('minimal')) extracted.eyes = 'Minimal Natural Eyes';
     else extracted.eyes = 'Defined Traditional Eyes';
   }
 
   if (!extracted.lips) {
-    if (cleanDesc.includes('nude')) extracted.lips = 'Nude';
+    if (cleanDesc.includes('berry') || cleanDesc.includes('plum')) extracted.lips = 'Bold Berry';
+    else if (cleanDesc.includes('nude')) extracted.lips = 'Nude';
     else if (cleanDesc.includes('red') || cleanDesc.includes('bold')) extracted.lips = 'Classic Red';
     else extracted.lips = 'Bold Red';
   }
@@ -369,7 +383,7 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
       tonesList.push('Antique Gold');
     }
   }
-  if (!tonesList.includes('Warm')) tonesList.push('Warm');
+  if (!tonesList.includes('Warm') && !cleanDesc.includes('minimal')) tonesList.push('Warm');
   extracted.tones = tonesList;
   // ────────────────────────────────────────────────────────────
 
