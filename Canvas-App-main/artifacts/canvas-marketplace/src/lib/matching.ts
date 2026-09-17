@@ -314,16 +314,21 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
       Example output format: {"look": "Soft Glam", "finish": "Matte", "eyes": "Smokey Eye", "lips": "Nude", "occasion": "Reception", "tones": ["Warm", "Bronze"]}
       Return ONLY a raw JSON object. No markdown formatting, no extra text.`;
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: aiPrompt }] }]
-          })
-        }
-      );
+      // Inside extractTagsFromText in src/lib/matching.ts:
+const response = await fetch(
+  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+  {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: aiPrompt }] }],
+      // Add temperature 0 to lock down completely consistent, deterministic extractions:
+      generationConfig: {
+        temperature: 0
+      }
+    })
+  }
+);
 
       if (response.ok) {
         const data = await response.json();
