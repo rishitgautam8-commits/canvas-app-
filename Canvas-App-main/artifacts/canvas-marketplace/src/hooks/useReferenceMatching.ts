@@ -59,6 +59,12 @@ export function useReferenceMatching<T extends { id: string | number; rating?: n
     return map;
   }, [ranked]);
 
+// NEW: Directly set the text tags and tell the UI the match is complete
+  // NEW: Directly set the text tags so the matching engine triggers automatically
+  const setReferenceTags = (tags: any) => {
+    setAnalysis(tags);
+  };
+
   return {
     phase,
     analysis,
@@ -67,6 +73,7 @@ export function useReferenceMatching<T extends { id: string | number; rating?: n
     matchedById,
     submitReference,
     clearReference,
+    setReferenceTags,
     hasReference: Boolean(analysis),
   };
 }
