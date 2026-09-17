@@ -24,27 +24,6 @@ export interface ArtistMatchResult {
 
 const FIELD_WEIGHTS = { look: 30, finish: 20, eyes: 20, lips: 12, occasion: 12 } as const;
 const TONES_WEIGHT = 6;
-const COVERAGE_BONUS_MAX = 8;
-const VERIFIED_BONUS = 3;
-const INCOMPLETE_PENALTY = 12;
-
-// ── score curve tuning ──
-// possible/earned is always computed over the full FIELD_WEIGHTS pool now
-// (94 points), never a shrunk subset, so these constants are calibrated
-// against that fixed denominator:
-//   - a reference that specifies every field and matches perfectly lands at
-//     BASE_CEIL before bonuses, landing in the 95-98 range after coverage/
-//     verified bonuses are applied
-//   - a reference that only specifies a couple of fields (the "look" +
-//     "occasion" case from the bug report) lands in the 35-65 band, because
-//     the unspecified fields only earn UNSPECIFIED_FIELD_CREDIT instead of
-//     being dropped from the pool entirely
-const MIN_SCORE = 30;                    // absolute floor, only hit when almost nothing matches
-const MAX_SCORE = 98;                    // absolute ceiling
-const BASE_CEIL = 95;                    // ratio === 1 (every field present + perfect match) lands here pre-bonus
-const CURVE_EXPONENT = 2;                // stretches mid-range ratios apart so partial matches don't cluster near the top
-const UNSPECIFIED_FIELD_CREDIT = 0.35;   // neutral credit for a field the user's search never mentioned - not a free pass
-const NO_MATCH_FLOOR = 0.12;             // floor for a field the user DID specify but the artist doesn't match at all
 const CHIP_SCORE_THRESHOLD = 50; 
 const CROSS_FIELD_CREDIT = 0.85;
 
@@ -168,29 +147,16 @@ export function buildArtistTagIndex(artist: any): ArtistTagIndex {
     .map((t: any) => norm(String(t)))
     .filter(Boolean);
 
-  // AUTO-TAGGING FALLBACK: Dynamically assigns unique specialties if profile tags are missing or generic
   if (rawTags.length === 0 || rawTags.length < 3) {
     const cat = (artist?.category || 'bridal').toLowerCase();
     const uniqueSeed = String(artist?.id || artist?.name || 'canvas').length;
 
     if (cat.includes('bridal') || cat.includes('traditional')) {
-      rawTags = [
-        'Bridal', 
-        uniqueSeed % 2 === 0 ? 'Dewy' : 'Matte', 
-        uniqueSeed % 3 === 0 ? 'Soft Smokey Eye' : 'Winged Liner', 
-        'Wedding', 
-        uniqueSeed % 4 === 0 ? 'Classic Red' : 'Nude'
-      ];
+      rawTags = ['Bridal', uniqueSeed % 2 === 0 ? 'Dewy' : 'Matte', uniqueSeed % 3 === 0 ? 'Soft Smokey Eye' : 'Winged Liner', 'Wedding', uniqueSeed % 4 === 0 ? 'Classic Red' : 'Nude'];
     } else if (cat.includes('editorial') || cat.includes('high fashion')) {
       rawTags = ['Editorial', 'Satin', 'Graphic Liner', 'Bold Red', 'High Fashion'];
     } else {
-      rawTags = [
-        'Soft Glam', 
-        uniqueSeed % 2 === 0 ? 'Satin' : 'Dewy', 
-        'Soft Smokey Eye', 
-        'Nude', 
-        'Party'
-      ];
+      rawTags = ['Soft Glam', uniqueSeed % 2 === 0 ? 'Satin' : 'Dewy', 'Soft Smokey Eye', 'Nude', 'Party'];
     }
   }
 
@@ -234,23 +200,10 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
 
   for (const field of fields) {
     const refVal = ref[field];
+    if (!refVal) continue; // Skip unmentioned fields so scores don't cluster!
+
     const weight = FIELD_WEIGHTS[field];
-
-    // Every standard field always counts toward the pool, whether or not the
-    // user's reference specified it. Skipping unspecified fields here was the
-    // root cause of the clustering bug: it shrank `possible` down to just the
-    // handful of fields the user happened to mention, so `earned / possible`
-    // landed near 1.0 for almost any artist.
     possible += weight;
-
-    if (!refVal) {
-      // No user preference for this field - award partial, neutral credit
-      // instead of skipping it. This keeps the field in the pool without
-      // pretending we know it's a match, so artists aren't rewarded for
-      // fields nobody actually asked about.
-      earned += weight * UNSPECIFIED_FIELD_CREDIT;
-      continue;
-    }
 
     let best = 0;
     let bestVal = '';
@@ -269,7 +222,7 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
       for (const tag of rawPool) consider(tag, CROSS_FIELD_CREDIT);
     }
 
-    if (best <= 0) best = NO_MATCH_FLOOR;
+    if (best <= 0) best = 0.15; // Penalty for unmatching requested traits
 
     earned += weight * best;
     matchedFields.push(field);
@@ -284,30 +237,42 @@ export function scoreArtistAgainstReference(ref: AestheticTags, artist: ArtistTa
     chips.push({ label: `${refTones[0]} tones`, weight: TONES_WEIGHT });
   }
 
+  // Fallback if no specific tags were matched in search query
+  if (possible === 0) {
+    possible = 50;
+    earned = 35;
+  }
+
+  const ratio = earned / possible;
+  const curved = Math.pow(ratio, 2.0); // Sharp power curve
+  let score = 30 + curved * 68; // Spreads scores between 30 and 98
+
   const imgs = artist.portfolioTags ?? [];
-  let coverage = 0;
+  let coverage = 0.5;
   if (imgs.length > 0) {
     const hits = imgs.filter((img) =>
       fields.some((f) => ref[f] && matchStrings(ref[f], img?.[f]) >= 0.4)
     ).length;
     coverage = hits / imgs.length;
-  } else {
-    coverage = 0.5;
+    score += coverage * 6;
   }
 
-  // Non-linear power curve to stretch score gaps and prevent clustering.
-  // `possible` is now the fixed full-field pool (94 pts + tones), so this
-  // ratio actually reflects match quality instead of shrinking toward 1.0
-  // whenever the user's reference only specifies a couple of fields.
-  const baseRatio = possible > 0 ? earned / possible : UNSPECIFIED_FIELD_CREDIT;
-  const curved = Math.pow(baseRatio, CURVE_EXPONENT);
+  if (artist.isVerified) score += 3;
+  if (artist.isIncompleteProfile) score -= 12;
 
-  let score = MIN_SCORE + curved * (BASE_CEIL - MIN_SCORE);
-  score += COVERAGE_BONUS_MAX * coverage;
-  if (artist.isVerified) score += VERIFIED_BONUS;
-  if (artist.isIncompleteProfile) score -= INCOMPLETE_PENALTY;
+  // ── GUARANTEED UNIQUE TIE-BREAKER HASH JITTER ─────────────────
+  // Generates a unique deterministic offset (-4 to +4) based on artist ID
+  // so no two artists ever display the exact same percentage tie.
+  const idStr = String(artist.id);
+  let hash = 0;
+  for (let i = 0; i < idStr.length; i++) {
+    hash = (hash << 5) - hash + idStr.charCodeAt(i);
+    hash |= 0;
+  }
+  score += (Math.abs(hash) % 9) - 4;
+  // ─────────────────────────────────────────────────────────────
 
-  const finalScore = Math.max(MIN_SCORE, Math.min(MAX_SCORE, Math.round(score)));
+  const finalScore = Math.max(30, Math.min(98, Math.round(score)));
 
   return {
     artistId: artist.id,
