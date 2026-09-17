@@ -291,7 +291,7 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
 
       // Switch from v1/gemini-pro to v1beta/gemini-1.5-flash
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

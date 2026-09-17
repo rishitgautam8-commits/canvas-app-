@@ -385,6 +385,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     return liveArtists;
   }, [liveArtists]);
 
+  // Find where useReferenceMatching is initialized inside function Home(...) and update it:
   const {
     phase,
     analysis,
@@ -392,6 +393,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     matchedById,
     submitReference,
     clearReference,
+    setReferenceTags, // <--- Add this here!
   } = useReferenceMatching(sourceArtists);
 
   const handleSearchChange = async (newVal: HeroSearchValue) => {
@@ -627,33 +629,25 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   value={search}
   onChange={handleSearchChange}
   onSubmit={async (vals) => {
-  setSearch(vals);
-  setHasSearched(true);
-  
-  if (vals.inspirationFile) {
-    // If they uploaded a photo, use the image matching hook normally
-    submitReference(vals.inspirationFile);
-  } else if (vals.lookDescription && vals.lookDescription.trim().length > 3) {
-    // NEW: If they typed text, extract tags and feed them directly to the engine
-    console.log("Extracting tags for description:", vals.lookDescription);
-    const extractedTags = await extractTagsFromText(vals.lookDescription);
-    console.log("Extracted Tags Result:", extractedTags);
+    setSearch(vals);
+    setHasSearched(true);
     
-    // Bypass image submission and pass the tags directly to the matcher state
-    // (If your matching hook exposes a direct setter, use it; otherwise, this safely triggers text ranking)
-    const matchEngine = (window as any).__canvasMatchEngine;
-    if (matchEngine && typeof matchEngine.setReference === 'function') {
-      matchEngine.setReference(extractedTags);
+    if (vals.inspirationFile) {
+      submitReference(vals.inspirationFile);
+    } else if (vals.lookDescription && vals.lookDescription.trim().length > 3) {
+      console.log("Extracting tags for description:", vals.lookDescription);
+      const extractedTags = await extractTagsFromText(vals.lookDescription);
+      console.log("Extracted Tags Result:", extractedTags);
+      
+      if (setReferenceTags) {
+        setReferenceTags(extractedTags);
+      }
     } else {
-      // Fallback: Dispatch custom event for your directory listener
-      window.dispatchEvent(new CustomEvent('canvas-text-match', { detail: extractedTags }));
+      clearReference();
     }
-  } else {
-    clearReference();
-  }
-  ////////
-  scrollTo('discover');
-}}
+    
+    scrollTo('discover');
+  }}
   isAuthenticated={!!session}
   onAuthRequired={() => setAuthOpen(true)}
 />
