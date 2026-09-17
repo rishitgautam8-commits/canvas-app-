@@ -39,7 +39,7 @@ const ALIAS_GROUPS: string[][] = [
   ['natural', 'no makeup', 'barely there', 'minimal', 'clean girl', 'clean girl minimal'],
   ['editorial', 'high fashion', 'fashion editorial', 'avant garde', 'editorial high fashion'],
   ['bridal', 'bride', 'wedding', 'dulhan', 'traditional bridal', 'south indian bridal', 'nizami', 'traditional nizami bridal'],
-  ['reception', 'sangeet', 'cocktail', 'party', 'festive', 'festive event', 'evening event', 'day event', 'fashion shoot'],
+  ['reception', 'sangeet', 'cocktail', 'party', 'festive', 'festive event', 'evening event', 'day event', 'fashion shoot', 'evening cocktail', 'sangeet party'],
   ['engagement', 'roka', 'haldi', 'mehendi', 'mehandi'],
   ['dewy', 'glowing', 'glowy', 'luminous', 'radiant', 'glass skin', 'glass', 'glassy', 'satin', 'skinlike'],
   ['matte', 'velvet', 'velvety', 'soft matte'],
@@ -331,61 +331,83 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
     }
   }
 
-  // ── ROBUST BACKFILLING & AESTHETIC OVERRIDES ───────────────
-  if (cleanDesc.includes('editorial') || cleanDesc.includes('avant-garde') || cleanDesc.includes('fashion') || cleanDesc.includes('shoot')) {
-    extracted.look = 'Editorial High Fashion';
-  } else if (cleanDesc.includes('clean girl') || cleanDesc.includes('minimal')) {
-    extracted.look = 'Clean Girl Minimal';
-  } else if (cleanDesc.includes('nizami')) {
-    extracted.look = 'Traditional Nizami Bridal';
-  } else if (!extracted.look) {
-    extracted.look = cleanDesc.includes('bridal') || cleanDesc.includes('bride') ? 'Bridal' : 'Soft Glam';
+  // ── SCALABLE AESTHETIC & CULTURAL TAXONOMY MAPPING ────────
+  const text = cleanDesc;
+
+  // 1. Look Mappings
+  const LOOK_MAP: Record<string, string> = {
+    'nizami': 'Traditional Nizami Bridal',
+    'editorial': 'Editorial High Fashion',
+    'avant-garde': 'Editorial High Fashion',
+    'fashion': 'Editorial High Fashion',
+    'clean girl': 'Clean Girl Minimal',
+    'minimal': 'Clean Girl Minimal',
+    'grunge': 'Gothic Grunge Glam',
+    'arabic': 'Arabic Heavy Glam',
+    'south indian': 'South Indian Traditional Bridal'
+  };
+
+  for (const [key, val] of Object.entries(LOOK_MAP)) {
+    if (text.includes(key)) {
+      extracted.look = val;
+      break;
+    }
+  }
+  if (!extracted.look) {
+    extracted.look = text.includes('bridal') || text.includes('bride') ? 'Bridal' : 'Soft Glam';
   }
 
+  // 2. Occasion Mappings
+  const OCCASION_MAP: Record<string, string> = {
+    'shoot': 'Fashion Shoot',
+    'editorial': 'Fashion Shoot',
+    'day': 'Day Event',
+    'brunch': 'Day Event',
+    'cocktail': 'Evening Cocktail',
+    'sangeet': 'Sangeet Party',
+    'reception': 'Reception'
+  };
+
+  for (const [key, val] of Object.entries(OCCASION_MAP)) {
+    if (text.includes(key)) {
+      extracted.occasion = val;
+      break;
+    }
+  }
   if (!extracted.occasion) {
-    if (cleanDesc.includes('shoot') || cleanDesc.includes('fashion') || cleanDesc.includes('editorial')) {
-      extracted.occasion = 'Fashion Shoot';
-    } else if (cleanDesc.includes('day') || cleanDesc.includes('brunch') || cleanDesc.includes('event')) {
-      extracted.occasion = 'Day Event';
-    } else {
-      extracted.occasion = cleanDesc.includes('wedding') || cleanDesc.includes('bridal') ? 'Wedding' : 'Reception';
-    }
+    extracted.occasion = text.includes('wedding') || text.includes('bridal') ? 'Wedding' : 'Reception';
   }
 
+  // 3. Finish, Eyes, Lips & Tones Rules (Clean & Compact)
   if (!extracted.finish) {
-    if (cleanDesc.includes('oily') || cleanDesc.includes('sweat') || cleanDesc.includes('melt')) {
-      extracted.finish = 'Matte';
-    } else if (cleanDesc.includes('dewy') || cleanDesc.includes('glass')) {
-      extracted.finish = 'Dewy';
-    } else {
-      extracted.finish = 'Satin';
-    }
+    if (text.includes('oily') || text.includes('sweat') || text.includes('melt')) extracted.finish = 'Matte';
+    else if (text.includes('dewy') || text.includes('glass')) extracted.finish = 'Dewy';
+    else extracted.finish = 'Satin';
   }
 
   if (!extracted.eyes) {
-    if (cleanDesc.includes('graphic')) extracted.eyes = 'Graphic Liner';
-    else if (cleanDesc.includes('smokey') || cleanDesc.includes('smoky')) extracted.eyes = 'Soft Smokey Eye';
-    else if (cleanDesc.includes('liner') || cleanDesc.includes('winged')) extracted.eyes = 'Winged Liner';
-    else if (cleanDesc.includes('minimal')) extracted.eyes = 'Minimal Natural Eyes';
+    if (text.includes('graphic')) extracted.eyes = 'Graphic Liner';
+    else if (text.includes('smokey') || text.includes('smoky')) extracted.eyes = 'Soft Smokey Eye';
+    else if (text.includes('winged') || text.includes('liner')) extracted.eyes = 'Winged Liner';
+    else if (text.includes('minimal')) extracted.eyes = 'Minimal Natural Eyes';
     else extracted.eyes = 'Defined Traditional Eyes';
   }
 
   if (!extracted.lips) {
-    if (cleanDesc.includes('berry') || cleanDesc.includes('plum')) extracted.lips = 'Bold Berry';
-    else if (cleanDesc.includes('nude')) extracted.lips = 'Nude';
-    else if (cleanDesc.includes('red') || cleanDesc.includes('bold')) extracted.lips = 'Classic Red';
+    if (text.includes('berry') || text.includes('plum')) extracted.lips = 'Bold Berry';
+    else if (text.includes('nude')) extracted.lips = 'Nude';
+    else if (text.includes('red') || text.includes('bold')) extracted.lips = 'Classic Red';
     else extracted.lips = 'Bold Red';
   }
 
   const tonesList = extracted.tones || [];
-  if (cleanDesc.includes('gold') || cleanDesc.includes('jewelry')) {
+  if (text.includes('gold') || text.includes('jewelry')) {
     if (!tonesList.some(t => t.toLowerCase().includes('gold'))) {
       tonesList.push('Antique Gold');
     }
   }
-  if (!tonesList.includes('Warm') && !cleanDesc.includes('minimal')) tonesList.push('Warm');
+  if (!tonesList.includes('Warm') && !text.includes('minimal')) tonesList.push('Warm');
   extracted.tones = tonesList;
-  // ────────────────────────────────────────────────────────────
 
   return extracted;
 }
