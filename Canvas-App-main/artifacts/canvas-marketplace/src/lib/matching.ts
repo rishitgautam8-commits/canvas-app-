@@ -270,21 +270,32 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
   const cleanDesc = description.toLowerCase();
   let extracted: AestheticTags = {};
 
-  // 1. Try Gemini API first
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
   if (apiKey) {
     try {
+      // THE NEW CONSULTANT PROMPT
+      const aiPrompt = `You are an expert celebrity and bridal makeup consultant. 
+      Analyze this client's conversational makeup request: "${description}"
+      
+      The client might use slang, Hinglish, regional terms (Telugu/Hindi), or describe a "vibe" instead of technical makeup terms. 
+      Translate their intent into a strict JSON object using ONLY these optional keys: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings).
+      
+      Consulting Rules:
+      1. Contextual Fixes: If they mention "oily skin" or "sweat" but ask for "glass skin", infer a "Matte" or "Satin" finish so their makeup actually lasts.
+      2. Celebrity Vibes: If they mention Deepika Padukone, lean towards Warm tones and Smokey eyes. If Alia Bhatt, lean towards Dewy finish, Soft Glam, and Nude lips.
+      3. Regional Mapping: Map words like "dulhan", "muhurtham", "roka", or "sangeet" to standard occasions like "Wedding", "Engagement", or "Party".
+      4. Outfit Colors: If they mention wearing a red/maroon lehenga, infer appropriate tone complements (Warm, Gold, Classic Red lip, etc).
+      
+      Example output format: {"look": "Soft Glam", "finish": "Matte", "eyes": "Smokey Eye", "lips": "Nude", "occasion": "Reception", "tones": ["Warm", "Bronze"]}
+      Return ONLY a raw JSON object. No markdown formatting, no extra text.`;
+
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `Analyze this user makeup description: "${description}". Extract and return a strict JSON object with optional keys from this set: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings). Example: {"look": "Bridal", "finish": "Dewy", "eyes": "Winged Liner", "lips": "Nude", "occasion": "Wedding", "tones": ["Warm", "Gold"]}. Return ONLY valid raw JSON, no markdown formatting.`
-              }]
-            }]
+            contents: [{ parts: [{ text: aiPrompt }] }]
           })
         }
       );
@@ -303,7 +314,7 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
     }
   }
 
-  // 2. Intelligent local fallback if API fails or isn't configured
+  // 2. Intelligent local fallback if API fails
   if (!extracted.look && !extracted.finish && !extracted.occasion) {
     const tags: AestheticTags = {};
     const tones: string[] = [];
@@ -316,23 +327,24 @@ export async function extractTagsFromText(description: string): Promise<Aestheti
       tags.occasion = 'Reception';
     } else if (cleanDesc.includes('editorial') || cleanDesc.includes('fashion')) {
       tags.look = 'Editorial';
-    } else if (cleanDesc.includes('soft glam') || cleanDesc.includes('natural')) {
+    } else if (cleanDesc.includes('soft glam') || cleanDesc.includes('natural') || cleanDesc.includes('alia')) {
       tags.look = 'Soft Glam';
     }
 
     if (cleanDesc.includes('dewy') || cleanDesc.includes('glass') || cleanDesc.includes('glow')) {
-      tags.finish = 'Dewy Finish';
-    } else if (cleanDesc.includes('matte')) {
+      // Basic logic check for oily skin in fallback
+      tags.finish = cleanDesc.includes('oily') ? 'Matte Finish' : 'Dewy Finish';
+    } else if (cleanDesc.includes('matte') || cleanDesc.includes('sweat')) {
       tags.finish = 'Matte Finish';
     }
 
-    if (cleanDesc.includes('smokey') || cleanDesc.includes('smoky')) {
+    if (cleanDesc.includes('smokey') || cleanDesc.includes('smoky') || cleanDesc.includes('deepika')) {
       tags.eyes = 'Smokey Eye';
     } else if (cleanDesc.includes('winged') || cleanDesc.includes('liner')) {
       tags.eyes = 'Winged Liner';
     }
 
-    if (cleanDesc.includes('nude')) {
+    if (cleanDesc.includes('nude') || cleanDesc.includes('minimal')) {
       tags.lips = 'Nude Lip';
     } else if (cleanDesc.includes('red') || cleanDesc.includes('bold')) {
       tags.lips = 'Bold Red';
