@@ -6,8 +6,6 @@ export type MatchPhase = 'idle' | 'analyzing' | 'success' | 'error';
 
 export function useReferenceMatching<T extends { id: string | number; rating?: number }>(artists: T[]) {
   const [phase, setPhase] = useState<MatchPhase>('idle');
-  
-  // Use 'any' here so it gracefully satisfies both the hook and the AIMatchPanel UI
   const [analysis, setAnalysis] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +25,19 @@ export function useReferenceMatching<T extends { id: string | number; rating?: n
           const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
           if (!apiKey) throw new Error('API key missing');
 
-          // FIXED: Upgraded model to gemini-2.5-flash to match your working text pipeline
+          const strictPrompt = `You are an elite beauty AI. Analyze this makeup look and extract structured tags into a strict JSON object with keys: look, finish, eyes, lips, occasion, and tones (where tones is an array of strings). 
+          
+          STRICT RULES - YOU MUST FOLLOW THESE:
+          1. Values MUST be 1-3 words maximum. DO NOT write sentences or lists.
+          2. look: e.g., "Soft Glam", "Bridal", "Editorial High Fashion", "Clean Girl Minimal".
+          3. finish: e.g., "Dewy", "Matte", "Satin", "Glass Skin".
+          4. eyes: e.g., "Soft Smokey Eye", "Winged Liner", "Graphic Liner", "Minimal Natural".
+          5. lips: e.g., "Nude", "Bold Red", "Bold Berry", "Glossy Pink".
+          6. occasion: e.g., "Wedding", "Reception", "Fashion Shoot", "Day Event".
+          7. tones: Array of 1-word colors (e.g., ["Warm", "Gold", "Peach"]).
+          
+          Return ONLY raw JSON. No markdown formatting.`;
+
           const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
             {
@@ -36,7 +46,7 @@ export function useReferenceMatching<T extends { id: string | number; rating?: n
               body: JSON.stringify({
                 contents: [{
                   parts: [
-                    { text: 'Analyze this makeup look and return a JSON object with optional keys: look, finish, eyes, lips, occasion, tones (where tones is an array of strings). Return ONLY raw JSON, no markdown formatting.' },
+                    { text: strictPrompt },
                     { inlineData: { mimeType: file.type, data: base64 } }
                   ]
                 }],
@@ -55,9 +65,22 @@ export function useReferenceMatching<T extends { id: string | number; rating?: n
           const cleaned = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
           const parsed = JSON.parse(cleaned);
 
-          // Wrap the result in the ReferenceAnalysis structure the UI expects
+          // ── SAFEGUARD: Guarantee strict types before hitting React UI ──
+          const sanitizedTags: AestheticTags = {
+            look: typeof parsed.look === 'string' ? parsed.look : undefined,
+            finish: typeof parsed.finish === 'string' ? parsed.finish : undefined,
+            eyes: typeof parsed.eyes === 'string' ? parsed.eyes : undefined,
+            lips: typeof parsed.lips === 'string' ? parsed.lips : undefined,
+            occasion: typeof parsed.occasion === 'string' ? parsed.occasion : undefined,
+            tones: Array.isArray(parsed.tones) 
+              ? parsed.tones.filter((t: any) => typeof t === 'string')
+              : typeof parsed.tones === 'string'
+                ? parsed.tones.split(',').map((t: string) => t.trim())
+                : []
+          };
+
           setAnalysis({
-            tags: parsed,
+            tags: sanitizedTags,
             imageDataUrl: reader.result,
             analyzedAt: new Date().toISOString()
           });
@@ -80,10 +103,9 @@ export function useReferenceMatching<T extends { id: string | number; rating?: n
   }, []);
 
   const setReferenceTags = useCallback((tags: AestheticTags) => {
-    // Wrap the text tags in the same structure (with a null image)
     setAnalysis({
       tags: tags,
-      imageDataUrl: null, // No image for text-based searches
+      imageDataUrl: null, 
       isMock: false,
       analyzedAt: new Date().toISOString()
     });
@@ -91,7 +113,6 @@ export function useReferenceMatching<T extends { id: string | number; rating?: n
   }, []);
 
   const ranked = useMemo(() => {
-    // Look inside the wrapper object for the actual tags
     const activeTags = analysis?.tags;
     if (!activeTags || Object.keys(activeTags).length === 0) return [];
     
