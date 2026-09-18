@@ -36,9 +36,10 @@ export function useReferenceMatching<T extends { id: string | number; rating?: n
                 contents: [{
                   parts: [
                     { text: 'Analyze this makeup look and return a JSON object with optional keys: look, finish, eyes, lips, occasion, tones (where tones is an array of strings). Return ONLY raw JSON, no markdown formatting.' },
-                    { inline_data: { mime_type: file.type, data: base64 } }
+                    { inlineData: { mimeType: file.type, data: base64 } } // FIXED: camelCase keys
                   ]
-                }]
+                }],
+                generationConfig: { temperature: 0 } // Ensures deterministic extraction
               })
             }
           );
