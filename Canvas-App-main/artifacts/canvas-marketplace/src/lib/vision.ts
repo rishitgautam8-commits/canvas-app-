@@ -108,7 +108,7 @@ async function geminiExtract(base64: string, mimeType: string, retries = 3): Pro
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: PROMPT }, { inline_data: { mime_type: mimeType, data: base64 } }] }],
+            contents: [{ parts: [{ text: PROMPT }, { inlineData: { mimeType: mimeType, data: base64 } }] }],
             generationConfig: {
               temperature: 0.2,
               response_mime_type: 'application/json',
