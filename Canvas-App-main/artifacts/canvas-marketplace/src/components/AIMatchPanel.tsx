@@ -5,8 +5,7 @@
 
 import { Sparkles, X, ImageOff } from 'lucide-react';
 import { getTheme } from '@/lib/theme';
-import type { MatchPhase } from '@/hooks/useReferenceMatching';
-import type { ReferenceAnalysis } from '@/lib/vision';
+import type { MatchPhase, ReferenceAnalysis } from '@/hooks/useReferenceMatching';
 
 const FIELD_LABELS: Array<[keyof ReferenceAnalysis['tags'], string]> = [
   ['look', 'Look'],
