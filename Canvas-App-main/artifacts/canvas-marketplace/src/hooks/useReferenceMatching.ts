@@ -27,8 +27,9 @@ export function useReferenceMatching<T extends { id: string | number; rating?: n
           const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
           if (!apiKey) throw new Error('API key missing');
 
+          // FIXED: Upgraded model to gemini-2.5-flash to match your working text pipeline
           const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -36,15 +37,18 @@ export function useReferenceMatching<T extends { id: string | number; rating?: n
                 contents: [{
                   parts: [
                     { text: 'Analyze this makeup look and return a JSON object with optional keys: look, finish, eyes, lips, occasion, tones (where tones is an array of strings). Return ONLY raw JSON, no markdown formatting.' },
-                    { inlineData: { mimeType: file.type, data: base64 } } // FIXED: camelCase keys
+                    { inlineData: { mimeType: file.type, data: base64 } }
                   ]
                 }],
-                generationConfig: { temperature: 0 } // Ensures deterministic extraction
+                generationConfig: { temperature: 0 }
               })
             }
           );
 
-          if (!response.ok) throw new Error('Vision analysis failed');
+          if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`Vision analysis failed: ${response.status} - ${errText}`);
+          }
 
           const data = await response.json();
           const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '{}';
