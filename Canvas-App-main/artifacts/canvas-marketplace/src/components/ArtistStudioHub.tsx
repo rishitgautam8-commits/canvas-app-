@@ -39,7 +39,21 @@ export function ArtistStudioHub({ artistId }: { artistId: string }) {
 
     setDeletingId(itemId);
     try {
-      // 1. Delete row from the database table
+      // 1. Precisely extract the true file path, bypassing the double "portfolios" folder bug
+      const bucketPathIndex = imageUrl.indexOf('/public/portfolios/');
+      
+      if (bucketPathIndex !== -1) {
+        // Grab everything strictly after the bucket declaration and decode URL characters (like spaces)
+        const exactFilePath = decodeURIComponent(imageUrl.substring(bucketPathIndex + '/public/portfolios/'.length));
+        
+        // Wipe from Supabase Storage Bucket
+        const { error: storageError } = await supabase.storage.from('portfolios').remove([exactFilePath]);
+        if (storageError) {
+           console.warn('Storage deletion warning (continuing to DB deletion):', storageError);
+        }
+      }
+
+      // 2. Delete row from the Postgres database table
       const { error: dbError } = await supabase
         .from('artist_portfolio')
         .delete()
@@ -47,18 +61,12 @@ export function ArtistStudioHub({ artistId }: { artistId: string }) {
 
       if (dbError) throw dbError;
 
-      // 2. Extract the file path from the public URL and delete from storage bucket
-      const urlParts = imageUrl.split('/portfolios/');
-      if (urlParts.length > 1) {
-        const filePath = urlParts[1];
-        await supabase.storage.from('portfolios').remove([filePath]);
-      }
-
-      // Refresh the list
+      // 3. Instantly clear the image from the React UI without requiring a page refresh
       setPortfolio(prev => prev.filter(item => item.id !== itemId));
+      
     } catch (err) {
       console.error('Error deleting portfolio item:', err);
-      alert('Failed to delete photo.');
+      alert('Failed to delete photo. Please try again.');
     } finally {
       setDeletingId(null);
     }
@@ -90,7 +98,7 @@ export function ArtistStudioHub({ artistId }: { artistId: string }) {
                 <button
                   onClick={() => handleDeletePhoto(item.id, item.image_url)}
                   disabled={deletingId === item.id}
-                  className="absolute top-5 right-5 p-2 bg-black/60 hover:bg-red-600 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 backdrop-blur-sm"
+                  className="absolute top-5 right-5 p-2 bg-black/60 hover:bg-red-600 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 backdrop-blur-sm z-10"
                   title="Delete photo"
                 >
                   <Trash2 size={14} />
