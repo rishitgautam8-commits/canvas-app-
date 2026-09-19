@@ -432,7 +432,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               <p className={theme.formLabel}>Enhance Your Booking With Specialized Services.</p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-5xl">
               {parsedAddons.map((addon: { name: string; price: string; image: string | null }, idx: number) => (
                 <div key={idx} className={`bg-white border ${theme.borderBase} overflow-hidden shadow-sm flex flex-col ${theme.cardRadius}`}>
                   {addon.image && (
