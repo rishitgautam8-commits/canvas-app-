@@ -271,10 +271,16 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
   const manuallyBlockedDates: string[] = Array.isArray(artist?.blocked_dates) ? artist.blocked_dates : [];
   
-  const rawPortfolio = artist?.portfolio || [];
-  const allImages = rawPortfolio.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean);
-  const addonImages = allImages.filter((img: string) => img.toLowerCase().includes('addon'));
-  const hasAddonText = Array.isArray(artist?.addons) && artist?.addons.length > 0;
+  // NEW LOGIC: Accurately Extract text and image combinations from the Add-ons array
+  const rawAddons = Array.isArray(artist?.addons) ? artist.addons : [];
+  
+  const addonImages = rawAddons
+    .filter((a: string) => a.includes('| IMAGE: '))
+    .map((a: string) => a.split('| IMAGE: ')[1].trim());
+
+  const addonTextList = rawAddons.map((a: string) => a.split('| IMAGE: ')[0].trim());
+
+  const hasAddonText = addonTextList.length > 0;
   const hasAddonImages = addonImages.length > 0;
 
   const today = new Date();
@@ -423,9 +429,8 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                   <p className={`${theme.formLabel} mb-10`}>Enhance Your Booking With Specialized Services.</p>
                   
                   <div className="space-y-0">
-                    {artist.addons.map((addon: string, idx: number) => {
-                      if (typeof addon !== 'string') return null;
-                      const parts = addon.split('(');
+                    {addonTextList.map((addonText: string, idx: number) => {
+                      const parts = addonText.split('(');
                       return (
                         <div key={idx} className={`flex items-center justify-between py-5 border-b ${theme.borderBase} last:border-0`}>
                           <span className={theme.bodyText}>{parts[0].trim()}</span>

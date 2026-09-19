@@ -33,8 +33,8 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
           .from('portfolios')
           .getPublicUrl(filePath);
 
-        // 2. Call our secure backend API route for real Gemini Vision analysis
-        const extractedTags = await analyzeImageViaServer(file);
+        // 2. Call Gemini 2.5 Flash directly for tagging
+        const extractedTags = await analyzeImageViaGemini(file);
 
         // 3. Save Image URL and Real AI Tags to Supabase Database
         const { error: dbError } = await supabase
@@ -60,43 +60,64 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
     } finally {
       setUploading(false);
       setUploadProgress('');
-      event.target.value = '';
+      event.target.value = ''; // Reset input
     }
   };
 
-  const analyzeImageViaServer = async (file: File): Promise<string[]> => {
+  const analyzeImageViaGemini = async (file: File): Promise<string[]> => {
     try {
+      // Convert file to Base64
       const base64Data = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           const result = reader.result as string;
-          const base64String = result.split(',')[1];
-          resolve(base64String);
+          resolve(result.split(',')[1]);
         };
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
 
-      const response = await fetch('/api/analyze-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          imageBase64: base64Data,
-          mimeType: file.type || 'image/jpeg'
-        })
-      });
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) throw new Error('API key missing');
 
-      if (!response.ok) {
-        throw new Error('Server analysis endpoint failed');
-      }
+      const prompt = `You are an elite beauty and hair styling AI. Analyze this image and return ONLY a raw JSON array of 4 to 6 descriptive aesthetic tags. 
+      - If it is hair: ["Bridal Updo", "Textured Braid", "Floral Accessories", "Elegant"]
+      - If it is makeup: ["Soft Glam", "Matte Finish", "Smokey Eye", "Nude Lips"]
+      RULES: Keep tags under 3 words. Return ONLY the JSON array (e.g. ["Tag 1", "Tag 2"]). Do NOT include markdown wrappers like \`\`\`json.`;
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: prompt },
+                { inlineData: { mimeType: file.type, data: base64Data } }
+              ]
+            }],
+            generationConfig: { temperature: 0 }
+          })
+        }
+      );
+
+      if (!response.ok) throw new Error('Gemini API failed');
 
       const data = await response.json();
-      return Array.isArray(data.tags) && data.tags.length > 0 ? data.tags : ['BRIDAL', 'GLAM'];
+      const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '[]';
+      const cleaned = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+      
+      const parsedTags = JSON.parse(cleaned);
+      
+      return Array.isArray(parsedTags) && parsedTags.length > 0 
+        ? parsedTags 
+        : ['Beauty Look', 'Professional', 'Canvas Artist'];
+
     } catch (err) {
-      console.error('Error connecting to vision backend:', err);
-      return ['HD MAKEUP', 'PROFESSIONAL', 'CUSTOM LOOK'];
+      console.error('Error connecting to Gemini Vision:', err);
+      // Fallback only if the API completely fails
+      return ['Beauty Look', 'Professional', 'Canvas Artist'];
     }
   };
 

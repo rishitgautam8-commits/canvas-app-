@@ -95,7 +95,7 @@ export function ArtistStudioHub({ artistId }: { artistId: string }) {
                 <button
                   onClick={() => handleDeletePhoto(item.id, item.image_url)}
                   disabled={deletingId === item.id}
-                  className="absolute top-5 right-5 p-2 bg-black/60 hover:bg-red-600 text-white rounded-full transition-all opacity-0 group-hover:opacity-100 disabled:opacity-50 backdrop-blur-sm z-10"
+                  className="absolute top-5 right-5 p-2 bg-black/60 hover:bg-red-600 text-white rounded-full transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 disabled:opacity-50 backdrop-blur-sm z-10"
                   title="Delete photo"
                 >
                   <Trash2 size={14} />

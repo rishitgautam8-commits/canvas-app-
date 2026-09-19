@@ -297,7 +297,35 @@ export default function Dashboard({ session }: DashboardProps) {
         }
       }
 
-      // 2. Save base profile
+      // 2. Upload Addons and generate combined payload text
+      let finalAddonsWithImages: string[] = [];
+      if (hasAddonSkill) {
+        for (const addon of addons) {
+          if (addon.name) {
+            if (addon.file) {
+              const fileExt = addon.file.name.split('.').pop();
+              const fileName = `addon_${Math.random()}.${fileExt}`;
+              const filePath = `${session.user.id}/${fileName}`;
+              
+              const { error: uploadError } = await supabase.storage
+                .from('portfolios')
+                .upload(filePath, addon.file);
+                
+              if (uploadError) throw uploadError;
+
+              const { data: publicUrlData } = supabase.storage
+                .from('portfolios')
+                .getPublicUrl(filePath);
+
+              finalAddonsWithImages.push(`${addon.name} (₹${addon.price}) | IMAGE: ${publicUrlData.publicUrl}`);
+            } else {
+              finalAddonsWithImages.push(`${addon.name} (₹${addon.price})`);
+            }
+          }
+        }
+      }
+
+      // 3. Save base profile
       const { error: profileError } = await supabase.from('profiles').upsert(
         {
           id: session.user.id,
@@ -313,11 +341,7 @@ export default function Dashboard({ session }: DashboardProps) {
 
       if (profileError) throw new Error(`Failed to save base profile: ${profileError.message}`);
 
-      const formattedAddonsText = hasAddonSkill 
-        ? addons.map(a => `${a.name} (₹${a.price})`).filter(a => a.trim() !== '(₹)') 
-        : [];
-
-      // 3. Save artist profile including new avatar_url
+      // 4. Save artist profile including new avatar_url and properly formatted addons
       const { error: artistError } = await supabase.from('artist_profiles').upsert(
         {
           id: session.user.id,
@@ -329,46 +353,16 @@ export default function Dashboard({ session }: DashboardProps) {
           starting_price: parseInt(formData.starting_price) || 0,
           years_experience: parseInt(formData.years_experience) || 0,
           blocked_dates: formData.blocked_dates,
-          addons: formattedAddonsText,
-          avatar_url: avatarUrl // <-- Saved here
+          addons: finalAddonsWithImages,
+          avatar_url: avatarUrl
         },
         { onConflict: 'id' }
       );
 
       if (artistError) throw artistError;
 
-      // 4. Save Addons
-      if (hasAddonSkill) {
-        for (const addon of addons) {
-          if (addon.file) {
-            const fileExt = addon.file.name.split('.').pop();
-            const fileName = `addon_${Math.random()}.${fileExt}`;
-            const filePath = `${session.user.id}/${fileName}`;
-            
-            const { error: uploadError } = await supabase.storage
-              .from('portfolios')
-              .upload(filePath, addon.file);
-              
-            if (uploadError) throw uploadError;
-
-            const { data: publicUrlData } = supabase.storage
-              .from('portfolios')
-              .getPublicUrl(filePath);
-
-            const aiTags = await generateTagsWithAI(addon.file);
-            const finalTags = [...new Set([...aiTags, addon.name, 'Add-on'])];
-
-            await supabase.from('artist_portfolio').insert({
-              artist_id: session.user.id,
-              image_url: publicUrlData.publicUrl,
-              tags: finalTags
-            });
-          }
-        }
-      }
-
-      window.alert('Logistics & Add-ons updated successfully! AI Tags have been generated.');
-      setArtistProfile({ ...artistProfile, ...formData, addons: formattedAddonsText, avatar_url: avatarUrl });
+      window.alert('Logistics & Add-ons updated successfully!');
+      setArtistProfile({ ...artistProfile, ...formData, addons: finalAddonsWithImages, avatar_url: avatarUrl });
     } catch (err: any) {
       window.alert(`Error saving: ${err.message}`);
     } finally {
