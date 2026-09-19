@@ -137,8 +137,8 @@ export default function Dashboard({ session }: DashboardProps) {
     blocked_dates: [] as string[],
   });
 
-  const [addons, setAddons] = useState<Array<{ name: string; price: string; file: File | null }>>([
-    { name: '', price: '', file: null }
+  const [addons, setAddons] = useState<Array<{ name: string; price: string; file: File | null; imageUrl?: string | null }>>([
+    { name: '', price: '', file: null, imageUrl: null }
   ]);
 
   useEffect(() => {
@@ -184,6 +184,23 @@ export default function Dashboard({ session }: DashboardProps) {
               years_experience: artistData.years_experience?.toString() || '',
               blocked_dates: artistData.blocked_dates || [],
             });
+
+            // ── LOAD EXISTING SAVED ADDONS INTO FORM ──
+            if (artistData.addons && Array.isArray(artistData.addons) && artistData.addons.length > 0) {
+              setHasAddonSkill(true);
+              const parsedExisting = artistData.addons.map((item: string) => {
+                const parts = item.split('| IMAGE: ');
+                const textPart = parts[0].trim();
+                const imageUrl = parts.length > 1 ? parts[1].trim() : null;
+                
+                const match = textPart.match(/^(.*?)\s*\(₹(.*?)\)$/);
+                if (match) {
+                  return { name: match[1].trim(), price: match[2].trim(), file: null, imageUrl };
+                }
+                return { name: textPart.replace(/\(₹.*\)/, '').trim(), price: '', file: null, imageUrl };
+              });
+              setAddons(parsedExisting);
+            }
           }
 
           const { data: bookingsData } = await supabase.from('bookings').select('*').eq('artist_id', session.user.id).order('created_at', { ascending: false });
@@ -297,11 +314,13 @@ export default function Dashboard({ session }: DashboardProps) {
         }
       }
 
-      // 2. Upload Addons and generate combined payload text
+      // 2. Process Addons (including uploads & maintaining existing images if no new file is uploaded)
       let finalAddonsWithImages: string[] = [];
       if (hasAddonSkill) {
         for (const addon of addons) {
           if (addon.name) {
+            let imageUrl = addon.imageUrl || '';
+            
             if (addon.file) {
               const fileExt = addon.file.name.split('.').pop();
               const fileName = `addon_${Math.random()}.${fileExt}`;
@@ -317,7 +336,11 @@ export default function Dashboard({ session }: DashboardProps) {
                 .from('portfolios')
                 .getPublicUrl(filePath);
 
-              finalAddonsWithImages.push(`${addon.name} (₹${addon.price}) | IMAGE: ${publicUrlData.publicUrl}`);
+              imageUrl = publicUrlData.publicUrl;
+            }
+
+            if (imageUrl) {
+              finalAddonsWithImages.push(`${addon.name} (₹${addon.price}) | IMAGE: ${imageUrl}`);
             } else {
               finalAddonsWithImages.push(`${addon.name} (₹${addon.price})`);
             }
@@ -341,7 +364,7 @@ export default function Dashboard({ session }: DashboardProps) {
 
       if (profileError) throw new Error(`Failed to save base profile: ${profileError.message}`);
 
-      // 4. Save artist profile including new avatar_url and properly formatted addons
+      // 4. Save artist profile including new avatar_url and updated addons list
       const { error: artistError } = await supabase.from('artist_profiles').upsert(
         {
           id: session.user.id,
@@ -779,7 +802,7 @@ export default function Dashboard({ session }: DashboardProps) {
                       <button type="button" onClick={() => setHasAddonSkill(true)} className={`${theme.btnOutline} !py-2.5 ${hasAddonSkill ? `!bg-black !text-white !border-black` : ''}`}>
                         Yes, I Do
                       </button>
-                      <button type="button" onClick={() => { setHasAddonSkill(false); setAddons([{ name: '', price: '', file: null }]); }} className={`${theme.btnOutline} !py-2.5 ${!hasAddonSkill ? '!bg-black !text-white !border-black' : ''}`}>
+                      <button type="button" onClick={() => { setHasAddonSkill(false); setAddons([{ name: '', price: '', file: null, imageUrl: null }]); }} className={`${theme.btnOutline} !py-2.5 ${!hasAddonSkill ? '!bg-black !text-white !border-black' : ''}`}>
                         No
                       </button>
                     </div>
@@ -788,18 +811,22 @@ export default function Dashboard({ session }: DashboardProps) {
                       <div className="space-y-6">
                         {addons.map((addon, index) => (
                           <div key={index} className={`space-y-6 animate-in fade-in slide-in-from-top-2 duration-300 bg-white/50 p-6 border-l-2 ${accentBorder} ${styleVersion === '1' || styleVersion === '3' ? 'rounded-none' : 'rounded-r-xl'} relative`}>
-                            {addons.length > 1 && (
-                              <button 
-                                type="button" 
-                                onClick={() => {
-                                  const updated = addons.filter((_, i) => i !== index);
+                            {/* ── DELETE / REMOVE ADD-ON BUTTON ── */}
+                            <button 
+                              type="button" 
+                              onClick={() => {
+                                const updated = addons.filter((_, i) => i !== index);
+                                if (updated.length === 0) {
+                                  setHasAddonSkill(false);
+                                  setAddons([{ name: '', price: '', file: null, imageUrl: null }]);
+                                } else {
                                   setAddons(updated);
-                                }} 
-                                className={`absolute top-4 right-4 ${theme.navLink} !text-red-600 hover:underline !border-none !bg-transparent`}
-                              >
-                                Remove Skill
-                              </button>
-                            )}
+                                }
+                              }} 
+                              className={`absolute top-4 right-4 ${theme.navLink} !text-red-600 hover:underline !border-none !bg-transparent font-medium cursor-pointer`}
+                            >
+                              Remove Add-On ✕
+                            </button>
 
                             <p className={`${theme.eyebrow} ${accentText}`}>add-on skill #{index + 1}</p>
 
@@ -811,7 +838,7 @@ export default function Dashboard({ session }: DashboardProps) {
                                   value={addon.name} 
                                   onChange={(e) => {
                                     const updated = [...addons];
-                                    updated[index].name = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                                    updated[index].name = e.target.value;
                                     setAddons(updated);
                                   }} 
                                   placeholder="E.g. Brow Tinting" 
@@ -835,9 +862,18 @@ export default function Dashboard({ session }: DashboardProps) {
                                 />
                               </div>
                             </div>
+                            
                             <div>
                               <label className={`mb-2 block ${theme.formLabel}`}>Add-On Portfolio Upload *</label>
-                              <p className={`mb-4 ${theme.bodyText} !text-black/40`}>Must Upload At Least 1 Photo Showcasing This Specific Skill.</p>
+                              <p className={`mb-4 ${theme.bodyText} !text-black/40`}>Upload a photo showcasing this specific skill.</p>
+                              
+                              {addon.imageUrl && !addon.file && (
+                                <div className="mb-4 flex items-center gap-4">
+                                  <img src={addon.imageUrl} alt="Current addon" className="w-16 h-20 object-cover rounded-lg border border-black/10" />
+                                  <span className="text-xs text-black/60">Current image saved. Upload a new one below only if you want to replace it.</span>
+                                </div>
+                              )}
+
                               <input 
                                 type="file" 
                                 accept="image/*" 
@@ -848,7 +884,7 @@ export default function Dashboard({ session }: DashboardProps) {
                                   setAddons(updated);
                                 }}
                                 className={`w-full ${theme.bodyText} file:mr-4 file:border-0 file:bg-white file:px-4 file:py-2 file:${theme.cardRadius} file:${theme.formLabel} file:!text-black hover:file:bg-black/10 transition-all cursor-pointer`} 
-                                required={hasAddonSkill && !addon.file} 
+                                required={hasAddonSkill && !addon.imageUrl && !addon.file} 
                               />
                             </div>
                           </div>
@@ -856,7 +892,7 @@ export default function Dashboard({ session }: DashboardProps) {
 
                         <button
                           type="button"
-                          onClick={() => setAddons([...addons, { name: '', price: '', file: null }])}
+                          onClick={() => setAddons([...addons, { name: '', price: '', file: null, imageUrl: null }])}
                           className={`w-full border border-dashed ${theme.borderBase} bg-white/40 py-4 ${theme.formLabel} ${theme.cardRadius} hover:border-black transition-colors`}
                         >
                           + Add Another Add-On Skill
@@ -867,7 +903,7 @@ export default function Dashboard({ session }: DashboardProps) {
 
                   <div className="pt-4 flex justify-end">
                     <button type="submit" disabled={saving || uploadingPortfolio} className={`${theme.btnPrimary} disabled:opacity-50`}>
-                      {saving ? 'Saving & Generating AI Tags...' : 'save changes'}
+                      {saving ? 'Saving...' : 'save changes'}
                     </button>
                   </div>
                 </form>
