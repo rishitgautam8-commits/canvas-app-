@@ -3,7 +3,6 @@ import { useRoute, useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, CheckCircle2, MapPin, Clock, X, Calendar } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { artistsData } from '@/Data/artistsData';
 import { getTheme } from '@/lib/theme';
 
 function getGoogleMapsLink(location: string) {
@@ -271,17 +270,22 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
   const manuallyBlockedDates: string[] = Array.isArray(artist?.blocked_dates) ? artist.blocked_dates : [];
   
-  // NEW LOGIC: Accurately Extract text and image combinations from the Add-ons array
+  // ── NEW CARD-BASED ADD-ON PARSING ──
   const rawAddons = Array.isArray(artist?.addons) ? artist.addons : [];
   
-  const addonImages = rawAddons
-    .filter((a: string) => a.includes('| IMAGE: '))
-    .map((a: string) => a.split('| IMAGE: ')[1].trim());
+  const parsedAddons = rawAddons.map((addon: string) => {
+    // Split the format "Skill Name (₹Price) | IMAGE: https..."
+    const parts = addon.split('| IMAGE: ');
+    const textPart = parts[0].trim();
+    const image = parts.length > 1 ? parts[1].trim() : null;
+    
+    // Extract name and price
+    const nameParts = textPart.split('(');
+    const name = nameParts[0].trim();
+    const price = nameParts.length > 1 ? nameParts[1].replace(')', '').trim() : '';
 
-  const addonTextList = rawAddons.map((a: string) => a.split('| IMAGE: ')[0].trim());
-
-  const hasAddonText = addonTextList.length > 0;
-  const hasAddonImages = addonImages.length > 0;
+    return { name, price, image };
+  });
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -420,37 +424,28 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
           </div>
         )}
 
-        {(hasAddonText || hasAddonImages) && (
+        {/* ── NEW COHESIVE ADD-ON CARDS GRID ── */}
+        {parsedAddons.length > 0 && (
           <div className={`mt-20 pt-16 border-t ${theme.borderBase}`}>
-            <div className="flex flex-col lg:flex-row gap-16 lg:items-start">
-              {hasAddonText && (
-                <div className={`flex-1 ${!hasAddonImages ? 'max-w-3xl' : ''}`}>
-                  <h2 className={`${theme.headingSection} mb-3`}>add-ons & <span className={theme.premiumTag}>upgrades.</span></h2>
-                  <p className={`${theme.formLabel} mb-10`}>Enhance Your Booking With Specialized Services.</p>
-                  
-                  <div className="space-y-0">
-                    {addonTextList.map((addonText: string, idx: number) => {
-                      const parts = addonText.split('(');
-                      return (
-                        <div key={idx} className={`flex items-center justify-between py-5 border-b ${theme.borderBase} last:border-0`}>
-                          <span className={theme.bodyText}>{parts[0].trim()}</span>
-                          {parts.length > 1 && <span className={theme.badge}>{parts[1].replace(')', '').trim()}</span>}
-                        </div>
-                      );
-                    })}
+            <div className="mb-10">
+              <h2 className={`${theme.headingSection} mb-3`}>add-ons & <span className={theme.premiumTag}>upgrades.</span></h2>
+              <p className={theme.formLabel}>Enhance Your Booking With Specialized Services.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {parsedAddons.map((addon: { name: string; price: string; image: string | null }, idx: number) => (
+                <div key={idx} className={`bg-white border ${theme.borderBase} overflow-hidden shadow-sm flex flex-col ${theme.cardRadius}`}>
+                  {addon.image && (
+                    <div className={`relative w-full aspect-[4/5] border-b ${theme.borderBase} overflow-hidden bg-black/5`}>
+                      <img src={addon.image} alt={addon.name} className="w-full h-full object-cover object-center" />
+                    </div>
+                  )}
+                  <div className="p-5 flex items-center justify-between gap-4 bg-white">
+                    <span className={`${theme.bodyText} font-medium`}>{addon.name}</span>
+                    {addon.price && <span className={theme.badge}>{addon.price}</span>}
                   </div>
                 </div>
-              )}
-
-              {hasAddonImages && (
-                <div className={`w-full ${hasAddonText ? 'lg:w-1/2' : 'w-full'} flex gap-4 overflow-x-auto pb-4 custom-scrollbar`}>
-                  {addonImages.map((img: string, i: number) => (
-                    <div key={i} className="shrink-0 w-[280px]">
-                      <img src={img} alt="Addon" className={`w-full aspect-[4/5] object-cover bg-white border ${theme.borderBase} ${theme.cardRadius}`} />
-                    </div>
-                  ))}
-                </div>
-              )}
+              ))}
             </div>
           </div>
         )}
