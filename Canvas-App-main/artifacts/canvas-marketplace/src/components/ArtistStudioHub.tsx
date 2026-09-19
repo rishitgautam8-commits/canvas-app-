@@ -39,34 +39,31 @@ export function ArtistStudioHub({ artistId }: { artistId: string }) {
 
     setDeletingId(itemId);
     try {
-      // 1. Precisely extract the true file path, bypassing the double "portfolios" folder bug
       const bucketPathIndex = imageUrl.indexOf('/public/portfolios/');
-      
       if (bucketPathIndex !== -1) {
-        // Grab everything strictly after the bucket declaration and decode URL characters (like spaces)
         const exactFilePath = decodeURIComponent(imageUrl.substring(bucketPathIndex + '/public/portfolios/'.length));
-        
-        // Wipe from Supabase Storage Bucket
-        const { error: storageError } = await supabase.storage.from('portfolios').remove([exactFilePath]);
-        if (storageError) {
-           console.warn('Storage deletion warning (continuing to DB deletion):', storageError);
-        }
+        await supabase.storage.from('portfolios').remove([exactFilePath]);
       }
 
-      // 2. Delete row from the Postgres database table
-      const { error: dbError } = await supabase
+      // 2. Delete row & force Supabase to return the deleted data
+      const { data, error: dbError } = await supabase
         .from('artist_portfolio')
         .delete()
-        .eq('id', itemId);
+        .eq('id', itemId)
+        .select(); // <-- This is the magic word that catches RLS failures
 
       if (dbError) throw dbError;
 
-      // 3. Instantly clear the image from the React UI without requiring a page refresh
+      // 3. Check if RLS silently blocked the deletion
+      if (!data || data.length === 0) {
+        throw new Error("Database blocked deletion (RLS Policy Missing). Please run the SQL command in Supabase.");
+      }
+
       setPortfolio(prev => prev.filter(item => item.id !== itemId));
       
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error deleting portfolio item:', err);
-      alert('Failed to delete photo. Please try again.');
+      alert(`Failed to delete: ${err.message}`);
     } finally {
       setDeletingId(null);
     }
