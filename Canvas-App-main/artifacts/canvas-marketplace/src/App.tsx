@@ -307,7 +307,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 
         return {
           id: item.id,
-          name: item.business_name || 'Canvas Artist',
+          name: item.business_name || 'Artist Studio',
           category: item.category || 'Bridal & Wedding',
           services: ['Makeup Artist', item.category || 'Bridal & Wedding'],
           city: item.city || 'Jubilee Hills',

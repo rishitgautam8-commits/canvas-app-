@@ -89,7 +89,7 @@ export function ArtistOnboardingModal({ open, userId, onComplete }: ArtistOnboar
       >
         <div className="flex items-center gap-2 text-[#6B3C9C] mb-2">
           <Sparkles size={18} />
-          <span className="text-[10px] font-bold uppercase tracking-[0.35em]">Canvas Artist Induction</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.35em]">Artist Studio Induction</span>
         </div>
         
         <h2 className="font-extrabold text-3xl text-black tracking-tight mb-2">

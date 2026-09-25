@@ -310,8 +310,11 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
           <button onClick={() => setLocation(`/?style=${styleVersion}`)} className={`flex items-center gap-2 ${theme.navLink} !bg-transparent !border-none`}>
             <ArrowLeft size={14} /> back to directory
           </button>
+          
           <div className="flex items-center gap-3">
-            <span className={theme.badge}>verified studio</span>
+            {artist?.is_verified && (
+              <span className={theme.badge}>verified studio</span>
+            )}
           </div>
         </div>
       </header>
@@ -333,7 +336,9 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <h1 className={`${theme.headingHero} !text-3xl sm:!text-5xl !leading-tight !tracking-tight`}>{artist.business_name || 'artist studio'}</h1>
-                <CheckCircle2 className="text-[#6B3A7D]" size={22} />
+                {artist?.is_verified && (
+                  <CheckCircle2 className="text-[#6B3A7D]" size={22} />
+                )}
               </div>
               <p className={`flex items-center gap-4 ${theme.formLabel} !text-black/50 mb-4`}>
                 <a

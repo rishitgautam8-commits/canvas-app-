@@ -112,12 +112,12 @@ export function ArtistPhotoUpload({ artistId, onUploadComplete }: { artistId: st
       
       return Array.isArray(parsedTags) && parsedTags.length > 0 
         ? parsedTags 
-        : ['Beauty Look', 'Professional', 'Canvas Artist'];
+        : ['Beauty Look', 'Professional', 'Artist Studio'];
 
     } catch (err) {
       console.error('Error connecting to Gemini Vision:', err);
       // Fallback only if the API completely fails
-      return ['Beauty Look', 'Professional', 'Canvas Artist'];
+      return ['Beauty Look', 'Professional', 'Artist Studio'];
     }
   };
 
