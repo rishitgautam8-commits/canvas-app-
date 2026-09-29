@@ -596,7 +596,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 
               <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
                 <span className="font-['Moura'] font-normal text-[3rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#461D64]">
-                  Hyderabad's
+                  India's
                 </span>
                 <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[4.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
                   Premium
