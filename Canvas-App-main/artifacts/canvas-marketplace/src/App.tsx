@@ -125,23 +125,61 @@ function normalizePortfolio(
   });
 }
 
-const HYDERABAD_LOCATIONS = [
-  'Jubilee Hills', 'Banjara Hills', 'HITEC City', 'Madhapur',
-  'Gachibowli', 'Kondapur', 'Film Nagar', 'Kukatpally',
-  'Begumpet', 'Secunderabad'
+const INDIAN_CITIES = [
+  'Mumbai', 'Delhi', 'Bengaluru', 'Hyderabad', 'Pune', 'Chennai', 'Kolkata', 'Ahmedabad', 'Surat', 'Jaipur',
+  'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Pimpri-Chinchwad', 'Patna', 'Vadodara',
+  'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan-Dombivli', 'Vasai-Virar', 'Varanasi',
+  'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai', 'Allahabad', 'Howrah', 'Ranchi', 'Gwalior', 'Jabalpur',
+  'Coimbatore', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli-Dharwad',
+  'Bareilly', 'Moradabad', 'Mysore', 'Gurgaon', 'Aligarh', 'Jalandhar', 'Tiruchirappalli', 'Bhubaneswar', 'Salem', 'Mira-Bhayandar',
+  'Warangal', 'Thiruvananthapuram', 'Bhiwandi', 'Saharanpur', 'Guntur', 'Amravati', 'Bikaner', 'Noida', 'Jamshedpur', 'Bhilai',
+  'Cuttack', 'Firozabad', 'Kochi', 'Nellore', 'Bhavnagar', 'Dehradun', 'Durgapur', 'Asansol', 'Rourkela', 'Nanded',
+  'Kolhapur', 'Ajmer', 'Akola', 'Gulbarga', 'Jamnagar', 'Ujjain', 'Loni', 'Siliguri', 'Jhansi', 'Ulhasnagar',
+  'Jammu', 'Sangli-Miraj', 'Mangalore', 'Erode', 'Belgaum', 'Ambattur', 'Tirunelveli', 'Malegaon', 'Gaya', 'Jalgaon',
+  'Udaipur', 'Maheshtala', 'Davanagere', 'Kozhikode', 'Kurnool', 'Rajahmundry', 'Bokaro', 'South Dumdum', 'Bellary', 'Patiala',
+  'Gopalpur', 'Agartala', 'Bhagalpur', 'Muzaffarnagar', 'Bhatpara', 'Panihati', 'Latur', 'Dhule', 'Tirupati', 'Rohtak',
+  'Korba', 'Bhilwara', 'Berhampur', 'Muzaffarpur', 'Ahmednagar', 'Mathura', 'Kollam', 'Avadi', 'Kadapa', 'Kamarhati',
+  'Sambalpur', 'Bilaspur', 'Shahjahanpur', 'Satara', 'Bijapur', 'Rampur', 'Shivamogga', 'Chandrapur', 'Junagadh', 'Thrissur',
+  'Alwar', 'Bardhaman', 'Kulti', 'Kakinada', 'Nizamabad', 'Parbhani', 'Tumkur', 'Khammam', 'Ozhukarai', 'Bihar Sharif',
+  'Panipat', 'Darbhanga', 'Bally', 'Aizawl', 'Dewas', 'Ichalkaranji', 'Karnal', 'Bathinda', 'Jalna', 'Eluru',
+  'Barasat', 'Purnia', 'Satna', 'Mau', 'Sonipat', 'Farrukhabad', 'Sagar', 'Durg', 'Imphal', 'Ratlam',
+  'Hapur', 'Arrah', 'Karimnagar', 'Anantapur', 'Etawah', 'Ambernath', 'North Dumdum', 'Bharatpur', 'Begusarai', 'New Delhi',
+  'Gandhidham', 'Baranagar', 'Tiruvottiyur', 'Pondicherry', 'Sikar', 'Thoothukudi', 'Rewa', 'Mirzapur', 'Raichur', 'Pali',
+  'Ramagundam', 'Haridwar', 'Vijayanagaram', 'Katihar', 'Nagarcoil', 'Sri Ganganagar', 'Mango', 'Thanjavur', 'Bulandshahr', 'Uluberia',
+  'Murwara', 'Sambhal', 'Singrauli', 'Nadiad', 'Secunderabad', 'Naihati', 'Yamunanagar', 'Bidhannagar', 'Pallavaram', 'Bidar',
+  'Munger', 'Panchkula', 'Burhanpur', 'Kharagpur', 'Dindigul', 'Gandhinagar', 'Hospet', 'Nangloi Jat', 'Malda', 'Ongole',
+  'Deoghar', 'Chapra', 'Haldia', 'Khandwa', 'Nandyal', 'Chittoor', 'Morena', 'Amroha', 'Anand', 'Bhind',
+  'Bhiwani', 'Navghar-Manikpur', 'Baharampur', 'Ambala', 'Morvi', 'Fatehpur', 'Rae Bareli', 'Khora', 'Bhusawal', 'Orai',
+  'Bahraich', 'Vellore', 'Mahesana', 'Raiganj', 'Sirsa', 'Danapur', 'Serampore', 'Guna', 'Jaunpur', 'Panvel',
+  'Shivpuri', 'Unnao', 'Chinsurah', 'Alappuzha', 'Kottayam', 'Machilipatnam', 'Shimla', 'Adoni', 'Udupi', 'Proddatur',
+  'Mahbubnagar', 'Saharsa', 'Dibrugarh', 'Jorhat', 'Nagaon', 'Tinsukia', 'Silchar', 'Bongaigaon', 'Tezpur', 'Kohima',
+  'Dimapur', 'Shillong', 'Tura', 'Gangtok', 'Itanagar', 'Naharlagun', 'Pasighat', 'Lunglei', 'Dharmanagar', 'Port Blair',
+  'Kavaratti', 'Daman', 'Diu', 'Silvassa', 'Panaji', 'Margao', 'Vasco da Gama', 'Mapusa', 'Ponda', 'Karwar',
+  'Gokak', 'Shahabad', 'Sirsi', 'Sindhnur', 'Tiptur', 'Chitradurga', 'Hassan', 'Mandya', 'Chikkamagaluru', 'Bagalkot',
+  'Gadag-Betageri', 'Bhadravati', 'Kolar', 'Moga', 'Abohar', 'Pathankot', 'Hoshiarpur', 'Batala', 'Khanna', 'Phagwara',
+  'Muktsar', 'Barnala', 'Rajpura', 'Firozpur', 'Kapurthala', 'Sunam', 'Gurdaspur', 'Fazilka', 'Tarn Taran', 'Jagraon',
+  'Mandi Gobindgarh', 'Rupnagar', 'Puri', 'Balasore', 'Bhadrak', 'Baripada', 'Jharsuguda', 'Bargarh', 'Rayagada', 'Kendrapara',
+  'Malkangiri', 'Parlakhemundi', 'Bobbili', 'Tuni', 'Chilakaluripet', 'Narsaraopet', 'Kavali', 'Gudur', 'Tenali', 'Mangalagiri',
+  'Bapatla', 'Ponnur', 'Narasapur', 'Tadepalligudem', 'Bhimavaram', 'Palakollu', 'Tanuku', 'Mandapeta', 'Amalapuram', 'Pithapuram',
+  'Samalkota', 'Tadipatri', 'Dharmavaram', 'Hindupur', 'Kadiri', 'Guntakal', 'Rayachoti', 'Rajampet', 'Madanapalle', 'Punganur',
+  'Srikalahasti', 'Puttur', 'Palasa Kasibugga', 'Parvathipuram', 'Yemmiganur', 'Rayadurg', 'Kalyandurg', 'Nuzvid', 'Jaggaiahpet', 'Macherla',
+  'Sattenapalle', 'Vinukonda', 'Markapur', 'Kandukur', 'Yerraguntla', 'Jammalamadugu', 'Badvel', 'Mydukur', 'Pulivendula', 'Giddalur',
+  'Atmakur', 'Nandikotkur', 'Allagadda', 'Nandigama', 'Vuyyuru', 'Pedana', 'Gudivada', 'Amadalavalasa', 'Ichchapuram', 'Ramachandrapuram',
+  'Kothapeta', 'Kovvur', 'Nidadavole', 'Jangareddygudem', 'Chintalapudi', 'Kondapalli', 'Tiruvuru', 'Repalle', 'Tadepalle', 'Piduguralla',
+  'Addanki', 'Chirala', 'Venkatagiri', 'Nagari', 'Palamaner', 'Kuppam', 'Dhone', 'Banaganapalle', 'Bapatla', 'Tenali'
 ];
 
 const local100Artists: Artist[] = artists.slice(0, 100).map((a: any, index: number) => {
   const profileImg = a.image || a.portfolio?.[0]?.image || a.portfolio?.[0] || 'https://images.unsplash.com/photo-1596704017254-9b121068fb31?auto=format&fit=crop&w=800&q=80';
   const normalizedPortfolio = normalizePortfolio(a.portfolio, profileImg);
-  const assignedCity = HYDERABAD_LOCATIONS[(index * 7) % HYDERABAD_LOCATIONS.length];
+  const assignedCity = INDIAN_CITIES[(index * 7) % INDIAN_CITIES.length];
   return {
     id: String(a.id),
     name: a.name,
     category: a.category || 'Bridal & Wedding',
     services: [a.specialty || 'Makeup Artist', 'Makeup Artist'],
     city: assignedCity,
-    location: `${assignedCity}, Hyderabad`,
+    location: `${assignedCity}, India`,
     maxTravelKm: 50,
     pricePerSession: a.pricePerSession || 15000,
     startingPrice: a.startingPrice || `₹15,000`,
@@ -249,7 +287,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     queryFn: async () => {
       const { data: profiles, error: profileError } = await supabase
   .from('artist_profiles')
-  .select(`id, business_name, category, city, max_travel_km, starting_price, avatar_url`); // <-- Added avatar_url here
+  .select(`id, business_name, category, city, max_travel_km, starting_price, avatar_url`);
 
       if (profileError) {
         console.error('Error fetching live artists:', profileError.message);
@@ -310,8 +348,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           name: item.business_name || 'Artist Studio',
           category: item.category || 'Bridal & Wedding',
           services: ['Makeup Artist', item.category || 'Bridal & Wedding'],
-          city: item.city || 'Jubilee Hills',
-          location: `${item.city || 'Jubilee Hills'}, Hyderabad`,
+          city: item.city || 'India',
+          location: `${item.city || 'India'}, India`,
           maxTravelKm: item.max_travel_km || 25,
           pricePerSession: item.starting_price || 15000,
           startingPrice: `₹${(item.starting_price || 15000).toLocaleString('en-IN')}`,
@@ -323,7 +361,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           tags: artistTags.length > 0 ? artistTags.slice(0, 4) : [item.category || 'Bridal', 'HD Airbrush', 'Custom Styling'],
           allTags: artistTags,
           ai_tags: legacyTagsToStructured(artistTags.length > 0 ? artistTags : [item.category || 'Bridal']),
-          bio: `${item.business_name || 'This artist'} specializes in ${(item.category || 'bridal & wedding').toLowerCase()} looks, tailored to high-end events in ${item.city || 'Hyderabad'}.`,
+          bio: `${item.business_name || 'This artist'} specializes in ${(item.category || 'bridal & wedding').toLowerCase()} looks, tailored to high-end events in ${item.city || 'India'}.`,
           signature: `${item.category || 'Signature Aesthetic'}`,
           portfolio: normalizedPortfolio.length > 0 ? normalizedPortfolio : [{ style: 'signature work', image: fallbackImage }],
           addons: [],
@@ -338,11 +376,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 
   const [sortBy, setSortBy] = useState('Best match');
   const [maxBudget, setMaxBudget] = useState(65000);
-  const [cityFilters, setCityFilters] = useState<Record<string, boolean>>({
-    'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true,
-    'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true,
-    'Begumpet': true, 'Secunderabad': true
-  });
+  const [cityFilters, setCityFilters] = useState<Record<string, boolean>>({});
+  const [citySearch, setCitySearch] = useState('');
 
   useEffect(() => {
     async function fetchStats() {
@@ -373,7 +408,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
 
   const [search, setSearch] = useState<HeroSearchValue>({
     services: ['Makeup Artist'],
-    location: 'Jubilee Hills',
+    location: 'India',
     date: 'this weekend',
     timeSlot: 'Morning (08:00 - 13:00)',
     priceRange: 'Any Investment',
@@ -385,7 +420,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     return liveArtists;
   }, [liveArtists]);
 
-  // Find where useReferenceMatching is initialized inside function Home(...) and update it:
   const {
     phase,
     analysis,
@@ -393,7 +427,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
     matchedById,
     submitReference,
     clearReference,
-    setReferenceTags, // <--- Add this here!
+    setReferenceTags,
   } = useReferenceMatching(sourceArtists);
 
   const handleSearchChange = async (newVal: HeroSearchValue) => {
@@ -458,7 +492,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
       .filter(([_, isChecked]) => isChecked)
       .map(([city]) => city.toLowerCase());
 
-    if (activeCities.length > 0 && activeCities.length < 10) {
+    if (activeCities.length > 0) {
       const matchesCity = activeCities.some(ac => {
         const parts = ac.split('/').map(p => p.trim());
         return parts.some(part => {
@@ -608,7 +642,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
             </div>
 
             <p className={`${theme.bodyText} max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
-            <p className={`${theme.bodyText} max-w-[460px] mb-8`}>the exclusive ai-powered bridal and beauty booking platform for hyderabad and cyberabad.</p>
+            <p className={`${theme.bodyText} max-w-[460px] mb-8`}>the exclusive ai-powered bridal and beauty booking platform for india.</p>
             <div className="flex gap-4 flex-wrap">
               <button onClick={() => scrollTo('demo-search')} className={`w-full sm:w-auto text-center ${theme.btnPrimary}`}>try the live demo →</button>
             </div>
@@ -693,7 +727,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                   <p className={`${theme.eyebrow} mb-3`}>{toTitleCase('the shortlist')}</p>
                   <h2 className={theme.headingSection}>{toTitleCase('meet the')} <span className={theme.premiumTag}>{toTitleCase('artists')}</span></h2>
                 </div>
-                <p className={`${theme.bodyText} max-w-[500px]`}>a private directory of hyderabad&apos;s most sought-after talent, rigorously vetted for their technical execution and distinct aesthetic vision.</p>
+                <p className={`${theme.bodyText} max-w-[500px]`}>a private directory of india&apos;s most sought-after talent, rigorously vetted for their technical execution and distinct aesthetic vision.</p>
               </div>
             </ScrollZoomIn>
 
@@ -711,7 +745,6 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
               </div>
             </ScrollZoomIn>
 
-            {/* CHANGE THIS: Allow AI Match Panel to show for both files and text */}
 {hasSearched && (search.inspirationFile || search.lookDescription) && (
   <ScrollZoomIn>
     <div className="mb-12 mt-8">
@@ -744,10 +777,18 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                   <input type="range" min="5000" max="65000" step="1000" value={maxBudget} onChange={(e) => setMaxBudget(Number(e.target.value))} className="w-full accent-[#9D7C3A] cursor-pointer" />
                   <p className={`${theme.formLabel} mt-1`}>up to ₹{maxBudget.toLocaleString('en-IN')}</p>
                 </div>
+                
                 <div className="mb-10">
                   <h3 className={`mb-5 ${theme.formLabel}`}>{toTitleCase('city')}</h3>
-                  <div className="space-y-4">
-                    {Object.keys(cityFilters).map((city) => (
+                  <input 
+                    type="text" 
+                    placeholder="Search 496 cities..." 
+                    value={citySearch}
+                    onChange={(e) => setCitySearch(e.target.value)}
+                    className={`w-full mb-4 p-2.5 bg-transparent border-b ${theme.borderBase} focus:outline-none focus:border-black ${theme.inputText}`}
+                  />
+                  <div className="max-h-64 overflow-y-auto pr-2 custom-scrollbar space-y-3">
+                    {INDIAN_CITIES.filter(city => city.toLowerCase().includes(citySearch.toLowerCase())).map((city) => (
                       <label key={city} className="flex cursor-pointer items-center group">
                         <div
                           onClick={() => setCityFilters(prev => ({ ...prev, [city]: !prev[city] }))}
@@ -769,6 +810,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                     ))}
                   </div>
                 </div>
+
               </ScrollZoomIn>
 
               <div className="lg:col-span-3">
@@ -789,10 +831,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   portfolioImages={artist.portfolio?.map((p: any) => typeof p === 'string' ? p : p?.image).filter(Boolean)}
   startingPrice={artist.startingPrice}
   tags={artist.tags}
-  
-  // CHANGE THIS: Display match score for both photo uploads and text look descriptions
   matchPercentage={(search.inspirationFile || search.lookDescription) ? artist.match : undefined}
-  
   matchReasons={artist.matchReasons}
   onClick={() => handleSelectArtist(artist)}
 />
@@ -816,11 +855,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                           type="button"
                           onClick={() => {
                             setMaxBudget(65000);
-                            setCityFilters({
-                              'Jubilee Hills': true, 'Banjara Hills': true, 'HITEC City': true, 'Madhapur': true,
-                              'Gachibowli': true, 'Kondapur': true, 'Film Nagar': true, 'Kukatpally': true,
-                              'Begumpet': true, 'Secunderabad': true
-                            });
+                            setCityFilters({});
                             setVisibleCount(9);
                           }}
                           className={`mt-8 ${theme.btnPrimary}`}
@@ -892,7 +927,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                   <p className={`${theme.quote} mb-6`}>&quot;I uploaded a picture from Pinterest and Canvas found me an artist who had done almost the exact same look. Honestly shocked at how accurate the match was.&quot;</p>
                   <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#E8D5F2] text-[#2D1B4E] flex items-center justify-center font-bold text-xs">SR</div>
-                    <div><div className={theme.formLabel}>sneha r.</div><div className={`${theme.formLabel} !text-black/40`}>bridal • jubilee hills</div></div>
+                    <div><div className={theme.formLabel}>sneha r.</div><div className={`${theme.formLabel} !text-black/40`}>bridal • delhi</div></div>
                   </div>
                 </div>
               </ScrollZoomIn>
@@ -902,7 +937,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                   <p className={`${theme.quote} mb-6`}>&quot;As a model, finding artists who understand editorial work is hard. Canvas filtered out the noise immediately. The match score is genuinely useful.&quot;</p>
                   <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#1A0B2E] text-[#C4A35A] flex items-center justify-center font-bold text-xs">KM</div>
-                    <div><div className={theme.formLabel}>kavya m.</div><div className={`${theme.formLabel} !text-black/40`}>editorial • hitec city</div></div>
+                    <div><div className={theme.formLabel}>kavya m.</div><div className={`${theme.formLabel} !text-black/40`}>editorial • mumbai</div></div>
                   </div>
                 </div>
               </ScrollZoomIn>
@@ -912,7 +947,7 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
                   <p className={`${theme.quote} mb-6`}>&quot;Described the look in two lines, got artists who could do it sorted by price. Booked in ten minutes. This is exactly how it should work.&quot;</p>
                   <div className={`flex items-center gap-3 pt-4 border-t ${theme.borderBase}`}>
                     <div className="w-10 h-10 rounded-full bg-[#F5E6C8] text-[#2D1B4E] flex items-center justify-center font-bold text-xs">TP</div>
-                    <div><div className={theme.formLabel}>tara p.</div><div className={`${theme.formLabel} !text-black/40`}>glam • gachibowli</div></div>
+                    <div><div className={theme.formLabel}>tara p.</div><div className={`${theme.formLabel} !text-black/40`}>glam • bengaluru</div></div>
                   </div>
                 </div>
               </ScrollZoomIn>

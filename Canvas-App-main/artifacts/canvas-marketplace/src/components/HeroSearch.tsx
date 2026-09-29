@@ -21,11 +21,48 @@ interface HeroSearchProps {
   isAuthenticated?: boolean;
 }
 
-const HYDERABAD_LOCATIONS = [
-  'Jubilee Hills', 'Banjara Hills', 'HITEC City', 'Gachibowli',
-  'Film Nagar', 'Madhapur', 'Kondapur', 'Somajiguda',
-  'Begumpet', 'Secunderabad', 'Kukatpally', 'Financial District',
-  'Manikonda', 'KBR Park', 'Shamshabad'
+const INDIAN_CITIES = [
+  'Mumbai', 'Delhi', 'Bengaluru', 'Hyderabad', 'Pune', 'Chennai', 'Kolkata', 'Ahmedabad', 'Surat', 'Jaipur',
+  'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Pimpri-Chinchwad', 'Patna', 'Vadodara',
+  'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad', 'Meerut', 'Rajkot', 'Kalyan-Dombivli', 'Vasai-Virar', 'Varanasi',
+  'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai', 'Allahabad', 'Howrah', 'Ranchi', 'Gwalior', 'Jabalpur',
+  'Coimbatore', 'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur', 'Kota', 'Guwahati', 'Chandigarh', 'Solapur', 'Hubli-Dharwad',
+  'Bareilly', 'Moradabad', 'Mysore', 'Gurgaon', 'Aligarh', 'Jalandhar', 'Tiruchirappalli', 'Bhubaneswar', 'Salem', 'Mira-Bhayandar',
+  'Warangal', 'Thiruvananthapuram', 'Bhiwandi', 'Saharanpur', 'Guntur', 'Amravati', 'Bikaner', 'Noida', 'Jamshedpur', 'Bhilai',
+  'Cuttack', 'Firozabad', 'Kochi', 'Nellore', 'Bhavnagar', 'Dehradun', 'Durgapur', 'Asansol', 'Rourkela', 'Nanded',
+  'Kolhapur', 'Ajmer', 'Akola', 'Gulbarga', 'Jamnagar', 'Ujjain', 'Loni', 'Siliguri', 'Jhansi', 'Ulhasnagar',
+  'Jammu', 'Sangli-Miraj', 'Mangalore', 'Erode', 'Belgaum', 'Ambattur', 'Tirunelveli', 'Malegaon', 'Gaya', 'Jalgaon',
+  'Udaipur', 'Maheshtala', 'Davanagere', 'Kozhikode', 'Kurnool', 'Rajahmundry', 'Bokaro', 'South Dumdum', 'Bellary', 'Patiala',
+  'Gopalpur', 'Agartala', 'Bhagalpur', 'Muzaffarnagar', 'Bhatpara', 'Panihati', 'Latur', 'Dhule', 'Tirupati', 'Rohtak',
+  'Korba', 'Bhilwara', 'Berhampur', 'Muzaffarpur', 'Ahmednagar', 'Mathura', 'Kollam', 'Avadi', 'Kadapa', 'Kamarhati',
+  'Sambalpur', 'Bilaspur', 'Shahjahanpur', 'Satara', 'Bijapur', 'Rampur', 'Shivamogga', 'Chandrapur', 'Junagadh', 'Thrissur',
+  'Alwar', 'Bardhaman', 'Kulti', 'Kakinada', 'Nizamabad', 'Parbhani', 'Tumkur', 'Khammam', 'Ozhukarai', 'Bihar Sharif',
+  'Panipat', 'Darbhanga', 'Bally', 'Aizawl', 'Dewas', 'Ichalkaranji', 'Karnal', 'Bathinda', 'Jalna', 'Eluru',
+  'Barasat', 'Purnia', 'Satna', 'Mau', 'Sonipat', 'Farrukhabad', 'Sagar', 'Durg', 'Imphal', 'Ratlam',
+  'Hapur', 'Arrah', 'Karimnagar', 'Anantapur', 'Etawah', 'Ambernath', 'North Dumdum', 'Bharatpur', 'Begusarai', 'New Delhi',
+  'Gandhidham', 'Baranagar', 'Tiruvottiyur', 'Pondicherry', 'Sikar', 'Thoothukudi', 'Rewa', 'Mirzapur', 'Raichur', 'Pali',
+  'Ramagundam', 'Haridwar', 'Vijayanagaram', 'Katihar', 'Nagarcoil', 'Sri Ganganagar', 'Mango', 'Thanjavur', 'Bulandshahr', 'Uluberia',
+  'Murwara', 'Sambhal', 'Singrauli', 'Nadiad', 'Secunderabad', 'Naihati', 'Yamunanagar', 'Bidhannagar', 'Pallavaram', 'Bidar',
+  'Munger', 'Panchkula', 'Burhanpur', 'Kharagpur', 'Dindigul', 'Gandhinagar', 'Hospet', 'Nangloi Jat', 'Malda', 'Ongole',
+  'Deoghar', 'Chapra', 'Haldia', 'Khandwa', 'Nandyal', 'Chittoor', 'Morena', 'Amroha', 'Anand', 'Bhind',
+  'Bhiwani', 'Navghar-Manikpur', 'Baharampur', 'Ambala', 'Morvi', 'Fatehpur', 'Rae Bareli', 'Khora', 'Bhusawal', 'Orai',
+  'Bahraich', 'Vellore', 'Mahesana', 'Raiganj', 'Sirsa', 'Danapur', 'Serampore', 'Guna', 'Jaunpur', 'Panvel',
+  'Shivpuri', 'Unnao', 'Chinsurah', 'Alappuzha', 'Kottayam', 'Machilipatnam', 'Shimla', 'Adoni', 'Udupi', 'Proddatur',
+  'Mahbubnagar', 'Saharsa', 'Dibrugarh', 'Jorhat', 'Nagaon', 'Tinsukia', 'Silchar', 'Bongaigaon', 'Tezpur', 'Kohima',
+  'Dimapur', 'Shillong', 'Tura', 'Gangtok', 'Itanagar', 'Naharlagun', 'Pasighat', 'Lunglei', 'Dharmanagar', 'Port Blair',
+  'Kavaratti', 'Daman', 'Diu', 'Silvassa', 'Panaji', 'Margao', 'Vasco da Gama', 'Mapusa', 'Ponda', 'Karwar',
+  'Gokak', 'Shahabad', 'Sirsi', 'Sindhnur', 'Tiptur', 'Chitradurga', 'Hassan', 'Mandya', 'Chikkamagaluru', 'Bagalkot',
+  'Gadag-Betageri', 'Bhadravati', 'Kolar', 'Moga', 'Abohar', 'Pathankot', 'Hoshiarpur', 'Batala', 'Khanna', 'Phagwara',
+  'Muktsar', 'Barnala', 'Rajpura', 'Firozpur', 'Kapurthala', 'Sunam', 'Gurdaspur', 'Fazilka', 'Tarn Taran', 'Jagraon',
+  'Mandi Gobindgarh', 'Rupnagar', 'Puri', 'Balasore', 'Bhadrak', 'Baripada', 'Jharsuguda', 'Bargarh', 'Rayagada', 'Kendrapara',
+  'Malkangiri', 'Parlakhemundi', 'Bobbili', 'Tuni', 'Chilakaluripet', 'Narsaraopet', 'Kavali', 'Gudur', 'Tenali', 'Mangalagiri',
+  'Bapatla', 'Ponnur', 'Narasapur', 'Tadepalligudem', 'Bhimavaram', 'Palakollu', 'Tanuku', 'Mandapeta', 'Amalapuram', 'Pithapuram',
+  'Samalkota', 'Tadipatri', 'Dharmavaram', 'Hindupur', 'Kadiri', 'Guntakal', 'Rayachoti', 'Rajampet', 'Madanapalle', 'Punganur',
+  'Srikalahasti', 'Puttur', 'Palasa Kasibugga', 'Parvathipuram', 'Yemmiganur', 'Rayadurg', 'Kalyandurg', 'Nuzvid', 'Jaggaiahpet', 'Macherla',
+  'Sattenapalle', 'Vinukonda', 'Markapur', 'Kandukur', 'Yerraguntla', 'Jammalamadugu', 'Badvel', 'Mydukur', 'Pulivendula', 'Giddalur',
+  'Atmakur', 'Nandikotkur', 'Allagadda', 'Nandigama', 'Vuyyuru', 'Pedana', 'Gudivada', 'Amadalavalasa', 'Ichchapuram', 'Ramachandrapuram',
+  'Kothapeta', 'Kovvur', 'Nidadavole', 'Jangareddygudem', 'Chintalapudi', 'Kondapalli', 'Tiruvuru', 'Repalle', 'Tadepalle', 'Piduguralla',
+  'Addanki', 'Chirala', 'Venkatagiri', 'Nagari', 'Palamaner', 'Kuppam', 'Dhone', 'Banaganapalle', 'Bapatla', 'Tenali'
 ];
 
 const analysisSteps = [
@@ -48,12 +85,10 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
   
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
-  // Read style query param for the Dynamic Theme Engine
   const queryParams = new URLSearchParams(window.location.search);
   const styleVersion = queryParams.get('style') || '2';
   const theme = getTheme(styleVersion);
   
-  // Adapt accents (Use Dusty Plum for Opt 3, Gold for others)
   const accentColor = styleVersion === '3' ? '#7A4B69' : '#9D7C3A';
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -65,7 +100,7 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
     onSubmit(searchContext);
   };
 
-  const filteredLocations = HYDERABAD_LOCATIONS.filter(loc =>
+  const filteredLocations = INDIAN_CITIES.filter(loc =>
     loc.toLowerCase().includes((value?.location || '').toLowerCase())
   );
 
@@ -130,10 +165,8 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
       >
         <form onSubmit={handleSubmit}>
           
-          {/* Top Search Bar Row */}
           <div className="flex flex-col md:flex-row gap-4 mb-10 relative">
             
-            {/* 1. Look Description */}
             <div className={`flex-[2] flex items-center bg-white/50 backdrop-blur-sm border ${theme.borderBase} ${theme.cardRadius} px-6 py-4 shadow-sm transition-all duration-300 focus-within:bg-white/70`}>
               <Search size={20} className="mr-4 opacity-40 shrink-0 text-black" />
               <input
@@ -145,7 +178,6 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
               />
             </div>
 
-            {/* 2. Hyderabad Location Dropdown */}
             <div className={`flex-[1.5] relative flex items-center bg-white/50 backdrop-blur-sm border ${theme.borderBase} ${theme.cardRadius} px-6 py-4 shadow-sm transition-all duration-300 focus-within:bg-white/70`}>
               <MapPin size={20} className="mr-4 shrink-0" color={accentColor} />
               <input
@@ -156,11 +188,10 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
                   setShowLocationDropdown(true);
                 }}
                 onFocus={() => setShowLocationDropdown(true)}
-                placeholder="anywhere in hyderabad"
+                placeholder="anywhere in india"
                 className={`w-full bg-transparent outline-none text-black placeholder:text-black/40 ${theme.fontBase} text-base`}
               />
               
-              {/* Elegant Dropdown Menu */}
               {showLocationDropdown && filteredLocations.length > 0 && (
                 <div className={`absolute top-[110%] left-0 w-full bg-white/90 backdrop-blur-xl border ${theme.borderBase} ${theme.cardRadius} shadow-xl z-50 max-h-56 overflow-y-auto py-2`}>
                   {filteredLocations.map(loc => (
@@ -179,7 +210,6 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
               )}
             </div>
             
-            {/* 3. Submit Button */}
             <button
               type="submit"
               onClick={() => setShowLocationDropdown(false)}
@@ -189,14 +219,12 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
             </button>
           </div>
 
-          {/* Elegant Divider */}
           <div className="flex items-center justify-center gap-6 mb-10">
             <span className={`${theme.eyebrow} !text-black/50`}>
               or upload inspiration
             </span>
           </div>
 
-          {/* Large Drop Zone */}
           <div
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -231,9 +259,9 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
             </div>
 
             <h3 className={`${theme.headingModal} !text-2xl md:!text-3xl mb-4 flex flex-col items-center gap-1`}>
-  <span className="block">Upload A Pinterest Screenshot</span>
-  <span className="block">Or Instagram Save</span>
-</h3>
+              <span className="block">Upload A Pinterest Screenshot</span>
+              <span className="block">Or Instagram Save</span>
+            </h3>
             <p className={`${theme.formLabel} !text-black/50 mb-10`}>
               jpg, png, webp · max 10mb · or drag & drop
             </p>
@@ -247,7 +275,6 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
             </div>
           </div>
 
-          {/* Bottom Occasion Row */}
           <div className="mt-12 flex flex-col sm:flex-row items-center justify-start gap-6 border-t border-black/5 pt-8">
             <span className={`${theme.eyebrow} !text-black/50`}>
               occasion:
@@ -273,7 +300,6 @@ export function HeroSearch({ value, onChange, onSubmit, onAuthRequired, isAuthen
         </form>
       </motion.div>
 
-      {/* FULL-SCREEN CINEMATIC AI SCANNING CURTAIN */}
       <AnimatePresence>
         {isAnalyzing && (
           <motion.div
