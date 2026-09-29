@@ -347,7 +347,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 hover:text-[#9D7C3A] hover:underline transition-colors"
                 >
-                  <MapPin size="{14}"/> {artist.city || 'india'}
+                  <MapPin size={14}/> {artist.city || 'india'}
                 </a>
                 {artist.years_experience && <span className="flex items-center gap-1"><Clock size={14} /> {artist.years_experience} yrs experience</span>}
               </p>
