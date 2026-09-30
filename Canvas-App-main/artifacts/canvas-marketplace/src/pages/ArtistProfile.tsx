@@ -342,13 +342,13 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
               </div>
               <p className={`flex items-center gap-4 ${theme.formLabel} !text-black/50 mb-4`}>
                 <a
-                  href={getGoogleMapsLink(`${artist.city || 'India'}, India`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 hover:text-[#9D7C3A] hover:underline transition-colors"
-                >
-                  <MapPin size={14}/> {artist.city || 'india'}
-                </a>
+  href={getGoogleMapsLink(`${artist.area ? artist.area + ', ' : ''}${artist.city || 'India'}, India`)}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="flex items-center gap-1 hover:text-[#9D7C3A] hover:underline transition-colors"
+>
+  <MapPin size={14}/> {artist.area ? `${artist.area}, ` : ''}{artist.city || 'india'}
+</a>
                 {artist.years_experience && <span className="flex items-center gap-1"><Clock size={14} /> {artist.years_experience} yrs experience</span>}
               </p>
               <div className="flex flex-wrap gap-2">
