@@ -343,7 +343,7 @@ const { data: profiles, error: profileError } = await supabase
         const fallbackImage = `https://images.unsplash.com/photo-${editorialImages[index % editorialImages.length]}?auto=format&fit=crop&w=1200&q=80`;
         const mainImage = item.avatar_url || normalizedPortfolio[0]?.image || fallbackImage;
         const hoverImage = normalizedPortfolio[1]?.image || mainImage;
-
+//////////
         return {
           id: item.id,
           name: item.business_name || 'Artist Studio',
