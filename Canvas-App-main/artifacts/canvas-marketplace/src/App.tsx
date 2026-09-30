@@ -630,9 +630,9 @@ const { data: profiles, error: profileError } = await supabase
               </div>
 
               <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
-  <span className="font-india font-normal text-[1.75rem] sm:text-[2.5rem] md:text-[3rem] tracking-normal leading-[1.1] text-[#3B1E54]">
-    India's
-  </span>
+  <span className="font-india font-normal text-[2.25rem] sm:text-[3.5rem] md:text-[4.5rem] tracking-[0.04em] leading-[1.05] text-[#3B1E54] -mb-2 md:-mb-4">
+  India's
+</span>
   <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[4.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
     Premium
   </span>
