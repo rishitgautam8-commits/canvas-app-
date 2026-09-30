@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Session } from '@supabase/supabase-js';
 import { getTheme } from '@/lib/theme';
 import { ArtistStudioHub } from '@/components/ArtistStudioHub';
+import { cities496 } from '../Data/cities';
 
 function getGoogleMapsLink(location: string) {
   const parts = location.split(',').map(p => p.trim());
@@ -684,16 +685,24 @@ export default function Dashboard({ session }: DashboardProps) {
                       />
                     </div>
                     <div>
-                      <label className={`mb-2 block ${theme.formLabel}`}>Base Location In India *</label>
-                      <input 
-                        type="text" 
-                        value={formData.city} 
-                        onChange={(e) => setFormData({...formData, city: e.target.value.replace(/[^a-zA-Z\s]/g, '')})} 
-                        placeholder="E.g. Jubilee Hills" 
-                        className={`w-full ${theme.inputText}`} 
-                        required 
-                      />
-                    </div>
+  <label className={`mb-2 block ${theme.formLabel}`}>Base Location (City) *</label>
+  <input
+    type="text"
+    list="cities-autocomplete" // Connects input to the dropdown list below
+    value={formData.city}
+    onChange={(e) => setFormData({ ...formData, city: e.target.value.replace(/[^a-zA-Z\s]/g, '') })}
+    placeholder="Type to search city..."
+    className={`w-full ${theme.inputText}`}
+    required
+  />
+  
+  {/* The dropdown suggestions list */}
+  <datalist id="cities-autocomplete">
+  {cities496.map((cityName: string, index: number) => (
+    <option key={index} value={cityName} />
+  ))}
+</datalist>
+</div>
                     <div>
   <label className={`mb-2 block ${theme.formLabel}`}>Area / Locality</label>
   <input
