@@ -376,7 +376,7 @@ const { data: profiles, error: profileError } = await supabase
   });
 
   const [sortBy, setSortBy] = useState('Best match');
-  const [maxBudget, setMaxBudget] = useState(65000);
+  const [budgetCap, setBudgetCap] = useState<number | null>(null);
   const [cityFilters, setCityFilters] = useState<Record<string, boolean>>({});
   const [citySearch, setCitySearch] = useState('');
 
@@ -485,6 +485,20 @@ const { data: profiles, error: profileError } = await supabase
             : a;
         })
         .sort((a, b) => (b.match ?? 0) - (a.match ?? 0) || b.rating - a.rating);
+
+  // Budget slider follows the real artist prices instead of a fixed 65,000.
+  // budgetCap === null means "no limit", so the slider stays at the top and
+  // grows automatically when an artist with a higher fee appears.
+  const BUDGET_STEP = 1000;
+  const highestArtistPrice = matchedArtists.reduce(
+    (max, a) => Math.max(max, Number(a.pricePerSession) || 0),
+    0
+  );
+  const priceCeiling =
+    highestArtistPrice > 0 ? Math.ceil(highestArtistPrice / BUDGET_STEP) * BUDGET_STEP : 65000;
+  const priceFloor = Math.max(0, Math.min(5000, priceCeiling - BUDGET_STEP));
+  const maxBudget =
+    budgetCap === null ? priceCeiling : Math.min(Math.max(budgetCap, priceFloor), priceCeiling);
 
   const filteredArtists = matchedArtists.filter(artist => {
     if (artist.pricePerSession > maxBudget) return false;
@@ -775,7 +789,18 @@ const { data: profiles, error: profileError } = await supabase
                     <label className={theme.formLabel}>max budget</label>
                     <span className={`${theme.formLabel} bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block`}>₹{maxBudget.toLocaleString('en-IN')}</span>
                   </div>
-                  <input type="range" min="5000" max="65000" step="1000" value={maxBudget} onChange={(e) => setMaxBudget(Number(e.target.value))} className="w-full accent-[#9D7C3A] cursor-pointer" />
+                  <input
+                    type="range"
+                    min={priceFloor}
+                    max={priceCeiling}
+                    step={BUDGET_STEP}
+                    value={maxBudget}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      setBudgetCap(value >= priceCeiling ? null : value);
+                    }}
+                    className="w-full accent-[#9D7C3A] cursor-pointer"
+                  />
                   <p className={`${theme.formLabel} mt-1`}>up to ₹{maxBudget.toLocaleString('en-IN')}</p>
                 </div>
                 
@@ -855,7 +880,7 @@ const { data: profiles, error: profileError } = await supabase
                         <button
                           type="button"
                           onClick={() => {
-                            setMaxBudget(65000);
+                            setBudgetCap(null);
                             setCityFilters({});
                             setVisibleCount(9);
                           }}
