@@ -642,8 +642,8 @@ const { data: profiles, error: profileError } = await supabase
 </h1>
             </div>
 
-            <p className={`${theme.bodyText} max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
-            <p className={`${theme.bodyText} max-w-[460px] mb-8`}>the exclusive ai-powered bridal and beauty booking platform for india.</p>
+            <p className={`${theme.bodyText} !font-normal !text-[#3B1E54]/75 max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
+            <p className={`${theme.bodyText} !font-normal !text-[#3B1E54]/75 max-w-[460px] mb-8`}>the exclusive ai-powered bridal and beauty booking platform for india.</p>
             <div className="flex gap-4 flex-wrap">
               <button onClick={() => scrollTo('demo-search')} className={`w-full sm:w-auto text-center ${theme.btnPrimary}`}>try the live demo →</button>
             </div>
@@ -1771,3 +1771,4 @@ const queryParams = new URLSearchParams(window.location.search);
     </QueryClientProvider>
   );
 }
+//////////////////////////
