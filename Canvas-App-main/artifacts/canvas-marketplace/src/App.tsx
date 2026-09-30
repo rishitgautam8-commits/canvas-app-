@@ -285,9 +285,10 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
   const { data: liveArtists = [] } = useQuery({
     queryKey: ['liveArtists'],
     queryFn: async () => {
-      const { data: profiles, error: profileError } = await supabase
+      // REPLACE WITH THIS:
+const { data: profiles, error: profileError } = await supabase
   .from('artist_profiles')
-  .select(`id, business_name, category, city, max_travel_km, starting_price, avatar_url`);
+  .select(`id, business_name, category, city, area, max_travel_km, starting_price, avatar_url`);
 
       if (profileError) {
         console.error('Error fetching live artists:', profileError.message);
@@ -348,8 +349,8 @@ function Home({ session, setAuthOpen, styleVersion }: { session: Session | null;
           name: item.business_name || 'Artist Studio',
           category: item.category || 'Bridal & Wedding',
           services: ['Makeup Artist', item.category || 'Bridal & Wedding'],
-          city: item.city || 'India',
-          location: `${item.city || 'India'}, India`,
+          city: item.city || '',
+          location: item.area && item.city ? `${item.area}, ${item.city}` : (item.city || item.area || ''),
           maxTravelKm: item.max_travel_km || 25,
           pricePerSession: item.starting_price || 15000,
           startingPrice: `₹${(item.starting_price || 15000).toLocaleString('en-IN')}`,
