@@ -131,6 +131,7 @@ export default function Dashboard({ session }: DashboardProps) {
     category: '', 
     qualifications: '',
     city: '',
+    area: '',
     max_travel_km: '',
     starting_price: '',
     years_experience: '',
@@ -179,6 +180,7 @@ export default function Dashboard({ session }: DashboardProps) {
               category: artistData.category || '',
               qualifications: artistData.qualifications || '',
               city: artistData.city || '',
+              area: artistData.area || '',
               max_travel_km: artistData.max_travel_km?.toString() || '',
               starting_price: artistData.starting_price?.toString() || '',
               years_experience: artistData.years_experience?.toString() || '',
@@ -372,6 +374,7 @@ export default function Dashboard({ session }: DashboardProps) {
           category: formData.category,
           qualifications: formData.qualifications,
           city: formData.city,
+          area: formData.area,
           max_travel_km: parseInt(formData.max_travel_km) || 0,
           starting_price: parseInt(formData.starting_price) || 0,
           years_experience: parseInt(formData.years_experience) || 0,
@@ -691,6 +694,16 @@ export default function Dashboard({ session }: DashboardProps) {
                         required 
                       />
                     </div>
+                    <div>
+  <label className={`mb-2 block ${theme.formLabel}`}>Area / Locality</label>
+  <input
+    type="text"
+    value={formData.area || ''}
+    onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+    placeholder="E.g. Jubilee Hills"
+    className={`w-full ${theme.inputText}`}
+  />
+</div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
