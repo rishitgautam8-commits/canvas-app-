@@ -636,9 +636,9 @@ const { data: profiles, error: profileError } = await supabase
   <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[4rem] sm:text-[5.75rem] md:text-[7rem] leading-[1.1] py-2 md:py-4 -my-2 md:-my-4 relative z-10 pr-4">
     Premium
   </span>
-  <span className="font-india font-normal text-[3rem] sm:text-[4.5rem] md:text-[5.25rem] tracking-normal leading-[1.05] text-[#3B1E54]">
-    Beauty Match.
-  </span>
+  <span className="font-['Cormorant_Garamond'] font-semibold text-[3rem] sm:text-[4.5rem] md:text-[5.25rem] tracking-normal leading-[1.05] text-[#3B1E54]">
+  Beauty Match.
+</span>
 </h1>
             </div>
 
