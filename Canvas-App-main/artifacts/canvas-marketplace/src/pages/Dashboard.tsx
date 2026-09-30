@@ -684,7 +684,7 @@ export default function Dashboard({ session }: DashboardProps) {
                       />
                     </div>
                     <div>
-                      <label className={`mb-2 block ${theme.formLabel}`}>Base Location In Hyderabad *</label>
+                      <label className={`mb-2 block ${theme.formLabel}`}>Base Location In India *</label>
                       <input 
                         type="text" 
                         value={formData.city} 
