@@ -644,16 +644,20 @@ const { data: profiles, error: profileError } = await supabase
               </div>
 
               <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
-                <span className="font-india font-normal text-[2.25rem] sm:text-[3.5rem] md:text-[4.5rem] tracking-[0.04em] leading-[1.05] text-[#3B1E54] -mb-2 md:-mb-4">
-                  India's
-                </span>
-                <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[4.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
-                  Premium
-                </span>
-                <span className="font-['Moura'] font-normal text-[3rem] sm:text-[4.8rem] md:text-[5.5rem] tracking-tight leading-[1.1] z-0 text-[#3B1E54] -mt-3 md:-mt-5">
-                  Beauty Match.
-                </span>
-              </h1>
+  {/* "India's" - Kept her favorite font, but made significantly larger */}
+  <span className="font-india font-normal text-[3.5rem] sm:text-[5.5rem] md:text-[7.5rem] tracking-[0.02em] leading-[1] text-[#3B1E54] -mb-2 md:-mb-6">
+    India's
+  </span>
+  
+  <span className="font-['PinyonScript',cursive] bg-gradient-to-r from-[#7A5C24] via-[#E2BE68] to-[#7A5C24] text-transparent bg-clip-text inline-block text-[4.5rem] sm:text-[7rem] md:text-[8.5rem] leading-[1.1] py-2 md:py-4 relative z-10 drop-shadow-sm pr-4">
+    Premium
+  </span>
+  
+  {/* "Beauty Match" - Swapped to DM Serif Display for that strong, bold luxury weight */}
+  <span className="font-['DM_Serif_Display',serif] text-[3.5rem] sm:text-[5rem] md:text-[6.5rem] tracking-tight leading-[1.1] z-0 text-[#3B1E54] -mt-3 md:-mt-5">
+    Beauty Match.
+  </span>
+</h1>
             </div>
 
             <p className={`${theme.bodyText} !font-normal !text-[#3B1E54]/75 max-w-[460px] mb-3`}>upload the look that inspires you - a screenshot, a saved post, anything - and our AI reads the style, mood, and technique to find artists whose work genuinely matches.</p>
