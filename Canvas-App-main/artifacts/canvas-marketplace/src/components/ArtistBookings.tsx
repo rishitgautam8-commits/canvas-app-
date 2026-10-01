@@ -36,6 +36,29 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: 'CANCELLED BY CLIENT',
 };
 
+// 1. FIXED: Section component moved OUTSIDE the main component to prevent cursor jumping
+const Section = ({ title, hint, items, children }: {
+  title: string;
+  hint?: string;
+  items: ArtistBooking[];
+  children: (b: ArtistBooking) => React.ReactNode;
+}) =>
+  items.length === 0 ? null : (
+    <div className="space-y-3">
+      <div>
+        <h4 className="text-sm font-semibold text-stone-900">
+          {title} <span className="text-stone-400 font-normal">({items.length})</span>
+        </h4>
+        {hint && <p className="text-xs text-stone-500 mt-0.5">{hint}</p>}
+      </div>
+      {items.map((b) => (
+        <div key={b.id} className="p-5 bg-white border border-stone-200 rounded-2xl shadow-sm">
+          {children(b)}
+        </div>
+      ))}
+    </div>
+  );
+
 export function ArtistBookings({ artistId, onOpenChat, onBookingChange }: Props) {
   const [bookings, setBookings] = useState<ArtistBooking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -227,12 +250,16 @@ export function ArtistBookings({ artistId, onOpenChat, onBookingChange }: Props)
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center rounded-xl border border-stone-200 bg-white px-3">
             <span className="text-stone-500">₹</span>
+            {/* 2. FIXED: Changed type="number" to type="text" and stripped non-numeric characters */}
             <input
-              type="number"
-              min={1}
+              type="text"
               inputMode="numeric"
+              pattern="[0-9]*"
               value={quoteInputs[b.id] ?? ''}
-              onChange={(e) => setQuoteInputs((prev) => ({ ...prev, [b.id]: e.target.value }))}
+              onChange={(e) => {
+                const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                setQuoteInputs((prev) => ({ ...prev, [b.id]: numericValue }));
+              }}
               placeholder={isRevision && b.total_amount ? String(b.total_amount) : 'e.g. 25000'}
               className="w-36 bg-transparent py-2.5 pl-2 text-sm outline-none"
             />
@@ -262,28 +289,6 @@ export function ArtistBookings({ artistId, onOpenChat, onBookingChange }: Props)
       </div>
     );
   };
-
-  const Section = ({ title, hint, items, children }: {
-    title: string;
-    hint?: string;
-    items: ArtistBooking[];
-    children: (b: ArtistBooking) => React.ReactNode;
-  }) =>
-    items.length === 0 ? null : (
-      <div className="space-y-3">
-        <div>
-          <h4 className="text-sm font-semibold text-stone-900">
-            {title} <span className="text-stone-400 font-normal">({items.length})</span>
-          </h4>
-          {hint && <p className="text-xs text-stone-500 mt-0.5">{hint}</p>}
-        </div>
-        {items.map((b) => (
-          <div key={b.id} className="p-5 bg-white border border-stone-200 rounded-2xl shadow-sm">
-            {children(b)}
-          </div>
-        ))}
-      </div>
-    );
 
   return (
     <div className="space-y-8 max-w-3xl mx-auto p-6 bg-stone-50 rounded-3xl border border-stone-200">
