@@ -6,25 +6,13 @@ import { ArtistOnboardingModal } from '@/components/ArtistOnboardingModal';
 import { ReviewModal } from '@/components/ReviewModal';
 import { Premium } from '@/components/Premium';
 import { ClientBookings } from '@/components/ClientBookings';
+import { ArtistBookings } from '@/components/ArtistBookings';
 import { ArrowLeft, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Session } from '@supabase/supabase-js';
 import { getTheme } from '@/lib/theme';
 import { ArtistStudioHub } from '@/components/ArtistStudioHub';
 import { cities496 } from '../Data/cities';
-
-function getGoogleMapsLink(location: string) {
-  const parts = location.split(',').map(p => p.trim());
-  let cleanLocation = location;
-
-  if (parts.length > 6) {
-    const specificVenue = parts.slice(0, 3);
-    const cityStateZip = parts.slice(-4);
-    cleanLocation = [...specificVenue, ...cityStateZip].join(', ');
-  }
-
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(cleanLocation)}`;
-}
 
 // ==========================================
 // 1. AI VISION AUTOMATED TAGGING HELPERS
@@ -397,25 +385,6 @@ export default function Dashboard({ session }: DashboardProps) {
     }
   };
 
-  const handleUpdateBookingStatus = async (bookingId: string, newStatus: 'confirmed' | 'declined') => {
-    const { data, error } = await supabase
-      .from('bookings')
-      .update({ status: newStatus })
-      .eq('id', bookingId)
-      .select(); 
-
-    if (error) { 
-      console.error('Supabase booking update error:', error.message);
-      window.alert(`Failed to update booking: ${error.message}`); 
-    } else if (!data || data.length === 0) {
-      window.alert("Update failed: Row-Level Security (RLS) policy may be blocking this update.");
-    } else { 
-      setBookings((prevBookings) => 
-        prevBookings.map((b) => (b.id === bookingId ? { ...b, status: newStatus } : b))
-      ); 
-    }
-  };
-
   if (loading) {
     return (
       <div className={`min-h-screen bg-[#FDF3F1] flex items-center justify-center ${theme.fontBase}`}>
@@ -427,8 +396,8 @@ export default function Dashboard({ session }: DashboardProps) {
   const firstName = profile?.full_name?.split(' ')[0] || user?.user_metadata?.first_name || user?.user_metadata?.name?.split(' ')[0] || 'User';
   const headerDisplayName = role === 'artist' && formData.business_name ? formData.business_name : firstName;
 
-  const pendingBookings = bookings.filter(b => b.status === 'requested' || b.status === 'pending' || !b.status);
-  const confirmedBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'accepted' || b.status === 'deposit_paid');
+  const pendingBookings = bookings.filter(b => b.status === 'pending_quote');
+  const confirmedBookings = bookings.filter(b => b.status === 'paid');
 
   return (
     <div className={`min-h-screen bg-[#FDF3F1] text-black pb-24 ${theme.fontBase}`}>
@@ -531,80 +500,17 @@ export default function Dashboard({ session }: DashboardProps) {
             )}
 
             {activeTab === 'briefs' && (
-              <div className="max-w-4xl space-y-12">
-                <div className={`bg-white/60 border ${theme.borderBase} p-8 sm:p-12 shadow-sm ${theme.cardRadius}`}>
-                  <div className="mb-8"><h3 className={theme.headingModal}>new <Premium>requests.</Premium></h3></div>
-                  {pendingBookings.length > 0 ? (
-                    <div className="space-y-6">
-                      {pendingBookings.map((booking) => (
-                        <div key={booking.id} className={`border ${theme.borderBase} bg-white p-6 sm:p-8 ${theme.cardRadius}`}>
-                          <div className={`flex flex-col justify-between gap-4 border-b ${theme.borderBase} pb-6 sm:flex-row sm:items-center`}>
-                            <div>
-                              <h4 className={theme.headingModal}>{booking.client?.full_name || 'canvas client'}</h4>
-                              <p className={`mt-2 ${theme.formLabel} !text-black/60`}>Date: {booking.event_date} | Slot: {booking.time_slot}</p>
-                              <p className={`mt-1 ${theme.bodyText} text-sm`}>Venue: {booking.venue_address}</p>
-                              {booking.venue_address && (
-                                <a
-                                  href={getGoogleMapsLink(booking.venue_address)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={`mt-2 inline-flex items-center gap-1 text-sm font-medium ${styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]'} hover:underline`}
-                                >
-                                  Get Directions To Venue ↗
-                                </a>
-                              )}
-                            </div>
-                            <div className="flex gap-3 items-center">
-                              <button onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')} className={`${theme.btnPrimary} ${accentBg} !border-none !text-white`}>accept</button>
-                              <button onClick={() => handleUpdateBookingStatus(booking.id, 'declined')} className={theme.btnOutline}>decline</button>
-                              <button onClick={() => setActiveChatBooking(booking)} className={theme.btnPrimary}>chat</button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className={`${theme.bodyText} !text-black/40`}>No Pending Requests.</p>
-                  )}
-                </div>
-
-                <div className={`bg-white/60 border ${theme.borderBase} p-8 sm:p-12 shadow-sm ${theme.cardRadius}`}>
-                  <div className="mb-8"><h3 className={theme.headingModal}>confirmed & <Premium>upcoming sessions.</Premium></h3></div>
-                  {confirmedBookings.length > 0 ? (
-                    <div className="space-y-6">
-                      {confirmedBookings.map((booking) => (
-                        <div key={booking.id} className={`border ${theme.borderBase} bg-white p-6 sm:p-8 ${theme.cardRadius}`}>
-                          <div className={`flex flex-col justify-between gap-4 border-b ${theme.borderBase} pb-6 sm:flex-row sm:items-center`}>
-                            <div>
-                              <h4 className={theme.headingModal}>{booking.client?.full_name || 'canvas client'}</h4>
-                              <p className={`mt-2 ${theme.formLabel} !text-black/60`}>Date: {booking.event_date} | Slot: {booking.time_slot}</p>
-                              <p className={`mt-1 ${theme.bodyText} text-sm`}>Venue: {booking.venue_address}</p>
-                              {booking.venue_address && (
-                                <a
-                                  href={getGoogleMapsLink(booking.venue_address)}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className={`mt-2 inline-flex items-center gap-1 text-sm font-medium ${styleVersion === '3' ? 'text-[#6B3A7D]' : 'text-[#9D7C3A]'} hover:underline`}
-                                >
-                                  Get Directions To Venue ↗
-                                </a>
-                              )}
-                            </div>
-                            <div className="flex gap-3 items-center">
-                              <span className={`px-4 py-2 bg-green-50 text-green-700 border border-green-200 ${theme.cardRadius} ${theme.formLabel}`}>Confirmed</span>
-                              <button onClick={() => setActiveChatBooking(booking)} className={theme.btnPrimary}>chat</button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className={`${theme.bodyText} !text-black/40`}>No Confirmed Bookings Yet.</p>
-                  )}
-                </div>
+              <div className="max-w-4xl">
+                <ArtistBookings
+                  artistId={user?.id || ''}
+                  onOpenChat={(booking) => setActiveChatBooking(booking)}
+                  onBookingChange={(bookingId, patch) =>
+                    setBookings((prev) => prev.map((b) => (b.id === bookingId ? { ...b, ...patch } : b)))
+                  }
+                />
               </div>
             )}
-            
+
             {activeTab === 'reviews' && (
               <div className={`max-w-4xl bg-white/60 border ${theme.borderBase} p-8 sm:p-12 shadow-sm ${theme.cardRadius}`}>
                 <div className="mb-8">

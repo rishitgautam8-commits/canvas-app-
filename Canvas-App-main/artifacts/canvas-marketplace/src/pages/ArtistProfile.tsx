@@ -1,130 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRoute, useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft, CheckCircle2, MapPin, Clock, X, Calendar } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowLeft, CheckCircle2, MapPin, Clock, Calendar } from 'lucide-react';
 import { getTheme } from '@/lib/theme';
-
-function getGoogleMapsLink(location: string) {
-  const parts = location.split(',').map(p => p.trim());
-  let cleanLocation = location;
-
-  if (parts.length > 6) {
-    const specificVenue = parts.slice(0, 3);
-    const cityStateZip = parts.slice(-4);
-    cleanLocation = [...specificVenue, ...cityStateZip].join(', ');
-  }
-
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(cleanLocation)}`;
-}
-
-interface NominatimSuggestion {
-  place_id: number;
-  display_name: string;
-}
-
-function VenueAutocomplete({
-  value,
-  onChange,
-  placeholder,
-  className,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  className?: string;
-}) {
-  const [suggestions, setSuggestions] = useState<NominatimSuggestion[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setShowSuggestions(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const fetchSuggestions = (query: string) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (query.trim().length < 3) {
-      setSuggestions([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const params = new URLSearchParams({
-          format: 'json',
-          q: query,
-          countrycodes: 'in',
-          viewbox: '78.20,17.65,78.75,17.20',
-          addressdetails: '0',
-          limit: '5',
-        });
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
-          headers: { 'Accept-Language': 'en' },
-        });
-        const data = await res.json();
-        setSuggestions(Array.isArray(data) ? data : []);
-      } catch {
-        setSuggestions([]);
-      } finally {
-        setLoading(false);
-      }
-    }, 400);
-  };
-
-  return (
-    <div ref={wrapperRef} className="relative w-full">
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value);
-          setShowSuggestions(true);
-          fetchSuggestions(e.target.value);
-        }}
-        onFocus={() => value.trim() && setShowSuggestions(true)}
-        placeholder={placeholder}
-        className={className}
-      />
-      {showSuggestions && (loading || suggestions.length > 0) && (
-        <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-black/10 rounded-lg shadow-lg max-h-64 overflow-y-auto">
-          {loading && <div className="px-4 py-3 text-sm text-black/40">Searching...</div>}
-          {!loading &&
-            suggestions.map((s) => (
-              <button
-                key={s.place_id}
-                type="button"
-                onClick={() => {
-                  onChange(s.display_name);
-                  setSuggestions([]);
-                  setShowSuggestions(false);
-                }}
-                className="w-full text-left px-4 py-3 text-sm hover:bg-black/5 border-b border-black/5 last:border-b-0"
-              >
-                {s.display_name}
-              </button>
-            ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-const TIME_SLOTS = [
-  { display: 'Early Morning (6:00 AM - 9:00 AM)', value: 'Early Morning (6:00 AM - 9:00 AM)', keyword: 'Early' },
-  { display: 'Morning (9:00 AM - 2:00 PM)', value: 'Morning (9:00 AM - 2:00 PM)', keyword: 'Morning' },
-  { display: 'Afternoon & Evening (2:00 PM - 8:00 PM)', value: 'Afternoon & Evening (2:00 PM - 8:00 PM)', keyword: 'Afternoon' },
-  { display: 'Late Night (8:00 PM - 11:59 PM)', value: 'Late Night (8:00 PM - 11:59 PM)', keyword: 'Late' }
-];
+import { BookingModal } from '@/components/BookingModal';
+import {
+  DEFAULT_ADDONS,
+  SLOT_BLOCKING_STATUSES,
+  getGoogleMapsLink,
+  parseArtistAddons,
+} from '@/lib/bookings';
 
 export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boolean) => void }) {
   const [, params] = useRoute('/artist/:id');
@@ -135,11 +20,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
   
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookedTimeSlots, setBookedTimeSlots] = useState<Record<string, string[]>>({});
-  const [selectedDate, setSelectedDate] = useState<string>('');
-  const [selectedTime, setSelectedTime] = useState<string>('');
-  const [venueAddress, setVenueAddress] = useState<string>('');
-  const [lookDetails, setLookDetails] = useState<string>('');
-  const [bookingLoading, setBookingLoading] = useState(false);
 
   const artistId = params?.id;
 
@@ -178,7 +58,7 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         .from('bookings')
         .select('event_date, time_slot')
         .eq('artist_id', artistId)
-        .in('status', ['confirmed', 'pending']); 
+        .in('status', SLOT_BLOCKING_STATUSES);
 
       const slots: Record<string, string[]> = {};
       if (existingBookings) {
@@ -193,61 +73,6 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
 
     fetchArtistData();
   }, [artistId]);
-
-  const handleConfirmBooking = async () => {
-    if (!selectedDate || !selectedTime) return window.alert("Please select a date and time.");
-    if (!venueAddress.trim()) return window.alert("Please enter a venue address.");
-    if (!lookDetails.trim()) return window.alert("Please describe the look you'd like.");
-    setBookingLoading(true);
-
-    try {
-      const { data: authData } = await supabase.auth.getUser();
-      const user = authData.user;
-      
-      if (!user) {
-        window.alert("Please log in as a client to book an artist.");
-        setShowBookingModal(false);
-        setBookingLoading(false);
-        if (setAuthOpen) setAuthOpen(true);
-        return;
-      }
-
-      await supabase.from('profiles').upsert({
-        id: user.id,
-        email: user.email,
-        full_name: user.user_metadata?.full_name || user.user_metadata?.first_name || 'Client',
-        role: 'client'
-      }, { onConflict: 'id' });
-
-      const payload = {
-        artist_id: artistId,
-        client_id: user.id,
-        event_date: selectedDate,
-        time_slot: selectedTime,
-        venue_address: venueAddress.trim(),
-        look_details: lookDetails.trim(),
-        status: 'pending'
-      };
-
-      const { error } = await supabase.from('bookings').insert(payload);
-      if (error) throw error;
-
-      window.alert("Booking request sent successfully! The artist will confirm shortly.");
-      setShowBookingModal(false);
-      setBookedTimeSlots(prev => ({
-        ...prev,
-        [selectedDate]: [...(prev[selectedDate] || []), selectedTime]
-      }));
-      setSelectedDate('');
-      setSelectedTime('');
-      setVenueAddress('');
-      setLookDetails('');
-    } catch (err: any) {
-      window.alert(`Error booking: ${err.message}`);
-    } finally {
-      setBookingLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -287,21 +112,8 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
     return { name, price, image };
   });
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const next30Days = Array.from({ length: 30 }).map((_, i) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() + i);
-    return d;
-  });
-
-  const groupedDates = next30Days.reduce((acc, date) => {
-    const monthYear = date.toLocaleString('default', { month: 'long', year: 'numeric' });
-    if (!acc[monthYear]) acc[monthYear] = [];
-    acc[monthYear].push(date);
-    return acc;
-  }, {} as Record<string, Date[]>);
+  const parsedOptions = parseArtistAddons(artist?.addons);
+  const addonOptions = parsedOptions.length > 0 ? parsedOptions : DEFAULT_ADDONS;
 
   return (
     <div className={`min-h-screen bg-[#FDF3F1] text-black pb-24 ${theme.fontBase}`}>
@@ -456,153 +268,19 @@ export default function ArtistProfile({ setAuthOpen }: { setAuthOpen?: (v: boole
         )}
       </main>
 
-      <AnimatePresence>
-        {showBookingModal && (
-          <div className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 ${theme.fontBase}`} onClick={() => setShowBookingModal(false)}>
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              exit={{ opacity: 0, y: 15 }} 
-              className={`bg-white border ${theme.borderBase} w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] ${theme.cardRadius}`} 
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className={`p-8 border-b ${theme.borderBase} flex justify-between items-center bg-white sticky top-0 ${theme.cardRadius === 'rounded-none' ? '' : 'rounded-t-2xl'}`}>
-                <div>
-                  <h3 className={theme.headingModal}>select date & time <span className={theme.premiumTag}>phase.</span></h3>
-                  <p className={`${theme.bodyText} !text-xs mt-1`}>Highlighted Dates Are Unavailable Or Already Booked.</p>
-                </div>
-                <button onClick={() => setShowBookingModal(false)} className="text-black/30 hover:text-black transition-colors"><X size={20} strokeWidth={1.5} /></button>
-              </div>
-
-              <div className="p-8 overflow-y-auto">
-                <div className="max-h-[50vh] overflow-y-auto pr-4 mb-6 custom-scrollbar">
-                  {Object.entries(groupedDates).map(([monthYear, dates]) => (
-                    <div key={monthYear} className="mb-8">
-                      <h3 className={`${theme.eyebrow} mb-4 pb-2 border-b ${theme.borderBase}`}>
-                        {monthYear}
-                      </h3>
-                      <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
-                        {dates.map((d, i) => {
-                          const year = d.getFullYear();
-                          const month = String(d.getMonth() + 1).padStart(2, '0');
-                          const day = String(d.getDate()).padStart(2, '0');
-                          const dateStr = `${year}-${month}-${day}`;
-                          
-                          const bookedForDate = bookedTimeSlots[dateStr] || [];
-                          const bookedPhaseCount = TIME_SLOTS.filter(slot => bookedForDate.some(t => t?.includes(slot.keyword))).length;
-                          const isBooked = bookedPhaseCount >= TIME_SLOTS.length;
-                          const disabled = isBooked || manuallyBlockedDates.includes(dateStr);
-                          const isSelected = selectedDate === dateStr;
-                          
-                          return (
-                            <button
-                              key={i}
-                              disabled={disabled}
-                              onClick={() => {
-                                setSelectedDate(dateStr);
-                                setSelectedTime('');
-                              }}
-                              className={`
-                                flex flex-col items-center justify-center p-3 sm:p-4 border transition-all ${theme.cardRadius}
-                                ${disabled ? 'cursor-not-allowed bg-[#B3503C]/10 border-[#B3503C]/30 line-through decoration-[#B3503C]/70' : 'cursor-pointer hover:border-black'}
-                                ${isSelected ? 'border-black bg-black text-white' : disabled ? '' : `border-black/10 bg-white text-black`}
-                              `}
-                            >
-                              <span className={`${theme.formLabel} !tracking-wider ${isSelected ? '!text-white/70' : disabled ? '!text-[#B3503C]/80' : '!text-black/50'}`}>
-                                {d.toLocaleDateString('en-US', { weekday: 'short' })}
-                              </span>
-                              <span className={`${theme.stat} !text-xl sm:!text-2xl mt-1 ${isSelected ? '!text-white' : disabled ? '!text-[#B3503C]' : ''}`}>
-                                {d.getDate()}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {selectedDate && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className={`border-t ${theme.borderBase} pt-6`}>
-                    <label className={`mb-4 block ${theme.formLabel}`}>Select Phase Of Day</label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {TIME_SLOTS.map(slot => {
-                        const isTimeBooked = bookedTimeSlots[selectedDate]?.some(t => t?.includes(slot.keyword));
-                        
-                        return (
-                          <button
-                            key={slot.value}
-                            disabled={isTimeBooked}
-                            onClick={() => setSelectedTime(slot.value)}
-                            className={`py-4 ${theme.formLabel} !text-xs border ${theme.cardRadius} transition-all ${
-                              isTimeBooked
-                                ? 'bg-[#B3503C]/10 text-[#B3503C] border-[#B3503C]/30 cursor-not-allowed line-through decoration-[#B3503C]/70'
-                                : selectedTime === slot.value 
-                                  ? 'bg-black text-white border-black' 
-                                  : `bg-transparent text-black ${theme.borderBase} hover:border-black`
-                            }`}
-                          >
-                            {slot.display}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <div className="mt-6">
-                      <label className={`mb-2 block ${theme.formLabel}`}>Venue Address</label>
-                      <VenueAutocomplete
-                        value={venueAddress}
-                        onChange={setVenueAddress}
-                        placeholder="Search Venue Address..."
-                        className={`w-full ${theme.inputText}`}
-                      />
-                      {venueAddress.trim() && (
-                        <a
-                          href={getGoogleMapsLink(venueAddress)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`mt-2 inline-block ${theme.formLabel} !text-[#9D7C3A] hover:underline`}
-                        >
-                          View on Google Maps →
-                        </a>
-                      )}
-                    </div>
-
-                    <div className="mt-6">
-                      <label className={`mb-2 block ${theme.formLabel}`}>Look Details</label>
-                      <textarea
-                        value={lookDetails}
-                        onChange={(e) => setLookDetails(e.target.value)}
-                        placeholder="Describe The Look You'd Like (Occasion, Style, References, Etc.)"
-                        rows={3}
-                        className={`w-full resize-none ${theme.inputText}`}
-                      />
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-
-              <div className={`p-8 border-t ${theme.borderBase} bg-white sticky bottom-0 ${theme.cardRadius === 'rounded-none' ? '' : 'rounded-b-2xl'}`}>
-                <button 
-                  onClick={handleConfirmBooking}
-                  disabled={bookingLoading || !selectedDate || !selectedTime || !venueAddress.trim() || !lookDetails.trim()}
-                  className={`w-full ${theme.btnPrimary} disabled:opacity-50`}
-                >
-                  {bookingLoading 
-                    ? 'Sending Request...' 
-                    : (selectedDate && selectedTime && venueAddress.trim() && lookDetails.trim()) 
-                      ? `Request Booking For ${new Date(selectedDate).toLocaleDateString()} — ${selectedTime.split(' (')[0]}`
-                      : (selectedDate && selectedTime && venueAddress.trim())
-                        ? 'Describe The Look To Continue'
-                        : (selectedDate && selectedTime)
-                          ? 'Enter A Venue Address To Continue'
-                          : 'Select A Date & Phase To Continue'}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <BookingModal
+        open={showBookingModal}
+        onClose={() => setShowBookingModal(false)}
+        artistId={artistId as string}
+        theme={theme}
+        addonOptions={addonOptions}
+        bookedTimeSlots={bookedTimeSlots}
+        blockedDates={manuallyBlockedDates}
+        onNeedAuth={() => setAuthOpen?.(true)}
+        onBooked={(date, time) =>
+          setBookedTimeSlots((prev) => ({ ...prev, [date]: [...(prev[date] || []), time] }))
+        }
+      />
     </div>
   );
 }

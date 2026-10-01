@@ -394,7 +394,7 @@ const { data: profiles, error: profileError } = await supabase
         const { count: bookingCount } = await supabase
           .from('bookings')
           .select('*', { count: 'exact', head: true })
-          .in('status', ['confirmed', 'completed', 'successful']);
+          .in('status', ['paid', 'confirmed', 'completed', 'successful']);
         setPlatformStats(prev => ({
           ...prev,
           avgBookingValue: avgPrice || prev.avgBookingValue,
@@ -579,7 +579,7 @@ const { data: profiles, error: profileError } = await supabase
         time_slot: dataElements.get('slot'),
         venue_address: dataElements.get('location'),
         look_details: dataElements.get('message'),
-        status: 'pending'
+        status: 'pending_quote'
       };
       const { error } = await supabase.from('bookings').insert([bookingData]);
       if (error) throw error;
