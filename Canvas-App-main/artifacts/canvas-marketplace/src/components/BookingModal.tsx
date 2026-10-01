@@ -10,7 +10,7 @@ import {
 } from '@/lib/bookings';
 
 const PHOTO_BUCKET = 'booking-references';
-const MAX_PHOTO_MB = 5;
+const MAX_PHOTO_MB = 10;
 
 interface NominatimSuggestion {
   place_id: number;
