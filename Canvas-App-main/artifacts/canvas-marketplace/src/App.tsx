@@ -644,6 +644,7 @@ const { data: profiles, error: profileError } = await supabase
               </div>
 
               <h1 className="flex flex-col items-start text-black select-none mb-6 w-full">
+  {/* 1. "India's" - Locked in with the exact font she explicitly asked to keep */}
   <span className="font-india font-normal text-[3.5rem] sm:text-[5.5rem] md:text-[7.5rem] tracking-[0.02em] leading-[1] text-[#3B1E54] -mb-2 md:-mb-6">
     India's
   </span>
@@ -652,8 +653,8 @@ const { data: profiles, error: profileError } = await supabase
     Premium
   </span>
   
-  {/* Swapped DM_Serif_Display to font-india so it matches perfectly */}
-  <span className="font-india text-[3.5rem] sm:text-[5rem] md:text-[6.5rem] tracking-tight leading-[1.1] z-0 text-[#3B1E54] -mt-3 md:-mt-5">
+  {/* 2. "Beauty Match." - Uses DM Serif Display to maintain the heavy luxury feel WITHOUT the top line */}
+  <span className="font-['DM_Serif_Display',serif] text-[3.5rem] sm:text-[5rem] md:text-[6.5rem] tracking-tight leading-[1.1] z-0 text-[#3B1E54] -mt-3 md:-mt-5">
     Beauty Match.
   </span>
 </h1>
